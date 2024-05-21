@@ -1,0 +1,17 @@
+@font-face {
+  font-family: "LXGW WenKai";
+  src: url("LXGWWenKai-Regular.ttf") format('truetype');
+}
+@font-face {
+  font-family: "LXGW WenKai Mono";
+  src: url("LXGWWenKaiMono-Regular.ttf") format('truetype');
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("JetBrainsMono-Regular.woff2") format('woff2');
+}
+
+:root {
+  --md-text-font: "LXGW WenKai";
+  --md-code-font: "JetBrains Mono"; 
+}

@@ -1,9 +1,15 @@
+# 项目设置
 site_name: HPC101-Labs-2024
-theme:
-  name: material
-  logo: assets/zjusct.png
-  favicon: assets/zjusct.png
+site_url: https://zjusct.pages.zjusct.io/summer_hpc101_2024/hpc-101-labs-2024/
+repo_url: https://git.zju.edu.cn/zjusct/summer_hpc101_2024/hpc-101-labs-2024
+edit_uri: -/blob/main/docs/
+site_description: 浙江大学计算机学院暑期课程 HPC101 实验网站
+site_author: ZJUSCT
+copyright: ZJUSCT
+
 nav:
+  - 首页: index.md
+  # - 集群使用指南: Cluster/index.md
   - Lab1-简单集群搭建: Lab1-MiniCluster/index.md
   - Lab2-向量化计算: Lab2-Vectors/index.md
   # - Lab2.5-Bonus 手写 SIMD 向量化: Lab2.5-Vectors-Bonus/index.md
@@ -11,17 +17,97 @@ nav:
   # - Lab4-PCG Solver: Lab4-PCG-Solver/index.md
   # - Lab5-简单神经网络训练与加速: Lab5-DL/index.md
   # - Project-并行优化: Project-Pivot/index.md
+
+theme:
+  name: material
+  logo: assets/zjusct.png
+  favicon: assets/zjusct.png
+  icon:
+    repo: fontawesome/brands/gitlab
+  # 自适应主题
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    # 代码块操作
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+    # 底部导航
+    - navigation.footer
+    # 页面编辑
+    - content.action.edit
+    # 搜索
+    - search.suggest
+    - search.highlight
+    - search.share
+
 markdown_extensions:
-  - admonition #MkDocs 警告框
-  - pymdownx.arithmatex:
-      generic: true
+  # Admonition
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+  # Mermaid
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  # Code Block
   - pymdownx.highlight:
       anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
-  - tables
+  # Tab Card
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  # Grid, Image
+  - attr_list
+  - md_in_html
+  # Icon
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg 
+  # List
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  # TOC
+  - toc:
+      permalink: true
+      toc_depth: 3
+  # MathJax
+  - pymdownx.arithmatex:
+      generic: true
+  # Keys
+  - pymdownx.keys
+
 extra_javascript:
+  # MathJax
   - javascripts/mathjax.js
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://polyfill.alicdn.com/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  # Table Sort
+  - https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js
+  - javascripts/tablesort.js
+
+extra_css:
+  - fonts/fonts.css
+
+plugins:
+  - git-revision-date-localized:
+      enable_creation_date: true
+  - git-authors
+  - search
+  - glightbox
