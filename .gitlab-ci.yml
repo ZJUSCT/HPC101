@@ -6,6 +6,7 @@ pages:
     - dummy
   variables:
     BUILDER: 'mkdocs'
+    GIT_DEPTH: '1000'
     WORKING_DIR: ''
   artifacts:
     paths:
