@@ -104,6 +104,7 @@ extra_javascript:
 
 extra_css:
   - fonts/fonts.css
+  - stylesheets/auto_counter.css
 
 plugins:
   - git-revision-date-localized:
