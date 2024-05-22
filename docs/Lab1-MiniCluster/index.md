@@ -4,9 +4,11 @@
 
 本次实验要求使用四台虚拟机搭建一个简易的集群，并对该集群进行性能测试，最后提交测试结果和实验报告。
 
-集群搭建的任务包括创建虚拟机、安装 Linux 发行版、配置网络和 ssh 通信。
+- 集群搭建：创建虚拟机、安装 Linux 发行版、配置网络和 SSH 通信。
 
-性能测试通过使用 OpenMPI 将 HPL 测试程序分配到四个虚拟机节点上执行。因此，需要下载并编译 OpenMPI、BLAS 和 HPL 的源代码，其中 OpenMPI、BLAS是 HPL 的依赖项。
+- 性能测试：
+    - 下载并编译 OpenMPI、BLAS 和 HPL 的源代码，其中 OpenMPI、BLAS是 HPL 的依赖项。
+    - 使用 OpenMPI 将 HPL 测试程序分配到四个虚拟机节点上执行。
 
 ## 2 实验环境
 
@@ -18,29 +20,36 @@
 
 ### 3.1 计算机集群
 
-[计算机集群](https://en.wikipedia.org/wiki/Computer_cluster)是连接在一起、协同工作的一组计算机，集群中的每个计算机都是一个节点。在集群中，由软件将不同的计算任务（task）分配（schedule）到相应的一个或一群节点（node）上。本次实验中，需要使用 OpenMPI 将 HPL 程序作为 task 分配到集群中的四个节点上。
+[计算机集群（Cluster）](https://en.wikipedia.org/wiki/Computer_cluster)是连接在一起、协同工作的一组计算机，集群中的每个计算机都是一个节点。在集群中，由软件将不同的计算任务（task）分配（schedule）到相应的一个或一群节点（node）上。本次实验中，需要使用 OpenMPI 将 HPL 程序作为 task 分配到集群中的四个节点上。
 
 #### 3.1.1 虚拟机
 
-虚拟机为运行在其中的guest操作系统和应用提供了一个模拟的硬件环境，和真实的硬件保持一样的接口和表现，同时也如真实的硬件一样为其中的操作系统和程序提供保护机制、管理接口和资源限制。一个简易的非虚拟机和虚拟机结构的对比如下图（来源：Abraham Silberschatz, Peter Baer Galvin, Greg Gagn, *Operating System Concepts*, 10th edition, Chapter 18)
+!!! info "相关资料"
 
-一种常见的虚拟机机制实现方式便是通过 hypervisor（又称VMM: Virtual Machnie Manager）来为 guest 操作系统提供模拟硬件环境，这也为在一台物理机上运行多个虚拟机提供了可能。
+    如果你对虚拟化、云计算感兴趣，可以观看 [Cluoud·Explained 系列视频](https://www.bilibili.com/video/BV1b64y1a7wL/) 了解相关概念作为入门。
 
-本手册中使用 Virtural Box 作为 hypervisor 进行示范和说明。
+虚拟机为运行在其中的操作系统和应用（Guest）提供了一个模拟的硬件环境，和真实的硬件保持一样的接口和表现，同时也如真实的硬件一样为其中的操作系统和程序提供保护机制、管理接口和资源限制。一个简易的非虚拟机和虚拟机结构的对比如下图：
 
-![](pics/image-20210714120624669.png)
+<figure markdown="span">
+  ![虚拟机与非虚拟机](pics/image-20210714120624669.png){ width=80% }
+  <figcaption>非虚拟机和虚拟机结构的对比<br/><small>（来源：Abraham Silberschatz, Peter Baer Galvin, Greg Gagn, Operating System Concepts, 10th edition, Chapter 18）</small></figcaption>
+</figure>
 
-#### 3.1.2 Linux发行版
+一种常见的虚拟机机制实现方式便是通过 Hypervisor（又称 Virtual Machnie Manager，VMM）来为 Guest 操作系统提供模拟硬件环境，这也为在一台物理机上运行多个虚拟机提供了可能。
 
-Linux 发行版（也被叫做 GNU/Linux 发行版），为一般用户预先集成好的 Linux 操作系统及各种应用 软件。一般用户不需要重新编译，在直接安装之后，只需要小幅度更改设置就可以使用，通常以软件包管理系统来进行应用软件的管理。Linux 发行版通常包含了包括桌面环境、办公包、媒体播放器、数据库等应用软件。这些操作系统通常由 Linux 内核、以及来自 GNU 计划的大量的函数库，和基于 X Window 的图形界面。现在有超过 300 个 Linux发行版。大部分都正处于活跃的开发中，不断地改进。由于大多数软件包是自由软件和开源软件，所以 Linux 发行版的形式多种多样——从功能齐全的桌面系统以及服务器系统到小型系统 (例如一些嵌入式设备)。除了一些定制软件 (如安装和配置工具)，发行版通常只是将特定的应用软件安装在一堆函数库和内核上，以满足特定用户的需求。
+本手册中使用 Virtural Box 作为 Hypervisor 进行示范和说明。
 
-这些发行版可以分为商业发行版，比如 Ubuntu（Canonical 公司）、Fedora（Red Hat）、openSUSE （Novell）和 Mandriva Linux；和社区发行版，它们由自由软件社区提供支持，如 Debian 和 Gentoo；也有发行版既不是商业发行版也不是社区发行版，如 Slackware。
+#### 3.1.2 Linux 发行版
+
+Linux 发行版（也被叫做 GNU/Linux 发行版），为一般用户预先集成好的 Linux 操作系统及各种应用、软件。一般用户不需要重新编译，在直接安装之后，只需要小幅度更改设置就可以使用，通常以软件包管理系统来进行应用软件的管理。Linux 发行版通常包含了包括桌面环境、办公包、媒体播放器、数据库等应用软件。这些操作系统通常由 Linux 内核、以及来自 GNU 计划的大量的函数库，和基于 X Window 的图形界面。现在有超过 300 个 Linux 发行版。大部分都正处于活跃的开发中，不断地改进。由于大多数软件包是自由软件和开源软件，所以 Linux 发行版的形式多种多样——从功能齐全的桌面系统以及服务器系统到小型系统 (例如一些嵌入式设备)。除了一些定制软件 (如安装和配置工具)，发行版通常只是将特定的应用软件安装在一堆函数库和内核上，以满足特定用户的需求。
+
+这些发行版可以分为商业发行版，比如 Ubuntu（Canonical 公司）、Fedora（Red Hat）、openSUSE（Novell）和 Mandriva Linux；和社区发行版，它们由自由软件社区提供支持，如 Debian 和 Gentoo；也有发行版既不是商业发行版也不是社区发行版，如 Slackware。
 
 ### 3.2 HPL
 
-HPL是一个可以在分布式系统上运行的解稠密线性系统的软件包，同时也可以被用来做高性能计算Linpack测试（High Performance Computing Linpack Benchmark）。
+HPL 是一个可以在分布式系统上运行的解稠密线性系统的软件包，同时也可以被用来做高性能计算 Linpack 测试（High Performance Computing Linpack Benchmark）。
 
-关于HPL的详细介绍可参考 [https://www.netlib.org/benchmark/hpl/](https://www.netlib.org/benchmark/hpl/)
+关于 HPL 的详细介绍可参考 [https://www.netlib.org/benchmark/hpl/](https://www.netlib.org/benchmark/hpl/)
 
 > The HPL software package **requires** the availibility on your system of an implementation of the Message Passing Interface **MPI** (1.1 compliant). An implementation of **either** the Basic Linear Algebra Subprograms **BLAS or** the Vector Signal Image Processing Library **VSIPL** is also needed. Machine-specific as well as generic implementations of [MPI](https://www.netlib.org/benchmark/hpl/links.html#mpi_libs), the [BLAS](https://www.netlib.org/benchmark/hpl/links.html#blas_libs) and [VSIPL](https://www.netlib.org/benchmark/hpl/links.html#vsip_libs) are available for a large variety of systems.
 
@@ -62,7 +71,7 @@ BLAS 是 Basic Linear Algebra Subprograms 的缩写，本手册只要求将其�
 
     ![Virtual Box 官网](pics/01.png)
 
-    > 注意**不要选错宿主机平台**！
+    !!! warning "注意不要选错宿主机平台！"
 
 - Docker
 
@@ -72,7 +81,6 @@ BLAS 是 Basic Linear Algebra Subprograms 的缩写，本手册只要求将其�
 
 本手册所使用的范例发行版是 Debian 11，同学可根据自己的喜好和经验挑选适合的发行版。
 Debian 下载点（如果网速问题可访问国内镜像）：
-
 
 - [ZJU Mirror](https://mirrors.zju.edu.cn/debian-cd/current-live/amd64/iso-hybrid/)
 - [Tuna Mirror](https://mirrors.tuna.tsinghua.edu.cn/debian-cd/current-live/amd64/iso-hybrid/)
@@ -121,9 +129,10 @@ Debian 下载点（如果网速问题可访问国内镜像）：
 
     不需要互联网或者使用有线网的同学也可以考虑使用 Bridged 或 Internal Network，具体请参考手册上的说明：[Virtual Networking](https://www.virtualbox.org/manual/ch06.html)。
 
-    > 小贴士
-    > - 如果你的虚拟机无法连上网，可能是宿主机的问题，请**排查宿主机的网络状况**。
-    > - 由于学校的网络情况，在学校中使用虚拟机的同学还是**以 NAT Network 为主**较方便。
+    !!! tip
+
+        - 如果你的虚拟机无法连上网，可能是宿主机的问题，请**排查宿主机的网络状况**。
+        - 由于学校的网络情况，在学校中使用虚拟机的同学还是**以 NAT Network 为主**较方便。
 
 - 进入图形安装程序
 
@@ -139,9 +148,10 @@ Debian 下载点（如果网速问题可访问国内镜像）：
 
 由于系统中的包通常比较旧，因此我们从 OpenMPI 的官网中下载最新版本源码自行编译安装：[OpenMPI 下载](https://www.open-mpi.org/software/ompi/v4.1/)。
 
-> 小贴士
-> - 在虚拟机**可联网**的环境下，可直接使用 `wget` 或 `curl` 来下载，会方便许多。
-> - 在编译前，先了解 `make` 和 `autoconf`，可以减少不少除错时间。
+!!! tip
+
+    - 在虚拟机**可联网**的环境下，可直接使用 `wget` 或 `curl` 来下载，会方便许多。
+    - 在编译前，先了解 `make` 和 `autoconf`，可以减少不少除错时间。
 
 - 修改 `PATH` 和 `LD_LIBRARY_PATH`
 
@@ -169,8 +179,7 @@ Debian 下载点（如果网速问题可访问国内镜像）：
 
     参考 `README` ，根据自己情况修改以下参数：
 
-``` Makefile
-# Make.test
+```Makefile title="Make.test"
 # arch
 ARCH = test
 ...
@@ -192,7 +201,7 @@ LINKER = $(CC)
 
 - 编译
 
-```shell
+```bash
 # 替换成你自己的后缀
 make arch=test
 ```
@@ -212,9 +221,10 @@ make arch=test
 `ssh` 是相当常用的，实现安全远程连接的方式，其原理和使用、配置方法请查阅相关参考资料：[Open SSH 网站](https://www.openssh.com/manual.html)
 如果你没有 ssh 密钥，可以在其中一个节点创建一个：
 
-```shell
+```bash
 ssh-keygen
 ```
+
 我们需要将自己的 ssh 公钥复制一份到另一个节点上的 `.ssh/authorized_keys` 中（可以利用 `ssh-copy-id` 命令来拷贝公钥，也可以直接使用 `nc` 将公钥作为文件传输）。复制完成后，注意检查 `authorized_keys` (600) 和 `.ssh/` (700) 目录的权限，否则无法顺利  `ssh`。
 
 - ssh passphrase
@@ -228,10 +238,12 @@ ssh-keygen
 - OpenMPI hostfile
 
     两个节点都准备好后，我们可以试试 `mpirun` 了！按照如下格式，编写 MPI 的 hostfile 并保存：
-    ```
+
+    ```text
     localhost slots=1
     10.0.2.5  slots=1
     ```
+
     其中 slots 代表的意思是一个节点的 CPU 有多少核，由于我们创建虚拟机时仅分配一个核，因此这里的 slots 上限为 1 ，同学根据自己虚拟机的情况，修改 slots 的值。
 
 - 测试程序
@@ -239,13 +251,13 @@ ssh-keygen
     OpenMPI 需要测试程序为节点所共有或在节点上有相同路径，因为我们的第二个节点是克隆出来的，因此两个节点上的命令和 HPL 程序都会是相同路径，
     此时运行以下命令就能看到每个节点上线了多久：
 
-```
+```bash
 mpirun --hostfile myhostfile uptime
 ```
 
 - 运行 HPL：
 
-```
+```bash
 mpirun --hostfile myhostfile ./xhpl
 ```
 
