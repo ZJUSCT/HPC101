@@ -4,6 +4,12 @@
 
 ## 选课报名
 
+!!! quote inline end ""
+
+    ![2024 QQ Group](index.assets/2024_qqgroup.png)
+
+欢迎扫码进入 2024 HPC101 课程交流群了解更多信息：
+
 !!! warning "本课程不设置在选课系统中，有意的同学务必提前报名。"
 
 请将报名材料发送到邮箱：
