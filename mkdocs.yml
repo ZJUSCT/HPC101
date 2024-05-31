@@ -11,8 +11,10 @@ copyright: ZJUSCT
 nav:
   - 课程信息:
     - 首页: index.md
-    # - 集群使用指南: Cluster/index.md
+    - Hello HPC World!: Intro/index.md
+    #- 集群使用指南: Cluster/index.md
   - 课程实验:
+    # - Lab0-Linux Basics: Lab0-LinuxBasics/index.md
     - Lab1-简单集群搭建: Lab1-MiniCluster/index.md
     - Lab2-向量化计算: Lab2-Vectors/index.md
     # - Lab2.5-Bonus 手写 SIMD 向量化: Lab2.5-Vectors-Bonus/index.md
