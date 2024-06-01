@@ -2,7 +2,9 @@
 
 !!! tip "为了让同学们习惯阅读英文文档，本次实验将全程使用英文。"
 
-!!! tip
+!!! tip "关于本实验"
+
+    部分同学已经对 Linux 比较熟悉，但更多的同学并未接触过 Linux。希望通过本次实验，能够让同学们都对 Linux 具有**一致的基本认识，配置好相同的环境**，为后续实验做好准备。
 
     本次实验大部分内容都不需要写入实验报告，答案直接附在问题后面。本次实验你只需要提供几张截图：
 
@@ -11,11 +13,9 @@
     - Task3.2: SSH connection screenshot
     - Task4.2: SSH connection screenshot
 
+    如果你对本次实验内容轻车熟路，那么无需阅读内容，直接完成任务即可。
+
 ## Tasks
-
-!!! tip "You can skip this lab."
-
-    If you are familiar with these topics, go to [Lab1](../Lab1-MiniCluster/index.md).
 
 - Obtain a Linux Virtual Machine
     - Install a hypervisor on your computer
