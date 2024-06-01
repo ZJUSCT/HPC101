@@ -14,7 +14,7 @@ nav:
     - Hello HPC World!: Intro/index.md
     #- 集群使用指南: Cluster/index.md
   - 课程实验:
-    # - Lab0-Linux Basics: Lab0-LinuxBasics/index.md
+    - Lab0-Linux Crash Course: Lab0-LinuxCrashCourse/index.md
     - Lab1-简单集群搭建: Lab1-MiniCluster/index.md
     - Lab2-向量化计算: Lab2-Vectors/index.md
     # - Lab2.5-Bonus 手写 SIMD 向量化: Lab2.5-Vectors-Bonus/index.md
@@ -24,6 +24,9 @@ nav:
     # - Project-并行优化: Project-Pivot/index.md
 
 theme:
+  font:
+    text: Roboto
+    code: JetBrains Mono
   name: material
   logo: assets/zjusct.svg
   favicon: assets/zjusct.png
