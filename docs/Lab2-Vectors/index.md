@@ -170,6 +170,10 @@ Exception: Results are different!
         1. 思路
         2. 正确性与加速比
 
+!!! info "提示"
+    本实验的目的是让大家熟悉向量化实现和 Numpy 中的花式索引，因此请将三层循环都替换成向量化实现（尽管加速比可能不是最优的），如果在提交的代码中出现循环将会扣分。
+
+
 ## 参考资料
 
 - 关于双线性插值：[https://en.wikipedia.org/wiki/Bilinear_interpolation](https://en.wikipedia.org/wiki/Bilinear_interpolation)

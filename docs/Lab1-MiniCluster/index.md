@@ -265,3 +265,7 @@ mpirun --hostfile myhostfile ./xhpl
 
 1. 搭建四个节点的虚拟机并记录过程，要求提供必要的截图或配置文件
 2. 使用 OpenMPI 和 HPL 测试集群表现并记录结果
+
+## 参考资料
+
+- [Linux 101 - 中国科学技术大学 Linux 用户协会](https://101.lug.ustc.edu.cn/)
