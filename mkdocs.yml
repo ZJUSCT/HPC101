@@ -12,6 +12,7 @@ nav:
   - 课程信息:
     - 首页: index.md
     - Hello HPC World!: Intro/index.md
+    - 更新历史: changelog.md
     #- 集群使用指南: Cluster/index.md
   - 课程实验:
     - Lab0-Linux Crash Course: Lab0-LinuxCrashCourse/index.md
@@ -111,6 +112,8 @@ markdown_extensions:
       generic: true
   # Keys
   - pymdownx.keys
+  # Timeline
+  - neoteroi.timeline
 
 extra_javascript:
   # MathJax
@@ -124,6 +127,7 @@ extra_css:
   - fonts/fonts.css
   - stylesheets/auto_counter.css
   - stylesheets/theme.css
+  - stylesheets/neoteroi.css
 
 plugins:
   - git-revision-date-localized:

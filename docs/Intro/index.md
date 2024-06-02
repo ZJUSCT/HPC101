@@ -84,7 +84,7 @@ HPC 提供的超高性能，使得它在很多领域都有着广泛的应用。�
     - 为什么不推荐鸟哥之类的书？因为他们基于 RHEL 类系统（RHEL、CentOS）等，目标是通过运维技术相关的考试，不适合我们。这本书对我们所需要的内容的讲解更加清晰易懂，符合我们的需求。
 - [《并行程序设计导论》](https://book.douban.com/subject/20374756/)（An Introduction to Parallel Programming）
     - 很薄，介绍了 OpenMPI 和 OpenMP（Pthreads 我们不学，也基本不会接触到）。讲解的内容浅显易懂，适合快速入门。
-- Python 编程三剑客：从上至下，书籍难度逐渐递增。如果你对自己的编程能力不太自省，选择第一本书。如果你编程能力好，但没接触过 Python，可以选择第二本。如果你对 Python 有一定了解，非常推荐你直接从第三本开始做一些简单的项目。
+- Python 编程三剑客：从上至下，书籍难度逐渐递增。如果你对自己的编程能力不太自信，选择第一本书。如果你编程能力好，但没接触过 Python，可以选择第二本。如果你对 Python 有一定了解，非常推荐你直接从第三本开始做一些简单的项目。
     - [《Python 编程 : 从入门到实践（第3版）》](https://book.douban.com/subject/36365320/)（Python Crash Course）
         - 项目推荐：数据可视化、Web 应用程序
     - [《Python 编程快速上手：让繁琐工作自动化》](https://book.douban.com/subject/35387685/)（Automate the Boring Stuff with Python, 2nd Edition: Practical Programming for Total Beginners）
