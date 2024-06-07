@@ -1,0 +1,17 @@
+[
+  {
+    "title": "克隆菜单",
+    "content": "右键虚拟机->Manage->Clone",
+    "image": "pics/clone_vm_1.png"
+  },
+  {
+    "title": "完全克隆",
+    "content": "Clone Type 选择 full clone",
+    "image": "pics/clone_vm_2.png"
+  },
+  {
+    "title": "生成 MAC 地址",
+    "content": "右键虚拟机->Settings->Network Adapter->Advanced->Generate",
+    "image": "pics/generate_mac.png"
+  }
+]
