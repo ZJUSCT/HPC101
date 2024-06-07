@@ -114,6 +114,7 @@ markdown_extensions:
   - pymdownx.keys
   # Timeline
   - neoteroi.timeline
+  - neoteroi.cards
 
 extra_javascript:
   # MathJax

@@ -1,0 +1,6 @@
+mkdocs
+mkdocs-material
+neoteroi-mkdocs
+mkdocs-glightbox
+mkdocs-git-authors-plugin
+mkdocs-git-revision-date-localized-plugin
