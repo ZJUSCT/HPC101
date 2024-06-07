@@ -12,7 +12,7 @@
 
     部分同学已经对 Linux 比较熟悉，但更多的同学并未接触过 Linux。希望通过本次实验，能够让同学们都对 Linux 具有**一致的基本认识，配置好相同的环境**，为后续实验做好准备。
 
-    本次实验大部分内容都不需要写入实验报告，答案直接附在问题后面。本次实验你只需要提供几张截图：
+    本次不需要撰写实验报告，答案直接附在问题后面。你只需要提供几张截图：
 
     - Task1.1: hash result
     - Task2.1: `nano` screenshot
@@ -169,6 +169,10 @@ In HPC and cloud computing, Debian is a popular choice due to its stability and 
 
 ### Virtual Machine
 
+??? info "More on Virtualization"
+
+    如果你对虚拟化、云计算感兴趣，可以观看 [Cluoud·Explained 系列视频](https://www.bilibili.com/video/BV1b64y1a7wL/) 了解相关概念作为入门。
+
 A virtual machine (VM) is a software-based emulation of a computer. By running a VM on your computer, you can run multiple operating systems on the same hardware. This is useful for testing software, running legacy applications, and learning new operating systems.
 
 <figure markdown="span">
@@ -200,13 +204,21 @@ You can choose whatever hypervisor you like. In this course, we recommend using 
 
 !!! question "Task 1.3: Create a new virtual machine and install Debian"
 
-    Here we use VMware Workstation Fusion for demonstration.
-
     !!! warning "Please read the installation instructions carefully."
 
         If the following instructions don't mention a specific step, leave it as default.
 
-    === "Step 1"
+    === "Step 1 (Windows)"
+
+        Select the downloaded Debian ISO image as the installation media. Create a new virtual machine.
+
+        <center>![task1.3.w1](index.assets/task1.3.w1.png){ width=80% }</center>
+
+        Here is my configuration:
+
+        <center>![task1.3.w2](index.assets/task1.3.w2.png){ width=80% }</center>
+
+    === "Step 1 (macOS)"
 
         Select the downloaded Debian ISO image as the installation media. Create a new virtual machine.
 
@@ -218,11 +230,11 @@ You can choose whatever hypervisor you like. In this course, we recommend using 
 
     === "Step 2"
 
-        Run the virtual machine and install Debian.
+        Run the virtual machine and install Debian. (We recommend to choose `Install` but not `Graphical install`.)
 
         ![task1.3.m3](index.assets/task1.3.m3.png)
 
-        Please select the **Install** option and **choose English as the language**.
+        Please **choose English as the language**.
 
         ![task1.3.m4](index.assets/task1.3.m4.png)
     
@@ -244,13 +256,21 @@ You can choose whatever hypervisor you like. In this course, we recommend using 
 
     === "Step 4"
 
-        COnfigure the package manager. Choose `enter information manually` and set the mirror to `mirrors.zju.edu.cn`.
+        Configure the package manager. Choose `enter information manually` and set the mirror to `mirrors.zju.edu.cn`.
 
         ![task1.3.m7](index.assets/task1.3.m7.png)
 
         ![task1.3.m8](index.assets/task1.3.m8.png)
 
+        Notice in the `Software selection` step, you need to select `SSH server` and `standard system utilities`, and cancel the selection of any other options. The text at the bottom of the screen will tell you how to navigate the menu.
+
+        ![task1.3.w9](index.assets/task1.3.w9.png)
+
     === "Step 5"
+
+        In the `Configuring grub-pc` step, should choose `/dev/sda` as the device for boot loader installation. Otherwise, you may not be able to boot into the system.
+
+        <center>![task1.3.w9](index.assets/task1.3.w10.png){ width=80% }</center>
 
         Installation finished. Usually you don't need to remove the installation media manually because the virtual machine will try to boot from the disk first.
 
