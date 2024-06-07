@@ -21,16 +21,13 @@
 
 !!! warning "注意事项"
 
-    这些注意事项来源于往届学长学姐的经验，希望你能够避免这些问题：
+    这些注意事项来源于历年同学们的常见问题，希望你能够避免：
 
     - 不要滥用 `root` 用户，尽量使用普通用户进行操作。在需要权限的时候使用 `sudo`，这能够提醒你谨慎操作。也不要频繁在 `root` 用户和普通用户之间切换，除非你明白自己在做什么，否则只会让两边环境都变乱。在 `root` 用户下工作与普通用户有诸多细微不同，也很容易破坏环境，下面就是一个例子：
 
     <center>![root_abuse](pics/root_abuse.png){ width=50% }</center>
 
-    - 理解工作目录和家目录这两个目录。工作目录是你当前所在的目录，家目录是你登录时所在的目录。
-        - 工作目录与程序在哪无关，与你现在在哪有关。
-        - 很多程序默认在工作目录下寻找文件（比如 HPL）。如果你在 `/dir` 下运行它，而配置文件在 `/home/user` 下，那么程序就会找不到配置文件。
-        - 当你登录时，默认处在家目录下。但使用 MPI 在远程节点上运行程序时，它会尝试将工作目录设置为你运行 `mpirun` 时的目录。比如在节点 1 的 `/dir` 下运行 `mpirun`，那么 MPI 会尝试在节点 2 的 `/dir` 执行命令。这意味着你需要在所有节点上都有相同的工作目录。
+    - 理解工作目录和家目录这两个目录。工作目录是你当前所在的目录，家目录是你登录时所在的目录。工作目录与程序在哪无关，与你现在在哪有关。很多程序默认在工作目录下寻找文件（比如 HPL）。如果你在 `/dir` 下运行它，而配置文件在 `/home/user` 下，那么程序就会找不到配置文件。在运行 MPI 时，也要注意工作目录的问题。
 
 ### 具体任务
 
@@ -487,9 +484,15 @@ ssh-copy-id user@hostname # 将公钥放在服务器上
 
 OpenMPI 是一个开源的 [Message Passing Interface](http://www.mpi-forum.org/) 实现，由一些科研机构和企业一起开发和维护。MPI 是一套标准化、可移植的消息传递标准，它被设计用于支持并行计算系统的架构，使得开发者能够方便地开发可移植的消息传递程序。同时，MPI 编程能力在高性能计算的实践与学习中也是非常基础的技能。
 
-`mpirun` 是 OpenMPI 提供的 MPI 启动程序，负责在指定的节点上启动 MPI 程序，此后程序间的通信由 MPI 库负责。可以为 `mpirun` 指定参数，比如启动的进程数、启动的节点等。阅读 [10.1. Quick start: Launching MPI applications - OpenMPI main documentation](https://docs.open-mpi.org/en/main/launching-apps/quickstart.html) 和 [10.6. Launching with SSH - OpenMPI main documentation](https://docs.open-mpi.org/en/main/launching-apps/ssh.html)，了解如何使用 `mpirun` 通过 SSH 的方式启动 OpenMPI 程序，如何指定启动的节点和进程数。
+`mpirun` 是 OpenMPI 提供的 MPI 启动程序，负责在指定的节点上启动 MPI 程序，此后程序间的通信由 MPI 库负责。可以为 `mpirun` 指定参数，比如启动的进程数、启动的节点等。阅读 [10.1. Quick start: Launching MPI applications - OpenMPI main documentation](https://docs.open-mpi.org/en/main/launching-apps/quickstart.html) 和 [10.6. Launching with SSH - OpenMPI main documentation](https://docs.open-mpi.org/en/main/launching-apps/ssh.html)，了解如何使用 `mpirun` 通过 SSH 的方式启动 OpenMPI 程序，如何指定启动的节点和进程数，如何指定工作路径。
 
-!!! note "使用 `mpirun` 在集群中运行 MPI 程序"
+??? question "回答以下问题"
+
+    - 如何为 `mpirun` 指定节点和进程数？
+    - 如何为 `mpirun` 指定工作路径？
+    - 如果不指定工作路径，`mpirun` 会在哪个路径启动程序？如何验证你的答案。
+
+!!! note "使用 `mpirun` 在集群中运行 MPI 程序，可以指定节点、进程数和工作路径等。"
 
 ### 性能测试 Benchmark
 
@@ -566,7 +569,7 @@ LU 分解完成后，HPL 使用回代求解 $x$，并验证解的正确性。
     - 在 `node01` 上写一个 `hostfile`，指定节点和进程数。
     - 使用该 `hostfile` 执行 `mpirun`，在所有节点上运行 `uptime` 或 `cat /etc/hostname`。
 - 运行 HPL：
-    - 使用 `mpirun` 在所有节点上运行 `xhpl`，查看运行结果。
+    - 使用 `mpirun` 在所有节点上运行 `xhpl`，查看运行结果。提示：注意工作路径。
     - 阅读 HPL 源码包中的 `TUNING` 文件，了解 `HPL.dat` 文件的配置，尝试修改 `HPL.dat` 文件，重新运行 `xhpl`。
     - 给出你得到的最高性能数据以及对应的 `HPL.dat` 配置。尝试解释你所作的修改对性能的影响。
 
