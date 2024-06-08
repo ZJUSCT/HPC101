@@ -1,4 +1,6 @@
-# Lab0: Linux Crash Course (prepared for 2025)
+# Lab0: Linux Crash Course
+
+!!! warning "本文档仍在修订中"
 
 !!! tip "为了让同学们习惯阅读英文文档，本次实验将全程使用英文。"
 
