@@ -6,7 +6,7 @@
   },
   {
     "title": "缺失 `.dll`",
-    "content": "常用 Windows 的同学多多少少见过这个报错，可以去网上搜索相应 `.dll` 文件放置到正确的目录。",
+    "content": "常用 Windows 的同学多多少少见过这个报错，这也是缺少动态链接库造成的。",
     "image": "pics/lose_dll.png"
   },
   {
