@@ -2,7 +2,7 @@
 
 ## 导言：计算机集群
 
-在 Lab0 中，我们已经获得了 Linux 虚拟机环境，熟悉了 Linux 命令行的基本操作，对 Linux 系统的文件路径、用户权限、环境变量等基本概念有了一定的了解。在接下来的实验中，这些基础知识将会被广泛应用。
+在 Lab 0 中，我们已经获得了 Linux 虚拟机环境，熟悉了 Linux 命令行的基本操作，对 Linux 系统的文件路径、用户权限、环境变量等基本概念有了一定的了解。在接下来的实验中，这些基础知识将会被广泛应用。
 
 本次实验或许是你第一次接触到计算机集群。所谓计算机集群，就是将多台计算机连接在一起，通过网络协同工作，以完成一些大规模的计算任务。为什么我们需要计算机集群呢？因为单体的制造成本和性能是有限的。制造芯片时，人们想把单个处理器的性能提升到极致，但是遇到了物理限制：一块集成电路上的晶体管数量越多，设计就越复杂，发热就越严重，功耗就越大，性能就越低。因此，人们开始尝试将多个处理器连接在一起，就有了现代多核处理器。制造计算机时，也可以放置多个 CPU（常见的服务器一般都具有两颗），但放置更多只会增加单台计算机的设计和制造难度。与其想着怎么把单体造强，不如想着怎么把多个单体连接在一起，怎么让它们协同工作，这就是并行计算思想的由来。
 
@@ -12,14 +12,39 @@
 
 !!! tip "如何食用本 Lab"
 
-    本 Lab 有知识讲解和任务两部分。
+    本 Lab 有 **知识讲解** 和 **任务** 两部分，其中 **知识讲解** 不需要体现在报告中。
 
-    - 知识讲解部分有为了让你理解知识的演示实验，你可以跟着动手做，也可以不做，因为我们把现象都展示了，观看并理解知识即可。能跟着做是最好的。
     - 本次实验对基础知识介绍得比较详细，其中蓝色框框是希望你 take away 的知识点，请确保理解。
-    - 任务部分需要自行完成。
-    - 和 Lab0 一样，如果你对这些内容轻车熟路，就不需要阅读知识讲解，直接完成任务即可。
+    - 任务部分需要自行完成，请遵守诚信守则。
+    - 和 Lab 0 一样，如果你对这些内容轻车熟路，就不需要阅读知识讲解，直接完成任务即可。
 
-!!! warning "注意事项"
+### 具体任务
+
+- 软件安装: 下载 OpenMPI、BLAS 和 HPL 的源代码并编译安装。
+- 集群搭建: 克隆虚拟机、配置虚拟机互联、测试节点间通信。
+- 性能测试: 在虚拟机集群上使用 OpenMPI 运行 HPL 性能测试，记录测试结果。
+- Bonus:
+    - 配置 NFS 并复现实验。
+    - 使用 Docker 复现实验。
+
+### 提交内容
+
+1. 实验报告 PDF 文件
+2. HPL 输出结果文本文件
+
+如果有其他较长的纯文本形式的代码或者配置文件，无需包含在实验报告正文中，可以和 HPL 结果文件一样，作为附件提交。
+
+!!! tip "如何写一份好的实验报告"
+
+    1. 包含以下基本内容：
+        - 实验环境：软硬件的细微差别也有可能导致实验过程和结果产生较大差异，因此记录实验环境是非常重要的。这包括宿主机硬件情况，操作系统版本，所使用的 Hypervisor 种类，虚拟机的硬件配置以及网络配置。
+        - 实验过程：实验手册已经给出了详细步骤，因此这一部分你不需要再赘述，只需要给出关键截图证明你按步骤完成了即可。我们希望看到的是你在实验过程中遇到了哪些问题，以及你是如何解决的。
+        - 实验结果及分析：对于希望你照做的实验（比如本次实验），本就有一个标准的结果，不需要进行分析。但如果是需要你自己设计的实验，那么你需要对实验结果进行分析，解释为什么会得到这样的结果。
+    2. 详略得当。一般来说，下面这两种实验报告都不是好的实验报告：
+        - 长达数十页的报告：贴满截图和源代码，正文内容却很少。
+        - 简陋的实验报告：只有几张截图，没有有效的解释。
+
+???+ warning "注意事项"
 
     这些注意事项来源于历年同学们的常见问题，希望你能够避免：
 
@@ -29,49 +54,27 @@
 
     - 理解工作目录和家目录这两个目录。工作目录是你当前所在的目录，家目录是你登录时所在的目录。工作目录与程序在哪无关，与你现在在哪有关。很多程序默认在工作目录下寻找文件（比如 HPL）。如果你在 `/dir` 下运行它，而配置文件在 `/home/user` 下，那么程序就会找不到配置文件。在运行 MPI 时，也要注意工作目录的问题。
 
-### 具体任务
-
-- 软件安装：下载 OpenMPI、BLAS 和 HPL 的源代码并编译安装。
-- 集群搭建：克隆虚拟机、测试节点间通信。
-- 性能测试：在集群上使用 OpenMPI 运行 HPL 性能测试，记录测试结果。
-- Bonus：
-    - 配置 NFS 并复现实验。
-    - 使用 Docker 复现实验。
-
-### 提交内容
-
-1. 实验报告 PDF 文件
-2. HPL 输出结果文本文件
-
-??? tip "如何写一份好的实验报告"
-
-    1. 包含以下基本内容：
-        - 实验环境：软硬件的细微差别也有可能导致实验过程和结果产生较大差异，因此记录实验环境是非常重要的。
-        - 实验过程：实验手册已经给出了详细步骤，因此这一部分你不需要再赘述，只需要给出关键截图证明你按步骤完成了即可。我们希望看到的是你在实验过程中遇到了哪些问题，以及你是如何解决的。
-        - 实验结果及分析：对于希望你照做的实验（比如本次实验），本就有一个标准的结果，不需要进行分析。但如果是需要你自己设计的实验，那么你需要对实验结果进行分析，解释为什么会得到这样的结果。
-    2. 详略得当。一般来说，下面这两种实验报告都不是好的实验报告：
-        - 长达数十页的报告：贴满截图和源代码，正文少得可怜。
-        - 简陋的实验报告：只有几张截图，没有有效的解释。
-
-## 第一部分：Linux 应用程序的构建与安装
+## 知识讲解：从源码构建 Linux 应用 - 以 Angband 为例
 
 !!! tip "前置知识"
 
     掌握 Lab 0 中的内容：Linux 命令行基本操作、软件包管理、用户、文件系统、文件权限。
 
-日常使用电脑时，你安装软件的流程一般是：去网上搜索->下载安装包->点击安装->完成，这是因为 Windows/macOS 用户的设备种类单一，二进制文件通用，别人替你编译好就能够直接运行。而在 Linux 生态中，使用者的环境极其多样。在 Lab0 中，或许你已经在[这个页面](https://mirrors.zju.edu.cn/debian-cd/current/)见到过 Debian 为相当多的指令集发布了 ISO：
+!!! tip "学习目标"
+
+    这一部分的学习目标是了解如何从源代码构建并安装 Linux 应用。这是一个非常基础的操作，但在实际的软件开发和运维中经常会遇到。我们强烈推荐动手跟着尝试一下，但如果时间紧张，也请详细阅读文档展示的过程并理解知识。我们希望这部分的讲解能够有助于你完成后续 OpenMPI 等软件的构建和安装。
+    
+    **这一部分不需要体现在报告中。**
+
+日常使用电脑时，你安装软件的流程一般是：去网上搜索 -> 下载安装包 -> 点击安装 -> 完成，这是因为 Windows / macOS 用户的设备架构统一，并且依赖库比较完备，所以二进制文件基本通用，只要别人替你编译好就能够直接运行。而在 Linux 生态中，使用者的 CPU 架构以及其他硬件和软件配置极其多样。比如在 Lab0 中，或许你已经在 [这个页面](https://mirrors.zju.edu.cn/debian-cd/current/) 见到过 Debian 为相当多的指令集发布了 ISO，例如:
 
 - **amd64**：也称为 x86-64 或 x64，是 64 位 x86 指令集架构。它是 Intel 和 AMD 64 位处理器的通用指令集架构。这种架构通常用于个人计算机、服务器和工作站等通用计算设备上。
 - **arm64**：也称为 AArch64，是 ARMv8-A 架构的 64 位指令集。它设计用于移动设备、嵌入式系统和服务器等多种用途的设备上，具有较低的功耗和更好的性能。
-- **armel**：是 ARM 体系结构的 32 位小端指令集，主要用于嵌入式设备和一些低功耗的计算设备上。
-- **armhf**：是 ARM 体系结构的 32 位硬浮点指令集。与 armel 相比，armhf 针对使用硬件浮点加速器的设备进行了优化，提供更高的性能。
 - **i386**：也称为 x86 或 IA-32，是 Intel 32 位 x86 指令集架构。它是早期个人计算机和服务器的常见架构，现在仍然在一些老旧的设备和系统中使用。
-- **mips64el**：是 MIPS（Microprocessor without Interlocked Pipeline Stages）64 位小端指令集架构。它适用于嵌入式系统、网络设备和高性能计算等领域。
-- **mipsel**：是 MIPS 32 位小端指令集架构，与 mips64el 类似，但是是 32 位版本。它也用于嵌入式系统和网络设备等领域。
-- **ppc64el**：是 PowerPC 64 位小端指令集架构。它适用于一些服务器和嵌入式系统，提供良好的性能和可靠性。
-- **s390x**：是 IBM System z 架构的 64 位指令集架构。它主要用于大型企业服务器和主机，提供高度的可靠性、可用性和性能。
 
-这还远远不是全部：我国自研的龙芯 LoongArch、近年来很火的 RISC-V 等架构也在逐渐普及。软件开发者不可能为每一种架构都编译一份软件包，因此在 Linux 生态中，源代码是最通用的软件分发形式。
+我国自研的龙芯 LoongArch、近年来很火的 RISC-V 等架构也在逐渐普及，并即将在 Debian 13 得到官方支持。
+
+由此可见，面对如此多样的指令集结构，软件开发者想要为每一种架构都编译一份软件包十分困难。因此，在 Linux 生态中，源代码是最通用的软件分发形式。
 
 !!! note "在 Linux 生态中，源代码是最通用的软件分发形式。"
 
@@ -92,9 +95,9 @@ ls
 
     你的虚拟机可能因为网络问题连不上 GitHub。此时可以在宿主机下载好，然后通过 `scp` 命令传输到虚拟机中。
 
-???+ note "目录结构"
+???+ note "熟悉开源软件源代码的目录结构"
 
-    一般软件包源码的目录结构如下所示：
+    一般的开源软件包源码的目录结构如下所示：
 
     ```text
     .
@@ -120,7 +123,7 @@ ls
     make
     ```
 
-    网站上还描述了依赖性：“有几个不同的可选构建的前端（GCU、SDL、SDL2 和 X11），你可以使用诸如 --enable-sdl，--disable-x11 的参数配置。”这可能对你来说看起来像天书，但你经常编译代码后就会习惯。你会对大多数软件需要其他软件库的想法感到适应，因为它们建立在其他技术之上。
+    网站上还描述了依赖性：“有几个不同的可选构建的前端（GCU、SDL、SDL2 和 X11），你可以使用诸如 --enable-sdl，--disable-x11 的参数配置。” 目前这可能对你来说看起来像天书，但你经常编译代码后就会习惯。
     
     Angband 非常灵活，无论是否有这些可选的依赖，都可以进行编译，所以现在，假装没有额外的依赖。
 
@@ -140,7 +143,7 @@ ls
     checking for cc... no
     checking for gcc... no
     checking for clang... no
-    configure: error: in `/home/bowling233/Angband-4.2.5':
+    configure: error: in `/home/user/Angband-4.2.5':
     configure: error: no acceptable C compiler found in $PATH
     See`config.log' for more details
     ```
@@ -149,7 +152,7 @@ ls
 
     ??? success "答案"
 
-        这位同学需要安装 C 编译器。在 Debian 系统中，可以使用以下命令安装：
+        这位同学需要安装 C 编译器。在 Debian 发行版中，你可以通过 [Debian 搜索软件包](https://packages.debian.org/index) 搜索你需要的软件包，也可以直接在互联网搜索。在这里，我们常用 `gcc` 作为 C 编译器，如果你想要更多的编译器，还可以安装 `build-essential` 软件包，它包含了全面的编译器和构建工具。
 
         ```bash
         sudo apt update
@@ -168,7 +171,7 @@ src/angband
 
 ???+ note "链接"
 
-    在实际开发中，我们一定是多文件编程，所有文件在编译后，需要合在一起，合在一起的过程就是链接的过程。这些内容你应当在 C 语言课上学习多文件编程时有所了解。
+    实际的工程开发中，采用的一定是多文件编程: 编译器将每个代码文件分别编译后，还需要将它们合在一起变成一个软件，**合在一起的过程就是链接的过程**。这些内容在 C 语言课程中应该会覆盖到，但如果你没有学过，也不用担心，可以学习一下翁恺老师的 [智云课堂](https://classroom.zju.edu.cn/livingroom?course_id=53613&sub_id=1028201&tenant_code=112) 或者 [MOOC](https://www.icourse163.org/course/ZJU-200001) (第五周) 中对大程序结构的详细介绍。
 
     链接分为静态链接和动态链接。静态链接是指在编译时将库文件的代码和程序代码合并在一起，生成一个完全独立的可执行文件。动态链接是指在程序运行时，加载库文件，从而节省存储空间，提高程序的复用性和灵活性。
 
@@ -189,8 +192,8 @@ src/angband
 如果你的虚拟机之前没有安装过相关软件包，那么你大概率无法成功看到游戏界面，它什么输出都没有就退出了。
 
 ```bash
-bowling233@debian:~/Angband-4.2.5$ src/angband
-bowling233@debian:~/Angband-4.2.5$
+user@debian:~/Angband-4.2.5$ src/angband
+user@debian:~/Angband-4.2.5$
 ```
 
 回看刚刚 `./configure` 的输出，它其实给出了警告：
@@ -200,11 +203,11 @@ Configuration:
 
   Install path:                           (not used)
   binary path:                            (not used)
-  config path:                            /home/bowling233/Angband-4.2.5/lib/
-  lib path:                               /home/bowling233/Angband-4.2.5/lib/
+  config path:                            /home/user/Angband-4.2.5/lib/
+  lib path:                               /home/user/Angband-4.2.5/lib/
   doc path:                               (not used)
-  var path:                               /home/bowling233/Angband-4.2.5/lib/
-  gamedata path:                          /home/bowling233/Angband-4.2.5/lib/
+  var path:                               /home/user/Angband-4.2.5/lib/
+  gamedata path:                          /home/user/Angband-4.2.5/lib/
   documentation:                          No
 
 -- Frontends --
@@ -222,7 +225,7 @@ Configuration:
 configure: WARNING: No player frontends are enabled.  Check your --enable options and prerequisites for the frontends.
 ```
 
-搜索一下 `ncurses`库，你会了解到它是一个用于在 UNIX-like 系统上进行文本界面操作的库。它提供了一套 API，使得开发者能够在终端上创建和管理文本界面应用程序，包括窗口、菜单、对话框、文本输入等功能。Angband 使用了了 `ncurses` 库来实现游戏界面。但这个库不会被包含在 Angband 的源代码中，也没有默认包含在系统中，因此我们需要手动安装。
+搜索一下 `ncurses` 库，你会了解到它是一个用于在 UNIX-like 系统上进行文本界面操作的库。它提供了一套 API，使得开发者能够在终端上创建和管理文本界面应用程序，包括窗口、菜单、对话框、文本输入等功能。Angband 使用了了 `ncurses` 库来实现游戏界面。但这个库不会被包含在 Angband 的源代码中，也没有默认包含在系统中，因此我们需要手动安装。通过网络搜索，我们得知 `ncurses` 库包含在 `libncurses5-dev` 软件包中，我们可以通过下面的命令安装它：
 
 ```bash
 sudo apt install libncurses5-dev
@@ -251,7 +254,7 @@ sudo apt install libncurses5-dev
 
 别担心，接下来的自动化工具和包管理器会帮你解决一切问题<del>（当然也可能产生一堆问题）</del>。
 
-???+ note
+???+ "What we have learnt"
 
     - 留意 `./configure` 的输出，它一般负责检查系统环境是否满足软件包的依赖。
     - 使用 `apt` 安装缺失的库。
@@ -260,7 +263,7 @@ sudo apt install libncurses5-dev
 
 在上面的例子中，我们使用了 `./configure` 和 `make` 来构建软件包，它们就是 GNU Autotools 构建系统的一部分。如果没有它们，我们就需要手动写一行行命令、检查系统配置是否满足要求、使用编译器来编译源代码、链接器来链接目标文件，这是一项非常繁琐的工作。
 
-???+ note "自动化构建工具"
+??? note "自动化构建工具简介"
 
     自动化构建工具（Automated Build Tools）是用于自动化软件构建过程的工具，它们可以自动执行编译、链接、测试和部署等一系列操作，从而减少手动操作，提高软件开发的效率和质量。
 
@@ -321,13 +324,11 @@ sudo apt install libncurses5-dev
 
     CMake 的另一大优势是缓存。CMake 会在第一次运行时生成一些缓存文件，这个文件记录了所有的配置信息，包括编译器、编译选项、依赖库等。这样，当你修改了源代码后，只需要重新运行 CMake，它就会根据缓存文件重新生成构建文件，而不需要重新进行检查、配置和生成。对于大型项目的增量开发和构建来说，这极大地节约了时间。
 
-    CMake 的工作流程一般是：首先编写 CMakeLists.txt 文件，描述项目的目录结构、源代码文件、依赖库等信息，然后使用 CMake 工具生成构建文件，最后使用构建工具（如 make、Visual Studio）编译和链接源代码，生成可执行文件或库文件。对应的命令如下：
+    CMake 的工作流程一般是：首先编写 CMakeLists.txt 文件，描述项目的目录结构、源代码文件、依赖库等信息，然后使用 CMake 工具生成构建文件，最后使用构建工具（如 make、ninja 等）编译和链接源代码，生成可执行文件或库文件。对应的命令如下：
 
     ```bash
-    mkdir build && cd build
-    cmake ..
-    make
-    make install
+    cmake -B build
+    cmake --build build
     ```
 
 Angband 也提供了 CMake 的构建方式。查看 Angband 在线文档，你能找到使用 CMake 构建以 GCU 为前端的命令吗？
@@ -346,9 +347,9 @@ Angband 也提供了 CMake 的构建方式。查看 Angband 在线文档，你�
 
 !!! note "学习 Makefile 基本语法"
 
-    过程中你会遇到需要修改 `Makefile` 的步骤，因此希望你了解 `Makefile` 的基本语法。这一内容本应在 C 语言课程中完成讲授，但似乎只有翁恺老师的课程会讲到这一部分。你可以参考 [:simple-bilibili: Makefile 20 分钟入门 - 南方科技大学计算机系](Makefile 20分钟入门)进行学习。
+    过程中你会遇到需要修改 `Makefile` 的步骤，因此希望你了解 `Makefile` 的基本语法。这一内容本应在 C 语言课程中完成讲授，不过大部分老师都省略了这部分。所以如果你没有学过，可以参考 [:simple-bilibili: Makefile 20 分钟入门 - 南方科技大学计算机系](Makefile 20分钟入门)进行学习。
 
-!!! tip "提醒：认真看文档，看不懂的地方可以搜索/问 ChatGPT/问助教。"
+!!! tip "提醒：认真看文档，看不懂的地方可以搜索 / 问 GPT / 问助教。"
 
 这几个项目的依赖关系是：
 
@@ -378,7 +379,9 @@ flowchart LR
 
 如果你遇到了无法解决的困难，可以参考下面的解答和说明。如果还是无法解决，请向我们反馈。
 
-??? success "正确的步骤及说明"
+??? success "步骤参考及说明"
+
+    **请务必在阅读本部分之前，先参考知识讲解，尝试自己构建 OpenMPI, BLAS 和 HPL。**
 
     - OpenMPI
 
@@ -393,7 +396,7 @@ flowchart LR
     ompi_info --all # 查看安装信息
     ```
 
-    最后一步 `ldconfig` 在手册中没有没有记录，是比较容易遇到问题的一点。需要额外做这一步的原因可以在这个讨论串找到：[why is ldconfig needed after installation](https://lists.nongnu.org/archive/html/libtool/2014-05/msg00021.html)：
+    最后一步 `ldconfig` 在手册中没有没有记录，是比较容易遇到问题的一点。需要额外做这一步的原因可以在这个帖子找到：[why is ldconfig needed after installation](https://lists.nongnu.org/archive/html/libtool/2014-05/msg00021.html)：
 
     > `ldconfig` has to be run because the dynamic linker maintains a cache of available libraries that has to be updated.  `libtool` does this when run with libtool --mode=finish on the installation directory.  I'm not sure if it does this when it thinks the directory isn't listed in the system library search path, though.
     > 
@@ -443,7 +446,7 @@ flowchart LR
     HPL.dat  xhpl
     ```
 
-## 第二部分：集群环境搭建与配置
+## 任务二：集群环境搭建与配置
 
 !!! tip "前置知识"
 
@@ -460,9 +463,9 @@ flowchart LR
     <figcaption>计算机集群的协作<br /><small>来源：<a href="https://www.geeksforgeeks.org/an-overview-of-cluster-computing/">An Overview of Cluster Computing - GeeksforGeeks</a></small></figcaption>
 </figure>
 
-在 Lab0 中，我们已经学习了如何通过 SSH 使用密码访问虚拟机。在集群中，节点之间的互访往往也通过 SSH 完成，但要求无交互（non-interactive），这就需要使用 SSH 的密钥认证（key-based authentication）。
+在 Lab 0 中，我们已经学习了如何通过 SSH 使用密码访问虚拟机。在集群中，节点之间的互访往往也通过 SSH 完成，但要求无交互（non-interactive），这就需要使用 SSH 的密钥认证（key-based authentication）。
 
-!!! note "SSH 密钥认证"
+??? note "SSH 密钥认证的原理"
 
     SSH 密钥认证基于密码学中的非对称加密算法。在 SSH 密钥认证中，用户有两个密钥：私钥（private key）和公钥（public key），它们一一配对。私钥只有用户自己知道，公钥可以公开。私钥能够加密数据，公钥能够解密数据。用户可以将公钥放在服务器上，当用户连接服务器时，服务器会用公钥加密一个随机数发送给用户，用户用私钥加密这个随机数，然后用这个随机数加密数据发送给服务器，服务器用公钥解密数据。如果用户能够成功加密，说明用户拥有私钥，连接成功。
 
@@ -474,7 +477,7 @@ flowchart LR
 所谓配置 SSH 密钥认证，就是让服务器信任该公钥，允许持有该私钥的用户连接。在集群中，我们需要在主节点中生成密钥对，将主节点的公钥放在从节点上，这样主节点就能够通过 SSH 密钥认证连接到从节点。你可以阅读 [How To Configure SSH Key-Based Authentication on a Linux Server - DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server) 了解如何配置 SSH 密钥认证。基本操作如下：
 
 ```bash
-ssh-keygen # 生成密钥对
+ssh-keygen -t ed25519 # 生成密钥对，使用 ed25519 算法
 ssh-copy-id user@hostname # 将公钥放在服务器上
 ```
 
@@ -557,7 +560,7 @@ LU 分解完成后，HPL 使用回代求解 $x$，并验证解的正确性。
 
 !!! note "HPL 通过求解线性系统来计算机集群的浮点性能"
 
-## 任务二：搭建集群并测试测试性能
+## 任务三：使用 HPL 测试虚拟机集群的性能
 
 - 连接与互访：
     - 克隆三台虚拟机，得到四台虚拟机。为新克隆的虚拟机重新生成 MAC 地址。
@@ -575,7 +578,7 @@ LU 分解完成后，HPL 使用回代求解 $x$，并验证解的正确性。
 
 如果你遇到了无法解决的困难，可以参考下面的解答和说明。如果还是无法解决，请向我们反馈。
 
-??? success "正确的步骤和说明"
+??? success "步骤参考和说明"
 
     - 连接与互访
 
