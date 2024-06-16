@@ -349,7 +349,7 @@ Angband 也提供了 CMake 的构建方式。查看 Angband 在线文档，你�
 
 !!! note "学习 Makefile 基本语法"
 
-    过程中你会遇到需要修改 `Makefile` 的步骤，因此希望你了解 `Makefile` 的基本语法。这一内容本应在 C 语言课程中完成讲授，不过大部分老师都省略了这部分。所以如果你没有学过，可以参考 [:simple-bilibili: Makefile 20 分钟入门 - 南方科技大学计算机系](Makefile 20分钟入门)进行学习。
+    过程中你会遇到需要修改 `Makefile` 的步骤，因此希望你了解 `Makefile` 的基本语法。这一内容本应在 C 语言课程中完成讲授，不过大部分老师都省略了这部分。所以如果你没有学过，可以参考 [:simple-bilibili: Makefile 20 分钟入门 - 南方科技大学计算机系](https://www.bilibili.com/video/BV188411L7d2)进行学习。
 
 !!! tip "提醒：认真看文档，看不懂的地方可以搜索 / 问 GPT / 问助教。"
 
