@@ -16,18 +16,19 @@
 
     本 Lab 有 **知识讲解** 和 **任务** 两部分，其中 **知识讲解** 不需要体现在报告中。
 
-    - 本次实验对基础知识介绍得比较详细，其中蓝色框框是希望你 take away 的知识点，请确保理解。
+    - 本次实验对基础知识介绍得比较详细，其中蓝色框框是希望你 take home 的知识点，请确保理解。
     - 任务部分需要自行完成，请遵守诚信守则。
     - 和 Lab 0 一样，如果你对这些内容轻车熟路，就不需要阅读知识讲解，直接完成任务即可。
 
 ### 具体任务
 
-- 软件安装: 下载 OpenMPI、BLAS 和 HPL 的源代码并编译安装。
-- 集群搭建: 克隆虚拟机、配置虚拟机互联、测试节点间通信。
-- 性能测试: 在虚拟机集群上使用 OpenMPI 运行 HPL 性能测试，记录测试结果。
-- Bonus:
+- 软件安装：下载 OpenMPI、BLAS 和 HPL 的源代码并编译安装。
+- 集群搭建：克隆虚拟机、配置虚拟机互联、测试节点间通信。
+- 性能测试：在虚拟机集群上使用 OpenMPI 运行 HPL 性能测试，记录测试结果。
+- Bonus：选做
     - 配置 NFS 并复现实验。
     - 使用 Docker 复现实验。
+    - 使用 Spack 复现实验。
 
 ### 提交内容
 
@@ -88,7 +89,7 @@
 
 ```bash
 wget https://github.com/angband/angband/releases/download/4.2.5/Angband-4.2.5.tar.gz
-tar --extract --file=Angband-4.2.5.tar.gz
+tar xvf Angband-4.2.5.tar.gz
 cd Angband-4.2.5
 ls
 ```
@@ -389,9 +390,10 @@ flowchart LR
 
     ```bash
     wget "https://download.open-mpi.org/release/open-mpi/v5.0/openmpi-5.0.3.tar.gz"
-    tar --extract --file openmpi-5.0.3.tar.gz
+    tar xvf openmpi-5.0.3.tar.gz
     cd openmpi-5.0.3
-    ./configure # 不带参数，将默认安装到 /usr/local/ 下，此时不需要修改 PATH 和 LD_LIBRARY_PATH 等。如果你使用 --prefix 参数指定了安装路径，则可能需要修改 PATH 和 LD_LIBRARY_PATH。
+    ./configure # 不带参数，将默认安装到 /usr/local/ 下，此时不需要修改 PATH 和 LD_LIBRARY_PATH 等
+    # 如果你使用 --prefix 参数指定了安装路径，则可能需要修改 PATH 和 LD_LIBRARY_PATH。
     make
     sudo make install # 安装到系统目录 /usr/local 需要 root 权限
     sudo ldconfig # 更新动态链接库缓存
@@ -414,7 +416,7 @@ flowchart LR
 
     ```bash
     wget "http://www.netlib.org/blas/blas-3.12.0.tgz"
-    tar --extract --file blas-3.12.0.tgz
+    tar xvf blas-3.12.0.tgz
     cd BLAS-3.12.0
     make
     ```
@@ -423,7 +425,7 @@ flowchart LR
 
     ```bash
     wget "https://netlib.org/benchmark/hpl/hpl-2.3.tar.gz"
-    tar --extract --file hpl-2.3.tar.gz
+    tar xvf hpl-2.3.tar.gz
     cd hpl-2.3
     cp setup/Make.Linux_PII_FBLAS .
     vim Make.Linux_PII_FBLAS # 修改 Makefile
@@ -448,13 +450,13 @@ flowchart LR
     HPL.dat  xhpl
     ```
 
-## 任务二：集群环境搭建与配置
+## 知识讲解：集群环境搭建与配置
 
 !!! tip "前置知识"
 
     掌握 Lab0 中的内容：虚拟机、网络、SSH。
 
-### 计算机之间的连接与互访
+### 集群节点间的连接与互访
 
 计算机之间通过网络连接。在网络中，有两个重要的地址：MAC 地址和 IP 地址。通过 Lab0 的学习，你应该理解了这两种地址如何通过 ARP 协议联系在一起，也理解了虚拟机中的 NAT 网络。做任务时，你需要克隆虚拟机。克隆出来的新虚拟机的 MAC 地址与原来的虚拟机相同。思考一下，如果同时启动这两台虚拟机，它们能正常通信吗？你可以参考 [Duplicate MAC address on the same LAN possible? - StackExchange](https://serverfault.com/questions/462178/duplicate-mac-address-on-the-same-lan-possible)。
 
@@ -497,6 +499,17 @@ OpenMPI 是一个开源的 [Message Passing Interface](http://www.mpi-forum.org/
     - 如何为 `mpirun` 指定工作路径？
     - 如果不指定工作路径，`mpirun` 会在哪个路径启动程序？如何验证你的答案。
 
+    ??? note "Check your answer"
+
+        - 一般使用 `--hostfile` 和 hostfile 一起指定节点和进程数，其中 hostfile 的格式如下：
+
+            ```text title="hostfile"
+            node1 slots=4
+            node2 slots=4
+            ```
+        
+        - 使用 `--wdir` 指定工作路径。如果未指定，尝试 `mpirun` 执行时的工作路径。若路径不存在，为 `$HOME`。你可以通过 `mpirun ls` 来尝试验证。
+
 !!! note "使用 `mpirun` 在集群中运行 MPI 程序，可以指定节点、进程数和工作路径等。"
 
 ### 性能测试 Benchmark
@@ -526,7 +539,7 @@ $$
 Ux=y
 $$
 
-HPL 采用分块 LU 算法，每个分块是一个 NB 列的细长矩阵，称为 panel。LU 分解主循环采用 right-looking 算法，单步循环计算 panel 的 LU 分解和更新剩余矩阵。基本算法如下图所示，其中 $A_{1,1}$ 和 $A_{2,1}$ 表示 panel 数据。需要特别说明的是，图示矩阵是行主顺序，HPL 代码中矩阵是列主存储的。
+HPL 采用分块 LU 算法，每个分块是一个 $NB$ 列的细长矩阵，称为 panel。LU 分解主循环采用 right-looking 算法，单步循环计算 panel 的 LU 分解和更新剩余矩阵。基本算法如下图所示，其中 $A_{1,1}$ 和 $A_{2,1}$ 表示 panel 数据。需要特别说明的是，图示矩阵是行主顺序，HPL 代码中矩阵是列主存储的。
 
 <figure markdown="span">
     <center>![hpl_1](pics/hpl_1.jpg){ width=80% }</center>
@@ -560,12 +573,12 @@ HPL 采用行主元算法，单步矩阵更新之前，要把 panel 分解时选
 
 LU 分解完成后，HPL 使用回代求解 $x$，并验证解的正确性。
 
-!!! note "HPL 通过求解线性系统来计算机集群的浮点性能"
+!!! note "HPL 通过求解线性系统来评估计算机集群的浮点性能"
 
-## 任务三：使用 HPL 测试虚拟机集群的性能
+## 任务二：使用 HPL 测试虚拟机集群的性能
 
 - 连接与互访：
-    - 克隆三台虚拟机，得到四台虚拟机。为新克隆的虚拟机重新生成 MAC 地址。
+    - 克隆三次虚拟机，得到四台虚拟机组成的集群。为新克隆的虚拟机重新生成 MAC 地址。
     - 将它们分别命名为 `node01`、`node02`、`node03`、`node04`。注意，不只是在 Hypervisor 中修改名字，还需要在虚拟机中修改 `/etc/hostname`。
     - 获取它们的 IP 地址，在 `node01` 中修改 `/etc/hosts` 文件，添加其他节点的 IP 地址。
     - 在 `node01` 中生成密钥对，将公钥放在其他节点上。
@@ -645,17 +658,31 @@ LU 分解完成后，HPL 使用回代求解 $x$，并验证解的正确性。
 
     <center>![hpl](pics/hpl.png){ width=80% }</center>
 
-## 第三部分：技术杂谈
+## 知识讲解：技术杂谈
 
 ### 包管理器
 
-### Docker
+大型软件的依赖关系非常复杂，我们不可能手动调查其依赖关系，下载每一项依赖进行构建。包管理器维护了软件包的依赖关系，可以自动下载、构建和安装软件包。包管理器还提供了软件包的版本管理、卸载、更新等功能，甚至会提供环境管理服务。它相当于你电脑中的软件管家。
 
-### 集群中的网络服务
+- Debian 系统使用 `apt` 包管理器提供常用软件包，以二进制的形式进行软件分发。
+- [Spack](https://spack.io/) 是 HPC 领域最知名的包管理器，提供高性能计算领域几乎所有软件包的构建和安装。它通常需要从源码构建软件包，有非常多选项可以配置。
+- [Conda](https://docs.conda.io/en/latest/) 用于管理 Python 环境和软件包。
+
+### Docker
 
 ### NFS
 
 ## 任务三：Bonus
+
+- 配置 NFS：
+    - 将节点 `node01` 配置为 NFS 服务器，设置共享 `/home`。
+    - 在其他节点上挂载共享目录。
+    - 使用 MPI 在共享目录中运行 HPL。
+- 使用 Docker 复现实验：
+    - 寻找合适的 Docker。
+    - 创建多个 Docker 实例，使用 MPI 在 Docker 组成的集群中运行 HPL。
+
+Bonus 任务没有标准答案，欢迎你来与我们探讨。
 
 ## 参考资料
 

@@ -1,5 +1,9 @@
 ::timeline::
 
+- content: 更新 [使用集群](../docs/cluster.md)
+  icon: ':simple-codefresh:'
+  sub_title: Jul 02, 2024
+  title: 更新
 - content: 重构 [Lab1 简单集群搭建](../docs/Lab1-MiniCluster/index.md) 基础部分
   icon: ':simple-codefresh:'
   sub_title: Jun 08, 2024

@@ -12,6 +12,7 @@ nav:
   - 课程信息:
     - 首页: index.md
     - Hello HPC World!: Intro/index.md
+    - 使用集群：cluster.md
     - 更新历史: changelog.md
     #- 集群使用指南: Cluster/index.md
   - 课程实验:
