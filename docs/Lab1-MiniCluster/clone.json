@@ -6,7 +6,7 @@
   },
   {
     "title": "完全克隆",
-    "content": "Clone Type 选择 full clone",
+    "content": "Clone Type 两种都行，链接模式磁盘空间占用会小一点",
     "image": "pics/clone_vm_2.png"
   },
   {
