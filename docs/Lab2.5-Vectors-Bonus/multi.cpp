@@ -70,7 +70,7 @@ int main()
     end = std::chrono::high_resolution_clock::now();
 
     double time2 = std::chrono::duration<double>(end - start).count();
-    printf("raw time=%lf\nnew time=%lf\nspeed up:%lf\nChecking\n", time1, time2, time1 / time2);
+    printf("raw time=%lfs\nnew time=%lfs\nspeed up:%lfx\nChecking\n", time1, time2, time1 / time2);
 
     for (int i = 0; i < MAXN * 16; i++)
     {
