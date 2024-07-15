@@ -71,7 +71,7 @@ for (int n = 0; n < MAXN; n++)
 
 ## 3 实验初始代码
 
-详见 [multi.cpp](https://git.zju.edu.cn/zjusct/summer-course-2023/HPC101-Labs-2023/-/blob/main/docs/Lab2.5-Vectors-Bonus/add.cpp)
+详见 [multi.cpp](https://git.zju.edu.cn/zjusct/summer_hpc101_2024/hpc-101-labs-2024/-/blob/main/docs/Lab2.5-Vectors-Bonus/multi.cpp)
 
 ## 4 实验任务与要求
 
