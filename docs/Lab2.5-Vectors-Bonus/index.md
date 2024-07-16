@@ -8,7 +8,7 @@ Bonus 部分完成即有加分（完成 Bonus 部分实验要求，且加速比�
 
 [aistation 平台](https://aistation.zju.edu.cn:32206) -->
 
-## 1 实验基础知识
+## 实验基础知识
 
 现代处理器一般都支持向量化指令，x86 架构下 Intel 和 AMD 两家的处理器都提供了诸如 SSE，AVX 等 SIMD 指令集，一条指令可以同时操作多个数据进行运算，大大提高了现代处理器的数据吞吐量。
 
@@ -28,7 +28,7 @@ Bonus 部分完成即有加分（完成 Bonus 部分实验要求，且加速比�
 
 参考资料中提供的 godbolt 是一款基于 web 的研究不同编译器编译产生汇编代码的工具，大家在进行本实验的时候可以学习使用。
 
-## 2 实验步骤
+## 实验步骤
 
 首先大家可以参考之前的[bonus](https://zjusct.pages.zjusct.io/summer-course-2023/HPC101-Labs-2023/Lab2.5-Vectors-Bonus/), 也就是我们上课的时候让同学尝试过的, 如果有同学依然对手写SIMD不熟悉的可以先参考实现那个简单的.
 
@@ -51,14 +51,7 @@ Bonus 部分完成即有加分（完成 Bonus 部分实验要求，且加速比�
     ### 试试看! 
     #### 例题 1.7
 
-    \[
-    \begin{gathered} 
-    \log \Pi(N)=\Big(N+\dfrac{1}{2}\Big)\log N -N+A-\int_{N}^{\infty}\dfrac{\overline{B}_1(x){\rm d} x}{x}, A=1+\int_{1}^{\infty}\dfrac{\overline{B}_1(x){\rm d} x}{x} \\
-    \log \Pi(s)=\Big(s+\dfrac{1}{2}\Big)\log s-s+A-\int_{0}^{\infty}\dfrac{\overline{B}_1(t){\rm d} t}{t+s} 
-    \end{gathered}
-    \]
-
-
+    ![alt text](figure/image.png)
 
 baseline如下, 简单来说就是进行`MAXN`次$D_{4*4}=A_{4*12}*B_{12*4}$的矩阵乘法.
 其中`MAXN`个矩阵的内容不同, 计算的时候要注意位移.
@@ -95,11 +88,11 @@ for (int n = 0; n < MAXN; n++)
 
 参照 Intel 文档优化完成后就可以开始测试优化前和优化后的性能差距，最后对比前后编译器产生的汇编代码的不同即可完成 Bonus 部分的实验。
 
-## 3 实验初始代码
+## 实验初始代码
 
 详见 [multi.cpp](https://git.zju.edu.cn/zjusct/summer_hpc101_2024/hpc-101-labs-2024/-/blob/main/docs/Lab2.5-Vectors-Bonus/multi.cpp)
 
-## 4 实验任务与要求
+## 实验任务与要求
 
 1. 完成以上代码的手写 SIMD 向量化
 2. 测试实现的正确性和加速比

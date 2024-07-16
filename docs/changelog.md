@@ -1,6 +1,6 @@
 ::timeline::
 
-- content: 添加 [Lab2.5 手写 SIMD 向量化](../docs/Lab2.5-Vectors-Bonus/index.md)\
+- content: 添加 [Lab2.5 手写 SIMD 向量化](../docs/Lab2.5-Vectors-Bonus/index.md)
   icon: ':material-update:'
   sub_title: Jul 16, 2024
   title: 更新
