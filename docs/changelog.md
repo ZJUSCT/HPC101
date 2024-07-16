@@ -1,5 +1,9 @@
 ::timeline::
 
+- content: 添加 [Lab2.5 手写 SIMD 向量化](../docs/Lab2.5-Vectors-Bonus/index.md)\
+  icon: ':material-update:'
+  sub_title: Jul 16, 2024
+  title: 更新
 - content: 更新 [使用集群](../docs/cluster.md)
   icon: ':simple-codefresh:'
   sub_title: Jul 02, 2024

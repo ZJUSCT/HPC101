@@ -19,7 +19,7 @@ nav:
     - Lab0-Linux Crash Course: Lab0-LinuxCrashCourse/index.md
     - Lab1-简单集群搭建: Lab1-MiniCluster/index.md
     - Lab2-向量化计算: Lab2-Vectors/index.md
-    # - Lab2.5-Bonus 手写 SIMD 向量化: Lab2.5-Vectors-Bonus/index.md
+    - Lab2.5-Bonus 手写 SIMD 向量化: Lab2.5-Vectors-Bonus/index.md
     # - Lab3-CUDA 使用基础: Lab3-Cuda/index.md
     # - Lab4-PCG Solver: Lab4-PCG-Solver/index.md
     # - Lab5-简单神经网络训练与加速: Lab5-DL/index.md
