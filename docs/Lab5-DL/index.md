@@ -17,17 +17,10 @@
 
 !!! warning "请在实验报告中指出所使用的显卡类型"
 
-集群上安装了本实验需要用到的 torch 环境，使用 conda 管理，你可以直接使用这个环境(暂时还没有准备好x)
-```bash
-conda activate torch
-```
-或者自己新建一个环境。比如克隆基础 torch 环境
-```bash
-conda create -n mytorch --clone torch
-```
-或者新建一个 python 版本为 3.12 的空环境，并使用 `pip install -r requirements.txt` 安装所必须的包
+新建一个 python 版本为 3.12 的空环境，并使用 `pip install -r requirements.txt` 安装所必须的包
 ```bash
 conda create -n mytorch python=3.12
+pip install -r requirements.txt
 ```
 
 ```sh
@@ -154,9 +147,7 @@ WMT 数据集 (Workshop on Statistical Machine Translation) 是一个用于机�
 
 ##### 数据集加载
 
-为了防止占用空间过多，本次实验所用的数据集已经提前下载，切分并存放在`/opt/minidataset`目录下。
-
-!!! warning "暂时只有M603的对应目录存有对应数据，请将目录拷贝到自己的用户目录中"
+为了防止占用空间过多，本次实验所用的数据集已经提前下载，切分并存放在 `/river/minidataset` 目录下。
 
 我们建议利用 huggingface的 `datasets` 库 提供的 `load_dataset` 方法加载数据集 (请不要将下载数据集到本地！), 之后你可以用 torch.utils.data.DataLoader 给你的模型加载数据。
 
