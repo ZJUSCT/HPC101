@@ -1,19 +1,21 @@
 # 实验五：简单神经网络训练与加速
 
-## 1 实验简介
+##  实验简介
 
 **深度学习**（Deep Learning）是[机器学习](https://zh.wikipedia.org/wiki/机器学习)的分支，是一种以[人工神经网络](https://zh.wikipedia.org/wiki/人工神经网络)为架构，对数据进行表征学习的[算法](https://zh.wikipedia.org/wiki/算法)。深度学习能够取得如此卓越的成就，除了优越的算法、充足的数据，更离不开强劲的算力。近年来，深度学习相关的基础设施逐渐成熟，从网络设计时的训练、优化，到落地的推理加速，都有非常优秀的解决方案。其中，对于算力的需求最大的部分之一是网络的训练过程，它也因此成为 HPC 领域经常研究的话题。
 
-**卷积神经网络**（Convolutional Neural Network, **CNN**）是一种[前馈神经网络](https://zh.wikipedia.org/wiki/前馈神经网络)，对于大型图像处理有出色表现。
+**注意力机制**（Self-Attention）是深度学习中的一种网络结构，也是Transformer架构中的核心部分。
 
-本次实验我们将完成 LeNet-5 的训练，并尝试编写自定义算子。
+**Transformer** 是由Google在2017年提出的一种网络结构，相比于以往的RNN，它在处理长序列时的表现更好，随即便迅速成为NLP领域的研究热点，而基于Transformer的工作和应用层出不穷，包括当下最热门的大语言模型，比如DeepSeek, GPT-4o等等
+
+> 本次实验我们将完成 Transformer 模型的训练，以及之后可能会有的Bonus。对于实验第一部分我们只需要完成训练即可得到对应分数，
 
 
-## 2 实验环境
+## 实验环境
 
-同 Lab3 和 Lab4。使用 A100 分区的 GPU08 节点，上有两张 A100 80G 显卡。
+同 Lab3 和 Lab4，现有两张 A100 40G，一张 A100 80G 和两张 2080ti 显卡供大家使用
 
-对于非 Bonus 部分，GPU06 节点的 2080Ti 也可以满足实验要求，你也可以使用该节点进行调试等工作。
+**请在实验报告中指出所使用的显卡类型**
 
 集群上安装了一个基础的 torch 环境，使用 conda 管理，你可以直接使用这个环境
 ```bash
@@ -23,9 +25,9 @@ conda activate torch
 ```bash
 conda create -n mytorch --clone torch
 ```
-或者新建一个 python 版本为 3.10 的空环境
+或者新建一个 python 版本为 3.12 的空环境
 ```bash
-conda create -n mytorch python=3.10
+conda create -n mytorch python=3.12
 ```
 注意基础 torch 环境无法被修改（安装新包），因此若你需要安装新包，需要新建一个环境，之后使用 conda 或者 pip 进行管理。
 
@@ -40,67 +42,95 @@ CUDA_VISIBLE_DEVICES=1 python train.py
 ```
 指定使用编号为 1 的显卡进行训练，此时只有编号为 1 的显卡对于你的程序可见。
 
-## 3 实验基础知识介绍
+## 实验基础知识介绍
 
-### 3.1 网络模型
+### 网络模型
 
-#### 3.1.1 CNN 卷积神经网络
+#### Attention 注意力机制
 
-卷积神经网络由一个或多个卷积层和顶端的全连通层（对应经典的神经网络）组成，同时也包括关联权重和池化层（pooling layer）。这一结构使得卷积神经网络能够利用输入数据的二维结构。与其他深度学习结构相比，卷积神经网络在图像和[语音识别](https://zh.wikipedia.org/wiki/语音识别)方面能够给出更好的结果。这一模型也可以使用[反向传播算法](https://zh.wikipedia.org/wiki/反向传播算法)进行训练。相比较其他深度、前馈神经网络，卷积神经网络需要考量的参数更少，使之成为一种颇具吸引力的深度学习结构。
+深度学习中的注意力机制（Attention）是一种模仿人类视觉和认知系统的方法，它允许神经网络在处理输入数据时集中注意力于相关的部分。通过引入注意力机制，神经网络能够自动地学习并选择性地关注输入中的重要信息，提高模型的性能和泛化能力，其核心计算可用公示来表示：
 
-#### 3.1.2 LeNet-5
+$$Attention(Q,K,V)=softmax(\dfrac{QK^T}{\sqrt{d}})V$$
 
-LeNet-5是一个较简单的卷积神经网络。下图显示了其结构：输入的二维图像，先经过两次卷积层到池化层，再经过全连接层，最后输出每种分类预测得到的概率。
+而为了捕捉输入更多维度上的信息，便引入了MHA(Multi-head Attention)，通过将输入数据划分为多个不同的子空间，每个子空间对应一个注意力头，从而学习到输入的不同特性，其可用如下公式表示:
 
-![](index.assets/LeNet.jpg)
+$$ \begin{array}{c}
+Z_i=Attention(Q_i, K_i, V_i)=softmax(\dfrac{Q_iK_i^T}{\sqrt{d}})V_i  
+\\
+\Rightarrow Z = Concat(Z_1, Z_2, \cdots, Z_h)W^O 
+\end{array}
+$$
 
-有关于其更详细的结构可以在[原论文](http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf)中找到。
+#### Transformer 结构
 
-### 3.2 数据集
 
-#### 3.2.1 MNIST 手写数字数据集
+<div align="center">
+  <img src="index.assets//transformer.png" alt="Transformer" style="zoom:100%;" />
+</div>
 
-MNIST 数据集 (Mixed National Institute of Standards and Technology database) 是美国国家标准与技术研究院收集整理的大型手写数字数据库，包含 60,000 个示例的训练集以及 10,000 个示例的测试集。
+有关于其更详细的结构可以在[原论文](https://arxiv.org/pdf/1706.03762)中找到。
 
-<img src="index.assets/MNIST.jpeg" alt="How to Train a Model with MNIST dataset | by Abdullah Furkan Özbek | Medium" style="zoom:50%;" />
 
-MNIST 数据集下载：http://yann.lecun.com/exdb/mnist/index.html
+### 数据集
 
-## 4 实验步骤
+#### WMT19 翻译数据集
 
-### 4.1 LeNet-5 训练
+WMT 数据集 (Workshop on Statistical Machine Translation) 是一个用于机器翻译任务的公开数据集系列，由 WMT 组织提供。这些数据集通常包含多种语言对的平行语料，用于训练和评估机器翻译模型。
 
-#### 4.1.1 数据准备
+为了减少训练时间，在本实验中，我们使用WMT 19 数据集中的 **zh-en** 的部分文件，来对模型进行训练和评估
 
-我们建议利用 `torchvision` 提供的 `torchvision.datasets` 方法导入数据，`torchvision.datasets` 所提供的接口十分方便，之后你可以用 `torch.utils.data.DataLoader` 给你的模型加载数据。
+<img src="index.assets/WMT19.png" alt="WMT19" style="zoom:100%;" />
 
-此外，我们也欢迎你自定义你的 `Dataset` 类，这样做会给你带来额外的分数。为此，你需要继承 `torch.utils.data.Dataset` 并至少需要重写其中的 `__len__()` 和 `__getitem__()` 函数，[这里](https://pytorch.org/docs/stable/data.html)有官方对 `torch.utils.data` 类的介绍，它或许可以帮到你。
+## 实验步骤
 
-幸运的是，本次实验需要用到的 `MNIST` 数据集可用 `torchvision.datasets` 导入，下面对一些你可能会用到的参数简单加以说明
+### Transformer 训练
 
-**注意：请在清楚参数含义后调用它们**
+#### 数据准备
 
-```Python
-# MNIST
-torchvision.datasets.MNIST(root, train=True, transform=None, target_transform=None, download=False)
+##### 数据集加载
+
+为了防止占用空间过多，本次实验所用的数据集已经提前下载，切分并存放在`/opt/minidataset`目录下。
+
+我们建议利用 huggingface的 `datasets` 库 提供的 `load_dataset` 方法加载数据集 (请不要将下载数据集到本地！), 之后你可以用 torch.utils.data.DataLoader 给你的模型加载数据。
+
+```python
+dataset = load_dataset(path=datasetDir)
 ```
 
-一些重要的参数说明：
+##### 数据集预处理
 
-- root: 在 `MNIST`中是 `processed/training.pt` 和 `processed/test.pt` 的主目录
-- train: `True` 代表训练集，`False` 代表测试集
-- transform 和 target_transform: 分别是对图像和 label 的转换操作
-- download: 若为 `True` 则下载数据集并放到 `root` 所指定的目录中，否则直接尝试从 `root` 目录中读取
+在加载数据集后，会得到类似于`[{'zh': "今天天气怎么样", 'en': "What about weather today"},...]`的结构，为了将其转换成模型可训练的形式，我们需要用tokenizer将文本转换为数字，通常经过tokenize后，会得到如下参数：
 
-你可以在[这里](https://pytorch.org/vision/0.8/datasets.html)获取更加详细的说明
+```python
+{
+    'input_ids': [101, 7993, 170, 11303, 1200, 2443, 1110, 3014, 102],
+    'token_type_ids': [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    'attention_mask': [1, 1, 1, 1, 1, 1, 1, 1, 1]
+ }
+```
 
-#### 4.1.2 模型编写
+其中 `input_ids` 是将原文本分词后产生的token映射的数字，`attention_mask` 和输入的 `input ids` 具有完全一样的shape，其中1 代表了这个id需要attention，0代表这个id不需要attention, 用于 padding 后去除那些 padding 值，本实验中应该不需要关注 `token_type_ids`.
 
-##### 4.1.2.1 网络结构
+在使用 DataLoader 前，你需要定义自己的 `Dataset` 类来处理上述生成的参数(例如将 list 转换为 torch.Tensor)，为此，你需要继承 `datasets.Dataset` 并至少需要重写其中的 __len__() 和 __getitem__() 函数.
+
+Tokenizer 使用示例: 
+
+```python
+    from transformers import AutoTokenizer
+    tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
+    input_texts = "Don't do LLM"
+    tokens = tokenizer(input_texts, padding='max_length', truncation=True, max_length=128) #tokenize + encode
+    print(tokenizer.decode(tokens))
+```
+
+
+#### 基本模型编写
+
+##### 网络结构
 
 `PyTorch` 提供了许多种定义模型的方式，最常用的一种是将网络结构以类保存，你应当首先继承 [torch.nn.Module](https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module)，并实现正向传播的 `forward` 函数，(为什么不用定义反向传播函数呢？因为你继承的 `nn.Module` 就是干这个事情的)。
 
-下面为网络结构的一个 sample（但显然这样的网络并不能用于本次 Lab），本次实验中你需要自定义你的网络结构，以完成我们的分类任务：
+下面为网络结构的一个 sample（但显然这样的网络并不能用于本次 Lab），本次实验中你需要自定义你的网络结构，以完成我们的任务：
 
 ```Python
 import torch.nn as nn
@@ -126,7 +156,8 @@ print(model)
 
 网络结构编写中一个很大的难点在于每一步的 tensor shape 需要匹配，请仔细检查你的代码来确保此部分的正确性。
 
-##### 4.1.2.2 损失函数
+
+##### 损失函数
 
 常见的损失函数都被定义在了 `torch.nn`中，你可以在训练过程开始前将其实例化，并在训练时调用，例如：
 
@@ -134,7 +165,7 @@ print(model)
 criterion = torch.nn.CrossEntropyLoss()
 ```
 
-##### 4.1.2.3 正向传播
+##### 正向传播
 
 正向传播是指对神经网络沿着从输入层到输出层的顺序，依次计算并存储模型的中间变量（包括输出）。
 正向传播的过程在 `forward`中定义，对于模型实例，可以直接利用输入输出得到模型预测的结果。
@@ -143,13 +174,13 @@ criterion = torch.nn.CrossEntropyLoss()
 y_pred = model(x)
 ```
 
-##### 4.1.2.4 反向传播
+##### 反向传播
 
 反向传播（Backpropagation，BP）是“误差反向传播”的简称，是一种与最优化方法（如梯度下降法）结合使用的，用来训练人工神经网络的常见方法。该方法对网络中所有权重计算损失函数的梯度。这个梯度会反馈给最优化方法，用来更新权值以最小化损失函数。
 
 在计算过模型的loss之后，可以利用 `loss.backward()` 计算反向传播的梯度，梯度会被直接储存在 `requires_grad=True` 的节点中，不过此时节点的权重暂时不会更新，因此可以做到梯度的累加。
 
-##### 4.1.2.5 优化器
+##### 优化器
 
 常用的优化器都被定义在了 `torch.optim` 中，为了使用优化器，你需要构建一个 optimizer 对象。这个对象能够保持当前参数状态并基于计算得到的梯度进行参数更新。你需要给它一个包含了需要优化的参数（必须都是 Variable 对象）的iterable。然后，你可以设置optimizer的参数选项，比如学习率，权重衰减，例如：
 
@@ -170,7 +201,7 @@ optimizer.step()
 optimizer.zero_grad()
 ```
 
-#### 4.1.3 训练过程
+#### 训练过程
 
 前文中已经定义了网络结构、损失函数、优化器，至此，一个较为完整的训练过程如下，需要注意的是，你的训练过程要不断从 `DataLoader` 中取出数据。
 
@@ -186,27 +217,84 @@ for t in range(30000):
 
     # Zero gradients, perform a backward pass, and update the weights.
     optimizer.zero_grad()
+    scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=100, num_training_steps=1000)
     loss.backward()
     optimizer.step()
 ```
 
-#### 4.1.4 测试过程
+#### 测试过程
+
 一般来说，神经网络会多次在训练集上进行训练，一次训练称之为一个 epoch。每个 epoch 结束后，我们会在测试集上进行测试，以评估模型的性能。在测试过程中，我们不需要计算梯度也不可以计算梯度（思考为什么），此时可以使用 `torch.no_grad` 来实现这一点。
 
+对于模型输出的 output, 在评估时我们需要使用 `tokenizer.decode` 方法将其还原为对应的文本，而在还原之前我们需要使用 `argmax` 得到预测概率最大的词所对应的索引。
 
-```Python
-with torch.no_grad():
-    y_pred = model(x_test)
-    loss = criterion(y_pred, y_test)
+在本次实验中，使用 **BLEU(bilingual evaluation understudy)** 来对模型的翻译质量进行打分，请使用`nltk.translate.bleu_score.corpus_bleu`在给出的验证集上对结果进行评分，具体使用可参考[nltk.bleu_score annotation](https://www.nltk.org/_modules/nltk/translate/bleu_score.html)
+
+示例代码如下: 
+
+```python
+    def evaluate(model, dataloader, tokenizer):
+        model.eval()
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model.to(device)
+        
+        references = []
+        hypotheses = []
+        
+        with torch.no_grad():
+            for batch in dataloader:
+                # What to do!
+                # 1. Load mask and inputs_id
+                # 2. Forward pass
+                # 3. Get the max index of the most predicted token in the vacab_size dimension
+                # 4. Decode the token and append to the references and hypotheses separately
+                    
+        bleu_score = corpus_bleu(references, hypotheses)
+        print(f'BLEU score: {bleu_score} * 10')
+    return bleu_score
 ```
 
-#### 4.1.4 TensorBoard
+#### TensorBoard
 
-TensorBoard 是常用的训练过程可视化工具。请参考 [PyTorch](https://pytorch.org/tutorials/recipes/recipes/tensorboard_with_pytorch.html) 的官方教程完成配置。
+TensorBoard 是常用的训练过程可视化工具。请参考 [PyTorch](https://pytorch.org/tutorials/recipes/recipes/tensorboard_with_pytorch.html) 的官方教程完成配置，需要在实验报告中展示模型损失过程中的Loss变化情况
 
-#### 4.1.5 Tips
+#### Coding Guide
 
-- `nn.functional.relu`  （简记为 `F.relu` ）和 `nn.ReLU` 略有不同，区别在于前者作为一个函数调用，而后者作为一个层结构，必须添加到 `nn.Module` 容器中才能使用，两者实现的功能一样，在 `PyTorch` 中，`nn.X` 都有对应的函数版本 `F.X`。
+为了降低大家的实现难度，本次实验可以使用 `troch.nn.transformer` 作为 tranformer 模型的 Encoder + Decoder 部分，但请注意，`nn.transformer` 只实现了 transformer 模型中的一部分，我们仍然需要实现 Embedding, Positional Encoding 和最后的 Linear, Softmax(由于CrossEntropyLoss中含有softmax函数, 所以不用实现)
+
+在使用 `troch.nn.transformer` 时请仔细查看各项参数含义...
+
+Positional Encoding 可以参考其他实现，但需要给出你对代码的详细解释
+
+`torch.nn.transformer` 的参数示例如下：
+
+```python
+    vocab_size = tokenizer.vocab_size
+    d_model = 256
+    nhead = 8
+    num_encoder_layers = 3
+    num_decoder_layers = 3
+    dim_feedforward = 1024
+    max_seq_length = 512
+```
+
+
+#### Tips
+
+- 本次实验不必过于关注模型在验证集上的BLEU分数，只要你的模型能够正常训练，你就可以通过本次实验。
+- 本次实验中包括超参数、优化器在内的选择不限，本次实验的重点在于引导同学们实现 Transformer 模型的训练和评估，但请注意不要长时间占用显卡，如有恶意占用，被发现后会酌情进行扣分
+- 除了利用继承 `nn.Module` 来建立网络，不推荐但可以使用 `nn.ModuleList`, `nn.ModuleDict`，推荐使用 `nn.Sequential`直接定义模型
+- 此外你可以定义如下的 `device` 变量，以便你的模型在没有 GPU 环境下也可以测试：
+
+    ```Python
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    model = Model().to(device)
+    some_data = some_data.to(device)
+    ```
+
+
+<!-- - `nn.functional.relu`  （简记为 `F.relu` ）和 `nn.ReLU` 略有不同，区别在于前者作为一个函数调用，而后者作为一个层结构，必须添加到 `nn.Module` 容器中才能使用，两者实现的功能一样，在 `PyTorch` 中，`nn.X` 都有对应的函数版本 `F.X`。
 - 除了利用继承 `nn.Module` 来建立网络，不推荐但可以使用 `nn.ModuleList`, `nn.ModuleDict`，推荐使用 `nn.Sequential`直接定义模型
 - 你可以定义如下的 `device` 变量，以便你的模型在没有 GPU 环境下也可以测试：
 
@@ -218,14 +306,14 @@ TensorBoard 是常用的训练过程可视化工具。请参考 [PyTorch](https:
     ```
 
 - 你不必严格按照原版 LeNet-5 的网络结构来实现，包括超参数、优化器的选择不限，但是你需要保证你的网络结构是合理的，且能够完成我们的分类任务，最终的测试集准确率需要达到 98% 以上。（实际上原版 LeNet 可以轻松达到这个准确率，使用更加现代的结构和优化器，你可以达到更高的准确率）
-- 不必过度关注准确率和 loss，只要你的模型能够正常训练，你就可以通过本次实验。
+- 不必过度关注准确率和 loss，只要你的模型能够正常训练，你就可以通过本次实验。 -->
 
 <!-- - 相比于原生的 `PyTorch`，`PyTorch Lightning` 框架对其进行了更高层次的封装，很大程度上简化了模型定义、训练以及测试的步骤，使用 `PyTorch Lightning` 作为本次实验的加分项，官网链接已附在参考资料中。如果你能够在 TensorBoard 中将中间层可视化，你能得到更多的加分。 -->
 
-### 4.2 自定义算子
+<!-- ### 自定义算子
 
-#### 4.2.1 算子编写
-除了 `torch.nn` 中提供的算子，你可以自定义带有自动微分功能的算子。为了简单起见，本实验中你需要编写一个 `GELU` 算子。你需要继承 `torch.autograd.Function` 并实现 `forward` 和 `backward` 函数。`forward` 函数接受输入并返回输出，`backward` 函数接受输入和梯度，并返回相对于输入的梯度。你可以在[这里](https://pytorch.org/docs/stable/notes/extending.html)找到更多关于自定义算子的信息。
+#### torch 算子编写
+除了 `torch.nn` 中提供的算子，你可以自定义带有自动微分功能的算子。本实验中你需要编写一个 `MultiHeadAttention` 算子。你需要继承 `torch.autograd.Function` 并实现 `forward` 和 `backward` 函数。`forward` 函数接受输入并返回输出，`backward` 函数接受输入和梯度，并返回相对于输入的梯度。你可以在[这里](https://pytorch.org/docs/stable/notes/extending.html)找到更多关于自定义算子的信息。
 
 关于 `GELU` 本身的信息请从参考资料中查找。你可以自行选择使用近似或者非近似的版本。
 
@@ -251,7 +339,7 @@ err = loss_func(gradA, gradB) # err should equal to 0
 ```
 
 
-#### 4.2.2 使用 C++ 
+#### 使用 C++ 
 
 如果你尝试过寻找 `F.gelu` 的实现，你会发现它并不在 PyTorch 的 python 源码里。实际上它是用 C++/CUDA 实现的，你可以尝试寻找它的源码。这里你需要参照[这里](https://pytorch.org/tutorials/advanced/cpp_extension.html#jit-compiling-extensions)的教程，将你的算子用 C++ 重写，并在 python 中调用。
 
@@ -259,10 +347,10 @@ err = loss_func(gradA, gradB) # err should equal to 0
 
 之后和上一小节相同，验证你实现的正确性。由于 GELU 本身比较简单，这里不涉及到使用 CUDA 编写算子。
 
-最后，将你编写的算子用于 LeNet-5 的训练中，验证其是否能正常工作。
+最后，将你编写的算子用于 LeNet-5 的训练中，验证其是否能正常工作。 -->
 
 
-### 5 Bonus
+<!-- ### 5 Bonus
 此部分**选做**，感兴趣的同学可以尝试着完成。
 
 #### 5.1 GPT
@@ -405,34 +493,32 @@ PyTorch 自身也有一些分布式训练的工具。
 
 | Model size | Hidden size | Attention-heads | Layers | Sequence length | Learning rate |
 | :---: | :----------: | :--------------: | :----: | :-------------: | :-----------: |
-| 1.6B |     1600     |        32        |   48   |      1024      | 5e-4 |
+| 1.6B |     1600     |        32        |   48   |      1024      | 5e-4 | -->
 
 
 
-## 6 实验任务与要求
+## 实验任务与要求
 
-1. 使用 `PyTorch` 实现最基本的卷积神经网络 LeNet-5，并在 MNIST 数据集上使用 GPU 进行训练，并对测试集进行测试。
-2. 编写 `GELU` 算子，并在 LeNet-5 中使用该算子，验证其正确性。
-3. 你需要提交：
+1. 使用 `PyTorch` 实现 Transformer 模型，并在 WMT19 数据集的子集上使用 GPU 进行训练，并在测试集上进行测试。
+2. 你需要提交：
     1. 全部代码
     2. 实验报告，其中需要包含：
         1. 简要实验过程
         2. 贴上训练过程的 **GPU 占用率截图**（使用 `nvidia-smi` 查看）
-        3. Tensorboard **模型的损失曲线、LeNet-5 的准确率曲线等截图**
-        4. 对于 LeNet-5，你需要写明测试集上的**识别正确率**
-        5. 对于 Bonus，你需要写明训练时间、加速策略、加速效果
-4. ***不允许直接使用各种深度学习开发工具已训练好的网络结构与参数***
-5. ***本次实验依然会进行查重，如果你参考了网络上的代码请在报告中列出，并体现出你的理解，否则一经查出视为抄袭***
-    - 关于 `GELU` 部分，你可以参考 `PyTorch` 中的实现，但是你需要在报告中说明实现在 `PyTorch` 源码的哪个位置。
+        3. Tensorboard **模型的损失曲线等截图**
+        4. 对于 Transformer，你需要写明测试集上的**BLEU**分数
+    3. (Bonus部分) 后续可能更新
+3. ***本次实验依然会进行查重，如果你参考了网络上的代码请在报告中列出，并体现出你的理解，否则一经查出视为抄袭***
+    <!-- - 关于 `Attention` 部分，你可以参考 `PyTorch` 中的实现，但是你需要在报告中说明实现在 `PyTorch` 源码的哪个位置。 -->
 
 ## 参考资料
 
 - `PyTorch` 框架 [https://pytorch.org/](https://pytorch.org/)
-- `PyTorch Lightning` 框架 [https://www.pytorchlightning.ai/](https://www.pytorchlightning.ai/)
-- MNIST 数据集 [http://yann.lecun.com/exdb/mnist/index.html](http://yann.lecun.com/exdb/mnist/index.html)
-- LeNet-5 网络结构 [http://yann.lecun.com/exdb/lenet/](http://yann.lecun.com/exdb/lenet/)
 - `PyTorch` 扩展 [https://pytorch.org/docs/stable/notes/extending.html](https://pytorch.org/docs/stable/notes/extending.html)
+- WMT19 数据集 [https://huggingface.co/datasets/wmt/wmt19](https://huggingface.co/datasets/wmt/wmt19)
+- Trasnformer 介绍 [https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture))
+- Transformer 论文 [https://arxiv.org/abs/1706.03762](https://arxiv.org/abs/1706.03762)
+- `torch.nn.Transformer` [https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html](https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html)
 - Dive into Deep Learning [https://d2l.ai/](https://d2l.ai/)
-- GELU 论文 [https://arxiv.org/abs/1606.08415](https://arxiv.org/abs/1606.08415)
-- `torch.nn.GELU` [https://pytorch.org/docs/stable/generated/torch.nn.functional.gelu.html#torch.nn.functional.gelu](https://pytorch.org/docs/stable/generated/torch.nn.functional.gelu.html#torch.nn.functional.gelu)
-- GPT 介绍 [https://en.wikipedia.org/wiki/GPT-2](https://en.wikipedia.org/wiki/GPT-2)
+
+
