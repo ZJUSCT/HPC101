@@ -15,9 +15,9 @@
 
 同 Lab3 和 Lab4，现有两张 A100 40G，一张 A100 80G 和两张 2080ti 显卡供大家使用
 
-**请在实验报告中指出所使用的显卡类型**
+!!! warning "请在实验报告中指出所使用的显卡类型"
 
-集群上安装了一个基础的 torch 环境，使用 conda 管理，你可以直接使用这个环境
+集群上安装了本实验需要用到的 torch 环境，使用 conda 管理，你可以直接使用这个环境(暂时还没有准备好x)
 ```bash
 conda activate torch
 ```
@@ -25,10 +25,75 @@ conda activate torch
 ```bash
 conda create -n mytorch --clone torch
 ```
-或者新建一个 python 版本为 3.12 的空环境
+或者新建一个 python 版本为 3.12 的空环境，并使用 `pip install -r requirements.txt` 安装所必须的包
 ```bash
 conda create -n mytorch python=3.12
 ```
+
+```sh
+# requirements.txt
+aiohttp==3.9.5
+aiosignal==1.3.1
+attrs==23.2.0
+certifi==2024.7.4
+charset-normalizer==3.3.2
+click==8.1.7
+datasets==2.20.0
+dill==0.3.8
+docutils==0.21.2
+filelock==3.15.4
+frozenlist==1.4.1
+fsspec==2024.5.0
+huggingface-hub==0.23.4
+idna==3.7
+Jinja2==3.1.4
+joblib==1.4.2
+MarkupSafe==2.1.5
+mpmath==1.3.0
+multidict==6.0.5
+multiprocess==0.70.16
+networkx==3.3
+nltk==3.8.1
+numpy==1.26.4
+nvidia-cublas-cu12==12.1.3.1
+nvidia-cuda-cupti-cu12==12.1.105
+nvidia-cuda-nvrtc-cu12==12.1.105
+nvidia-cuda-runtime-cu12==12.1.105
+nvidia-cudnn-cu12==8.9.2.26
+nvidia-cufft-cu12==11.0.2.54
+nvidia-curand-cu12==10.3.2.106
+nvidia-cusolver-cu12==11.4.5.107
+nvidia-cusparse-cu12==12.1.0.106
+nvidia-nccl-cu12==2.20.5
+nvidia-nvjitlink-cu12==12.5.82
+nvidia-nvtx-cu12==12.1.105
+packaging==24.1
+pandas==2.2.2
+pillow==10.4.0
+pyarrow==16.1.0
+pyarrow-hotfix==0.6
+python-dateutil==2.9.0.post0
+pytz==2024.1
+PyYAML==6.0.1
+regex==2024.5.15
+requests==2.32.3
+safetensors==0.4.3
+six==1.16.0
+sympy==1.13.0
+tokenizers==0.19.1
+torch==2.3.1
+torchaudio==2.3.1
+torchvision==0.18.1
+tqdm==4.66.4
+transformers==4.42.3
+triton==2.3.1
+typing_extensions==4.12.2
+tzdata==2024.1
+urllib3==2.2.2
+xxhash==3.4.1
+yarl==1.9.4
+```
+
 注意基础 torch 环境无法被修改（安装新包），因此若你需要安装新包，需要新建一个环境，之后使用 conda 或者 pip 进行管理。
 
 新建的环境会被存放在 `~/.conda/envs/` 目录下，你可以使用 `conda env list` 查看当前环境列表，使用 `conda activate mytorch` 切换到你的环境。
@@ -90,6 +155,8 @@ WMT 数据集 (Workshop on Statistical Machine Translation) 是一个用于机�
 ##### 数据集加载
 
 为了防止占用空间过多，本次实验所用的数据集已经提前下载，切分并存放在`/opt/minidataset`目录下。
+
+!!! warning "暂时只有M603的对应目录存有对应数据，请将目录拷贝到自己的用户目录中"
 
 我们建议利用 huggingface的 `datasets` 库 提供的 `load_dataset` 方法加载数据集 (请不要将下载数据集到本地！), 之后你可以用 torch.utils.data.DataLoader 给你的模型加载数据。
 
@@ -279,7 +346,7 @@ Positional Encoding 可以参考其他实现，但需要给出你对代码的详
 ```
 
 
-#### Tips
+!!! tips "Tips"
 
 - 本次实验不必过于关注模型在验证集上的BLEU分数，只要你的模型能够正常训练，你就可以通过本次实验。
 - 本次实验中包括超参数、优化器在内的选择不限，本次实验的重点在于引导同学们实现 Transformer 模型的训练和评估，但请注意不要长时间占用显卡，如有恶意占用，被发现后会酌情进行扣分
