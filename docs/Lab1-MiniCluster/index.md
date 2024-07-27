@@ -396,7 +396,8 @@ flowchart LR
     wget "https://download.open-mpi.org/release/open-mpi/v5.0/openmpi-5.0.3.tar.gz"
     tar xvf openmpi-5.0.3.tar.gz
     cd openmpi-5.0.3
-    ./configure # 不带参数，将默认安装到 /usr/local/ 下，此时不需要修改 PATH 和 LD_LIBRARY_PATH 等
+    ./configure # 对于绝大多数软件包，不带参数将默认安装到 /usr/local/ 下
+    # 此时不需要修改 PATH 和 LD_LIBRARY_PATH 等
     # 如果你使用 --prefix 参数指定了安装路径，则可能需要修改 PATH 和 LD_LIBRARY_PATH。
     make
     sudo make install # 安装到系统目录 /usr/local 需要 root 权限
