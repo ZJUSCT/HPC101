@@ -1,15 +1,14 @@
 # 实验五：简单神经网络训练与加速
 
-##  实验简介
+## 实验简介
 
 **深度学习**（Deep Learning）是[机器学习](https://zh.wikipedia.org/wiki/机器学习)的分支，是一种以[人工神经网络](https://zh.wikipedia.org/wiki/人工神经网络)为架构，对数据进行表征学习的[算法](https://zh.wikipedia.org/wiki/算法)。深度学习能够取得如此卓越的成就，除了优越的算法、充足的数据，更离不开强劲的算力。近年来，深度学习相关的基础设施逐渐成熟，从网络设计时的训练、优化，到落地的推理加速，都有非常优秀的解决方案。其中，对于算力的需求最大的部分之一是网络的训练过程，它也因此成为 HPC 领域经常研究的话题。
 
-**注意力机制**（Self-Attention）是深度学习中的一种网络结构，也是Transformer架构中的核心部分。
+**注意力机制**（Self-Attention）是深度学习中的一种网络结构，也是 Transformer 架构中的核心部分。
 
-**Transformer** 是由Google在2017年提出的一种网络结构，相比于以往的RNN，它在处理长序列时的表现更好，随即便迅速成为NLP领域的研究热点，而基于Transformer的工作和应用层出不穷，包括当下最热门的大语言模型，比如DeepSeek, GPT-4o等等
+**Transformer** 是由 Google 在 2017 年提出的一种网络结构，相比于以往的 RNN，它在处理长序列时的表现更好，随即便迅速成为 NLP 领域的研究热点，而基于 Transformer 的工作和应用层出不穷，包括当下最热门的大语言模型，比如 DeepSeek, GPT-4o 等等
 
-> 本次实验我们将完成 Transformer 模型的训练，以及之后可能会有的Bonus。对于实验第一部分我们只需要完成训练即可得到对应分数，
-
+> 本次实验我们将完成 Transformer 模型的训练，以及之后可能会有的 Bonus。对于实验第一部分我们只需要完成训练即可得到对应分数，
 
 ## 实验环境
 
@@ -18,6 +17,7 @@
 !!! warning "请在实验报告中指出所使用的显卡类型"
 
 新建一个 python 版本为 3.12 的空环境，并使用 `pip install -r requirements.txt` 安装所必须的包
+
 ```bash
 conda create -n mytorch python=3.12
 pip install -r requirements.txt
@@ -98,6 +98,7 @@ yarl==1.9.4
 ```bash
 CUDA_VISIBLE_DEVICES=1 python train.py
 ```
+
 指定使用编号为 1 的显卡进行训练，此时只有编号为 1 的显卡对于你的程序可见。
 
 ## 实验基础知识介绍
@@ -110,17 +111,16 @@ CUDA_VISIBLE_DEVICES=1 python train.py
 
 $$Attention(Q,K,V)=softmax(\dfrac{QK^T}{\sqrt{d}})V$$
 
-而为了捕捉输入更多维度上的信息，便引入了MHA(Multi-head Attention)，通过将输入数据划分为多个不同的子空间，每个子空间对应一个注意力头，从而学习到输入的不同特性，其可用如下公式表示:
+而为了捕捉输入更多维度上的信息，便引入了 MHA(Multi-head Attention)，通过将输入数据划分为多个不同的子空间，每个子空间对应一个注意力头，从而学习到输入的不同特性，其可用如下公式表示：
 
 $$ \begin{array}{c}
 Z_i=Attention(Q_i, K_i, V_i)=softmax(\dfrac{Q_iK_i^T}{\sqrt{d}})V_i  
 \\
-\Rightarrow Z = Concat(Z_1, Z_2, \cdots, Z_h)W^O 
+\Rightarrow Z = Concat(Z_1, Z_2, \cdots, Z_h)W^O
 \end{array}
 $$
 
 #### Transformer 结构
-
 
 <div align="center">
   <img src="index.assets//transformer.png" alt="Transformer" style="zoom:100%;" />
@@ -128,14 +128,13 @@ $$
 
 有关于其更详细的结构可以在[原论文](https://arxiv.org/pdf/1706.03762)中找到。
 
-
 ### 数据集
 
 #### WMT19 翻译数据集
 
 WMT 数据集 (Workshop on Statistical Machine Translation) 是一个用于机器翻译任务的公开数据集系列，由 WMT 组织提供。这些数据集通常包含多种语言对的平行语料，用于训练和评估机器翻译模型。
 
-为了减少训练时间，在本实验中，我们使用WMT 19 数据集中的 **zh-en** 的部分文件，来对模型进行训练和评估
+为了减少训练时间，在本实验中，我们使用 WMT 19 数据集中的 **zh-en** 的部分文件，来对模型进行训练和评估
 
 <img src="index.assets/WMT19.png" alt="WMT19" style="zoom:100%;" />
 
@@ -149,7 +148,7 @@ WMT 数据集 (Workshop on Statistical Machine Translation) 是一个用于机�
 
 为了防止占用空间过多，本次实验所用的数据集已经提前下载，切分并存放在 `/river/minidataset` 目录下。
 
-我们建议利用 huggingface的 `datasets` 库 提供的 `load_dataset` 方法加载数据集 (请不要将下载数据集到本地！), 之后你可以用 torch.utils.data.DataLoader 给你的模型加载数据。
+我们建议利用 huggingface 的 `datasets` 库 提供的 `load_dataset` 方法加载数据集 (请不要将下载数据集到本地！), 之后你可以用 torch.utils.data.DataLoader 给你的模型加载数据。
 
 ```python
 dataset = load_dataset(path=datasetDir)
@@ -157,7 +156,7 @@ dataset = load_dataset(path=datasetDir)
 
 ##### 数据集预处理
 
-在加载数据集后，会得到类似于`[{'zh': "今天天气怎么样", 'en': "What about weather today"},...]`的结构，为了将其转换成模型可训练的形式，我们需要用tokenizer将文本转换为数字，通常经过tokenize后，会得到如下参数：
+在加载数据集后，会得到类似于`[{'zh': "今天天气怎么样", 'en': "What about weather today"},...]`的结构，为了将其转换成模型可训练的形式，我们需要用 tokenizer 将文本转换为数字，通常经过 tokenize 后，会得到如下参数：
 
 ```python
 {
@@ -167,11 +166,11 @@ dataset = load_dataset(path=datasetDir)
  }
 ```
 
-其中 `input_ids` 是将原文本分词后产生的token映射的数字，`attention_mask` 和输入的 `input ids` 具有完全一样的shape，其中1 代表了这个id需要attention，0代表这个id不需要attention, 用于 padding 后去除那些 padding 值，本实验中应该不需要关注 `token_type_ids`.
+其中 `input_ids` 是将原文本分词后产生的 token 映射的数字，`attention_mask` 和输入的 `input ids` 具有完全一样的 shape，其中 1 代表了这个 id 需要 attention，0 代表这个 id 不需要 attention, 用于 padding 后去除那些 padding 值，本实验中应该不需要关注 `token_type_ids`.
 
-在使用 DataLoader 前，你需要定义自己的 `Dataset` 类来处理上述生成的参数(例如将 list 转换为 torch.Tensor)，为此，你需要继承 `datasets.Dataset` 并至少需要重写其中的 __len__() 和 __getitem__() 函数.
+在使用 DataLoader 前，你需要定义自己的 `Dataset` 类来处理上述生成的参数 (例如将 list 转换为 torch.Tensor)，为此，你需要继承 `datasets.Dataset` 并至少需要重写其中的 **len**() 和 **getitem**() 函数。
 
-Tokenizer 使用示例: 
+Tokenizer 使用示例：
 
 ```python
     from transformers import AutoTokenizer
@@ -180,7 +179,6 @@ Tokenizer 使用示例:
     tokens = tokenizer(input_texts, padding='max_length', truncation=True, max_length=128) #tokenize + encode
     print(tokenizer.decode(tokens))
 ```
-
 
 #### 基本模型编写
 
@@ -214,7 +212,6 @@ print(model)
 
 网络结构编写中一个很大的难点在于每一步的 tensor shape 需要匹配，请仔细检查你的代码来确保此部分的正确性。
 
-
 ##### 损失函数
 
 常见的损失函数都被定义在了 `torch.nn`中，你可以在训练过程开始前将其实例化，并在训练时调用，例如：
@@ -236,18 +233,18 @@ y_pred = model(x)
 
 反向传播（Backpropagation，BP）是“误差反向传播”的简称，是一种与最优化方法（如梯度下降法）结合使用的，用来训练人工神经网络的常见方法。该方法对网络中所有权重计算损失函数的梯度。这个梯度会反馈给最优化方法，用来更新权值以最小化损失函数。
 
-在计算过模型的loss之后，可以利用 `loss.backward()` 计算反向传播的梯度，梯度会被直接储存在 `requires_grad=True` 的节点中，不过此时节点的权重暂时不会更新，因此可以做到梯度的累加。
+在计算过模型的 loss 之后，可以利用 `loss.backward()` 计算反向传播的梯度，梯度会被直接储存在 `requires_grad=True` 的节点中，不过此时节点的权重暂时不会更新，因此可以做到梯度的累加。
 
 ##### 优化器
 
-常用的优化器都被定义在了 `torch.optim` 中，为了使用优化器，你需要构建一个 optimizer 对象。这个对象能够保持当前参数状态并基于计算得到的梯度进行参数更新。你需要给它一个包含了需要优化的参数（必须都是 Variable 对象）的iterable。然后，你可以设置optimizer的参数选项，比如学习率，权重衰减，例如：
+常用的优化器都被定义在了 `torch.optim` 中，为了使用优化器，你需要构建一个 optimizer 对象。这个对象能够保持当前参数状态并基于计算得到的梯度进行参数更新。你需要给它一个包含了需要优化的参数（必须都是 Variable 对象）的 iterable。然后，你可以设置 optimizer 的参数选项，比如学习率，权重衰减，例如：
 
 ```Python
 optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 optimizer = optim.Adam([var1, var2], lr=0.0001)
 ```
 
-所有的optimizer都实现了step()方法，这个方法会更新所有的参数。或许你会在反向传播后用到它。
+所有的 optimizer 都实现了 step() 方法，这个方法会更新所有的参数。或许你会在反向传播后用到它。
 
 ```Python
 optimizer.step()
@@ -288,7 +285,7 @@ for t in range(30000):
 
 在本次实验中，使用 **BLEU(bilingual evaluation understudy)** 来对模型的翻译质量进行打分，请使用`nltk.translate.bleu_score.corpus_bleu`在给出的验证集上对结果进行评分，具体使用可参考[nltk.bleu_score annotation](https://www.nltk.org/_modules/nltk/translate/bleu_score.html)
 
-示例代码如下: 
+示例代码如下：
 
 ```python
     def evaluate(model, dataloader, tokenizer):
@@ -314,11 +311,11 @@ for t in range(30000):
 
 #### TensorBoard
 
-TensorBoard 是常用的训练过程可视化工具。请参考 [PyTorch](https://pytorch.org/tutorials/recipes/recipes/tensorboard_with_pytorch.html) 的官方教程完成配置，需要在实验报告中展示模型损失过程中的Loss变化情况
+TensorBoard 是常用的训练过程可视化工具。请参考 [PyTorch](https://pytorch.org/tutorials/recipes/recipes/tensorboard_with_pytorch.html) 的官方教程完成配置，需要在实验报告中展示模型损失过程中的 Loss 变化情况
 
 #### Coding Guide
 
-为了降低大家的实现难度，本次实验可以使用 `troch.nn.transformer` 作为 tranformer 模型的 Encoder + Decoder 部分，但请注意，`nn.transformer` 只实现了 transformer 模型中的一部分，我们仍然需要实现 Embedding, Positional Encoding 和最后的 Linear, Softmax(由于CrossEntropyLoss中含有softmax函数, 所以不用实现)
+为了降低大家的实现难度，本次实验可以使用 `troch.nn.transformer` 作为 tranformer 模型的 Encoder + Decoder 部分，但请注意，`nn.transformer` 只实现了 transformer 模型中的一部分，我们仍然需要实现 Embedding, Positional Encoding 和最后的 Linear, Softmax(由于 CrossEntropyLoss 中含有 softmax 函数，所以不用实现)
 
 在使用 `troch.nn.transformer` 时请仔细查看各项参数含义...
 
@@ -336,20 +333,19 @@ Positional Encoding 可以参考其他实现，但需要给出你对代码的详
     max_seq_length = 512
 ```
 
+!!! tips
 
-!!! tips "Tips"
+    - 本次实验不必过于关注模型在验证集上的 BLEU 分数，只要你的模型能够正常训练，你就可以通过本次实验。
+    - 本次实验中包括超参数、优化器在内的选择不限，本次实验的重点在于引导同学们实现 Transformer 模型的训练和评估，但请注意不要长时间占用显卡，如有恶意占用，被发现后会酌情进行扣分
+    - 除了利用继承 `nn.Module` 来建立网络，不推荐但可以使用 `nn.ModuleList`, `nn.ModuleDict`，推荐使用 `nn.Sequential`直接定义模型
+    - 此外你可以定义如下的 `device` 变量，以便你的模型在没有 GPU 环境下也可以测试：
 
-- 本次实验不必过于关注模型在验证集上的BLEU分数，只要你的模型能够正常训练，你就可以通过本次实验。
-- 本次实验中包括超参数、优化器在内的选择不限，本次实验的重点在于引导同学们实现 Transformer 模型的训练和评估，但请注意不要长时间占用显卡，如有恶意占用，被发现后会酌情进行扣分
-- 除了利用继承 `nn.Module` 来建立网络，不推荐但可以使用 `nn.ModuleList`, `nn.ModuleDict`，推荐使用 `nn.Sequential`直接定义模型
-- 此外你可以定义如下的 `device` 变量，以便你的模型在没有 GPU 环境下也可以测试：
+        ```Python
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    ```Python
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    model = Model().to(device)
-    some_data = some_data.to(device)
-    ```
+        model = Model().to(device)
+        some_data = some_data.to(device)
+        ```
 
 
 <!-- - `nn.functional.relu`  （简记为 `F.relu` ）和 `nn.ReLU` 略有不同，区别在于前者作为一个函数调用，而后者作为一个层结构，必须添加到 `nn.Module` 容器中才能使用，两者实现的功能一样，在 `PyTorch` 中，`nn.X` 都有对应的函数版本 `F.X`。
@@ -553,8 +549,6 @@ PyTorch 自身也有一些分布式训练的工具。
 | :---: | :----------: | :--------------: | :----: | :-------------: | :-----------: |
 | 1.6B |     1600     |        32        |   48   |      1024      | 5e-4 | -->
 
-
-
 ## 实验任务与要求
 
 1. 使用 `PyTorch` 实现 Transformer 模型，并在 WMT19 数据集的子集上使用 GPU 进行训练，并在测试集上进行测试。
@@ -565,7 +559,7 @@ PyTorch 自身也有一些分布式训练的工具。
         2. 贴上训练过程的 **GPU 占用率截图**（使用 `nvidia-smi` 查看）
         3. Tensorboard **模型的损失曲线等截图**
         4. 对于 Transformer，你需要写明测试集上的**BLEU**分数
-    3. (Bonus部分) 后续可能更新
+    3. (Bonus 部分) 后续可能更新
 3. ***本次实验依然会进行查重，如果你参考了网络上的代码请在报告中列出，并体现出你的理解，否则一经查出视为抄袭***
     <!-- - 关于 `Attention` 部分，你可以参考 `PyTorch` 中的实现，但是你需要在报告中说明实现在 `PyTorch` 源码的哪个位置。 -->
 
@@ -578,5 +572,3 @@ PyTorch 自身也有一些分布式训练的工具。
 - Transformer 论文 [https://arxiv.org/abs/1706.03762](https://arxiv.org/abs/1706.03762)
 - `torch.nn.Transformer` [https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html](https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html)
 - Dive into Deep Learning [https://d2l.ai/](https://d2l.ai/)
-
-
