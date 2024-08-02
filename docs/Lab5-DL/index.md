@@ -146,7 +146,7 @@ WMT 数据集 (Workshop on Statistical Machine Translation) 是一个用于机�
 
 ##### 数据集加载
 
-为了防止占用空间过多，本次实验所用的数据集已经提前下载，切分并存放在 `/river/minidataset` 目录下。
+为了防止占用空间过多，本次实验所用的数据集已经提前下载，切分并存放在 `/river/hpc101/2024/minidataset` 目录下。
 
 我们建议利用 huggingface 的 `datasets` 库 提供的 `load_dataset` 方法加载数据集 (请不要将下载数据集到本地！), 之后你可以用 torch.utils.data.DataLoader 给你的模型加载数据。
 
