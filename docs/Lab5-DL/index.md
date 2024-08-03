@@ -16,13 +16,75 @@
 
 !!! warning "请在实验报告中指出所使用的显卡类型"
 
-新建一个 python 版本为 3.12 的空环境，并使用 `pip install -i https://mirrors.zju.edu.cn/pypi/web/simple tor
-ch torchvision torchaudio  --index-url https://download.pytorch.org/whl/cu121` 安装所必须的包
+新建一个 python 版本为 3.12 的空环境，并使用 `pip install -i https://mirrors.zju.edu.cn/pypi/web/simple --extra-index-url https://download.pytorch.org/whl/cu121 -r requirements.txt` 安装所必须的包 
 
 ```bash
 conda create -n mytorch python=3.12
-pip install -i https://mirrors.zju.edu.cn/pypi/web/simple tor
-ch torchvision torchaudio  --index-url https://download.pytorch.org/whl/cu121
+pip install -i https://mirrors.zju.edu.cn/pypi/web/simple --extra-index-url https://download.pytorch.org/whl/cu121 -r requirements.txt 
+```
+
+```bash
+# requirements.txt
+aiohttp==3.9.5
+aiosignal==1.3.1
+attrs==23.2.0
+certifi==2024.7.4
+charset-normalizer==3.3.2
+click==8.1.7
+datasets==2.20.0
+dill==0.3.8
+docutils==0.21.2
+filelock==3.15.4
+frozenlist==1.4.1
+fsspec==2024.5.0
+huggingface-hub==0.23.4
+idna==3.7
+Jinja2==3.1.4
+joblib==1.4.2
+MarkupSafe==2.1.5
+mpmath==1.3.0
+multidict==6.0.5
+multiprocess==0.70.16
+networkx==3.3
+nltk==3.8.1
+numpy==1.26.4
+nvidia-cublas-cu12==12.1.3.1
+nvidia-cuda-cupti-cu12==12.1.105
+nvidia-cuda-nvrtc-cu12==12.1.105
+nvidia-cuda-runtime-cu12==12.1.105
+nvidia-cudnn-cu12==8.9.2.26
+nvidia-cufft-cu12==11.0.2.54
+nvidia-curand-cu12==10.3.2.106
+nvidia-cusolver-cu12==11.4.5.107
+nvidia-cusparse-cu12==12.1.0.106
+nvidia-nccl-cu12==2.20.5
+nvidia-nvjitlink-cu12==12.5.82
+nvidia-nvtx-cu12==12.1.105
+packaging==24.1
+pandas==2.2.2
+pillow==10.4.0
+pyarrow==16.1.0
+pyarrow-hotfix==0.6
+python-dateutil==2.9.0.post0
+pytz==2024.1
+PyYAML==6.0.1
+regex==2024.5.15
+requests==2.32.3
+safetensors==0.4.3
+six==1.16.0
+sympy==1.13.0
+tokenizers==0.19.1
+torch==2.3.1
+torchaudio==2.3.1
+torchvision==0.18.1
+tqdm==4.66.4
+transformers==4.42.3
+triton==2.3.1
+typing_extensions==4.12.2
+tzdata==2024.1
+urllib3==2.2.2
+xxhash==3.4.1
+yarl==1.9.4
 ```
 
 新建的环境会被存放在 `~/.conda/envs/` 目录下，你可以使用 `conda env list` 查看当前环境列表，使用 `conda activate mytorch` 切换到你的环境。
