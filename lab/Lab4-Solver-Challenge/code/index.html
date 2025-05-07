@@ -12,28 +12,28 @@
         <meta name="author" content="ZJUSCT">
       
       
-        <link rel="canonical" href="https://hpc101.zjusct.io/guide/oj/">
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab4-Solver-Challenge/code/">
       
       
-        <link rel="prev" href="../job/">
+        <link rel="prev" href="../">
       
       
-        <link rel="next" href="../overview/">
+        <link rel="next" href="../../Lab5-DL/">
       
       
-      <link rel="icon" href="../../assets/zjusct.png">
+      <link rel="icon" href="../../../assets/zjusct.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
     
     
       
-        <title>使用在线测评 - HPC101</title>
+        <title>BICG-Stable 算法 - HPC101</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.2afb09e1.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -52,22 +52,22 @@
       
     
     
-      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+      <link rel="stylesheet" href="../../../stylesheets/fonts.css">
     
-      <link rel="stylesheet" href="../../stylesheets/counter.css">
+      <link rel="stylesheet" href="../../../stylesheets/counter.css">
     
-      <link rel="stylesheet" href="../../stylesheets/theme.css">
+      <link rel="stylesheet" href="../../../stylesheets/theme.css">
     
-      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+      <link rel="stylesheet" href="../../../stylesheets/neoteroi-v1.1.2.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
     
     
     
-   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+   <link href="../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
     html.glightbox-open { overflow: initial; height: 100%; }
     .gslide-title { margin-top: 0px; user-select: text; }
     .gslide-desc { color: #666; user-select: text; }
@@ -76,7 +76,7 @@
     .gdesc-inner { font-size: 0.75rem; }
     body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
     body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
-    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -95,7 +95,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#使用在线测评" class="md-skip">
+        <a href="#bicg-stable-算法" class="md-skip">
           Skip to content
         </a>
       
@@ -109,9 +109,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="HPC101" class="md-header__button md-logo" aria-label="HPC101" data-md-component="logo">
+    <a href="../../.." title="HPC101" class="md-header__button md-logo" aria-label="HPC101" data-md-component="logo">
       
-  <img src="../../assets/zjusct.svg" alt="logo">
+  <img src="../../../assets/zjusct.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -128,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              使用在线测评
+              BICG-Stable 算法
             
           </span>
         </div>
@@ -254,13 +254,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../.." class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../.." class="md-tabs__link">
           
   
   
@@ -278,6 +276,8 @@
   
   
   
+    
+  
   
     
     
@@ -285,11 +285,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../lab/Lab0-LinuxCrashCourse/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../Lab0-LinuxCrashCourse/" class="md-tabs__link">
           
   
   
@@ -328,9 +330,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="HPC101" class="md-nav__button md-logo" aria-label="HPC101" data-md-component="logo">
+    <a href="../../.." title="HPC101" class="md-nav__button md-logo" aria-label="HPC101" data-md-component="logo">
       
-  <img src="../../assets/zjusct.svg" alt="logo">
+  <img src="../../../assets/zjusct.svg" alt="logo">
 
     </a>
     HPC101
@@ -354,8 +356,6 @@
       
   
   
-    
-  
   
   
     
@@ -371,23 +371,22 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../.." class="md-nav__link ">
+            <a href="../../.." class="md-nav__link ">
               
   
   
@@ -400,13 +399,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="">
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1">
             <span class="md-nav__icon md-icon"></span>
             课程信息
@@ -419,8 +418,6 @@
                 
   
   
-    
-  
   
   
     
@@ -444,21 +441,20 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_2" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_2" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../../guide/" class="md-nav__link ">
               
   
   
@@ -471,13 +467,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_1_2" id="__nav_1_2_label" tabindex="">
+              <label class="md-nav__link " for="__nav_1_2" id="__nav_1_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_2">
             <span class="md-nav__icon md-icon"></span>
             使用集群
@@ -491,7 +487,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../env/" class="md-nav__link">
+      <a href="../../../guide/env/" class="md-nav__link">
         
   
   
@@ -516,7 +512,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../job/" class="md-nav__link">
+      <a href="../../../guide/job/" class="md-nav__link">
         
   
   
@@ -536,32 +532,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    使用在线测评
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../guide/oj/" class="md-nav__link">
         
   
   
@@ -572,89 +546,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#通过-ssh-连接到评测系统" class="md-nav__link">
-    <span class="md-ellipsis">
-      通过 SSH 连接到评测系统
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#上传文件" class="md-nav__link">
-    <span class="md-ellipsis">
-      上传文件
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#提交" class="md-nav__link">
-    <span class="md-ellipsis">
-      提交
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#查看提交列表" class="md-nav__link">
-    <span class="md-ellipsis">
-      查看提交列表
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#获取提交状态" class="md-nav__link">
-    <span class="md-ellipsis">
-      获取提交状态
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#查看我的状态" class="md-nav__link">
-    <span class="md-ellipsis">
-      查看我的状态
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#查看排行榜" class="md-nav__link">
-    <span class="md-ellipsis">
-      查看排行榜
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -667,7 +558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../overview/" class="md-nav__link">
+      <a href="../../../guide/overview/" class="md-nav__link">
         
   
   
@@ -702,8 +593,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -727,21 +620,22 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
@@ -754,7 +648,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             课程实验
@@ -780,10 +674,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -793,7 +690,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../lab/Lab0-LinuxCrashCourse/" class="md-nav__link ">
+            <a href="../../Lab0-LinuxCrashCourse/" class="md-nav__link ">
               
   
   
@@ -843,10 +740,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -856,7 +756,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../lab/Lab1-MiniCluster/" class="md-nav__link ">
+            <a href="../../Lab1-MiniCluster/" class="md-nav__link ">
               
   
   
@@ -906,10 +806,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -919,7 +822,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../lab/Lab2-Vectors/" class="md-nav__link ">
+            <a href="../../Lab2-Vectors/" class="md-nav__link ">
               
   
   
@@ -969,10 +872,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -982,7 +888,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../lab/Lab2.5-Vectors-Bonus/" class="md-nav__link ">
+            <a href="../../Lab2.5-Vectors-Bonus/" class="md-nav__link ">
               
   
   
@@ -1032,10 +938,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -1045,7 +954,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../lab/Lab3-Cuda/" class="md-nav__link ">
+            <a href="../../Lab3-Cuda/" class="md-nav__link ">
               
   
   
@@ -1080,6 +989,8 @@
                 
   
   
+    
+  
   
   
     
@@ -1097,20 +1008,21 @@
       
       
         
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
+          
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_6" >
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_6" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../lab/Lab4-Solver-Challenge/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -1123,13 +1035,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_2_6" id="__nav_2_6_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_2_6" id="__nav_2_6_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_6">
             <span class="md-nav__icon md-icon"></span>
             Lab4-Solver-Challenge
@@ -1142,6 +1054,8 @@
                 
   
   
+    
+  
   
   
     
@@ -1160,17 +1074,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_6_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_6_2" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../lab/Lab4-Solver-Challenge/code/" class="md-nav__link ">
+            <a href="./" class="md-nav__link md-nav__link--active">
               
   
   
@@ -1184,7 +1096,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_6_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_6_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_6_2">
             <span class="md-nav__icon md-icon"></span>
             code
@@ -1228,10 +1140,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -1241,7 +1156,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../lab/Lab5-DL/" class="md-nav__link ">
+            <a href="../../Lab5-DL/" class="md-nav__link ">
               
   
   
@@ -1291,10 +1206,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -1304,7 +1222,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../lab/Project-Pivot/" class="md-nav__link ">
+            <a href="../../Project-Pivot/" class="md-nav__link ">
               
   
   
@@ -1369,63 +1287,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#通过-ssh-连接到评测系统" class="md-nav__link">
+  <a href="#bicgstab-algorithm" class="md-nav__link">
     <span class="md-ellipsis">
-      通过 SSH 连接到评测系统
+      BICGSTAB Algorithm
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#上传文件" class="md-nav__link">
+  <a href="#baseline-代码介绍" class="md-nav__link">
     <span class="md-ellipsis">
-      上传文件
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#提交" class="md-nav__link">
-    <span class="md-ellipsis">
-      提交
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#查看提交列表" class="md-nav__link">
-    <span class="md-ellipsis">
-      查看提交列表
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#获取提交状态" class="md-nav__link">
-    <span class="md-ellipsis">
-      获取提交状态
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#查看我的状态" class="md-nav__link">
-    <span class="md-ellipsis">
-      查看我的状态
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#查看排行榜" class="md-nav__link">
-    <span class="md-ellipsis">
-      查看排行榜
+      Baseline 代码介绍
     </span>
   </a>
   
@@ -1445,19 +1318,9 @@
                 
                   
 
-  <nav class="md-tags" >
-    
-      
-      
-      
-        <span class="md-tag">stable</span>
-      
-    
-  </nav>
-
 
   
-    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/guide/oj.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab4-Solver-Challenge/code/README.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1465,129 +1328,54 @@
   
 
 
-<h1 id="使用在线测评">使用在线测评<a class="headerlink" href="#使用在线测评" title="Permanent link">&para;</a></h1>
-<p>我们使用基于 SSH 协议的在线测评系统。登陆方式与登陆集群的方式相同。  </p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>在继续之前，请确认你已经可以成功<a href="../">登陆集群</a>。</p>
-</div>
-<h2 id="通过-ssh-连接到评测系统">通过 SSH 连接到评测系统<a class="headerlink" href="#通过-ssh-连接到评测系统" title="Permanent link">&para;</a></h2>
-<p>在线评测系统的节点名为 <code>oj</code>。例如，可以使用  </p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>ssh<span class="w"> </span>student+oj@clusters.zju.edu.cn<span class="w"> </span>-p<span class="w"> </span><span class="m">443</span>
+<h1 id="bicg-stable-算法">BICG-Stable 算法<a class="headerlink" href="#bicg-stable-算法" title="Permanent link">&para;</a></h1>
+<h2 id="bicgstab-algorithm">BICGSTAB Algorithm<a class="headerlink" href="#bicgstab-algorithm" title="Permanent link">&para;</a></h2>
+<ol>
+<li><span class="arithmatex">\(r_0 = b - \mathbf{A}x_0\)</span></li>
+<li>Choose an arbitrary vector <span class="arithmatex">\(\hat{r_0}\)</span> such that <span class="arithmatex">\((\hat{r_0}, r_0)\ne 0\)</span>, eg. <span class="arithmatex">\(\hat{r_0} = r_0\)</span></li>
+<li><span class="arithmatex">\(\rho_0 = (\hat{r}_0, r_0)\)</span></li>
+<li><span class="arithmatex">\(p_0 = r_0\)</span></li>
+<li>For <span class="arithmatex">\(i = 1, 2, 3, \ldots\)</span><ol>
+<li><span class="arithmatex">\(y = \mathbf{M^{-1}} p_{i-1}\)</span></li>
+<li><span class="arithmatex">\(v = \mathbf{A}{y}\)</span></li>
+<li><span class="arithmatex">\(\alpha = \rho_{i-1} / (\hat{r}_0, v)\)</span></li>
+<li><span class="arithmatex">\(h = x_{i-1} + \alpha y\)</span></li>
+<li><span class="arithmatex">\(s = r_{i-1} - \alpha v\)</span></li>
+<li>If <span class="arithmatex">\(s\)</span> is within the accuracy tolerance then <span class="arithmatex">\(x_{i-1} = h\)</span> and quit.</li>
+<li><span class="arithmatex">\(z = \mathbf{M^{-1}} s\)</span></li>
+<li><span class="arithmatex">\(t = \mathbf{A}z\)</span></li>
+<li><span class="arithmatex">\(\omega = (t, s) / (t, t)\)</span></li>
+<li><span class="arithmatex">\(x_i = h + \omega z\)</span></li>
+<li><span class="arithmatex">\(r_i = s - \omega t\)</span></li>
+<li>If <span class="arithmatex">\(r_i\)</span> is within the accuracy tolerance then quit.</li>
+<li><span class="arithmatex">\(\rho_i = (\hat{r}_0, r_i)\)</span></li>
+<li><span class="arithmatex">\(\beta = (\rho_i / \rho_{i-1}) (\alpha / \omega)\)</span></li>
+<li><span class="arithmatex">\(p_i = r_i + \beta (p_{i-1} - \omega v)\)</span></li>
+</ol>
+</li>
+</ol>
+<h2 id="baseline-代码介绍">Baseline 代码介绍<a class="headerlink" href="#baseline-代码介绍" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>.
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── CMakeLists.txt     # CMake 构建文件
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── compile.sh         # 编译脚本
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── include            # 头文件目录
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   └── judger.h       # 评测器头文件
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>├── run.sh             # 运行脚本
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>└── src                # 源代码目录
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    ├── bicgstab       # BICGSTAB 算法实现
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    │   ├── solver.c   # C 版本
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    │   └── solver.f90 # Fortran 版本 (如果有)
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    ├── judger.cpp     # 评测器实现
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    └── main.cpp       # 主程序
 </span></code></pre></div>
-<p>登录到系统</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>推荐修改 SSH 配置文件以获得更加流畅的使用体验。如：</p>
-<div class="language-text highlight"><span class="filename">~/.ssh/config</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Host oj
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    User student+oj
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    HostName clusters.zju.edu.cn
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    Port 443
-</span></code></pre></div>
-<p>以下所有例子都假设你已经修改了 SSH 配置文件。</p>
-</div>
-<p>此时应该可以看到提示信息</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$<span class="w"> </span>ssh<span class="w"> </span>oj
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>************************************************************
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>*<span class="w">                                                          </span>*
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>*<span class="w">  </span>███████╗<span class="w">     </span>██╗██╗<span class="w">   </span>██╗███████╗<span class="w"> </span>██████╗████████╗<span class="w">      </span>*
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>*<span class="w">  </span>╚══███╔╝<span class="w">     </span>██║██║<span class="w">   </span>██║██╔════╝██╔════╝╚══██╔══╝<span class="w">      </span>*
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>*<span class="w">    </span>███╔╝<span class="w">      </span>██║██║<span class="w">   </span>██║███████╗██║<span class="w">        </span>██║<span class="w">         </span>*
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>*<span class="w">   </span>███╔╝<span class="w">  </span>██<span class="w">   </span>██║██║<span class="w">   </span>██║╚════██║██║<span class="w">        </span>██║<span class="w">         </span>*
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>*<span class="w">  </span>███████╗╚█████╔╝╚██████╔╝███████║╚██████╗<span class="w">   </span>██║<span class="w">         </span>*
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>*<span class="w">  </span>╚══════╝<span class="w"> </span>╚════╝<span class="w">  </span>╚═════╝<span class="w"> </span>╚══════╝<span class="w"> </span>╚═════╝<span class="w">   </span>╚═╝<span class="w">         </span>*
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>*<span class="w">                                                          </span>*
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>************************************************************
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>Mon,<span class="w"> </span><span class="m">05</span><span class="w"> </span>Aug<span class="w"> </span><span class="m">2024</span><span class="w"> </span><span class="m">12</span>:00:00<span class="w"> </span>+0800
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w"> </span>Your<span class="w"> </span>IP:<span class="w"> </span>***.***.***.***
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w"> </span>User:<span class="w"> </span>username+oj
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>%%%<span class="w"> </span>我们仍未理解OpenCAEPoro为什么跑不起来多机
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>Welcome<span class="w"> </span>to<span class="w"> </span>SOJ<span class="w"> </span>Secure<span class="w"> </span>Online<span class="w"> </span>Judge<span class="w"> </span>,<span class="w"> </span>username
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="m">2024</span>-08-26<span class="w"> </span><span class="m">19</span>:39:20<span class="w"> </span>CST
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>Use<span class="w"> </span><span class="s1">&#39;submit (sub) &lt;problem_id&gt;&#39;</span><span class="w"> </span>to<span class="w"> </span>submit<span class="w"> </span>a<span class="w"> </span>problem
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>Use<span class="w"> </span><span class="s1">&#39;list (ls) [page]&#39;</span><span class="w"> </span>to<span class="w"> </span>list<span class="w"> </span>your<span class="w"> </span>submissions
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>Use<span class="w"> </span><span class="s1">&#39;status (st) &lt;submit_id&gt;&#39;</span><span class="w"> </span>to<span class="w"> </span>show<span class="w"> </span>a<span class="w"> </span>submission<span class="w"> </span><span class="o">(</span>fuzzy<span class="w"> </span>match<span class="o">)</span>
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>Use<span class="w"> </span><span class="s1">&#39;rank (rk) &#39;</span><span class="w"> </span>to<span class="w"> </span>show<span class="w"> </span>ranklist
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>Use<span class="w"> </span><span class="s1">&#39;my&#39;</span><span class="w"> </span>to<span class="w"> </span>show<span class="w"> </span>your<span class="w"> </span>submission<span class="w"> </span>summary
-</span></code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>在线测评系统目前并没有提供可交互的用户界面，当输出完信息后，会立刻断开与你连接，这是正常现象。</p>
-</div>
-<h2 id="上传文件">上传文件<a class="headerlink" href="#上传文件" title="Permanent link">&para;</a></h2>
-<p>在测评过程中，当需要提交文件时，我们使用<code>sftp</code>进行。路径格式为</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>&lt;problem&gt;/&lt;submit_path&gt;
-</span></code></pre></div>
-<p>例如，如果对于题目<code>hello</code>，需要提交 <code>world.cpp</code>，可以通过</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>scp<span class="w"> </span>/path/to/local/file<span class="w"> </span>oj:hello/world.cpp
-</span></code></pre></div>
-<p>来进行上传。</p>
-<div class="admonition note">
-<p class="admonition-title">如果你无法正常使用 scp 进行上传</p>
-<p>OpenSSH 版本 <code>&lt;8.7</code> 时 <code>scp</code> 不支持 sftp 协议，无法使用 <code>scp</code> 进行上传，请使用 <code>sftp</code> 命令，具体用法请自行查询。</p>
-<p>OpenSSH 版本 <code>&gt;=8.7 &amp;&amp; &lt;9.0</code> 时 <code>scp</code> 支持 sftp 协议，但没有默认启用，请添加选项 <code>-s</code>，如:  </p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>scp<span class="w"> </span>-s<span class="w"> </span>/path/to/local/file<span class="w"> </span>oj:hello/world.cpp
-</span></code></pre></div>
-<p>OpenSSH 版本 <code>&gt;9.0</code> 时可以直接使用 <code>scp</code>。</p>
-</div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>相信聪明的你一定能举一反三。如果你没有修改 <code>ssh config</code>, 这里的命令等价于</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>scp<span class="w"> </span>-P<span class="w"> </span><span class="m">443</span><span class="w"> </span>/path/to/local/file<span class="w"> </span>student+oj@clusters.zju.edu.cn:hello/world.cpp
-</span></code></pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>我们支持标准的 <code>sftp</code> 协议，你可以通过你喜欢的任意 <code>sftp</code> 客户端进行连接。</p>
-</div>
-<h2 id="提交">提交<a class="headerlink" href="#提交" title="Permanent link">&para;</a></h2>
-<p>当你准备完所有文件后，你就可以进行提交了，提交不会清空已上传的文件。提交命令为</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>ssh<span class="w"> </span>oj<span class="w"> </span>submit<span class="w"> </span>&lt;problem&gt;
-</span></code></pre></div>
-<p>这会创建一个提供流式日志的 SSH 会话。关闭该 SSH 连接不会影响评测的进行。可以通过 <a href="#获取提交状态">获取提交状态</a> 来获得评测日志，与流式日志完全相同。</p>
-<h2 id="查看提交列表">查看提交列表<a class="headerlink" href="#查看提交列表" title="Permanent link">&para;</a></h2>
-<p>可以通过</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>ssh<span class="w"> </span>oj<span class="w"> </span>list
-</span></code></pre></div>
-<p>来获取你的历史提交，每页最多 10 个提交。例如，可以通过</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>ssh<span class="w"> </span>oj<span class="w"> </span>list<span class="w"> </span><span class="m">2</span>
-</span></code></pre></div>
-<p>来获得第二页。</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p><code>list=ls</code></p>
-</div>
-<h2 id="获取提交状态">获取提交状态<a class="headerlink" href="#获取提交状态" title="Permanent link">&para;</a></h2>
-<p>在提交后的日志中和提交列表中，你都可以找到某个提交的 <code>ID</code>，你可以通过</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>ssh<span class="w"> </span>oj<span class="w"> </span>status<span class="w"> </span>&lt;ID&gt;
-</span></code></pre></div>
-<p>来获取这个提交的详细信息。</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p><code>status=st</code></p>
-</div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p><code>status</code>命令会对<code>ID</code>进行模糊查询，你可以通过其任意字串进行查询，仅会返回匹配的最新提交。</p>
-</div>
-<h2 id="查看我的状态">查看我的状态<a class="headerlink" href="#查看我的状态" title="Permanent link">&para;</a></h2>
-<p>通过命令</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>ssh<span class="w"> </span>oj<span class="w"> </span>my
-</span></code></pre></div>
-<p>你可以查询当前各个题目的有效提交状态和总分。</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>0 分的提交不会进入统计</p>
-</div>
-<h2 id="查看排行榜">查看排行榜<a class="headerlink" href="#查看排行榜" title="Permanent link">&para;</a></h2>
-<p>通过命令</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>ssh<span class="w"> </span>oj<span class="w"> </span>rank
-</span></code></pre></div>
-<p>你可以查询当前排行榜。</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p><code>rank=rk</code></p>
-</div>
+<p><strong>严禁修改计时区</strong>，因此对于 <code>src/main.cpp</code> 的修改，请仅限于添加 MPI 相关的代码。还有 <code>src/judger.cpp</code>, <code>include/judger.h</code> 不可以修改，其他部分都可以进行修改。</p>
+<p>如果希望提交到 OJ 测评，请注意：</p>
+<ul>
+<li><code>src/judger.cpp</code>, <code>include/judger.h</code> 在 OJ 测评时会被替换，因此修改并不会生效。</li>
+<li>如果有新增文件并希望可以被 OJ 测评，请将新文件放在 <code>src</code> 或 <code>include</code> 文件夹中。OJ 会使用的文件为：<code>src</code> 文件夹，<code>include</code> 文件夹，<code>CMakeLists.txt</code>, <code>run.sh</code>, <code>compile.sh</code>，其他的文件不会生效。</li>
+</ul>
+<p>在使用 OpenMP 的时候，请记得在 <code>CMakeLists.txt</code> 中添加 <code>-fopenmp</code> 或者 <code>-qopenmp</code> 选项哦。</p>
+<p>数据文件在 <code>/river/hpc101/2024/lab4/data</code> 中，你可以在代码的根目录下，通过 <code>ln -s /river/hpc101/2024/lab4/data data</code> 来引用它们。如果直接复制数据的话，请注意不要向 OJ 或者学在浙大提交数据文件。</p>
 
 
 
@@ -1655,7 +1443,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../job/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 提交作业">
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: 实验四：Solver Challenge">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1665,20 +1453,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                提交作业
+                实验四：Solver Challenge
               </div>
             </div>
           </a>
         
         
           
-          <a href="../overview/" class="md-footer__link md-footer__link--next" aria-label="Next: 集群概况">
+          <a href="../../Lab5-DL/" class="md-footer__link md-footer__link--next" aria-label="Next: 实验五：简单神经网络训练与加速">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                集群概况
+                实验五：简单神经网络训练与加速
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1718,12 +1506,12 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "content.code.select", "content.code.annotate", "navigation.footer", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.tracking", "navigation.path", "navigation.top", "toc.follow", "content.action.edit", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.copy", "content.code.select", "content.code.annotate", "navigation.footer", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.tracking", "navigation.path", "navigation.top", "toc.follow", "content.action.edit", "search.suggest", "search.highlight", "search.share"], "search": "../../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.c8b220af.min.js"></script>
       
-        <script src="../../javascripts/mathjax.js"></script>
+        <script src="../../../javascripts/mathjax.js"></script>
       
         <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
       
@@ -1731,7 +1519,7 @@
       
         <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
       
-        <script src="../../javascripts/tablesort.js"></script>
+        <script src="../../../javascripts/tablesort.js"></script>
       
         <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
       

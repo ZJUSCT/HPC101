@@ -5,46 +5,6 @@
          <lastmod>2025-05-07</lastmod>
     </url>
     <url>
-         <loc>https://hpc101.zjusct.io/Intro/</loc>
-         <lastmod>2025-05-07</lastmod>
-    </url>
-    <url>
-         <loc>https://hpc101.zjusct.io/Lab0-LinuxCrashCourse/</loc>
-         <lastmod>2025-05-07</lastmod>
-    </url>
-    <url>
-         <loc>https://hpc101.zjusct.io/Lab1-MiniCluster/</loc>
-         <lastmod>2025-05-07</lastmod>
-    </url>
-    <url>
-         <loc>https://hpc101.zjusct.io/Lab2-Vectors/</loc>
-         <lastmod>2025-05-07</lastmod>
-    </url>
-    <url>
-         <loc>https://hpc101.zjusct.io/Lab2.5-Vectors-Bonus/</loc>
-         <lastmod>2025-05-07</lastmod>
-    </url>
-    <url>
-         <loc>https://hpc101.zjusct.io/Lab3-Cuda/</loc>
-         <lastmod>2025-05-07</lastmod>
-    </url>
-    <url>
-         <loc>https://hpc101.zjusct.io/Lab4-Solver-Challenge/</loc>
-         <lastmod>2025-05-07</lastmod>
-    </url>
-    <url>
-         <loc>https://hpc101.zjusct.io/Lab4-Solver-Challenge/baseline/</loc>
-         <lastmod>2025-05-07</lastmod>
-    </url>
-    <url>
-         <loc>https://hpc101.zjusct.io/Lab5-DL/</loc>
-         <lastmod>2025-05-07</lastmod>
-    </url>
-    <url>
-         <loc>https://hpc101.zjusct.io/Project-Pivot/</loc>
-         <lastmod>2025-05-07</lastmod>
-    </url>
-    <url>
          <loc>https://hpc101.zjusct.io/guide/</loc>
          <lastmod>2025-05-07</lastmod>
     </url>
@@ -62,6 +22,42 @@
     </url>
     <url>
          <loc>https://hpc101.zjusct.io/guide/overview/</loc>
+         <lastmod>2025-05-07</lastmod>
+    </url>
+    <url>
+         <loc>https://hpc101.zjusct.io/lab/Lab0-LinuxCrashCourse/</loc>
+         <lastmod>2025-05-07</lastmod>
+    </url>
+    <url>
+         <loc>https://hpc101.zjusct.io/lab/Lab1-MiniCluster/</loc>
+         <lastmod>2025-05-07</lastmod>
+    </url>
+    <url>
+         <loc>https://hpc101.zjusct.io/lab/Lab2-Vectors/</loc>
+         <lastmod>2025-05-07</lastmod>
+    </url>
+    <url>
+         <loc>https://hpc101.zjusct.io/lab/Lab2.5-Vectors-Bonus/</loc>
+         <lastmod>2025-05-07</lastmod>
+    </url>
+    <url>
+         <loc>https://hpc101.zjusct.io/lab/Lab3-Cuda/</loc>
+         <lastmod>2025-05-07</lastmod>
+    </url>
+    <url>
+         <loc>https://hpc101.zjusct.io/lab/Lab4-Solver-Challenge/</loc>
+         <lastmod>2025-05-07</lastmod>
+    </url>
+    <url>
+         <loc>https://hpc101.zjusct.io/lab/Lab4-Solver-Challenge/code/</loc>
+         <lastmod>2025-05-07</lastmod>
+    </url>
+    <url>
+         <loc>https://hpc101.zjusct.io/lab/Lab5-DL/</loc>
+         <lastmod>2025-05-07</lastmod>
+    </url>
+    <url>
+         <loc>https://hpc101.zjusct.io/lab/Project-Pivot/</loc>
          <lastmod>2025-05-07</lastmod>
     </url>
 </urlset>
