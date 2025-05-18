@@ -1055,11 +1055,6 @@
 </div>
 <h3 id="具体任务">具体任务<a class="headerlink" href="#具体任务" title="Permanent link">&para;</a></h3>
 <ul>
-<li>软件安装：<ul>
-<li>选择一：下载 OpenMPI、BLAS 和 HPL 的源代码并编译安装。</li>
-<li>选择二：使用 Spack 安装 OpenMPI、BLAS 和 HPL。</li>
-</ul>
-</li>
 <li>集群搭建：<ul>
 <li>选择一 使用虚拟机：克隆虚拟机、配置虚拟机互联、测试节点间通信。</li>
 <li>选择二 使用容器：创建多个容器实例，配置容器间互联、测试容器间通信。</li>
@@ -1069,7 +1064,7 @@
 </ul>
 <div class="admonition tip">
 <p class="admonition-title">任选一种你喜欢的集群搭建方式即可</p>
-<p>我们不对集群搭建的方式做硬性限制，你可以使用虚拟机、容器、物理机等任何方式搭建集群，但是注意有以下要求：  </p>
+<p>我们不对集群搭建的方式做硬性限制，你可以使用虚拟机、容器、物理机、开发板等任何方式搭建集群，但是注意有以下要求：  </p>
 <ul>
 <li>至少有4个在线节点。</li>
 <li>节点之间能够通过 ssh 进行互联。MPI 能正常工作。</li>
@@ -1077,12 +1072,26 @@
 <li>正确为每台机器设置主机名，并能从主机名解析出 IP 地址。</li>
 <li>通过 NFS 或其他共享文件系统，实现集群间文件共享。</li>
 <li>通过 nis 或 ldap 等方法实现集群间用户（组）共享和管理。</li>
+<li>选择你喜欢的节点指标，日志收集，监控等方法，并利用 grafana 等工具进行可视化。</li>
+<li>如果你通过虚拟机或物理机等方式进行实验，可以尝试利用 pxe 引导集群启动。</li>
 </ul>
 </li>
 </ul>
 </div>
 <ul>
-<li>性能测试：在虚拟机/容器集群上使用 OpenMPI 运行 HPL 性能测试，记录测试结果。</li>
+<li>软件安装：<ul>
+<li>选择一：下载 OpenMPI、BLAS 和 HPL 的源代码并编译安装。</li>
+<li>选择二：使用 Spack 安装 OpenMPI、BLAS 和 HPL。</li>
+<li>选择三：使用你喜欢的方式安装 OpenMPI、BLAS 和 HPL。</li>
+</ul>
+</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">任选一种你喜欢的软件安装方式即可</p>
+<p>我们不对软件安装的方式做硬性限制，你可以使用源码编译、包管理器安装、spack 安装等任何方式安装软件, 但是不允许对HPL的算法进行修改。</p>
+</div>
+<ul>
+<li>性能测试：在虚拟机/容器集群上使用 OpenMPI 运行 CPU 上的 HPL 性能测试，记录测试结果。</li>
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">性能优化</p>
@@ -1118,6 +1127,7 @@
 <ol>
 <li>实验报告 PDF 文件</li>
 <li>HPL 输出结果文本文件</li>
+<li>如果修改了代码，请提交修改后的代码和一份修改说明。</li>
 </ol>
 <p>如果有其他较长的纯文本形式的代码或者配置文件，无需包含在实验报告正文中，可以和 HPL 结果文件一样，作为附件提交。</p>
 <div class="admonition tip">
@@ -1773,7 +1783,7 @@ A_{2,2}^{update} &amp;= A_{2,2} - L_{2,1}U_{1,2}
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 18, 2025 08:34:11">May 18, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 18, 2025 08:51:15">May 18, 2025</span>
   </span>
 
     
