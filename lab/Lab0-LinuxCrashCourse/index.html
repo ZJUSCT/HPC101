@@ -26,7 +26,7 @@
     
     
       
-        <title>Lab0: Linux Crash Course - HPC101</title>
+        <title>Lab 0: Linux Crash Course - HPC101</title>
       
     
     
@@ -95,7 +95,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#lab0-linux-crash-course" class="md-skip">
+        <a href="#lab-0-linux-crash-course" class="md-skip">
           Skip to content
         </a>
       
@@ -128,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Lab0: Linux Crash Course
+              Lab 0: Linux Crash Course
             
           </span>
         </div>
@@ -1060,29 +1060,34 @@
   
 
 
-<h1 id="lab0-linux-crash-course">Lab0: Linux Crash Course<a class="headerlink" href="#lab0-linux-crash-course" title="Permanent link">&para;</a></h1>
+<h1 id="lab-0-linux-crash-course">Lab 0: Linux Crash Course<a class="headerlink" href="#lab-0-linux-crash-course" title="Permanent link">&para;</a></h1>
 <div class="admonition tip">
-<p class="admonition-title">为了让同学们习惯阅读英文文档，本次实验将全程使用英文。</p>
-<p>在后文中安装系统时，我们也要求选择安装英文语言包。</p>
-<p>如果有任何问题，欢迎随时在群内提出或向助教询问。</p>
-<p>如果阅读英文文档有困难，可以使用翻译软件辅助阅读。我们推荐在浏览器中使用 <a href="https://immersivetranslate.com/">沉浸式翻译</a> 插件辅助阅读。</p>
+<p class="admonition-title">为了让同学们习惯阅读英文文档，本次实验将全程使用英文</p>
+<p>在 Linux 和 HPC 领域，大量的软、硬件基础设施由世界各地的人们共同建设，英语是人们沟通交流中重要的一环。在未来，同学们将会接触到 NumPy，PyTorch，OpenMP，MPI 等知名的软件项目，同学们在使用它们的过程中，也不可避免地要阅读它们的文档来解决问题，而这些文档往往是由英文编写的。<strong>为了让同学们习惯阅读英文文档，本次实验将全程使用英文。</strong></p>
+<p>当然，我们也知道阅读长篇的英文文档的确事件很困难的事情，因此我们<strong>推荐同学下载并配置好 <a href="https://immersivetranslate.com/">沉浸式翻译</a> </strong>这个浏览器插件来辅助阅读。</p>
+<p>同样地，在后文中安装系统时，我们也要求选择安装英文语言包。</p>
+<p>别担心，课程的正式实验，依然是中文文档。</p>
+<p>如果在完成实验时有任何问题，或者实验文档中有些说明已经过时需要更新，欢迎随时在群内提出或向助教询问。</p>
 </div>
 <div class="admonition tip">
 <p class="admonition-title">关于本实验</p>
-<p>部分同学已经对 Linux 比较熟悉，但更多的同学并未接触过 Linux。希望通过本次实验，能够让同学们都对 Linux 具有<strong>一致的基本认识，配置好相同的环境</strong>，为后续实验做好准备。</p>
-<p>本次不需要撰写实验报告，答案直接附在问题后面。你只需要提供几张截图：</p>
+<p>大部分同学可能只是听说过 Linux，但从未接触过 Linux。为了减少大家完成 Lab 1 时，因为对 Linux 环境不熟悉造成的困难，我们添加了本实验。</p>
+<p>我们希望通过本次实验，能够让同学们对 Linux 具有<strong>一致的基本认识，配置好相同的环境</strong>，为后续实验做好准备。</p>
+<p>本次实验不计入 HPC 101 短学期课程评价，不需要撰写实验报告，答案直接附在问题后面。</p>
+<p>如果你完成了本次试验，只需要提供几张截图：</p>
 <ul>
-<li>Task1.1: hash result</li>
-<li>Task2.1: <code>nano</code> screenshot</li>
-<li>Task3.2: SSH connection screenshot</li>
-<li>Task5.2: SSH connection screenshot</li>
+<li>Task 1.1: hash result</li>
+<li>Task 2.1: <code>nano</code> screenshot</li>
+<li>Task 3.2: SSH connection screenshot</li>
+<li>Task 5.2: SSH connection screenshot</li>
 </ul>
-<p>如果你对本次实验内容轻车熟路，那么无需阅读内容，直接完成任务即可。</p>
+<p>如果你之前对 Linux 有较深的了解，或者正在使用 Linux 系统，对本次实验内容轻车熟路，那么无需阅读内容，直接完成任务即可。</p>
 </div>
-<div class="admonition tip">
-<p class="admonition-title">如何阅读错误信息并处理错误</p>
-<p>命令行与图形界面的一大不同就是，在命令的运行过程中会给出很多记录（Log）和错误信息（Error Message）。新手可能都有畏难心理，觉得这些信息很难看懂/看了也没有什么用，但很多时候解决方法已经在错误信息中了。举个例子，下面是运行 <code>make</code> 时产生的一些信息，你能指出错误是什么吗？</p>
-<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
+<!-- !!! tip "如何阅读错误信息并处理错误"
+
+    命令行与图形界面的一大不同就是，在命令的运行过程中会给出很多记录（Log）和错误信息（Error Message）。新手可能都有畏难心理，觉得这些信息很难看懂/看了也没有什么用，但很多时候解决方法已经在错误信息中了。举个例子，下面是运行 `make` 时产生的一些信息，你能指出错误是什么吗？
+
+    <div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
 <span class="normal"><a href="#__codelineno-0-4"> 4</a></span>
@@ -1104,25 +1109,28 @@
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10"></a>make[1]: Leaving directory &#39;/home/test/hpl/hpl-2.3&#39;
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11"></a>make: *** [Make.top:54: build] Error 2
 </span></code></pre></div></td></tr></table></div>
-<details class="success">
-<summary>Check your answer</summary>
-<p>错误是第 6 行的 <code>Makefile:47: Make.inc: No such file or directory</code>。这个错误信息的开头是 <code>Makefile:47</code>，表示错误发生在 Makefile 的第 47 行。错误原因是 <code>Make.inc</code> 文件不存在。</p>
-<p>那么如何解决这个问题呢？<strong>当然是去发生错误的地方看看</strong>。跳转到 <code>/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS</code> 这个文件夹，使用 <code>ls -lah</code> 命令查看文件夹中的文件，我们得到如下结果：</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>total 5.5K
+
+    ??? success "Check your answer"
+
+        错误是第 6 行的 `Makefile:47: Make.inc: No such file or directory`。这个错误信息的开头是 `Makefile:47`，表示错误发生在 Makefile 的第 47 行。错误原因是 `Make.inc` 文件不存在。
+
+        那么如何解决这个问题呢？**当然是去发生错误的地方看看**。跳转到 `/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS` 这个文件夹，使用 `ls -lah` 命令查看文件夹中的文件，我们得到如下结果：
+
+        <div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>total 5.5K
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>drwxr-xr-x 2 test test  4.0K May  6  2024 .
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>drwxr-xr-x 3 test test 11.0K May  6  2024 ..
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>lrwxrwxrwx 1 test test    36 May  6  2024 Make.inc -&gt; /home/test/hpl/hpl/Make.Linux_PII_CBLAS
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>-rw-r--r-- 1 test test  5.0K May  6  2024 Makefile
 </span></code></pre></div>
-<p>对比一下现在的位置：<code>/home/test/hpl/hpl-2.3/</code>，显然上面路径中是把 <code>hpl-2.3</code> 写成了 <code>hpl</code>。修改顶层 Makefile 中的路径即可解决问题。</p>
-</details>
-<p>总结步骤如下：</p>
-<ol>
-<li>阅读提示信息，定位错误位置和原因（如果读不懂，去 Google 或扔给 ChatGPT）。</li>
-<li>去错误现场，看看发生了什么。</li>
-<li>根据提示和查阅得到的资料修复错误。</li>
-</ol>
-</div>
+
+        对比一下现在的位置：`/home/test/hpl/hpl-2.3/`，显然上面路径中是把 `hpl-2.3` 写成了 `hpl`。修改顶层 Makefile 中的路径即可解决问题。
+
+    总结步骤如下：
+
+    1. 阅读提示信息，定位错误位置和原因（如果读不懂，去 Google 或扔给 ChatGPT）。
+    2. 去错误现场，看看发生了什么。
+    3. 根据提示和查阅得到的资料修复错误。 -->
+
 <div class="admonition info">
 <p class="admonition-title">其他优质资源</p>
 <ul>
@@ -1173,19 +1181,94 @@
 <figcaption>Computer Architecture</figcaption>
 </figure>
 <p>An operating system (OS) is system software that manages computer hardware, software resources, and provides common services for computer programs. The operating system is a vital component of the system software in a computer system.</p>
-<p>A kernel is a computer program that is the core of a computer's operating system, with complete control over everything in the system. It is the "lowest" level of the OS.</p>
+<p>A kernel is a computer program that is the <strong>core of a computer's operating system</strong>, with complete control over everything in the system. It is the "lowest" level of the OS.</p>
 <h3 id="linux">Linux<a class="headerlink" href="#linux" title="Permanent link">&para;</a></h3>
 <p>Linux is a family of open-source Unix-like operating systems based on the Linux kernel, an operating system kernel first released on September 17, 1991, by Linus Torvalds. Linux is typically packaged in a Linux distribution.</p>
 <p>Linux is a popular choice for developers and system administrators due to its flexibility and open-source nature. Linux is also widely used in the HPC field due to its high performance and scalability.</p>
+<details class="success" open="open">
+<summary>🎉 Good Luck! You are a Linux User now!</summary>
+<p><!-- A minimal structure for the ScreenAdapter defined in browser/screen.js -->
+<div id="screen_container" style="display: flex;">
+    <div style="white-space: pre; font: 14px monospace; line-height: 14px; margin: auto;"></div>
+    <canvas style="display: none"></canvas>
+</div></p>
+<p>We want to show you that learning Linux is not hard and getting Linux is very easy. <strong>Linux runs everywhere, even in your browser.</strong></p>
+<p>Don't be afraid, the black screen above is an emulator using <a href="https://webassembly.org/">Web Assembly</a> technology. It runs <a href="https://en.wikipedia.org/wiki/Linux">Linux</a> kernel 6.8.12 (Try typing <code>uname -a</code> to check it out!) with <a href="https://buildroot.org/">Buildroot</a> environment (which contains a collection of basic Linux command line tools).</p>
+<p>You can try common Linux commands here, like <code>ls</code>, <code>cd</code>, <code>cat</code>, <code>echo</code>, <code>pwd</code>, <code>uname</code>, <code>date</code>, <code>top</code>, <code>ps</code>, <code>clear</code>, and <code>exit</code>.</p>
+<p>Good job! Now you're a true Linux user. You can go on and finish this lab.</p>
+</details>
+<script src="/javascripts/v86/libv86.js"></script>
+<script>
+"use strict";
+
+// Save references to the original event handler methods
+const originalAddEventListener = window.addEventListener;
+const originalRemoveEventListener = window.removeEventListener;
+
+// Array to store keydown listeners
+const keydownListeners = [];
+
+// Override addEventListener to track keydown listeners
+window.addEventListener = function(type, listener, options) {
+originalAddEventListener.call(window, type, listener, options);
+if (type === 'keydown') {
+    keydownListeners.push({ listener, options });
+}
+};
+
+// Override removeEventListener to update the keydown listeners list
+window.removeEventListener = function(type, listener, options) {
+originalRemoveEventListener.call(window, type, listener, options);
+if (type === 'keydown') {
+    const index = keydownListeners.findIndex(entry => 
+    entry.listener === listener && 
+    (entry.options === options || 
+    (typeof entry.options === 'object' && typeof options === 'object' && 
+        JSON.stringify(entry.options) === JSON.stringify(options))));
+    if (index !== -1) {
+    keydownListeners.splice(index, 1);
+    }
+}
+};
+
+window.onload = function()
+{
+    // Remove key listener from material mkdocs
+    if (keydownListeners.length > 0) {
+        const firstListener = keydownListeners.shift();
+        window.removeEventListener('keydown', firstListener.listener, firstListener.options);
+    }
+
+    var emulator = new V86({
+        wasm_path: "/javascripts/v86/v86.wasm",
+        memory_size: 512 * 1024 * 1024,
+        vga_memory_size: 8 * 1024 * 1024,
+        screen_container: document.getElementById("screen_container"),
+        bios: {
+            url: "/javascripts/v86/seabios.bin",
+        },
+        vga_bios: {
+            url: "/javascripts/v86/vgabios.bin",
+        },
+        bzimage: {
+            url: "/javascripts/v86/buildroot-bzimage68.bin",
+        },
+        autostart: true,
+    });
+};
+</script>
+
 <h3 id="linux-distributions">Linux distributions<a class="headerlink" href="#linux-distributions" title="Permanent link">&para;</a></h3>
+<p>What is Linux distribution? A Linux distribution (or Linux distro) is essentially a collection of software packages and configurations that are used to create a complete Linux operating system. They both use the Linux kernel, but might have different out-of-the-box configurations and user applications.</p>
 <p>There are many Linux distributions available, each with its own strengths and weaknesses. Here are some popular choices:</p>
 <ul>
-<li><strong>Ubuntu</strong>: A popular choice for beginners due to its ease of use and large community support.</li>
+<li><strong>Ubuntu</strong>: A popular choice for beginners due to its ease of use, large community support, and compatibility with many hardware devices.</li>
 <li><strong>Debian</strong>: Known for its stability and security.</li>
 <li><strong>Fedora</strong>: A community-driven Linux distribution sponsored by Red Hat.</li>
 <li><strong>Arch Linux</strong>: A lightweight and flexible Linux distribution that follows the "rolling release" model.</li>
 </ul>
-<p>In HPC and cloud computing, Debian is a popular choice due to its stability and security. We recommend using Debian for this course.</p>
+<p>In HPC and cloud computing, Debian is a popular choice due to its stability and security.</p>
+<p><strong>We recommend using Debian for this course.</strong></p>
 <div class="admonition question">
 <p class="admonition-title">Task 1.1: Download and verify the latest <strong>textonly</strong> version of Debian ISO image from <a href="https://mirrors.zju.edu.cn/debian-cd/">ZJU Mirrors</a></p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Step 1</label><label for="__tabbed_1_2">Step 2</label><label for="__tabbed_1_3">Step 3</label></div>
@@ -1194,23 +1277,25 @@
 <p>Follow the link to the Debian CD image download page: <a href="https://mirrors.zju.edu.cn/debian-cd/">ZJU Mirrors</a>.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Index of /debian-cd/
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>../
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>12.5.0/                                            19-Feb-2024 18:01                   -
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>12.5.0-live/                                       10-Feb-2024 20:12                   -
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>current/                                           19-Feb-2024 18:01                   -
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>current-live/                                      10-Feb-2024 20:12                   -
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>12.11.0/                                           17-May-2025 17:55                   -
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>12.11.0-live/                                      17-May-2025 17:55                   -
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>current/                                           17-May-2025 17:55                   -
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>current-live/                                      17-May-2025 17:55                   -
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>project/                                           23-May-2005 16:50                   -
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>ls-lR.gz                                           28-May-2024 17:12               13276
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>ls-lR.gz                                           17-May-2025 20:12               13882
 </span></code></pre></div>
-<p>We need you to download the <strong>textonly</strong> version. Don't know how to find correct download link from the above webpage? Read this guide: <a href="https://github.com/slowpeek/debian-iso-guide"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></span> Your guide to Debian iso downloads</a>.</p>
+<p>We need you to download the <strong>textonly</strong> version.</p>
+<p>Don't know how to find correct download link from the above webpage? Read this guide: <a href="https://github.com/slowpeek/debian-iso-guide"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></span> Your guide to Debian iso downloads</a>.</p>
 </div>
 <div class="tabbed-block">
 <div class="admonition warning">
 <p class="admonition-title">For MacBook users with M series processors</p>
-<p>You need to download the <code>arm64</code> version of Debian.</p>
+<p>You need to download the <code>arm64</code> version of Debian, but <strong>not</strong> the <code>debian-mac-</code> version under <code>amd64</code> directory.</p>
 </div>
-<p>The download link should look like this: <a href="https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-12.5.0-amd64-netinst.iso">https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-12.5.0-amd64-netinst.iso</a>.</p>
+<p>The download link should look like this: <a href="https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso">https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso</a>.</p>
+<p><strong>Quick questions:</strong></p>
 <ul>
-<li>What is the difference between <code>debian-12.5.0-amd64-netinst.iso</code> and the <code>debian-12.5.0-amd64-DVD-1.iso</code>?</li>
+<li>What is the difference between <code>debian-12.11.0-amd64-netinst.iso</code> and the <code>debian-12.11.0-amd64-DVD-1.iso</code>?</li>
 <li>What is the difference between the <code>amd64</code> and <code>arm64</code> versions?</li>
 </ul>
 <details class="success">
@@ -1222,13 +1307,15 @@
 </details>
 </div>
 <div class="tabbed-block">
-<p>Verify the integrity of the downloaded ISO image. You can use:</p>
+<p>Verify the integrity of the downloaded ISO image. This is to ensure the ISO image is not corrupted or modified during the download process.</p>
+<p>You can use:</p>
 <ul>
-<li><code>sha256sum</code> on Linux: <code>sha256sum debian-12.5.0-amd64-netinst.iso</code></li>
-<li><code>certutil</code> on Windows: <code>certutil -hashfile debian-12.5.0-amd64-netinst.iso SHA256</code></li>
-<li><code>shasum</code> on macOS: <code>shasum -a 256 debian-12.5.0-amd64-netinst.iso</code></li>
+<li><code>sha256sum</code> on Linux: <code>sha256sum debian-12.10.0-amd64-netinst.iso</code></li>
+<li><code>certutil</code> on Windows: <code>certutil -hashfile debian-12.10.0-amd64-netinst.iso SHA256</code></li>
+<li><code>shasum</code> on macOS: <code>shasum -a 256 debian-12.10.0-amd64-netinst.iso</code></li>
 </ul>
-<p>Show the result of your verification.</p>
+<p>Show the result of your verification, and compare it with the result in <code>SHA256SUMS</code> file under the same directory as the ISO image.</p>
+<p>If they are the same, then you are good to go.</p>
 </div>
 </div>
 </div>
@@ -1589,7 +1676,12 @@
 <div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Step 1</label><label for="__tabbed_6_2">Step 2</label><label for="__tabbed_6_3">Step 3</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>Follow this guide to generate an SSH key: <a href="https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></span> Generating a new SSH key and adding it to the ssh-agent</a></p>
+<p>Follow this guide to generate an SSH key: <a href="https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></span> Generating a new SSH key and adding it to the ssh-agent</a>.</p>
+<p>Please take care of your <strong>private</strong> key, don't share it with anyone. And for the <strong>public</strong> key, you can share it with anyone who needs it.</p>
+<p>We strongly suggest you to use <code>ed25519</code> algorithm instead of <code>rsa</code> for better security with shorter key length, unless you want to end up being like this when sharing your SSH <strong>public</strong> key:</p>
+<p><figure markdown="span" style="width: 30%;">
+<a class="glightbox" href="image/ssh_key_meme.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="ssh_key_meme" src="image/ssh_key_meme.webp" /></a>
+</figure></p>
 </div>
 <div class="tabbed-block">
 <p>Add the public key to your ZJU Git account:</p>
@@ -1599,7 +1691,7 @@
 <p>Test the SSH connection, it should look like this:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>$<span class="w"> </span>ssh<span class="w"> </span>-T<span class="w"> </span>git@git.zju.edu.cn
 </span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>ssh<span class="w"> </span>-T<span class="w"> </span>git@git.zju.edu.cn
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>Welcome<span class="w"> </span>to<span class="w"> </span>GitLab,<span class="w"> </span>@322010****!
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>Welcome<span class="w"> </span>to<span class="w"> </span>GitLab,<span class="w"> </span>@324010****!
 </span></code></pre></div>
 <p>Show the screenshot of your successful connection.</p>
 </div>
@@ -1636,7 +1728,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 7, 2025 16:39:17">May 7, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 18, 2025 05:38:30">May 18, 2025</span>
   </span>
 
     
