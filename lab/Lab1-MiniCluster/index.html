@@ -987,6 +987,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#其他" class="md-nav__link">
+    <span class="md-ellipsis">
+      其他
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1065,7 +1074,7 @@
 </ul>
 <div class="admonition tip">
 <p class="admonition-title">任选一种你喜欢的集群搭建方式即可</p>
-<p>我们不对集群搭建的方式做硬性限制，你可以使用虚拟机、容器、物理机、开发板等任何方式搭建集群，但是注意有以下要求：  </p>
+<p>我们不对集群搭建的方式做硬性限制，你可以使用虚拟机、容器、物理机、开发板等任何方式搭建集群，但是注意有以下要求：</p>
 <ul>
 <li>至少有4个在线节点。</li>
 <li>节点之间能够通过 ssh 进行互联。MPI 能正常工作。</li>
@@ -1136,7 +1145,7 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Bonus</p>
-<p>加<code>*</code>的 Bonus 任务难度较大，欢迎希望加入超算队的同学尝试完成。可以不随 <code>Lab1</code> 报告提交，暑假内完成即可。</p>
+<p>加<code>*</code>的 Bonus 任务难度较大，欢迎希望加入超算队的同学尝试完成。Lab1 在课程开始后还会再提交一次，你可以利用开课前期的空闲时间继续完成。如果你未能成功完成，也欢迎你在报告中记录下你尝试过的方法和解决方法。</p>
 </div>
 <h3 id="提交内容">提交内容<a class="headerlink" href="#提交内容" title="Permanent link">&para;</a></h3>
 <ol>
@@ -1785,7 +1794,7 @@ A_{2,2}^{update} &amp;= A_{2,2} - L_{2,1}U_{1,2}
 </span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="c"># 安装依赖</span>
 </span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="k">RUN</span><span class="w"> </span>apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="w">    </span>build-essential<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="w">    </span>openssh-server<span class="w"> </span>
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="w">    </span>openssh-server
 </span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>
 </span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="k">WORKDIR</span><span class="w"> </span><span class="s">/opt</span>
 </span><span id="__span-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>
@@ -1881,54 +1890,59 @@ A_{2,2}^{update} &amp;= A_{2,2} - L_{2,1}U_{1,2}
 </ul>
 <h3 id="docker">Docker<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h3>
 <p>Docker 是一个开源的容器化平台，它允许开发者将应用程序及其依赖打包到一个可移植的容器中，然后在任何环境中运行。Docker 容器是轻量级的，因为它们共享主机系统的内核，而不是像虚拟机那样需要一个完整的操作系统。</p>
-<p>在本实验中，docker 的主要优势有： </p>
+<p>在本实验中，docker 的主要优势有：</p>
 <ul>
 <li>内存占用小：相比虚拟机，Docker 容器共享主机内核，不需要运行完整的操作系统，大大减少了内存占用</li>
 <li>便于扩展：可以快速复制和部署容器，轻松扩展集群节点数量</li>
 <li>环境一致性：在 HPC 环境中，Docker 可以创建包含所有必要软件和依赖的环境，确保集群各节点运行在相同的计算环境中</li>
 </ul>
 <h3 id="nfs">NFS<a class="headerlink" href="#nfs" title="Permanent link">&para;</a></h3>
-<p>NFS（Network File System）是一种分布式文件系统协议，允许客户端通过网络访问服务器上的文件，就像访问本地文件一样。NFS 在 HPC 集群中非常常见，用于提供共享存储空间。</p>
-<p>NFS 的主要特点包括：  </p>
+<p>NFS（Network File System）是一种网络文件系统，允许客户端通过网络访问远程服务器上的文件，就像访问本地文件一样。NFS 在 HPC 集群中非常常见，用于共享用户的主目录、应用程序和数据集。这样，无论用户登录到集群的哪个节点，都能访问相同的文件和应用程序。</p>
+<p>NFS 的主要特点包括：</p>
 <ul>
 <li><strong>透明性</strong>：客户端用户无需知道文件实际存储在哪里，可以像访问本地文件一样访问远程文件。</li>
 <li><strong>集中管理</strong>：所有文件都存储在服务器上，便于集中管理和备份。</li>
 <li><strong>共享访问</strong>：多个客户端可以同时访问同一个文件系统。</li>
 </ul>
-<p>在 HPC 集群中，NFS 通常用于共享用户的主目录、应用程序和数据集。这样，无论用户登录到集群的哪个节点，都能访问相同的文件和应用程序。</p>
 <p>设置 NFS 服务器和客户端的基本步骤：</p>
 <ol>
-<li>
-<p>在服务器上安装 NFS 服务器软件：
-   <div class="language-bash highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>nfs-kernel-server
-</span></code></pre></div></p>
-</li>
-<li>
-<p>配置要共享的目录，编辑 <code>/etc/exports</code> 文件：
-   <div class="language-bash highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>/home<span class="w"> </span><span class="m">172</span>.20.0.0/16<span class="o">(</span>rw,sync,no_subtree_check<span class="o">)</span>
-</span></code></pre></div></p>
-</li>
-<li>
-<p>重启 NFS 服务：
-   <div class="language-bash highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>sudo<span class="w"> </span>exportfs<span class="w"> </span>-a
-</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>nfs-kernel-server
-</span></code></pre></div></p>
-</li>
-<li>
-<p>在客户端安装 NFS 客户端软件：
-   <div class="language-bash highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>nfs-common
-</span></code></pre></div></p>
-</li>
-<li>
-<p>在客户端挂载共享目录：
-   <div class="language-bash highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>sudo<span class="w"> </span>mount<span class="w"> </span>server_ip:/home<span class="w"> </span>/home
-</span></code></pre></div>
-    确认成功挂载后可以写到 <code>/etc/fstab</code> 文件中，这样每次开机都会自动挂载。</p>
-</li>
+<li>在服务器上安装 NFS 服务器软件：</li>
 </ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>nfs-kernel-server
+</span></code></pre></div>
+<ol>
+<li>配置要共享的目录，编辑 <code>/etc/exports</code> 文件：</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>/home<span class="w"> </span><span class="m">172</span>.20.0.0/16<span class="o">(</span>rw,sync,no_subtree_check<span class="o">)</span>
+</span></code></pre></div>
+<ol>
+<li>重启 NFS 服务：</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>sudo<span class="w"> </span>exportfs<span class="w"> </span>-a
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>nfs-kernel-server
+</span></code></pre></div>
+<ol>
+<li>在客户端安装 NFS 客户端软件：</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>nfs-common
+</span></code></pre></div>
+<ol>
+<li>在客户端挂载共享目录：</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>sudo<span class="w"> </span>mount<span class="w"> </span>server_ip:/home<span class="w"> </span>/home
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code>确认成功挂载后可以写到 `/etc/fstab` 文件中，这样每次开机都会自动挂载。
+</code></pre></div>
 <p>通过 NFS，集群中的所有节点可以共享相同的文件系统，简化了文件管理和应用程序部署。</p>
+<h3 id="其他">其他<a class="headerlink" href="#其他" title="Permanent link">&para;</a></h3>
+<p>如果你有兴趣完成更多的 Bonus 任务，欢迎阅读 <a href="https://docs.zjusct.io">ZJUSCT 文档与博客</a> 中的相关内容：</p>
+<ul>
+<li><a href="https://docs.zjusct.io/operation/system/service/nis/">网络信息服务：NIS</a></li>
+<li><a href="https://docs.zjusct.io/operation/system/diskless/pxe/">引导方式：PXE</a></li>
+<li><a href="https://docs.zjusct.io/operation/observability/opentelemetry/">数据采集：OpenTelemetry</a></li>
+</ul>
 <h2 id="任务三bonus">任务三：Bonus<a class="headerlink" href="#任务三bonus" title="Permanent link">&para;</a></h2>
-<p>你可以按照兴趣，完成 <a href="#具体任务">Bonus 任务</a>。  </p>
+<p>你可以按照兴趣，完成 <a href="#具体任务">Bonus 任务</a>。</p>
 <p>Bonus 任务没有标准答案，欢迎你来与我们探讨。</p>
 <h2 id="参考资料">参考资料<a class="headerlink" href="#参考资料" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1960,7 +1974,7 @@ A_{2,2}^{update} &amp;= A_{2,2} - L_{2,1}U_{1,2}
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 19, 2025 05:16:46">May 19, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 19, 2025 05:18:15">May 19, 2025</span>
   </span>
 
     
