@@ -826,15 +826,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#具体任务" class="md-nav__link">
-    <span class="md-ellipsis">
-      具体任务
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#提交内容" class="md-nav__link">
     <span class="md-ellipsis">
       提交内容
@@ -891,15 +882,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#任务一从源码构建-openmpi-和-hpl" class="md-nav__link">
-    <span class="md-ellipsis">
-      任务一：从源码构建 OpenMPI 和 HPL
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#知识讲解集群环境搭建与配置" class="md-nav__link">
     <span class="md-ellipsis">
       知识讲解：集群环境搭建与配置
@@ -919,9 +901,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#mpi-的运行方式" class="md-nav__link">
+  <a href="#mpi-一个程序如何在不同机器间通信" class="md-nav__link">
     <span class="md-ellipsis">
-      MPI 的运行方式
+      MPI: 一个程序如何在不同机器间通信
     </span>
   </a>
   
@@ -942,22 +924,73 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#任务二使用-hpl-测试集群的性能" class="md-nav__link">
+  <a href="#任务一从源码构建-openmpi-和-hpl" class="md-nav__link">
     <span class="md-ellipsis">
-      任务二：使用 HPL 测试集群的性能
+      任务一：从源码构建 OpenMPI 和 HPL
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#知识讲解技术杂谈" class="md-nav__link">
+  <a href="#任务二搭建集群并使用-hpl-测试性能" class="md-nav__link">
     <span class="md-ellipsis">
-      知识讲解：技术杂谈
+      任务二：搭建集群并使用 HPL 测试性能
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="知识讲解：技术杂谈">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bonus-任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bonus 任务
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bonus 任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#集群搭建" class="md-nav__link">
+    <span class="md-ellipsis">
+      集群搭建
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#软件安装" class="md-nav__link">
+    <span class="md-ellipsis">
+      软件安装
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#性能测试" class="md-nav__link">
+    <span class="md-ellipsis">
+      性能测试
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#技术杂谈" class="md-nav__link">
+    <span class="md-ellipsis">
+      技术杂谈
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="技术杂谈">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1002,15 +1035,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#任务三bonus" class="md-nav__link">
-    <span class="md-ellipsis">
-      任务三：Bonus
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#参考资料" class="md-nav__link">
     <span class="md-ellipsis">
       参考资料
@@ -1046,7 +1070,7 @@
 <h1 id="实验一简单集群搭建">实验一：简单集群搭建<a class="headerlink" href="#实验一简单集群搭建" title="Permanent link">&para;</a></h1>
 <div class="admonition tip">
 <p class="admonition-title">QC PASS</p>
-<p>该实验已经通过检查，请放心食用。</p>
+<p>本实验流程已经通过检查，请放心食用。</p>
 </div>
 <h2 id="导言计算机集群">导言：计算机集群<a class="headerlink" href="#导言计算机集群" title="Permanent link">&para;</a></h2>
 <p>在 Lab 0 中，我们已经获得了 Linux 虚拟机环境，熟悉了 Linux 命令行的基本操作，对 Linux 系统的文件路径、用户权限、环境变量等基本概念有了一定的了解。在接下来的实验中，这些基础知识将会被广泛应用。</p>
@@ -1062,92 +1086,15 @@
 <li>和 Lab 0 一样，如果你对这些内容轻车熟路，就不需要阅读知识讲解，直接完成任务即可。</li>
 </ul>
 </div>
-<h3 id="具体任务">具体任务<a class="headerlink" href="#具体任务" title="Permanent link">&para;</a></h3>
-<ul>
-<li>集群搭建：<ul>
-<li>选择一 使用虚拟机：克隆虚拟机、配置虚拟机互联、测试节点间通信。</li>
-<li>选择二 使用容器：创建多个容器实例，配置容器间互联、测试容器间通信。
-    <code>更适用于本地内存不足的同学</code></li>
-<li>选择三 使用你喜欢的方式产生Linux集群，并测试集群间通信。</li>
-</ul>
-</li>
-</ul>
-<div class="admonition tip">
-<p class="admonition-title">任选一种你喜欢的集群搭建方式即可</p>
-<p>我们不对集群搭建的方式做硬性限制，你可以使用虚拟机、容器、物理机、开发板等任何方式搭建集群，但是注意有以下要求：</p>
-<ul>
-<li>至少有4个在线节点。</li>
-<li>节点之间能够通过 ssh 进行互联。MPI 能正常工作。</li>
-</ul>
-<div class="admonition tip">
-<p class="admonition-title">Bonus</p>
-<ul>
-<li>正确为每台机器设置主机名，并能从主机名解析出 IP 地址。</li>
-<li>通过 NFS 或其他共享文件系统，实现集群间文件共享。</li>
-<li>* 通过 nis 或 ldap 等方法实现集群间用户（组）共享和管理。</li>
-<li>* 选择你喜欢的节点指标，日志收集，监控等方法，并利用 grafana 等工具进行可视化。</li>
-<li>* 如果你通过虚拟机或物理机等方式进行实验，可以尝试利用 pxe 引导集群启动。</li>
-</ul>
-</div>
-</div>
-<ul>
-<li>软件安装：<ul>
-<li>下载 OpenMPI、BLAS、CBLAS 和 HPL 的源代码并编译安装。</li>
-</ul>
-</li>
-</ul>
-<div class="admonition tip">
-<p class="admonition-title">Bonus</p>
-<ul>
-<li>你也可以尝试其它BLAS实现，如更新版本的<a href="https://www.netlib.org/lapack/">LAPACK</a>，<a href="http://www.openmathlib.org/OpenBLAS/">OpenBLAS</a>，<a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html">MKL</a>，<a href="https://www.amd.com/en/developer/aocl.html">AOCL</a>等, 并比较它们的性能。</li>
-<li>* 使用 spack 包管理器安装 OpenMPI、BLAS 和 HPL。</li>
-</ul>
-</div>
-<div class="admonition warning">
-<p class="admonition-title"><del>不得不品的手动编译</del></p>
-<p>在编译安装过程中会出现各种各样的问题<del>这是预期内的</del>，我们鼓励你尝试解决这些问题，并记录下你尝试过的方法和解决方法。
-除了必须手动编译安装指定的BLAS和HPL外，我们还鼓励你尝试使用其他方式安装HPL，可以在报告中记录你尝试过的方法。</p>
-</div>
-<ul>
-<li>性能测试：在虚拟机/容器集群上使用 OpenMPI 运行 CPU 上的 HPL 性能测试，记录测试结果。</li>
-</ul>
-<div class="admonition warning">
-<p class="admonition-title">性能优化</p>
-<p>在完成基本的 HPL 测试后，你可以尝试通过以下方法提高性能：</p>
-<ol>
-<li>
-<p>调整 HPL.dat 参数：</p>
-<ul>
-<li>调整问题规模 N 以充分利用内存</li>
-<li>调整分块大小 NB 以优化计算效率</li>
-<li>调整 P×Q 进程网格布局以匹配集群拓扑</li>
-</ul>
-</li>
-<li>
-<p>编译优化：</p>
-<ul>
-<li>更换编译器</li>
-<li>修改编译优化选项</li>
-<li>尝试更换 BLAS 库</li>
-</ul>
-</li>
-<li>
-<p>运行环境优化：</p>
-<ul>
-<li>优化 OpenMP 绑核参数</li>
-<li>调整 MPI 进程绑定，rank 拓扑</li>
-</ul>
-</li>
-</ol>
-<p>请记录你尝试过的优化方法及其效果，分析性能提升的原因。性能的绝对值不作为评判依据，重要的是你通过哪些方法提高了性能，以及你对这些优化方法的理解。</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Bonus</p>
-<p>加<code>*</code>的 Bonus 任务难度较大，欢迎希望加入超算队的同学尝试完成。Lab1 在课程开始后还会再提交一次，你可以利用开课前期的空闲时间继续完成。如果你未能成功完成，也欢迎你在报告中记录下你尝试过的方法和解决方法。</p>
-</div>
 <h3 id="提交内容">提交内容<a class="headerlink" href="#提交内容" title="Permanent link">&para;</a></h3>
+<p>总的来说，你需要先阅读 <strong>知识讲解</strong> 部分，然后逐个完成 <strong>任务</strong> 部分，并将自己完成的过程记录在实验报告中。你需要提交以下的内容：</p>
 <ol>
-<li>实验报告 PDF 文件</li>
+<li>使用中文完成的实验报告 PDF 文件，内容至少包括下面的过程:<ul>
+<li>软件安装：下载 OpenMPI、BLAS 和 HPL 的源代码并编译安装。</li>
+<li>集群搭建：使用虚拟机 / Docker 容器等方式构建集群，配置节点间互联、测试节点间通信。</li>
+<li>性能测试：在虚拟机集群上使用 OpenMPI 运行 HPL 性能测试，记录测试结果。</li>
+</ul>
+</li>
 <li>HPL 输出结果文本文件</li>
 <li>如果修改了代码，请提交修改后的代码和一份修改说明。</li>
 </ol>
@@ -1446,137 +1393,38 @@
 </span></code></pre></div>
 </details>
 <p>你应该能看到 <code>Angband</code> 程序直接生成在该目录下，同时 <code>lib</code> 等必要的目录也被拷贝了一份。这种构建方式不会污染源代码目录，是一种比较好的实践。</p>
-<h2 id="任务一从源码构建-openmpi-和-hpl">任务一：从源码构建 OpenMPI 和 HPL<a class="headerlink" href="#任务一从源码构建-openmpi-和-hpl" title="Permanent link">&para;</a></h2>
-<div class="admonition note">
-<p class="admonition-title">学习 Makefile 基本语法</p>
-<p>过程中你会遇到需要修改 <code>Makefile</code> 的步骤，因此希望你了解 <code>Makefile</code> 的基本语法。这一内容本应在 C 语言课程中完成讲授，不过大部分老师都省略了这部分。所以如果你没有学过，可以参考 <a href="https://www.bilibili.com/video/BV188411L7d2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.813 4.653h.854q2.266.08 3.773 1.574Q23.946 7.72 24 9.987v7.36q-.054 2.266-1.56 3.773c-1.506 1.507-2.262 1.524-3.773 1.56H5.333q-2.266-.054-3.773-1.56C.053 19.614.036 18.858 0 17.347v-7.36q.054-2.267 1.56-3.76t3.773-1.574h.774l-1.174-1.12a1.23 1.23 0 0 1-.373-.906q0-.534.373-.907l.027-.027q.4-.373.92-.373t.92.373L9.653 4.44q.107.106.187.213h4.267a.8.8 0 0 1 .16-.213l2.853-2.747q.4-.373.92-.373c.347 0 .662.151.929.4s.391.551.391.907q0 .532-.373.906zM5.333 7.24q-1.12.027-1.88.773-.76.748-.786 1.894v7.52q.026 1.146.786 1.893t1.88.773h13.334q1.12-.026 1.88-.773t.786-1.893v-7.52q-.026-1.147-.786-1.894t-1.88-.773zM8 11.107q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q0-.56.386-.947.387-.386.947-.386m8 0q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q.025-.586.4-.96.373-.373.933-.373"/></svg></span> Makefile 20 分钟入门 - 南方科技大学计算机系</a>进行学习。</p>
-</div>
-<div class="admonition tip">
-<p class="admonition-title">提醒：认真看文档，看不懂的地方可以搜索 / 问 GPT / 问助教。</p>
-</div>
-<p>这几个项目的依赖关系是：</p>
-<pre class="mermaid"><code>flowchart LR
-    A[HPL] --&gt; B[CBLAS] --&gt; D[LAPACK]
-    A[HPL] --&gt; C[OpenMPI]</code></pre>
-<ul>
-<li>构建并安装 OpenMPI：<ul>
-<li>前往 <a href="https://www.open-mpi.org/software/ompi/">OpenMPI 官网</a>下载最新版本源码。</li>
-<li>解压源码，进入源码目录，阅读 <code>README.md</code>。</li>
-<li>前往在线文档，查看构建和安装部分，按文档指示构建并安装 OpenMPI。</li>
-<li>验证安装是否成功。提示：运行 <code>ompi_info -all</code>。</li>
-</ul>
-</li>
-<li>构建 BLAS，CBLAS：<ul>
-<li>下载指定版本 BLAS 源码 <a href="assets/blas-3.12.0.tgz">blas-3.12.0.tgz</a>, 并完成构建。</li>
-<li>下载指定版本 CBLAS 源码：<a href="assets/CBLAS.tgz">CBLAS.tgz</a>。相应修改 <code>Makefile.in</code> 后完成构建</li>
-<li>如果没有错误，两个目录中都会生成一个 <code>.a</code> 文件，这是待会要用到的静态链接库。</li>
-</ul>
-</li>
-</ul>
-<p><a class="glightbox" href="image/blas.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="BLAS" src="image/blas.webp" width="50%" /></a></p>
-<ul>
-<li>构建 HPL：<ul>
-<li>前往 <a href="https://netlib.org/benchmark/hpl/software.html">HPL 官网</a>，下载最新版本源码。</li>
-<li>解压源码，进入源码目录，阅读 <code>README</code>。</li>
-<li>按文档指示构建 HPL。提示：上面的 BLAS 被称为 FBLAS，以与 CBLAS 区分。</li>
-<li>如果没有错误，可以按文档中的描述找到 <code>xhpl</code> 可执行文件。</li>
-</ul>
-</li>
-</ul>
-<p>如果你遇到了无法解决的困难，可以参考下面的解答和说明。如果还是无法解决，请向我们反馈。</p>
-<details class="success">
-<summary>步骤参考及说明</summary>
-<p><strong>请务必在阅读本部分之前，先参考知识讲解，尝试自己构建 OpenMPI, BLAS 和 HPL。</strong></p>
-<ul>
-<li>OpenMPI</li>
-</ul>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>wget<span class="w"> </span><span class="s2">&quot;https://download.open-mpi.org/release/open-mpi/v5.0/openmpi-5.0.3.tar.gz&quot;</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>tar<span class="w"> </span>xvf<span class="w"> </span>openmpi-5.0.3.tar.gz
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="nb">cd</span><span class="w"> </span>openmpi-5.0.3
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>./configure<span class="w"> </span><span class="c1"># 对于绝大多数软件包，不带参数将默认安装到 /usr/local/ 下</span>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="c1"># 此时不需要修改 PATH 和 LD_LIBRARY_PATH 等</span>
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="c1"># 如果你使用 --prefix 参数指定了安装路径，则可能需要修改 PATH 和 LD_LIBRARY_PATH。</span>
-</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>make
-</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>sudo<span class="w"> </span>make<span class="w"> </span>install<span class="w"> </span><span class="c1"># 安装到系统目录 /usr/local 需要 root 权限</span>
-</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>sudo<span class="w"> </span>ldconfig<span class="w"> </span><span class="c1"># 更新动态链接库缓存</span>
-</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>ompi_info<span class="w"> </span>--all<span class="w"> </span><span class="c1"># 查看安装信息</span>
-</span></code></pre></div>
-<p>最后一步 <code>ldconfig</code> 在手册中没有没有记录，是比较容易遇到问题的一点。需要额外做这一步的原因可以在这个帖子找到：<a href="https://lists.nongnu.org/archive/html/libtool/2014-05/msg00021.html">why is ldconfig needed after installation</a>：</p>
-<blockquote>
-<p><code>ldconfig</code> has to be run because the dynamic linker maintains a cache of available libraries that has to be updated.  <code>libtool</code> does this when run with libtool --mode=finish on the installation directory.  I'm not sure if it does this when it thinks the directory isn't listed in the system library search path, though.</p>
-<p>I investigated this a bit further. <code>libtool --mode=finish</code> is indeed called and it calls <code>ldconfig -n /usr/local/lib</code> but that doesn't update the cache as I want.</p>
-<p>What does the <code>-n</code> switch? The man page says:</p>
-<blockquote>
-<p><code>-n</code> Only process directories specified on the command line. Don’t process the trusted directories (/lib and /usr/lib) nor those specified in /etc/ld.so.conf. Implies -N.</p>
-</blockquote>
-<p>IIUC, that means that the cache is not rebuilt because I have <code>/usr/local/lib</code> in <code>/etc/ld.so.conf</code>. Why is ldconfig called with <code>-n</code>? I did some digging and found that it's been like that since beginning of time, or at least since v0.6a.</p>
-</blockquote>
-<ul>
-<li>BLAS</li>
-</ul>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>wget<span class="w"> </span><span class="s2">&quot;http://www.netlib.org/blas/blas-3.12.0.tgz&quot;</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>tar<span class="w"> </span>xvf<span class="w"> </span>blas-3.12.0.tgz
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="nb">cd</span><span class="w"> </span>BLAS-3.12.0
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>make<span class="w"> </span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="c1"># 继续完成 CBLAS 的构建</span>
-</span></code></pre></div>
-<ul>
-<li>HPL</li>
-</ul>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>wget<span class="w"> </span><span class="s2">&quot;https://netlib.org/benchmark/hpl/hpl-2.3.tar.gz&quot;</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>tar<span class="w"> </span>xvf<span class="w"> </span>hpl-2.3.tar.gz
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="nb">cd</span><span class="w"> </span>hpl-2.3
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>cp<span class="w"> </span>setup/Make.Linux_PII_FBLAS<span class="w"> </span>.
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>vim<span class="w"> </span>Make.Linux_PII_FBLAS<span class="w"> </span><span class="c1"># 修改 Makefile</span>
-</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>make<span class="w"> </span><span class="nv">arch</span><span class="o">=</span>Linux_PII_FBLAS
-</span></code></pre></div>
-<p><code>Make.Linux_PII_FBLAS</code> 中需要修改的部分有   </p>
-<div class="admonition warning">
-<p class="admonition-title">注意</p>
-<p>⚠️⚠️ 修改仅供参考 ⚠️⚠️</p>
-</div>
-<div class="language-makefile highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="nv">TOPdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>HOME<span class="k">)</span>/hpl-2.3<span class="w">        </span><span class="p">|</span><span class="w"> </span><span class="nv">TOPdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>HOME<span class="k">)</span>/hpl
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="nv">MPdir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>/usr/local<span class="w">             </span><span class="p">|</span><span class="w"> </span><span class="nv">MPdir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>/usr/local/mpi
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="nv">MPlib</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>MPdir<span class="k">)</span>/lib/libmpi.so<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="nv">MPlib</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>MPdir<span class="k">)</span>/lib/libmpich.a
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="nv">LAdir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>HOME<span class="k">)</span>/BLAS-3.12.0<span class="w">    </span><span class="p">|</span><span class="w"> </span><span class="nv">LAdir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>HOME<span class="k">)</span>/netlib/ARCHIVES/Linux_PII
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="nv">LAlib</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>LAdir<span class="k">)</span>/blas_LINUX.a<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="nv">LAlib</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>LAdir<span class="k">)</span>/libf77blas.a<span class="w"> </span><span class="k">$(</span>LAdir<span class="k">)</span>/libatlas.a
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="nv">LINKER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/usr/bin/gfortran<span class="w">      </span><span class="p">|</span><span class="w"> </span><span class="nv">LINKER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/usr/bin/g77
-</span></code></pre></div>
-<p>生成的可执行文件在 <code>bin/Linux_PII_FBLAS</code> 目录下：</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>$ ls bin/Linux_PII_FBLAS/
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>HPL.dat  xhpl
-</span></code></pre></div>
-</details>
 <h2 id="知识讲解集群环境搭建与配置">知识讲解：集群环境搭建与配置<a class="headerlink" href="#知识讲解集群环境搭建与配置" title="Permanent link">&para;</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">前置知识</p>
 <p>掌握 Lab0 中的内容：虚拟机、网络、SSH。</p>
 </div>
 <h3 id="集群节点间的连接与互访">集群节点间的连接与互访<a class="headerlink" href="#集群节点间的连接与互访" title="Permanent link">&para;</a></h3>
-<p>计算机之间通过网络连接。在网络中，有两个重要的地址：MAC 地址和 IP 地址。通过 Lab0 的学习，你应该理解了这两种地址如何通过 ARP 协议联系在一起，也理解了虚拟机中的 NAT 网络。做任务时，你需要克隆虚拟机。克隆出来的新虚拟机的 MAC 地址与原来的虚拟机相同。思考一下，如果同时启动这两台虚拟机，它们能正常通信吗？你可以参考 <a href="https://serverfault.com/questions/462178/duplicate-mac-address-on-the-same-lan-possible">Duplicate MAC address on the same LAN possible? - StackExchange</a>。</p>
-<p><a href="https://en.wikipedia.org/wiki/Computer_cluster">计算机集群（Cluster）</a>是连接在一起、协同工作的一组计算机，集群中的每个计算机都是一个节点。在集群中，由软件将不同的计算任务（task）分配（schedule）到相应的一个或一群节点（node）上。通常会有一个节点作为主节点（master/root node），其他节点作为从节点（slave node）。主节点负责调度任务（当然也可能负责执行部分任务），从节点负责执行任务。此外，也通常会有一个共享的文件系统，用于存储任务数据和结果，这些技术将在第三部分介绍。</p>
+<p>计算机之间通过网络连接。在网络中，有两个重要的地址：MAC 地址和 IP 地址。通过 Lab 0 的学习，你应该理解了这两种地址如何通过 ARP 协议联系在一起，也理解了虚拟机中的 NAT 网络。做任务时，你需要克隆虚拟机。克隆出来的新虚拟机的 MAC 地址与原来的虚拟机相同。思考一下，如果同时启动这两台虚拟机，它们能正常通信吗？你可以参考 <a href="https://serverfault.com/questions/462178/duplicate-mac-address-on-the-same-lan-possible">Duplicate MAC address on the same LAN possible? - StackExchange</a>。</p>
+<p><a href="https://en.wikipedia.org/wiki/Computer_cluster">计算机集群（Cluster）</a>是连接在一起、协同工作的一组计算机，集群中的每个计算机都是一个节点。在集群中，由软件将不同的计算任务（task）分配（schedule）到相应的一个或一群节点（node）上。通常会有一个节点作为主节点（master/root node），其他节点作为从节点（slave node）。主节点负责调度任务（当然也可能负责执行部分任务），从节点负责执行任务。此外，也通常会有一个共享的文件系统，用于存储任务数据和结果，这些技术将在<a href="#NFS">第三部分</a>介绍。</p>
 <figure>
 <a class="glightbox" href="image/cluster.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="cluster" src="image/cluster.webp" /></a>
 
 <figcaption>计算机集群的协作<br /><small>来源：<a href="https://www.geeksforgeeks.org/an-overview-of-cluster-computing/">An Overview of Cluster Computing - GeeksforGeeks</a></small></figcaption>
 </figure>
-<p>在 Lab 0 中，我们已经学习了如何通过 SSH 使用密码访问虚拟机。在集群中，节点之间的互访往往也通过 SSH 完成，但要求无交互（non-interactive），这就需要使用 SSH 的密钥认证（key-based authentication）。</p>
-<div class="admonition note">
-<p class="admonition-title">SSH 密钥认证的原理</p>
-<p>SSH 密钥认证基于密码学中的非对称加密算法。在 SSH 密钥认证中，用户有两个密钥：私钥（private key）和公钥（public key），它们一一配对。私钥只有用户自己知道，公钥可以公开。私钥能够加密数据，公钥能够解密数据。用户可以将公钥放在服务器上，当用户连接服务器时，服务器会用公钥加密一个随机数发送给用户，用户用私钥加密这个随机数，然后用这个随机数加密数据发送给服务器，服务器用公钥解密数据。如果用户能够成功加密，说明用户拥有私钥，连接成功。
-<figure markdown="span">
+<p>在 Lab 0 中，我们已经学习了如何通过 SSH 使用密码访问虚拟机。在集群中，节点之间的互访往往也通过 SSH 完成，但要求无交互（non-interactive）。想要实现无需输入密码就能互相认证，就需使用 SSH 的密钥认证（key-based authentication）。</p>
+<p>SSH 密钥认证基于密码学中的非对称加密算法。在 SSH 密钥认证中，用户有两个密钥：私钥（private key）和公钥（public key），它们一一配对：用私钥加密的数据，只有用对应的公钥才能解密，同理，用公钥加密的数据，只有用对应的私钥才能解密。<strong>私钥只有用户自己知道，公钥可以公开</strong>。</p>
+<p>所谓配置 SSH 密钥认证，就是让服务器信任该公钥，允许持有该私钥的用户连接。(对这一过程感兴趣的同学，可以阅读下面的简单介绍。)</p>
+<details class="- note">
+<summary>SSH 密钥认证的原理</summary>
+<p>用户可以将公钥放在服务器上，当用户连接服务器时，服务器会用公钥加密一个随机数发送给用户，用户用私钥加密这个随机数，然后用这个随机数加密数据发送给服务器，服务器用公钥解密数据。根据非对称加密的原理，如果用户能够成功加密，则说明用户拥有该私钥，这样就验证了用户的身份，连接可以成功建立。</p>
+<p><figure markdown="span">
 <a class="glightbox" href="image/ssh.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="ssh" src="image/ssh.webp" style="background-color: white;" /></a>
 <figcaption>SSH 密钥认证<br /><small>来源：<a href="https://stackoverflow.com/questions/59555705/how-ssh-encrypts-communications-when-using-password-based-authentication">How SSH encrypts communications, when using password-based authentication? - StackOverflow</a></small></figcaption>
 </figure></p>
-</div>
-<p>所谓配置 SSH 密钥认证，就是让服务器信任该公钥，允许持有该私钥的用户连接。在集群中，我们需要在主节点中生成密钥对，将主节点的公钥放在从节点上，这样主节点就能够通过 SSH 密钥认证连接到从节点。你可以阅读 <a href="https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server">How To Configure SSH Key-Based Authentication on a Linux Server - DigitalOcean</a> 了解如何配置 SSH 密钥认证。基本操作如下：</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>ssh-keygen<span class="w"> </span>-t<span class="w"> </span>ed25519<span class="w"> </span><span class="c1"># 生成密钥对，使用 ed25519 算法</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>ssh-copy-id<span class="w"> </span>user@hostname<span class="w"> </span><span class="c1"># 将公钥放在服务器上</span>
+</details>
+<p>在集群中，我们需要在主节点中生成密钥对，将主节点的公钥放在从节点上，这样主节点就能够通过 SSH 密钥认证连接到从节点。你可以阅读 <a href="https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server">How To Configure SSH Key-Based Authentication on a Linux Server - DigitalOcean</a> 了解如何配置 SSH 密钥认证。基本操作如下：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>ssh-keygen<span class="w"> </span>-t<span class="w"> </span>ed25519<span class="w"> </span><span class="c1"># 生成密钥对，使用 ed25519 算法 (强烈推荐)</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>ssh-copy-id<span class="w"> </span>user@hostname<span class="w"> </span><span class="c1"># 将公钥放在服务器上</span>
 </span></code></pre></div>
 <p>需要注意的是，认证基于用户。不是说主节点可以连接到从节点，而应当说主节点上的某个用户可以连接到从节点上的某个用户。如果在主节点上为 <code>root</code> 用户生成密钥对，却在从节点上将公钥放置进 <code>test</code> 用户的 <code>.ssh/authorized_keys</code> 文件中，那么显然无法以密钥认证的方式登录到从节点的 <code>root</code> 用户。</p>
-<h3 id="mpi-的运行方式">MPI 的运行方式<a class="headerlink" href="#mpi-的运行方式" title="Permanent link">&para;</a></h3>
-<p>OpenMPI 是一个开源的 <a href="http://www.mpi-forum.org/">Message Passing Interface</a> 实现，由一些科研机构和企业一起开发和维护。MPI 是一套标准化、可移植的消息传递标准，它被设计用于支持并行计算系统的架构，使得开发者能够方便地开发可移植的消息传递程序。同时，MPI 编程能力在高性能计算的实践与学习中也是非常基础的技能。</p>
+<h3 id="mpi-一个程序如何在不同机器间通信">MPI: 一个程序如何在不同机器间通信<a class="headerlink" href="#mpi-一个程序如何在不同机器间通信" title="Permanent link">&para;</a></h3>
+<p>MPI 指的是 <a href="http://www.mpi-forum.org/">Message Passing Interface</a>，是程序在不同机器间发送、接收数据的接口标准，类似于定义了一套通信的 API。它被设计用于支持并行计算系统的架构，使得开发者能够方便地开发可移植的消息传递程序。MPI 编程能力在高性能计算的实践与学习中也是非常基础的技能。</p>
+<p>而 OpenMPI 是一个开源的 MPI 标准的实现，由一些科研机构和企业一起开发和维护。在接下来的任务中，我们需要编译安装 OpenMPI。</p>
 <p><code>mpirun</code> 是 OpenMPI 提供的 MPI 启动程序，负责在指定的节点上启动 MPI 程序，此后程序间的通信由 MPI 库负责。可以为 <code>mpirun</code> 指定参数，比如启动的进程数、启动的节点等。阅读 <a href="https://docs.open-mpi.org/en/main/launching-apps/quickstart.html">10.1. Quick start: Launching MPI applications - OpenMPI main documentation</a> 和 <a href="https://docs.open-mpi.org/en/main/launching-apps/ssh.html">10.6. Launching with SSH - OpenMPI main documentation</a>，了解如何使用 <code>mpirun</code> 通过 SSH 的方式启动 OpenMPI 程序，如何指定启动的节点和进程数，如何指定工作路径。</p>
 <div class="admonition question">
 <p class="admonition-title">回答以下问题</p>
@@ -1585,14 +1433,15 @@
 <li>如何为 <code>mpirun</code> 指定工作路径？</li>
 <li>如果不指定工作路径，<code>mpirun</code> 会在哪个路径启动程序？如何验证你的答案。</li>
 </ul>
-<details class="note">
+<details class="success">
 <summary>Check your answer</summary>
 <ul>
 <li>
-<p>一般使用 <code>--hostfile</code> 和 hostfile 一起指定节点和进程数，其中 hostfile 的格式如下：</p>
-<div class="language-text highlight"><span class="filename">hostfile</span><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>node1 slots=4
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>node2 slots=4
+<p>一般使用 <code>--hostfile</code> 和 hostfile 一起指定节点和进程数。OpenMPI 的 hostfile 的格式如下：</p>
+<div class="language-text highlight"><span class="filename">hostfile</span><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>node1 slots=4
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>node2 slots=4
 </span></code></pre></div>
+<p>这个 hostfile 描述了有两个节点的集群，每个节点使用 4 个核心。</p>
 </li>
 <li>
 <p>使用 <code>--wdir</code> 指定工作路径。如果未指定，尝试 <code>mpirun</code> 执行时的工作路径。若路径不存在，为 <code>$HOME</code>。你可以通过 <code>mpirun ls</code> 来尝试验证。</p>
@@ -1606,6 +1455,12 @@
 <h3 id="性能测试-benchmark">性能测试 Benchmark<a class="headerlink" href="#性能测试-benchmark" title="Permanent link">&para;</a></h3>
 <p><a href="https://www.netlib.org/benchmark/hpl/">HPL</a>（high performance Linpack）是评测计算系统性能的程序，是早期 <a href="https://www.netlib.org/linpack/">Linpack</a> 评测程序的并行版本，支持大规模并行超级计算系统。其报告的每秒浮点运算次数（floating-point operations per second，简称 FLOPS）是世界超级计算机 Top500 列表排名的依据。</p>
 <p>BLAS 是 Basic Linear Algebra Subprograms 的缩写，是一组用于实现基本线性代数运算的函数库。HPL 使用 BLAS 库来实现矩阵运算，因此需要 BLAS 库的支持。</p>
+<div class="admonition note">
+<p class="admonition-title">HPL 通过求解线性系统来评估计算机集群的浮点性能</p>
+</div>
+<p>如果你对 HPL 的算法细节感兴趣，可以展开阅读下面的内容。</p>
+<details class="- note">
+<summary>HPL 的算法细节</summary>
 <p>HPL 算法使用 64 位浮点精度矩阵行偏主元 LU 分解加回代求解线性系统。矩阵是稠密实矩阵，矩阵单元由伪随机数生成器产生，符合正态分布。</p>
 <p>线性系统定义为：</p>
 <div class="arithmatex">\[
@@ -1621,11 +1476,10 @@ P_r, L, U \in R^{N\times N}; y \in R^N
 Ux=y
 \]</div>
 <p>HPL 采用分块 LU 算法，每个分块是一个 <span class="arithmatex">\(NB\)</span> 列的细长矩阵，称为 panel。LU 分解主循环采用 right-looking 算法，单步循环计算 panel 的 LU 分解和更新剩余矩阵。基本算法如下图所示，其中 <span class="arithmatex">\(A_{1,1}\)</span> 和 <span class="arithmatex">\(A_{2,1}\)</span> 表示 panel 数据。需要特别说明的是，图示矩阵是行主顺序，HPL 代码中矩阵是列主存储的。</p>
-<figure>
+<p><figure markdown="span">
 <a class="glightbox" href="image/hpl_1.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="hpl_1" src="image/hpl_1.webp" width="80%" /></a>
-
 <figcaption>分块 LU 算法<br /><small>来源：<a href="https://kns.cnki.net/kcms2/article/abstract?v=qwZretP9BaHvUBwZiPjDpzt_KPtU2PXJSK0YVwCUYeCUQFlgxSAJKvStsXKUQgi7vp0dzvK1lhS5OYFXUgXXdKGZL9ljRGRsbRhmjx411BBN35dOaoxrEhTaj2fwikpGLUS9jtc7unQ=&uniplatform=NZKPT&language=CHS">复杂异构计算系统 HPL 的优化</a></small></figcaption>
-</figure>
+</figure></p>
 <p>计算公式如下：</p>
 <div class="arithmatex">\[
 \begin{aligned}
@@ -1636,19 +1490,136 @@ A_{2,2}^{update} &amp;= A_{2,2} - L_{2,1}U_{1,2}
 \]</div>
 <p>第 1 个公式表示 panel 的 LU 分解，第 2 个公式表示求解 <span class="arithmatex">\(U\)</span>，一般使用 <code>DTRSM</code> 函数，第 3 个公式表示矩阵更新，一般使用 <code>DGEMM</code> 函数。</p>
 <p>对于分布式内存计算系统，HPL 并行计算模式基于 MPI，每个进程是基本计算单元。进程组织成二维网格。矩阵 A 被划分为 <span class="arithmatex">\(NB×NB\)</span> 的逻辑块，以 Block-Cycle 方式分配到二维进程网格，数据布局示例如图所示。</p>
-<figure>
+<p><figure markdown="span">
 <a class="glightbox" href="image/hpl_2.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="hpl_2" src="image/hpl_2.webp" /></a>
-
 <figcaption>进程网格和数据布局<br /><small>来源：<a href="https://kns.cnki.net/kcms2/article/abstract?v=qwZretP9BaHvUBwZiPjDpzt_KPtU2PXJSK0YVwCUYeCUQFlgxSAJKvStsXKUQgi7vp0dzvK1lhS5OYFXUgXXdKGZL9ljRGRsbRhmjx411BBN35dOaoxrEhTaj2fwikpGLUS9jtc7unQ=&uniplatform=NZKPT&language=CHS">复杂异构计算系统 HPL 的优化</a></small></figcaption>
-</figure>
+</figure></p>
 <p>对于具有多列的进程网格，单步循环只有一列进程执行 panel 分解计算，panel 分解过程中每一列执行一次 panel 的行交换算法选择并通信最大主元行。Panel 分解计算完成后，把已分解数据广播到其他进程列。HPL 基础代码包含 6 类广播算法，可以通过测试选择较优的算法。</p>
 <p>HPL 采用行主元算法，单步矩阵更新之前，要把 panel 分解时选出的最大主元行交换到 <span class="arithmatex">\(U\)</span> 矩阵中，需要执行未更新矩阵的主元行交换和广播。主元行交换和广播后，每个进程获得完整的主元行数据。</p>
 <p>矩阵更新包括两部分计算，一是使用 <code>DTRSM</code> 求解 <span class="arithmatex">\(U\)</span>，二是使用 <code>DGEMM</code> 更新矩阵数据。</p>
 <p>LU 分解完成后，HPL 使用回代求解 <span class="arithmatex">\(x\)</span>，并验证解的正确性。</p>
+</details>
+<h2 id="任务一从源码构建-openmpi-和-hpl">任务一：从源码构建 OpenMPI 和 HPL<a class="headerlink" href="#任务一从源码构建-openmpi-和-hpl" title="Permanent link">&para;</a></h2>
 <div class="admonition note">
-<p class="admonition-title">HPL 通过求解线性系统来评估计算机集群的浮点性能</p>
+<p class="admonition-title">学习 Makefile 基本语法</p>
+<p>过程中你会遇到需要修改 <code>Makefile</code> 的步骤，因此希望你了解 <code>Makefile</code> 的基本语法。这一内容本应在 C 语言课程中完成讲授，不过大部分老师都省略了这部分。所以如果你没有学过，可以参考 <a href="https://www.bilibili.com/video/BV188411L7d2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.813 4.653h.854q2.266.08 3.773 1.574Q23.946 7.72 24 9.987v7.36q-.054 2.266-1.56 3.773c-1.506 1.507-2.262 1.524-3.773 1.56H5.333q-2.266-.054-3.773-1.56C.053 19.614.036 18.858 0 17.347v-7.36q.054-2.267 1.56-3.76t3.773-1.574h.774l-1.174-1.12a1.23 1.23 0 0 1-.373-.906q0-.534.373-.907l.027-.027q.4-.373.92-.373t.92.373L9.653 4.44q.107.106.187.213h4.267a.8.8 0 0 1 .16-.213l2.853-2.747q.4-.373.92-.373c.347 0 .662.151.929.4s.391.551.391.907q0 .532-.373.906zM5.333 7.24q-1.12.027-1.88.773-.76.748-.786 1.894v7.52q.026 1.146.786 1.893t1.88.773h13.334q1.12-.026 1.88-.773t.786-1.893v-7.52q-.026-1.147-.786-1.894t-1.88-.773zM8 11.107q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q0-.56.386-.947.387-.386.947-.386m8 0q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q.025-.586.4-.96.373-.373.933-.373"/></svg></span> Makefile 20 分钟入门 - 南方科技大学计算机系</a>进行学习。</p>
 </div>
-<h2 id="任务二使用-hpl-测试集群的性能">任务二：使用 HPL 测试集群的性能<a class="headerlink" href="#任务二使用-hpl-测试集群的性能" title="Permanent link">&para;</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">提醒：完成任务时请认真阅读文档，看不懂的地方可以搜索 / 问 GPT / 问助教。</p>
+</div>
+<p>这几个项目的依赖关系是：</p>
+<pre class="mermaid"><code>flowchart LR
+    A[HPL] --&gt; B[CBLAS] --&gt; D[LAPACK]
+    A[HPL] --&gt; C[OpenMPI]</code></pre>
+<p>因此，你需要先编译 OpenMPI，BLAS 和 CBLAS，然后再编译依赖他们的 HPL。</p>
+<ul>
+<li>构建并安装 OpenMPI：<ul>
+<li>前往 <a href="https://www.open-mpi.org/software/ompi/">OpenMPI 官网</a> 下载最新版本源码。</li>
+<li>解压源码，进入源码目录，阅读 <code>README.md</code>。</li>
+<li>前往在线文档，查看<a href="https://docs.open-mpi.org/en/v5.0.x/installing-open-mpi/quickstart.html">构建和安装部分</a>，按文档指示构建并安装 OpenMPI。</li>
+<li>验证安装是否成功。提示：运行 <code>ompi_info -all</code>。</li>
+</ul>
+</li>
+<li>构建 BLAS，CBLAS：<ul>
+<li>下载指定版本 BLAS 源码: <a href="assets/blas-3.12.0.tgz">blas-3.12.0.tgz</a>, 并完成构建。</li>
+<li>下载指定版本 CBLAS 源码: <a href="assets/CBLAS.tgz">CBLAS.tgz</a>。相应修改 <code>Makefile.in</code> 后完成构建</li>
+<li>如果没有错误，两个目录中都会生成一个 <code>.a</code> 文件，这是待会要用到的静态链接库。</li>
+</ul>
+</li>
+</ul>
+<figure>
+<a class="glightbox" href="image/blas.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="BLAS" src="image/blas.webp" width="50%" /></a>
+</figure>
+<ul>
+<li>构建 HPL：<ul>
+<li>前往 <a href="https://netlib.org/benchmark/hpl/software.html">HPL 官网</a>，下载最新版本源码。</li>
+<li>解压源码，进入源码目录，阅读 <code>README</code>。</li>
+<li>按文档指示构建 HPL。提示：上面的 BLAS 被称为 FBLAS，以与 CBLAS 区分。</li>
+<li>如果没有错误，可以按文档中的描述找到 <code>xhpl</code> 可执行文件。</li>
+</ul>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">不得不品的手动编译</p>
+<p>在编译安装过程中会出现各种各样的问题，因为某些项目的源代码更新不频繁，可能在新的环境中无法正常编译，这是很常见的现象。
+因此，即使有很多自动化编译安装的方法，我们还是希望你能够亲自动手编译安装这些项目。</p>
+<p>遇到问题时，你可以借助搜索引擎、StackOverflow 以及 AI 工具，尝试解决它们。</p>
+<p>如果你遇到了无法解决的困难，可以参考下面的解答和说明。如果还是无法解决，请向我们反馈。</p>
+</div>
+<details class="success">
+<summary>步骤参考及说明</summary>
+<p><strong>请务必在阅读本部分之前，先参考知识讲解，尝试自己构建 OpenMPI, BLAS 和 HPL。</strong></p>
+<ul>
+<li>OpenMPI</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>wget<span class="w"> </span><span class="s2">&quot;https://download.open-mpi.org/release/open-mpi/v5.0/openmpi-5.0.3.tar.gz&quot;</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>tar<span class="w"> </span>xvf<span class="w"> </span>openmpi-5.0.3.tar.gz
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="nb">cd</span><span class="w"> </span>openmpi-5.0.3
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>./configure<span class="w"> </span><span class="c1"># 对于绝大多数软件包，不带参数将默认安装到 /usr/local/ 下</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="c1"># 此时不需要修改 PATH 和 LD_LIBRARY_PATH 等</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="c1"># 如果你使用 --prefix 参数指定了安装路径，则可能需要修改 PATH 和 LD_LIBRARY_PATH。</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>make
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>sudo<span class="w"> </span>make<span class="w"> </span>install<span class="w"> </span><span class="c1"># 安装到系统目录 /usr/local 需要 root 权限</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>sudo<span class="w"> </span>ldconfig<span class="w"> </span><span class="c1"># 更新动态链接库缓存</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>ompi_info<span class="w"> </span>--all<span class="w"> </span><span class="c1"># 查看安装信息</span>
+</span></code></pre></div>
+<p>最后一步 <code>ldconfig</code> 在手册中没有没有记录，是比较容易遇到问题的一点。需要额外做这一步的原因可以在这个帖子找到：<a href="https://lists.nongnu.org/archive/html/libtool/2014-05/msg00021.html">why is ldconfig needed after installation</a>：</p>
+<blockquote>
+<p><code>ldconfig</code> has to be run because the dynamic linker maintains a cache of available libraries that has to be updated.  <code>libtool</code> does this when run with libtool --mode=finish on the installation directory.  I'm not sure if it does this when it thinks the directory isn't listed in the system library search path, though.</p>
+<p>I investigated this a bit further. <code>libtool --mode=finish</code> is indeed called and it calls <code>ldconfig -n /usr/local/lib</code> but that doesn't update the cache as I want.</p>
+<p>What does the <code>-n</code> switch? The man page says:</p>
+<blockquote>
+<p><code>-n</code> Only process directories specified on the command line. Don’t process the trusted directories (/lib and /usr/lib) nor those specified in /etc/ld.so.conf. Implies -N.</p>
+</blockquote>
+<p>IIUC, that means that the cache is not rebuilt because I have <code>/usr/local/lib</code> in <code>/etc/ld.so.conf</code>. Why is ldconfig called with <code>-n</code>? I did some digging and found that it's been like that since beginning of time, or at least since v0.6a.</p>
+</blockquote>
+<ul>
+<li>BLAS</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>wget<span class="w"> </span><span class="s2">&quot;http://www.netlib.org/blas/blas-3.12.0.tgz&quot;</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>tar<span class="w"> </span>xvf<span class="w"> </span>blas-3.12.0.tgz
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="nb">cd</span><span class="w"> </span>BLAS-3.12.0
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>make<span class="w"> </span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="c1"># 继续完成 CBLAS 的构建</span>
+</span></code></pre></div>
+<ul>
+<li>HPL</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>wget<span class="w"> </span><span class="s2">&quot;https://netlib.org/benchmark/hpl/hpl-2.3.tar.gz&quot;</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>tar<span class="w"> </span>xvf<span class="w"> </span>hpl-2.3.tar.gz
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="nb">cd</span><span class="w"> </span>hpl-2.3
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>cp<span class="w"> </span>setup/Make.Linux_PII_FBLAS<span class="w"> </span>.
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>vim<span class="w"> </span>Make.Linux_PII_FBLAS<span class="w"> </span><span class="c1"># 修改 Makefile</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>make<span class="w"> </span><span class="nv">arch</span><span class="o">=</span>Linux_PII_FBLAS
+</span></code></pre></div>
+<p><code>Make.Linux_PII_FBLAS</code> 中需要修改的部分有   </p>
+<div class="admonition warning">
+<p class="admonition-title">注意</p>
+<p><strong>修改仅供参考</strong>, 请根据你的实际情况进行修改。</p>
+</div>
+<div class="language-makefile highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nv">TOPdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>HOME<span class="k">)</span>/hpl-2.3<span class="w">        </span><span class="p">|</span><span class="w"> </span><span class="nv">TOPdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>HOME<span class="k">)</span>/hpl
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="nv">MPdir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>/usr/local<span class="w">             </span><span class="p">|</span><span class="w"> </span><span class="nv">MPdir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>/usr/local/mpi
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="nv">MPlib</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>MPdir<span class="k">)</span>/lib/libmpi.so<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="nv">MPlib</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>MPdir<span class="k">)</span>/lib/libmpich.a
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="nv">LAdir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>HOME<span class="k">)</span>/BLAS-3.12.0<span class="w">    </span><span class="p">|</span><span class="w"> </span><span class="nv">LAdir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>HOME<span class="k">)</span>/netlib/ARCHIVES/Linux_PII
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="nv">LAlib</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>LAdir<span class="k">)</span>/blas_LINUX.a<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="nv">LAlib</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>LAdir<span class="k">)</span>/libf77blas.a<span class="w"> </span><span class="k">$(</span>LAdir<span class="k">)</span>/libatlas.a
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="nv">LINKER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/usr/bin/gfortran<span class="w">      </span><span class="p">|</span><span class="w"> </span><span class="nv">LINKER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/usr/bin/g77
+</span></code></pre></div>
+<p>生成的可执行文件在 <code>bin/Linux_PII_FBLAS</code> 目录下：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>$ ls bin/Linux_PII_FBLAS/
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>HPL.dat  xhpl
+</span></code></pre></div>
+</details>
+<h2 id="任务二搭建集群并使用-hpl-测试性能">任务二：搭建集群并使用 HPL 测试性能<a class="headerlink" href="#任务二搭建集群并使用-hpl-测试性能" title="Permanent link">&para;</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">任选一种你喜欢的集群搭建方式即可</p>
+<p>我们不对集群搭建的方式做硬性限制，只需注意有以下要求：</p>
+<ul>
+<li>至少有 4 个在线节点。</li>
+<li>节点之间能够通过 ssh 进行互联。MPI 能正常工作。</li>
+</ul>
+<p>你可以从下面的几种方式中任选一种，也可以使用其他方式。</p>
+</div>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">使用虚拟机搭建集群</label><label for="__tabbed_1_2">使用 Docker 搭建集群</label><label for="__tabbed_1_3">使用你喜欢的方式搭建集群</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1802,7 +1773,7 @@ A_{2,2}^{update} &amp;= A_{2,2} - L_{2,1}U_{1,2}
 </span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>
 </span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="k">WORKDIR</span><span class="w"> </span><span class="s">/opt</span>
 </span><span id="__span-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>
-</span><span id="__span-25-11"><a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="c"># 编译安装 MPI，CBLAS，HPL 等等</span>
+</span><span id="__span-25-11"><a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="c"># 这里需要你手动填写指令，来完成 MPI，CBLAS，HPL 的安装</span>
 </span><span id="__span-25-12"><a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a>
 </span><span id="__span-25-13"><a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a><span class="c"># to be filled</span>
 </span><span id="__span-25-14"><a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a>
@@ -1884,7 +1855,65 @@ A_{2,2}^{update} &amp;= A_{2,2} - L_{2,1}U_{1,2}
 </div>
 </div>
 </div>
-<h2 id="知识讲解技术杂谈">知识讲解：技术杂谈<a class="headerlink" href="#知识讲解技术杂谈" title="Permanent link">&para;</a></h2>
+<h2 id="bonus-任务">Bonus 任务<a class="headerlink" href="#bonus-任务" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Bonus 任务是什么?</p>
+<p>Bonus 任务是一些比较有挑战性的任务，<strong>选做</strong>。我们鼓励大家尝试完成。在实验报告中记录你对于 Bonus 任务尝试过的解决方法，将根据完成度获得该次实验的加分。</p>
+<p>其中，加星标 (<code>*</code>) 的 Bonus 任务难度较大，完成其中的 1 至 2 个便能证明你的实力。加星标的任务<strong>仅作为选拔超算队新成员的依据，不参与课程评价和实验加分</strong>。欢迎希望加入超算队的同学挑战它们。</p>
+<p>Lab1 在课程开始后还会再提交一次，你还可以利用期末考试后至开课前期的空闲时间继续补充自己尝试的内容。</p>
+</div>
+<p>在完成 Bonus 任务前，你可以先阅读<a href="#技术杂谈">技术杂谈</a>章节，了解一些相关的知识。</p>
+<h3 id="集群搭建">集群搭建<a class="headerlink" href="#集群搭建" title="Permanent link">&para;</a></h3>
+<div class="admonition tip">
+<p class="admonition-title">Bonus</p>
+<ul>
+<li>正确为每台机器设置主机名，并能从主机名解析出 IP 地址。</li>
+<li>通过 NFS 或其他共享文件系统，实现集群间文件共享。</li>
+<li><strong>(*)</strong> 通过 nis 或 ldap 等方法实现集群间用户（组）共享和管理。</li>
+<li><strong>(*)</strong> 选择你喜欢的节点指标，日志收集，监控等方法，并利用 grafana 等工具进行可视化。</li>
+<li><strong>(*)</strong> 如果你通过虚拟机或物理机等方式进行实验，可以尝试利用 pxe 引导集群启动。</li>
+</ul>
+</div>
+<h3 id="软件安装">软件安装<a class="headerlink" href="#软件安装" title="Permanent link">&para;</a></h3>
+<div class="admonition tip">
+<p class="admonition-title">Bonus</p>
+<ul>
+<li>你也可以尝试其它 BLAS 实现，如更新版本的 <a href="https://www.netlib.org/lapack/">LAPACK</a>，<a href="http://www.openmathlib.org/OpenBLAS/">OpenBLAS</a>，<a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html">MKL</a>，<a href="https://www.amd.com/en/developer/aocl.html">AOCL</a> 等, 并比较它们的性能。</li>
+<li>使用 spack 包管理器安装 OpenMPI、BLAS 和 HPL。</li>
+</ul>
+</div>
+<h3 id="性能测试">性能测试<a class="headerlink" href="#性能测试" title="Permanent link">&para;</a></h3>
+<div class="admonition tip">
+<p class="admonition-title">Bonus</p>
+<p>在完成基本的 HPL 测试后，你可以尝试通过以下方法提高性能：</p>
+<ol>
+<li>
+<p>调整 HPL.dat 参数：</p>
+<ul>
+<li>调整问题规模 N 以充分利用内存</li>
+<li>调整分块大小 NB 以优化计算效率</li>
+<li>调整 P×Q 进程网格布局以匹配集群拓扑</li>
+</ul>
+</li>
+<li>
+<p>编译优化：</p>
+<ul>
+<li>更换编译器</li>
+<li>修改编译优化选项</li>
+<li>尝试更换 BLAS 库</li>
+</ul>
+</li>
+<li>
+<p>运行环境优化：</p>
+<ul>
+<li>优化 OpenMP 绑核参数</li>
+<li>调整 MPI 进程绑定，rank 拓扑</li>
+</ul>
+</li>
+</ol>
+<p>请记录你尝试过的优化方法及其效果，分析性能提升的原因。性能的绝对值不作为评判依据，重要的是你通过哪些方法提高了性能，以及你对这些优化方法的理解。</p>
+</div>
+<h2 id="技术杂谈">技术杂谈<a class="headerlink" href="#技术杂谈" title="Permanent link">&para;</a></h2>
 <h3 id="包管理器">包管理器<a class="headerlink" href="#包管理器" title="Permanent link">&para;</a></h3>
 <p>大型软件的依赖关系非常复杂，我们不可能手动调查其依赖关系，下载每一项依赖进行构建。包管理器维护了软件包的依赖关系，可以自动下载、构建和安装软件包。包管理器还提供了软件包的版本管理、卸载、更新等功能，甚至会提供环境管理服务。它相当于你电脑中的软件管家。</p>
 <ul>
@@ -1946,9 +1975,6 @@ A_{2,2}^{update} &amp;= A_{2,2} - L_{2,1}U_{1,2}
 <li><a href="https://docs.zjusct.io/operation/system/diskless/pxe/">引导方式：PXE</a></li>
 <li><a href="https://docs.zjusct.io/operation/observability/opentelemetry/">数据采集：OpenTelemetry</a></li>
 </ul>
-<h2 id="任务三bonus">任务三：Bonus<a class="headerlink" href="#任务三bonus" title="Permanent link">&para;</a></h2>
-<p>你可以按照兴趣，完成 <a href="#具体任务">Bonus 任务</a>。</p>
-<p>Bonus 任务没有标准答案，欢迎你来与我们探讨。</p>
 <h2 id="参考资料">参考资料<a class="headerlink" href="#参考资料" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://101.lug.ustc.edu.cn/">Linux 101 - 中国科学技术大学 Linux 用户协会</a></li>
@@ -1979,7 +2005,7 @@ A_{2,2}^{update} &amp;= A_{2,2} - L_{2,1}U_{1,2}
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 19, 2025 07:06:34">May 19, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 19, 2025 16:23:58">May 19, 2025</span>
   </span>
 
     
@@ -2006,6 +2032,11 @@ A_{2,2}^{update} &amp;= A_{2,2} - L_{2,1}U_{1,2}
 
     
     <nav>
+      
+        <a href="https://github.com/YooLc" class="md-author" title="@YooLc">
+          
+          <img src="https://avatars.githubusercontent.com/u/52441312?v=4&size=72" alt="YooLc">
+        </a>
       
         <a href="https://github.com/mrhaoxx" class="md-author" title="@mrhaoxx">
           
