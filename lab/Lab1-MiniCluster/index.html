@@ -1108,7 +1108,7 @@
 <div class="admonition warning">
 <p class="admonition-title"><del>不得不品的手动编译</del></p>
 <p>在编译安装过程中会出现各种各样的问题<del>这是预期内的</del>，我们鼓励你尝试解决这些问题，并记录下你尝试过的方法和解决方法。
-除了必须手动编译安装指定的CBLAS和HPL外，我们还鼓励你尝试使用其他方式安装HPL，可以在报告中记录你尝试过的方法。</p>
+除了必须手动编译安装指定的BLAS和HPL外，我们还鼓励你尝试使用其他方式安装HPL，可以在报告中记录你尝试过的方法。</p>
 </div>
 <ul>
 <li>性能测试：在虚拟机/容器集群上使用 OpenMPI 运行 CPU 上的 HPL 性能测试，记录测试结果。</li>
@@ -1458,7 +1458,7 @@
 </div>
 <p>这几个项目的依赖关系是：</p>
 <pre class="mermaid"><code>flowchart LR
-    A[HPL] --&gt; B[BLAS]
+    A[HPL] --&gt; B[CBLAS] --&gt; D[LAPACK]
     A[HPL] --&gt; C[OpenMPI]</code></pre>
 <ul>
 <li>构建并安装 OpenMPI：<ul>
@@ -1468,10 +1468,10 @@
 <li>验证安装是否成功。提示：运行 <code>ompi_info -all</code>。</li>
 </ul>
 </li>
-<li>构建 CBLAS：<ul>
-<li>下载指定版本 CBLAS 源码：<a href="assets/CBLAS.tgz">CBLAS.tgz</a>。</li>
-<li>解压源码，进入源码目录。因为这是一个简单的库不是应用程序，所以这次没有 <code>README</code> 了。你发现有 <code>Makefile</code>，直接构建即可。</li>
-<li>如果没有错误，目录中会生成一个 <code>.a</code> 文件，这是待会要用到的静态链接库。</li>
+<li>构建 BLAS，CBLAS：<ul>
+<li>下载指定版本 BLAS 源码 <a href="assets/blas-3.12.0.tgz">blas-3.12.0.tgz</a>, 并完成构建。</li>
+<li>下载指定版本 CBLAS 源码：<a href="assets/CBLAS.tgz">CBLAS.tgz</a>。相应修改 <code>Makefile.in</code> 后完成构建</li>
+<li>如果没有错误，两个目录中都会生成一个 <code>.a</code> 文件，这是待会要用到的静态链接库。</li>
 </ul>
 </li>
 </ul>
@@ -1520,7 +1520,8 @@
 </span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>tar<span class="w"> </span>xvf<span class="w"> </span>blas-3.12.0.tgz
 </span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="nb">cd</span><span class="w"> </span>BLAS-3.12.0
 </span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>make<span class="w"> </span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1"># 注意， 这不是我们需要的 CBLAS， 安装过程仅供参考</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="c1"># 继续完成 CBLAS 的构建</span>
 </span></code></pre></div>
 <ul>
 <li>HPL</li>
@@ -1975,7 +1976,7 @@ A_{2,2}^{update} &amp;= A_{2,2} - L_{2,1}U_{1,2}
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 19, 2025 06:02:29">May 19, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 19, 2025 06:21:55">May 19, 2025</span>
   </span>
 
     
