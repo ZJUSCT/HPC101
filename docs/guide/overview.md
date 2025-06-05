@@ -104,6 +104,6 @@ The document has moved
 ```
 
 <figure markdown="span">
-  <center>![proxy](overview.assets/proxy.webp){ width=80% align=center }</center>
+  ![proxy](overview.assets/proxy.webp){ width=80% align=center }
   <figcaption>常见应用对环境变量代理的支持</figcaption>
 </figure>

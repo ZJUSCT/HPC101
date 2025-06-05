@@ -112,7 +112,7 @@
 集群目前使用 [OpenNG](https://github.com/mrhaoxx/OpenNG) 提供的 SSH 代理功能，原理如下图所示：
 
 <figure markdown="span">
-<center>![ssh](index.assets/ssh.webp)</center>
+![ssh](index.assets/ssh.webp){ align=center }
 <figcaption>集群 SSH 代理登录原理</figcaption>
 </figure>
 
@@ -201,9 +201,8 @@ user@machine:~$ vtune-gui
 ```
 
 <figure markdown="span">
-  <center>
-    ![x11_success](index.assets/x11_success.webp){ width=80% align=center }
-  </center><figcaption>
+  ![x11_success](index.assets/x11_success.webp){ width=80% align=center }
+  <figcaption>
     X11 Forwarding 成功
   </figcaption>
 </figure>
