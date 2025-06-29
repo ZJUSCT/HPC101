@@ -285,8 +285,30 @@ find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) -exec s
 -   Sekath Italic
 -   Supercharge
 
-课程幻灯片存放在 `slides/` 目录下，使用 [MartenBE/mkslides](https://github.com/MartenBE/mkslides/) 构建到 MkDocs 构建后的目录下然后部署，以实现 MkDocs 和 mkslides 的集成。参考下列样式修改：
+课程幻灯片存放在 `beamer` 目录下，基于 zjusct-beamer 主题构建。布局如下
 
--   [HoGentTIN/cdn](https://github.com/HoGentTIN/cdn/blob/main/styles/reveal-js/slides.css)
--   [HoGentTIN/linux-slides](https://github.com/HoGentTIN/linux-slides/blob/main/hogent.css)
--   [TonyCrane/slide-template](https://github.com/TonyCrane/slide-template/blob/master/slide/src/custom.css)
+```text
+beamer
+├── Makefile：构建脚本
+├── day1.tex：第一天的幻灯片
+├── day2.tex：第二天的幻灯片
+├── day1
+│   ├── sections：第一天的章节
+│   └── img：第一天的图片
+├── day2
+│   ├── sections：第二天的章节
+│   └── img：第二天的图片
+└── zjusct-beamer：zjusct-beamer 主题文件夹
+```
+
+要构建某天的幻灯片，目标为对应的文件名，例如 `make day1.tex`。构建后会在当前目录下生成 PDF 文件。
+
+在提交前，请运行 `make lint && make clean`。不要把构建完成的 PDF 文件提交到仓库中。
+
+??? info "MkSlides is deprecated"
+
+    课程幻灯片存放在 `slides/` 目录下，使用 [MartenBE/mkslides](https://github.com/MartenBE/mkslides/) 构建到 MkDocs 构建后的目录下然后部署，以实现 MkDocs 和 mkslides 的集成。参考下列样式修改：
+
+    - [HoGentTIN/cdn](https://github.com/HoGentTIN/cdn/blob/main/styles/reveal-js/slides.css)
+    - [HoGentTIN/linux-slides](https://github.com/HoGentTIN/linux-slides/blob/main/hogent.css)
+    - [TonyCrane/slide-template](https://github.com/TonyCrane/slide-template/blob/master/slide/src/custom.css)

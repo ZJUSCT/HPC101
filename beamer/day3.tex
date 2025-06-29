@@ -1,0 +1,53 @@
+\documentclass{zjusct-beamer/zjusctbeamer}
+
+% Metadata
+\title{Introduction to Computer Systems in HPC}
+\subtitle{Day 1 - The Hidden World Beneath Your Code}
+\author[YooLc]{Chenxiao Li (@YooLc)}
+\date{\today}
+\institute[ZJUSCT]{Zhejiang University Supercomputing Team}
+\copyleftnotice{CC-BY 4.0}
+
+\hypersetup{
+    pdftitle={\title},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+% Set Mono and Emoji font
+\setmonofont{DejaVu Sans Mono}
+\setemojifont{TwemojiMozilla}
+
+\maketitle
+
+% Outline (Table of Contents)
+\cutoc
+
+\input{day3/sections/introduction}
+\input{day3/sections/os}
+\input{day3/sections/syscall}
+\input{day3/sections/process}
+\input{day3/sections/thread}
+\input{day3/sections/vm}
+
+\begin{frame}[fragile]{Takeaways}
+	\emoji{star} Important concepts that you should remember today:
+	\begin{itemize}
+		\item Operating System:\textbf{a resource abstractor and resource allocator.}
+		\item Process: \textbf{a unit of resource allocation and protection.}
+		\item Thread: \textbf{basic unit of execution} within a process.
+		\item Others: Memory Hierarchy, Stack Frame, etc.
+	\end{itemize}
+\end{frame}
+
+% Q&A
+\begin{frame}[standout]
+	\Huge\textsc{Thank You}
+
+	\vfill
+
+	\LARGE\textsc{Any Questions?}
+\end{frame}
+
+\end{document}
