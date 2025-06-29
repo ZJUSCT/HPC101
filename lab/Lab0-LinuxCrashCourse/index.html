@@ -1,0 +1,1933 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab0-LinuxCrashCourse/">
+      
+      
+        <link rel="prev" href="../../guide/overview/">
+      
+      
+        <link rel="next" href="../Lab1-MiniCluster/">
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Lab 0: Linux Crash Course - HPC101 (2025)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lab-0-linux-crash-course" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101 (2025)" class="md-header__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101 (2025)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Lab 0: Linux Crash Course
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="zjusct" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  
+    
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+    
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../slides/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  课程幻灯片
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101 (2025)" class="md-nav__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    HPC101 (2025)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../.." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    课程信息
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            课程信息
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../guide/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    使用集群
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1_2" id="__nav_1_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            使用集群
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/env/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    软件环境
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    提交作业
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    使用在线测评
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    集群概况
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程实验
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            课程实验
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="./" class="md-nav__link md-nav__link--active">
+              
+  
+  
+  <span class="md-ellipsis">
+    Lab0-LinuxCrashCourse
+    
+  </span>
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            Lab0-LinuxCrashCourse
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../Lab1-MiniCluster/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Lab1-MiniCluster
+    
+  </span>
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Lab1-MiniCluster
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../slides/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    课程幻灯片
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Before You Start
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#obtain-a-linux-virtual-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      Obtain a Linux Virtual Machine
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Obtain a Linux Virtual Machine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#os-and-kernel" class="md-nav__link">
+    <span class="md-ellipsis">
+      OS and Kernel
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linux
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux-distributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linux distributions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      Virtual Machine
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linux-basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linux Basics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Linux Basics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#command-line-interface-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      Command Line Interface (CLI)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux-file-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linux File System
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-advanced-packaging-tool-apt" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Advanced Packaging Tool (APT)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#access-the-virtual-machine-using-ssh" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access the Virtual Machine using SSH
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Access the Virtual Machine using SSH">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#network-basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Network Basics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network-in-virtual-machines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Network in Virtual Machines
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh" class="md-nav__link">
+    <span class="md-ellipsis">
+      SSH
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#more-on-linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      More on Linux
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="More on Linux">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#users-and-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Users and Permissions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#git" class="md-nav__link">
+    <span class="md-ellipsis">
+      Git
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Git">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#register-a-zju-git-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      Register a ZJU Git account
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-public-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure Public Key
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      References
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab0-LinuxCrashCourse/index.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="lab-0-linux-crash-course">Lab 0: Linux Crash Course<a class="headerlink" href="#lab-0-linux-crash-course" title="Permanent link">&para;</a></h1>
+<div class="admonition tip">
+<p class="admonition-title">QC PASS</p>
+<p>This lab workflow has passed the quality check. Feel free to proceed.</p>
+<p>Responsible TA: <strong>Xingxing Hao @mrhaoxx</strong></p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">To help students get accustomed to reading English documentation, this lab will be conducted entirely in English.</p>
+<p>In the fields of <strong>Linux</strong> and <strong>HPC</strong>, a significant amount of software and hardware infrastructure is collaboratively developed by people from around the world. <strong>English serves as a crucial medium for communication.</strong> In the future, you will encounter well-known software projects such as <strong>NumPy</strong>, <strong>PyTorch</strong>, <strong>OpenMP</strong>, and <strong>MPI</strong>. While using these tools, you will inevitably need to read their documentation to solve problems, and these documents are often written in English. <strong>To help students get accustomed to reading English documentation, this lab will be conducted entirely in English.</strong></p>
+<p>Of course, we understand that reading lengthy English documents can be challenging. Therefore, we <strong>recommend students download and configure the <a href="https://immersivetranslate.com/">Immersive Translate</a> browser extension</strong> to assist with reading.</p>
+<p>Similarly, when installing the system later in this lab, we also require selecting the <strong>English language pack</strong>.</p>
+<p>Don't worry, the rest of course labs will still provide documentation in <strong>Chinese</strong>.</p>
+<p>If you encounter any issues while completing the lab or notice that some instructions in the lab documentation are outdated and need updating, feel free to raise them in the group or consult the <strong>TA</strong>.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">About This Lab</p>
+<p>Most students may have only heard of <strong>Linux</strong> but have never used it. To reduce the difficulties caused by unfamiliarity with the <strong>Linux environment</strong> when completing <strong>Lab 1</strong>, we have added this lab.</p>
+<p>Through this lab, we aim to provide students with a <strong>consistent basic understanding of Linux and set up a uniform environment</strong>, laying the groundwork for subsequent labs.</p>
+<p>This lab is <strong>not included in the evaluation</strong> of the <strong>HPC 101 short-term course</strong>, and no lab report is required. <strong>Answers are directly provided after the questions.</strong></p>
+<p>If you complete this lab, you only need to provide a few screenshots:</p>
+<ul>
+<li><strong>Task 1.1</strong>: Hash result</li>
+<li><strong>Task 2.1</strong>: <code>nano</code> screenshot</li>
+<li><strong>Task 3.2</strong>: SSH connection screenshot</li>
+<li><strong>Task 5.2</strong>: SSH connection screenshot</li>
+</ul>
+<p>If you already have a <strong>deep understanding of Linux</strong> or are currently using a <strong>Linux system</strong> and are familiar with the content of this lab, you can skip reading the content and directly complete the tasks.</p>
+</div>
+<!-- !!! tip "如何阅读错误信息并处理错误"
+
+    命令行与图形界面的一大不同就是，在命令的运行过程中会给出很多记录（Log）和错误信息（Error Message）。新手可能都有畏难心理，觉得这些信息很难看懂/看了也没有什么用，但很多时候解决方法已经在错误信息中了。举个例子，下面是运行 `make` 时产生的一些信息，你能指出错误是什么吗？
+
+    <div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-0-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-0-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span>
+<span class="normal"><a href="#__codelineno-0-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a>make[1]: Leaving directory &#39;/home/test/hpl/hpl-2.3&#39;
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a>make -f Make.top build_src arch=Linux_PII_CBLAS
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a>make[1]: Entering directory &#39;/home/test/hpl/hpl-2.3&#39;
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a>( cd src/auxil/Linux_PII_CBLAS; make )
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a>make[2]: Entering directory &#39;/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS&#39;
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6"></a>Makefile:47: Make.inc: No such file or directory
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7"></a>make[2]: *** No rule to make target &#39;Make.inc&#39;.  Stop.
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8"></a>make[2]: Leaving directory &#39;/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS&#39;
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9"></a>make[1]: *** [Make.top:54: build_src] Error 2
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10"></a>make[1]: Leaving directory &#39;/home/test/hpl/hpl-2.3&#39;
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11"></a>make: *** [Make.top:54: build] Error 2
+</span></code></pre></div></td></tr></table></div>
+
+    ??? success "Check your answer"
+
+        错误是第 6 行的 `Makefile:47: Make.inc: No such file or directory`。这个错误信息的开头是 `Makefile:47`，表示错误发生在 Makefile 的第 47 行。错误原因是 `Make.inc` 文件不存在。
+
+        那么如何解决这个问题呢？**当然是去发生错误的地方看看**。跳转到 `/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS` 这个文件夹，使用 `ls -lah` 命令查看文件夹中的文件，我们得到如下结果：
+
+        <div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>total 5.5K
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>drwxr-xr-x 2 test test  4.0K May  6  2024 .
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>drwxr-xr-x 3 test test 11.0K May  6  2024 ..
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>lrwxrwxrwx 1 test test    36 May  6  2024 Make.inc -&gt; /home/test/hpl/hpl/Make.Linux_PII_CBLAS
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>-rw-r--r-- 1 test test  5.0K May  6  2024 Makefile
+</span></code></pre></div>
+
+        对比一下现在的位置：`/home/test/hpl/hpl-2.3/`，显然上面路径中是把 `hpl-2.3` 写成了 `hpl`。修改顶层 Makefile 中的路径即可解决问题。
+
+    总结步骤如下：
+
+    1. 阅读提示信息，定位错误位置和原因（如果读不懂，去 Google 或扔给 ChatGPT）。
+    2. 去错误现场，看看发生了什么。
+    3. 根据提示和查阅得到的资料修复错误。 -->
+
+<h2 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Obtain a Linux Virtual Machine<ul>
+<li>Install a hypervisor on your computer</li>
+<li>Create a new virtual machine in the hypervisor</li>
+<li>Install a Linux distribution in the virtual machine</li>
+</ul>
+</li>
+<li>Linux Basics<ul>
+<li>Command Line Interface (CLI)</li>
+<li>Linux File System</li>
+<li>Package Management</li>
+</ul>
+</li>
+<li>Remote Access<ul>
+<li>Network Basics</li>
+<li>SSH</li>
+</ul>
+</li>
+<li>More on Linux<ul>
+<li>Users and Permissions</li>
+<li>Environment Variables</li>
+</ul>
+</li>
+<li>Git<ul>
+<li>Register a ZJU Git account</li>
+<li>Configure Public Key</li>
+<li>Clone a Repository</li>
+</ul>
+</li>
+</ul>
+<h2 id="before-you-start">Before You Start<a class="headerlink" href="#before-you-start" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Read this <a href="https://slides.tonycrane.cc/PracticalSkillsTutorial/2023-fall-ckc/lec1/">presentation</a> or watch this <a href="https://www.bilibili.com/video/BV1ry4y1A7qo/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.813 4.653h.854q2.266.08 3.773 1.574Q23.946 7.72 24 9.987v7.36q-.054 2.266-1.56 3.773c-1.506 1.507-2.262 1.524-3.773 1.56H5.333q-2.266-.054-3.773-1.56C.053 19.614.036 18.858 0 17.347v-7.36q.054-2.267 1.56-3.76t3.773-1.574h.774l-1.174-1.12a1.23 1.23 0 0 1-.373-.906q0-.534.373-.907l.027-.027q.4-.373.92-.373t.92.373L9.653 4.44q.107.106.187.213h4.267a.8.8 0 0 1 .16-.213l2.853-2.747q.4-.373.92-.373c.347 0 .662.151.929.4s.391.551.391.907q0 .532-.373.906zM5.333 7.24q-1.12.027-1.88.773-.76.748-.786 1.894v7.52q.026 1.146.786 1.893t1.88.773h13.334q1.12-.026 1.88-.773t.786-1.893v-7.52q-.026-1.147-.786-1.894t-1.88-.773zM8 11.107q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q0-.56.386-.947.387-.386.947-.386m8 0q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q.025-.586.4-.96.373-.373.933-.373"/></svg></span> video</a>.</li>
+<li>Make sure you can access GitHub, Google and Stack Overflow.</li>
+</ul>
+<h2 id="obtain-a-linux-virtual-machine">Obtain a Linux Virtual Machine<a class="headerlink" href="#obtain-a-linux-virtual-machine" title="Permanent link">&para;</a></h2>
+<h3 id="os-and-kernel">OS and Kernel<a class="headerlink" href="#os-and-kernel" title="Permanent link">&para;</a></h3>
+<figure>
+<a class="glightbox" href="image/os_and_kernel.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="os_and_kernel" src="image/os_and_kernel.webp" /></a>
+
+<figcaption>Computer Architecture</figcaption>
+</figure>
+<p>An operating system (OS) is system software that manages computer hardware, software resources, and provides common services for computer programs. The operating system is a vital component of the system software in a computer system.</p>
+<p>A kernel is a computer program that is the <strong>core of a computer's operating system</strong>, with complete control over everything in the system. It is the "lowest" level of the OS.</p>
+<h3 id="linux">Linux<a class="headerlink" href="#linux" title="Permanent link">&para;</a></h3>
+<p>Linux is a family of open-source Unix-like operating systems based on the Linux kernel, an operating system kernel first released on September 17, 1991, by Linus Torvalds. Linux is typically packaged in a Linux distribution.</p>
+<p>Linux is a popular choice for developers and system administrators due to its flexibility and open-source nature. Linux is also widely used in the HPC field due to its high performance and scalability.</p>
+<details class="success" open="open">
+<summary>🎉 Good Luck! You are a Linux User now!</summary>
+<p><!-- A minimal structure for the ScreenAdapter defined in browser/screen.js -->
+<div id="screen_container" style="display: flex;">
+    <div style="white-space: pre; font: 14px monospace; line-height: 14px; margin: auto;"></div>
+    <canvas style="display: none"></canvas>
+</div></p>
+<p>We want to show you that learning Linux is not hard and getting Linux is very easy. <strong>Linux runs everywhere, even in your browser.</strong></p>
+<p>Don't be afraid, the black screen above is an emulator using <a href="https://webassembly.org/">Web Assembly</a> technology. It runs <a href="https://en.wikipedia.org/wiki/Linux">Linux</a> kernel 6.8.12 (Try typing <code>uname -a</code> to check it out!) with <a href="https://buildroot.org/">Buildroot</a> environment (which contains a collection of basic Linux command line tools).</p>
+<p>You can try common Linux commands here, like <code>ls</code>, <code>cd</code>, <code>cat</code>, <code>echo</code>, <code>pwd</code>, <code>uname</code>, <code>date</code>, <code>top</code>, <code>ps</code>, <code>clear</code>, and <code>exit</code>.</p>
+<p>Good job! Now you're a true Linux user. You can go on and finish this lab.</p>
+</details>
+<script src="/javascripts/v86/libv86.js"></script>
+<script>
+"use strict";
+
+// Save references to the original event handler methods
+const originalAddEventListener = window.addEventListener;
+const originalRemoveEventListener = window.removeEventListener;
+
+// Array to store keydown listeners
+const keydownListeners = [];
+
+// Override addEventListener to track keydown listeners
+window.addEventListener = function(type, listener, options) {
+originalAddEventListener.call(window, type, listener, options);
+if (type === 'keydown') {
+    keydownListeners.push({ listener, options });
+}
+};
+
+// Override removeEventListener to update the keydown listeners list
+window.removeEventListener = function(type, listener, options) {
+originalRemoveEventListener.call(window, type, listener, options);
+if (type === 'keydown') {
+    const index = keydownListeners.findIndex(entry =>
+    entry.listener === listener &&
+    (entry.options === options ||
+    (typeof entry.options === 'object' && typeof options === 'object' &&
+        JSON.stringify(entry.options) === JSON.stringify(options))));
+    if (index !== -1) {
+    keydownListeners.splice(index, 1);
+    }
+}
+};
+
+window.onload = function()
+{
+    // Remove key listener from material mkdocs
+    if (keydownListeners.length > 0) {
+        const firstListener = keydownListeners.shift();
+        window.removeEventListener('keydown', firstListener.listener, firstListener.options);
+    }
+
+    var emulator = new V86({
+        wasm_path: "/javascripts/v86/v86.wasm",
+        memory_size: 512 * 1024 * 1024,
+        vga_memory_size: 8 * 1024 * 1024,
+        screen_container: document.getElementById("screen_container"),
+        bios: {
+            url: "/javascripts/v86/seabios.bin",
+        },
+        vga_bios: {
+            url: "/javascripts/v86/vgabios.bin",
+        },
+        bzimage: {
+            url: "/javascripts/v86/buildroot-bzimage68.bin",
+        },
+        autostart: true,
+    });
+};
+</script>
+
+<h3 id="linux-distributions">Linux distributions<a class="headerlink" href="#linux-distributions" title="Permanent link">&para;</a></h3>
+<p>What is Linux distribution? A Linux distribution (or Linux distro) is essentially a collection of software packages and configurations that are used to create a complete Linux operating system. They both use the Linux kernel, but might have different out-of-the-box configurations and user applications.</p>
+<p>There are many Linux distributions available, each with its own strengths and weaknesses. Here are some popular choices:</p>
+<ul>
+<li><strong>Ubuntu</strong>: A popular choice for beginners due to its ease of use, large community support, and compatibility with many hardware devices.</li>
+<li><strong>Debian</strong>: Known for its stability and security.</li>
+<li><strong>Fedora</strong>: A community-driven Linux distribution sponsored by Red Hat.</li>
+<li><strong>Arch Linux</strong>: A lightweight and flexible Linux distribution that follows the "rolling release" model.</li>
+</ul>
+<p>In HPC and cloud computing, Debian is a popular choice due to its stability and security.</p>
+<p><strong>We recommend using Debian for this course.</strong></p>
+<div class="admonition question">
+<p class="admonition-title">Task 1.1: Download and verify the latest <strong>textonly</strong> version of Debian ISO image from <a href="https://mirrors.zju.edu.cn/debian-cd/">ZJU Mirrors</a></p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Step 1</label><label for="__tabbed_1_2">Step 2</label><label for="__tabbed_1_3">Step 3</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Follow the link to the Debian CD image download page: <a href="https://mirrors.zju.edu.cn/debian-cd/">ZJU Mirrors</a>.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Index of /debian-cd/
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>../
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>12.11.0/                                           17-May-2025 17:55                   -
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>12.11.0-live/                                      17-May-2025 17:55                   -
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>current/                                           17-May-2025 17:55                   -
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>current-live/                                      17-May-2025 17:55                   -
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>project/                                           23-May-2005 16:50                   -
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>ls-lR.gz                                           17-May-2025 20:12               13882
+</span></code></pre></div>
+<p>We need you to download the <strong>textonly</strong> version.</p>
+<p>Don't know how to find correct download link from the above webpage? Read this guide: <a href="https://github.com/slowpeek/debian-iso-guide"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></span> Your guide to Debian iso downloads</a>.</p>
+</div>
+<div class="tabbed-block">
+<div class="admonition warning">
+<p class="admonition-title">For MacBook users with M series processors</p>
+<p>You need to download the <code>arm64</code> version of Debian, but <strong>not</strong> the <code>debian-mac-</code> version under <code>amd64</code> directory.</p>
+</div>
+<p>The download link should look like this: <a href="https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso">https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso</a>.</p>
+<p><strong>Quick questions:</strong></p>
+<ul>
+<li>What is the difference between <code>debian-12.11.0-amd64-netinst.iso</code> and the <code>debian-12.11.0-amd64-DVD-1.iso</code>?</li>
+<li>What is the difference between the <code>amd64</code> and <code>arm64</code> versions?</li>
+</ul>
+<details class="success">
+<summary>Check your answer</summary>
+<ul>
+<li>The <code>netinst</code> version is a small ISO image that contains only the necessary files to start the installation. The <code>DVD-1</code> version is a large ISO image that contains desktop environments, applications, and other software.</li>
+<li><code>amd64</code> is the 64-bit version for x86-64 processors, while <code>arm64</code> is the 64-bit version for ARM processors. For example, Windows laptops usually use x86-64 processors, while latest MacBooks use ARM processors.</li>
+</ul>
+</details>
+</div>
+<div class="tabbed-block">
+<p>Verify the integrity of the downloaded ISO image. This is to ensure the ISO image is not corrupted or modified during the download process.</p>
+<p>You can use:</p>
+<ul>
+<li><code>sha256sum</code> on Linux: <code>sha256sum debian-12.10.0-amd64-netinst.iso</code></li>
+<li><code>certutil</code> on Windows: <code>certutil -hashfile debian-12.10.0-amd64-netinst.iso SHA256</code></li>
+<li><code>shasum</code> on macOS: <code>shasum -a 256 debian-12.10.0-amd64-netinst.iso</code></li>
+</ul>
+<p>Show the result of your verification, and compare it with the result in <code>SHA256SUMS</code> file under the same directory as the ISO image.</p>
+<p>If they are the same, then you are good to go.</p>
+</div>
+</div>
+</div>
+</div>
+<h3 id="virtual-machine">Virtual Machine<a class="headerlink" href="#virtual-machine" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">More on Virtualization</p>
+<p>If you are interested in virtualization and cloud computing, you can watch the <a href="https://www.bilibili.com/video/BV1b64y1a7wL/">Cloud·Explained video series</a> to learn the related concepts as an introduction.</p>
+</div>
+<p>A virtual machine (VM) is a software-based emulation of a computer. By running a VM on your computer, you can run multiple operating systems on the same hardware. This is useful for testing software, running legacy applications, and learning new operating systems.</p>
+<figure>
+<a class="glightbox" href="image/virtual_machine.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="virtual_machine" src="image/virtual_machine.webp" /></a>
+
+<figcaption>Virtual Machines</figcaption>
+</figure>
+<p>Hypervisors are software that creates and runs virtual machines.</p>
+<details class="info">
+<summary>Two types of hypervisors</summary>
+<ul>
+<li><strong>Type 1 hypervisor</strong>: Runs directly on the host's hardware to control the hardware and to manage guest operating systems. Examples include VMware ESXi, Microsoft Hyper-V, and Xen.</li>
+<li><strong>Type 2 hypervisor</strong>: Runs on a conventional operating system just like other computer programs. Examples include VMware Workstation, Oracle VirtualBox, and Parallels Desktop.</li>
+</ul>
+<p>Usually, we use Type 2 hypervisors for personal use. There are many Type 2 hypervisors available, such as VMware Workstation, Oracle VirtualBox, and Parallels Desktop.</p>
+</details>
+<p>You can choose whatever hypervisor you like. In this course, we recommend using <a href="https://www.vmware.com/products/desktop-hypervisor.html">VMware Workstation Pro</a> on Windows and Linux, or <a href="https://www.vmware.com/products/fusion.html">VMware Fusion</a> on macOS. They are free for personal use since <a href="https://blogs.vmware.com/workstation/2024/05/vmware-workstation-pro-now-available-free-for-personal-use.html">May 13, 2024</a>.</p>
+<p><a class="glightbox" href="image/vmware.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="vmware_workstation" src="image/vmware.webp" /></a></p>
+<div class="admonition question">
+<p class="admonition-title">Task 1.2: Download and install VMware Hypervisor</p>
+<p>Watch this video to learn how to download and install VMware Workstation: <a href="https://www.youtube.com/watch?v=66qMLGCGP5s"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814M9.545 15.568V8.432L15.818 12z"/></svg></span> VMware Workstation Pro is Now FREE (How to get it)</a></p>
+<ul>
+<li><a href="https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Workstation%20Pro">VMware Workstation Pro</a></li>
+<li><a href="https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Fusion">VMware Fusion</a></li>
+</ul>
+<p>(When filling out the download form, you can use any information like address, etc. It's common for large companies to have such tedious download processes 😵.)</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Task 1.3: Create a new virtual machine and install Debian</p>
+<div class="admonition warning">
+<p class="admonition-title">Please read the installation instructions carefully.</p>
+<p>If the following instructions don't mention a specific step, leave it as default.</p>
+</div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:6"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><input id="__tabbed_2_5" name="__tabbed_2" type="radio" /><input id="__tabbed_2_6" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Step 1 (Windows)</label><label for="__tabbed_2_2">Step 1 (macOS)</label><label for="__tabbed_2_3">Step 2</label><label for="__tabbed_2_4">Step 3</label><label for="__tabbed_2_5">Step 4</label><label for="__tabbed_2_6">Step 5</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Select the downloaded Debian ISO image as the installation media. Create a new virtual machine.</p>
+<p><center><a class="glightbox" href="image/task1.3.w1.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.w1" src="image/task1.3.w1.webp" width="80%" /></a></center></p>
+<p>Here is my configuration:</p>
+<p><center><a class="glightbox" href="image/task1.3.w2.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.w2" src="image/task1.3.w2.webp" width="80%" /></a></center></p>
+</div>
+<div class="tabbed-block">
+<p>Select the downloaded Debian ISO image as the installation media. Create a new virtual machine.</p>
+<p><a class="glightbox" href="image/task1.3.m1.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.m1" src="image/task1.3.m1.webp" /></a></p>
+<p>Here is my configuration:</p>
+<p><a class="glightbox" href="image/task1.3.m2.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.m2" src="image/task1.3.m2.webp" /></a></p>
+</div>
+<div class="tabbed-block">
+<p>Run the virtual machine and install Debian. (We recommend to choose <code>Install</code> but not <code>Graphical install</code>.)</p>
+<p><a class="glightbox" href="image/task1.3.m3.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.m3" src="image/task1.3.m3.webp" /></a></p>
+<p>Please <strong>choose English as the language</strong>.</p>
+<p><a class="glightbox" href="image/task1.3.m4.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.m4" src="image/task1.3.m4.webp" /></a></p>
+</div>
+<div class="tabbed-block">
+<p>You can change hostname, domain name, etc. as you like.</p>
+<p>Don't set a root password. Read the text on the screen carefully.</p>
+<blockquote>
+<p>If you leave this empty, the root account will be disabled and the system's initial user will be given the power to become root using the <code>sudo</code> command.</p>
+</blockquote>
+<p>So, if you set a root password, you will need to add yourself to the <code>sudo</code> group later manually.</p>
+<p><a class="glightbox" href="image/task1.3.m5.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.m5" src="image/task1.3.m5.webp" /></a></p>
+<p>Then set up your user account. Use the entire disk for the installation.</p>
+<p><a class="glightbox" href="image/task1.3.m6.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.m6" src="image/task1.3.m6.webp" /></a></p>
+</div>
+<div class="tabbed-block">
+<p>Configure the package manager. Choose <code>enter information manually</code> and set the mirror to <code>mirrors.zju.edu.cn</code>.</p>
+<p><a class="glightbox" href="image/task1.3.m7.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.m7" src="image/task1.3.m7.webp" /></a></p>
+<p><a class="glightbox" href="image/task1.3.m8.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.m8" src="image/task1.3.m8.webp" /></a></p>
+<p>Notice in the <code>Software selection</code> step, you need to select <code>SSH server</code> and <code>standard system utilities</code>, and cancel the selection of any other options. The text at the bottom of the screen will tell you how to navigate the menu.</p>
+<p><a class="glightbox" href="image/task1.3.w9.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.w9" src="image/task1.3.w9.webp" /></a></p>
+</div>
+<div class="tabbed-block">
+<p>In the <code>Configuring grub-pc</code> step, should choose <code>/dev/sda</code> as the device for boot loader installation. Otherwise, you may not be able to boot into the system.</p>
+<p><center><a class="glightbox" href="image/task1.3.w10.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.w9" src="image/task1.3.w10.webp" width="80%" /></a></center></p>
+<p>Installation finished. Usually you don't need to remove the installation media manually because the virtual machine will try to boot from the disk first.</p>
+<p><a class="glightbox" href="image/task1.3.m9.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.m9" src="image/task1.3.m9.webp" /></a></p>
+<p>After rebooting, you can log in with the user account you created.</p>
+<p><a class="glightbox" href="image/task1.3.m10.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task1.3.m10" src="image/task1.3.m10.webp" /></a></p>
+</div>
+</div>
+</div>
+</div>
+<h2 id="linux-basics">Linux Basics<a class="headerlink" href="#linux-basics" title="Permanent link">&para;</a></h2>
+<h3 id="command-line-interface-cli">Command Line Interface (CLI)<a class="headerlink" href="#command-line-interface-cli" title="Permanent link">&para;</a></h3>
+<p>Read <a href="https://ubuntu.com/tutorials/command-line-for-beginners#1-overview">The Linux command line for beginners - Ubuntu</a>. Begin with section 1 and stop at section 5.</p>
+<div class="admonition question">
+<p class="admonition-title">Task 2.1: Answer the following questions</p>
+<ol>
+<li>What is terminal, shell and prompt? Find definitions from the article.</li>
+<li>What commands did you learn from the article?</li>
+<li>Try to learn <code>nano</code>. Use it to create a file and write some text.</li>
+</ol>
+</div>
+<details class="success">
+<summary>Check your answer</summary>
+<ol>
+<li>Answers:<ul>
+<li>Terminal: They would just send keystrokes to the server and display any data they received on the screen.</li>
+<li>Shell: By wrapping the user’s commands this “shell” program, as it was known, could provide common capabilities to any of them, such as the ability to pass data from one command straight into another, or to use special wildcard characters to work with lots of similarly named files at once.</li>
+<li>Prompt: That text is there to tell you the computer is ready to accept a command, it’s the computer’s way of prompting you.</li>
+</ul>
+</li>
+<li>
+<p>Examples:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cd pwd mkdir ls cat echo less mv rm rmdir
+</span></code></pre></div>
+</li>
+<li>
+<p>Show your screenshot of using <code>nano</code>.</p>
+</li>
+</ol>
+</details>
+<h3 id="linux-file-system">Linux File System<a class="headerlink" href="#linux-file-system" title="Permanent link">&para;</a></h3>
+<p>Watch <a href="https://www.youtube.com/watch?v=bbmWOjuFmgA"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814M9.545 15.568V8.432L15.818 12z"/></svg></span> Linux File System Explained!</a></p>
+<div class="admonition question">
+<p class="admonition-title">Task 2.2: Answer the following questions</p>
+<ol>
+<li>Where is your location when you first log in?</li>
+<li>Where are the homes for executable binaries?</li>
+<li>What is <code>/usr</code> stands for?</li>
+<li>What's in <code>/usr/local/bin</code>?</li>
+<li>Where are the configuration files stored?</li>
+</ol>
+</div>
+<details class="success">
+<summary>Check your answer</summary>
+<ol>
+<li><code>/home/username</code></li>
+<li><code>/bin</code>, <code>/sbin</code>, <code>/usr/bin</code>, <code>/usr/local/bin</code>.</li>
+<li><code>/usr</code> stands for "Unix System Resources".</li>
+<li><code>/usr/local/bin</code> holds executables installed by the admin, usually after building them from source.</li>
+<li><code>/etc</code></li>
+</ol>
+</details>
+<h3 id="the-advanced-packaging-tool-apt">The Advanced Packaging Tool (APT)<a class="headerlink" href="#the-advanced-packaging-tool-apt" title="Permanent link">&para;</a></h3>
+<p>Unlike Windows, where you need to download software from the internet and install it manually (this can be dangerous), Linux distributions have package managers that allow you to install software from a central repository.</p>
+<p>For Debian-based distributions, the package manager is called <code>apt</code>. You can use <code>apt</code> to install, update, and remove software packages. For example, to install the <code>htop</code> package, you can run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>update
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>htop
+</span></code></pre></div>
+<p>The first command updates the local package list from the repository, and the second command installs the <code>htop</code> package.</p>
+<p>You can edit the <code>/etc/apt/sources.list</code> file to change the repository mirror. Read <a href="https://wiki.debian.org/SourcesList">SourceList - Debian Wiki</a> to learn more about the <code>sources.list</code> file.</p>
+<p>If you are finding a package, you can use <a href="https://pkgs.org/">pkgs.org</a> to search for the package and find the repository.</p>
+<details class="note">
+<summary><a href="https://askubuntu.com/questions/913180/what-are-mirrors">Why you need repository mirrors?</a></summary>
+<p>On the Internet, distance matters. In fact, it matters a lot. A long connection can cause high latency, slower connection speeds, and pretty much all the other classic issues that data has when it needs to travel across an ocean and half a continent. Therefore, we have these distributed mirrors. People connect to their physically nearest one (as it's usually the fastest -- there are some exceptions) for the lowest latency and highest download speed.</p>
+</details>
+<div class="admonition question">
+<p class="admonition-title">Task 2.3: Answer the following questions</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Question 1</label><label for="__tabbed_3_2">Question 2</label><label for="__tabbed_3_3">Question 3</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>One student encountered an error when running <code>sudo apt update</code>. The error message is:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Ign:1 cdrom://[Debian GNU/Linux 11.0.0 _Bullseye_ - Official amd64 DVD Binary-1 20210814-10:04] bullseye InRelease
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Err:2 cdrom://[Debian GNU/Linux 11.0.0 _Bullseye_ - Official amd64 DVD Binary-1 20210814-10:04] bullseye Release
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Please use apt-cdrom to make this CD-ROM recognized by APT. apt-get update cannot be used to add new CD-ROMs
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Hit:3 &lt;http://security.debian.org/debian-security&gt; bullseye-security InRelease
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>Hit:4 &lt;http://deb.debian.org/debian&gt; bullseye InRelease
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>Hit:5 &lt;http://deb.debian.org/debian&gt; bullseye-updates InRelease
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>Reading package lists... Done
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>E: The repository &#39;cdrom://[Debian GNU/Linux 11.0.0 _Bullseye_ - Official amd64 DVD Binary-1 20210814-10:04] bullseye Release&#39; does not have a Release file.
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>N: Updating from such a repository can&#39;t be done securely, and is therefore disabled by default.
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>N: See apt-secure(8) manpage for repository creation and user configuration details.
+</span></code></pre></div>
+<p>And here is the content of the <code>/etc/apt/sources.list</code> file:</p>
+<div class="language-text highlight"><span class="filename">/etc/apt/sources.list</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>deb cdrom:[Debian GNU/Linux 11.0.0 _Bullseye_ - Official amd64 DVD Binary-1 20210814-10:04] bullseye main
+</span></code></pre></div>
+<p>What is the problem? How to solve it?</p>
+<details class="success">
+<summary>Check your answer</summary>
+<p>The problem is that the <code>cdrom</code> repository is not available. You can remove the <code>cdrom</code> repository from the <code>/etc/apt/sources.list</code> file and add the correct repository. Then run <code>sudo apt update</code> again.</p>
+</details>
+</div>
+<div class="tabbed-block">
+<p>One student can't install the <code>nvtop</code> package. The error message is:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Reading package lists... Done
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>Building dependency tree... Done
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>Reading state information... Done
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>E: Unable to locate package nvtop
+</span></code></pre></div>
+<p>And here is the content of the <code>/etc/apt/sources.list</code> file:</p>
+<div class="language-text highlight"><span class="filename">/etc/apt/sources.list</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>deb http://deb.debian.org/debian bullseye main
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>deb http://deb.debian.org/debian bullseye-updates main
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>deb http://security.debian.org/debian-security bullseye-security main
+</span></code></pre></div>
+<p>What is the problem? How to solve it?</p>
+<div class="admonition tip">
+<p class="admonition-title">Hint: use <a href="https://pkgs.org/">pkgs.org</a> to search for the package's component.</p>
+</div>
+<details class="success">
+<summary>Check your answer</summary>
+<p>The problem is that the <code>nvtop</code> package is not available in the <code>main</code> component of the repository. You can add the correct repository to the <code>/etc/apt/sources.list</code> file and run <code>sudo apt update</code> again.</p>
+</details>
+</div>
+<div class="tabbed-block">
+<p>One student can't install the <code>htop</code> package. The error message is:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Reading package lists... Done
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>Building dependency tree... Done
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>Reading state information... Done
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>E: Unable to locate package htop
+</span></code></pre></div>
+<p>And here is the content of the <code>/etc/apt/sources.list</code> file:</p>
+<div class="language-text highlight"><span class="filename">/etc/apt/sources.list</span><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Types: deb
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>URIs: &lt;https://mirrors.zju.edu.cn/debian/&gt;
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Suites: trixie trixie-updates trixie-backports
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>Components: main contrib non-free non-free-firmware
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>Types: deb
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>URIs: &lt;https://mirrors.zju.edu.cn/debian-security/&gt;
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>Suites: trixie-security
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>Components: main contrib non-free non-free-firmware
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+</span></code></pre></div>
+<p>What is the problem? How to solve it?</p>
+<details class="success">
+<summary>Check your answer</summary>
+<p>For Deb822-style Format sources, each file needs to have the <code>.sources</code> extension. So you need to rename the file to <code>/etc/apt/sources.list.d/trixie.sources</code> and run <code>sudo apt update</code> again.</p>
+</details>
+</div>
+</div>
+</div>
+</div>
+<h2 id="access-the-virtual-machine-using-ssh">Access the Virtual Machine using SSH<a class="headerlink" href="#access-the-virtual-machine-using-ssh" title="Permanent link">&para;</a></h2>
+<h3 id="network-basics">Network Basics<a class="headerlink" href="#network-basics" title="Permanent link">&para;</a></h3>
+<p>Do you know the following concepts?</p>
+<ul>
+<li>IP address</li>
+<li>MAC address</li>
+<li>Subnet mask</li>
+<li>Gateway</li>
+<li>Port</li>
+<li>Port forwarding</li>
+</ul>
+<p>If you are not familiar with these concepts, watch the following video to learn more about network:</p>
+<ul>
+<li><a href="https://www.bilibili.com/video/BV1CQ4y1d728"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.813 4.653h.854q2.266.08 3.773 1.574Q23.946 7.72 24 9.987v7.36q-.054 2.266-1.56 3.773c-1.506 1.507-2.262 1.524-3.773 1.56H5.333q-2.266-.054-3.773-1.56C.053 19.614.036 18.858 0 17.347v-7.36q.054-2.267 1.56-3.76t3.773-1.574h.774l-1.174-1.12a1.23 1.23 0 0 1-.373-.906q0-.534.373-.907l.027-.027q.4-.373.92-.373t.92.373L9.653 4.44q.107.106.187.213h4.267a.8.8 0 0 1 .16-.213l2.853-2.747q.4-.373.92-.373c.347 0 .662.151.929.4s.391.551.391.907q0 .532-.373.906zM5.333 7.24q-1.12.027-1.88.773-.76.748-.786 1.894v7.52q.026 1.146.786 1.893t1.88.773h13.334q1.12-.026 1.88-.773t.786-1.893v-7.52q-.026-1.147-.786-1.894t-1.88-.773zM8 11.107q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q0-.56.386-.947.387-.386.947-.386m8 0q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q.025-.586.4-.96.373-.373.933-.373"/></svg></span> IP、MAC、DHCP 与 ARP</a></li>
+<li><a href="https://www.bilibili.com/video/BV1DD4y127r4"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.813 4.653h.854q2.266.08 3.773 1.574Q23.946 7.72 24 9.987v7.36q-.054 2.266-1.56 3.773c-1.506 1.507-2.262 1.524-3.773 1.56H5.333q-2.266-.054-3.773-1.56C.053 19.614.036 18.858 0 17.347v-7.36q.054-2.267 1.56-3.76t3.773-1.574h.774l-1.174-1.12a1.23 1.23 0 0 1-.373-.906q0-.534.373-.907l.027-.027q.4-.373.92-.373t.92.373L9.653 4.44q.107.106.187.213h4.267a.8.8 0 0 1 .16-.213l2.853-2.747q.4-.373.92-.373c.347 0 .662.151.929.4s.391.551.391.907q0 .532-.373.906zM5.333 7.24q-1.12.027-1.88.773-.76.748-.786 1.894v7.52q.026 1.146.786 1.893t1.88.773h13.334q1.12-.026 1.88-.773t.786-1.893v-7.52q-.026-1.147-.786-1.894t-1.88-.773zM8 11.107q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q0-.56.386-.947.387-.386.947-.386m8 0q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q.025-.586.4-.96.373-.373.933-.373"/></svg></span> IP 与 NAT</a></li>
+</ul>
+<h3 id="network-in-virtual-machines">Network in Virtual Machines<a class="headerlink" href="#network-in-virtual-machines" title="Permanent link">&para;</a></h3>
+<p>Watch this video to understand network in the virtual machines: <a href="https://www.bilibili.com/video/BV11M4y1J7zP"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.813 4.653h.854q2.266.08 3.773 1.574Q23.946 7.72 24 9.987v7.36q-.054 2.266-1.56 3.773c-1.506 1.507-2.262 1.524-3.773 1.56H5.333q-2.266-.054-3.773-1.56C.053 19.614.036 18.858 0 17.347v-7.36q.054-2.267 1.56-3.76t3.773-1.574h.774l-1.174-1.12a1.23 1.23 0 0 1-.373-.906q0-.534.373-.907l.027-.027q.4-.373.92-.373t.92.373L9.653 4.44q.107.106.187.213h4.267a.8.8 0 0 1 .16-.213l2.853-2.747q.4-.373.92-.373c.347 0 .662.151.929.4s.391.551.391.907q0 .532-.373.906zM5.333 7.24q-1.12.027-1.88.773-.76.748-.786 1.894v7.52q.026 1.146.786 1.893t1.88.773h13.334q1.12-.026 1.88-.773t.786-1.893v-7.52q-.026-1.147-.786-1.894t-1.88-.773zM8 11.107q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q0-.56.386-.947.387-.386.947-.386m8 0q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q.025-.586.4-.96.373-.373.933-.373"/></svg></span> 虚拟机网络模式</a>.</p>
+<div class="admonition question">
+<p class="admonition-title">Task 3.1: Ping the virtual machine</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><input id="__tabbed_4_3" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Step 1</label><label for="__tabbed_4_2">Step 2</label><label for="__tabbed_4_3">Step 3</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Check if the network mode of the virtual machine is set to <code>NAT</code>.</p>
+<p><a class="glightbox" href="image/task3.1.1.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task3.1.1" src="image/task3.1.1.webp" /></a></p>
+</div>
+<div class="tabbed-block">
+<p>Start the virtual machine and log in. Use the <code>ip addr</code> command to find the IP address of the virtual machine.</p>
+<p><a class="glightbox" href="image/task3.1.2.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="task3.1.2" src="image/task3.1.2.webp" /></a></p>
+<p>From the screenshot, the virtual machine has two network interfaces: <code>ens160</code> and <code>lo</code>. The latter is the loopback interface, and the former is the network interface used to connect to the network. We can see that the IP address of the virtual machine is <code>172.16.39.129</code>.</p>
+</div>
+<div class="tabbed-block">
+<p>Open a terminal on your host machine and ping the virtual machine.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>ping<span class="w"> </span>IP_ADDRESS
+</span></code></pre></div>
+<p>Replace <code>IP_ADDRESS</code> with the IP address of the virtual machine.</p>
+<p>The correct output should look like this:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>PING 172.16.39.129 (172.16.39.129): 56 data bytes
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>64 bytes from 172.16.39.129: icmp_seq=0 ttl=64 time=5.485 ms
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>64 bytes from 172.16.39.129: icmp_seq=1 ttl=64 time=0.695 m
+</span></code></pre></div>
+</div>
+</div>
+</div>
+</div>
+<h3 id="ssh">SSH<a class="headerlink" href="#ssh" title="Permanent link">&para;</a></h3>
+<p>Secure Shell (SSH) is a cryptographic network protocol for operating network services securely over an unsecured network. The best-known example application is for remote login to computer systems by users.</p>
+<details class="info">
+<summary>Asymmetric Encryption</summary>
+<p>SSH uses asymmetric encryption to secure the connection between the client and the server. In asymmetric encryption, two keys are used: a public key and a private key. The public key is used to encrypt the data, and the private key is used to decrypt the data.</p>
+<p>When you connect to an SSH server, the server sends its public key to the client. The client uses this public key to encrypt a random session key and sends it back to the server. The server uses its private key to decrypt the session key and establish a secure connection.</p>
+<p>The public key is shared with others, while the private key is kept secret.</p>
+<p>For more information, watch this video: <a href="https://www.youtube.com/watch?v=AQDCe585Lnc"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814M9.545 15.568V8.432L15.818 12z"/></svg></span> Asymmetric Encryption - Simply explained</a></p>
+</details>
+<figure>
+<a class="glightbox" href="image/ssh.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="ssh" src="image/ssh.webp" /></a>
+
+<figcaption>SSH</figcaption>
+</figure>
+<div class="admonition question">
+<p class="admonition-title">Task 3.2: Connect to the virtual machine using SSH</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Step 1</label><label for="__tabbed_5_2">Step 2</label><label for="__tabbed_5_3">Step 3</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>To use SSH, you need to install an SSH client on your computer. On Linux and macOS, the SSH client is usually pre-installed. On Windows, you can follow the instructions <a href="https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=gui#install-openssh-for-windows">Get started with OpenSSH for Windows - Microsoft</a> to install the OpenSSH client.</p>
+</div>
+<div class="tabbed-block">
+<p>You also need to install an SSH server on the virtual machine. On Debian-based distributions, you can install the <code>openssh-server</code> package:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>update
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>openssh-server
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>After installing the SSH server, you can use the <code>ssh</code> command to connect to the virtual machine:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>ssh<span class="w"> </span>username@IP_ADDRESS
+</span></code></pre></div>
+<p>Replace <code>username</code> with your username on the virtual machine and <code>IP_ADDRESS</code> with the IP address of the virtual machine.</p>
+<p>It will ask you to enter the password of the user account. After entering the password, you will be logged in to the virtual machine.</p>
+<p><a class="glightbox" href="image/ssh_connect.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="ssh_connect" src="image/ssh_connect.webp" /></a></p>
+<p>Show the screenshot of your successful connection.</p>
+</div>
+</div>
+</div>
+</div>
+<p>Now you can copy and paste commands to this terminal. You can also use the <code>scp</code> command to copy files between your computer and the virtual machine. You can also connect your VSCode to the virtual machine using the Remote-SSH extension, but don't rely on it too much.</p>
+<h2 id="more-on-linux">More on Linux<a class="headerlink" href="#more-on-linux" title="Permanent link">&para;</a></h2>
+<h3 id="users-and-permissions">Users and Permissions<a class="headerlink" href="#users-and-permissions" title="Permanent link">&para;</a></h3>
+<p>Watch this video to learn about:</p>
+<ul>
+<li>Users and Groups: <a href="https://www.youtube.com/watch?v=19WOD84JFxA"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814M9.545 15.568V8.432L15.818 12z"/></svg></span> Linux Crash Course - Managing Users</a></li>
+<li>Permissions: <a href="https://www.youtube.com/watch?v=LnKoncbQBsM"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814M9.545 15.568V8.432L15.818 12z"/></svg></span> Linux File Permissions in 5 Minutes | MUST Know!</a></li>
+</ul>
+<h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<p>Read this article to learn about environment variables: <a href="https://linuxize.com/post/how-to-set-and-list-environment-variables-in-linux/">How to Set and List Environment Variables in Linux</a>.</p>
+<div class="admonition question">
+<p class="admonition-title">Task 4.1: Answer the following questions</p>
+<ol>
+<li>What is the <code>$HOME</code> environment variable used for? What is the value of <code>$HOME</code> for you and the root user?</li>
+<li>What is the difference between the <code>chmod</code> and <code>chown</code> commands?</li>
+<li>What is the difference between the <code>rwx</code> permissions for a file and a directory?</li>
+</ol>
+</div>
+<details class="success">
+<summary>Check your answer</summary>
+<ol>
+<li>Answers:<ul>
+<li>The <code>$HOME</code> environment variable is used to store the path to the current user's home directory.</li>
+<li>The value of <code>$HOME</code> for you is <code>/home/username</code>, and the value of <code>$HOME</code> for the root user is <code>/root</code>.</li>
+</ul>
+</li>
+<li><code>chmod</code> is used to change the permissions of a file or directory, while <code>chown</code> is used to change the owner of a file or directory.</li>
+<li>For a file, <code>rwx</code> permissions mean read, write, and execute permissions. For a directory, the execute permission is used to list the contents of the directory.</li>
+</ol>
+</details>
+<h2 id="git">Git<a class="headerlink" href="#git" title="Permanent link">&para;</a></h2>
+<p>Git is a distributed version control system that is widely used in software development. It allows multiple developers to work on the same project simultaneously and track changes to the codebase over time.</p>
+<p><a class="glightbox" href="image/git.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="git" src="image/git.webp" /></a></p>
+<div class="admonition warning">
+<p class="admonition-title">Do the following tasks on your <strong>host machine</strong>.</p>
+</div>
+<h3 id="register-a-zju-git-account">Register a ZJU Git account<a class="headerlink" href="#register-a-zju-git-account" title="Permanent link">&para;</a></h3>
+<div class="admonition question">
+<p class="admonition-title">Task 5.1: Go to <a href="https://git.zju.edu.cn">ZJU Git</a> and register an account.</p>
+</div>
+<h3 id="configure-public-key">Configure Public Key<a class="headerlink" href="#configure-public-key" title="Permanent link">&para;</a></h3>
+<div class="admonition question">
+<p class="admonition-title">Task 5.2: Generate an SSH key and add it to your ZJU Git account.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Step 1</label><label for="__tabbed_6_2">Step 2</label><label for="__tabbed_6_3">Step 3</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Follow this guide to generate an SSH key: <a href="https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></span> Generating a new SSH key and adding it to the ssh-agent</a>.</p>
+<p>Please take care of your <strong>private</strong> key, don't share it with anyone. And for the <strong>public</strong> key, you can share it with anyone who needs it.</p>
+<p>We strongly suggest you to use <code>ed25519</code> algorithm instead of <code>rsa</code> for better security with shorter key length, unless you want to end up being like this when sharing your SSH <strong>public</strong> key:</p>
+<p><figure markdown="span" style="width: 30%;">
+<a class="glightbox" href="image/ssh_key_meme.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="ssh_key_meme" src="image/ssh_key_meme.webp" /></a>
+</figure></p>
+</div>
+<div class="tabbed-block">
+<p>Add the public key to your ZJU Git account:</p>
+<p><a class="glightbox" href="image/zjugit_add_key.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="zjugit_add_key" src="image/zjugit_add_key.webp" /></a></p>
+</div>
+<div class="tabbed-block">
+<p>Test the SSH connection, it should look like this:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>$<span class="w"> </span>ssh<span class="w"> </span>-T<span class="w"> </span>git@git.zju.edu.cn
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>ssh<span class="w"> </span>-T<span class="w"> </span>git@git.zju.edu.cn
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>Welcome<span class="w"> </span>to<span class="w"> </span>GitLab,<span class="w"> </span>@324010****!
+</span></code></pre></div>
+<p>Show the screenshot of your successful connection.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">This public key will be <strong>used to access the clusters</strong> in the future.</p>
+</div>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://medium.com/@anandthanu/how-do-you-explain-an-os-kernel-to-a-5-year-old-92a08755e014">How do you explain an OS Kernel to a 5 year old?</a></li>
+<li><a href="https://medium.com/@syed.sohaib/virtual-machines-in-azure-7efdee4df802">Virtual machines in Azure</a></li>
+</ul>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 19, 2025 17:47:36 UTC">May 19, 2025</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 7, 2025 16:39:17 UTC">May 7, 2025</span>
+  </span>
+
+    
+    
+    
+      
+  <span class="md-source-file__fact">
+    
+      
+  <span class="md-icon" title="Contributors">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/></svg>
+  </span>
+  <span>GitHub</span>
+
+    
+    <nav>
+      
+        <a href="https://github.com/bowling233" class="md-author" title="@bowling233">
+          
+          <img src="https://avatars.githubusercontent.com/u/35755846?v=4&size=72" alt="bowling233">
+        </a>
+      
+        <a href="https://github.com/mrhaoxx" class="md-author" title="@mrhaoxx">
+          
+          <img src="https://avatars.githubusercontent.com/u/22582237?v=4&size=72" alt="mrhaoxx">
+        </a>
+      
+        <a href="https://github.com/YooLc" class="md-author" title="@YooLc">
+          
+          <img src="https://avatars.githubusercontent.com/u/52441312?v=4&size=72" alt="YooLc">
+        </a>
+      
+      
+      
+    </nav>
+  </span>
+
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../guide/overview/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 集群概况">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                集群概况
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../Lab1-MiniCluster/" class="md-footer__link md-footer__link--next" aria-label="Next: 实验一：简单集群搭建">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                实验一：简单集群搭建
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "content.code.select", "content.code.annotate", "navigation.footer", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.tracking", "navigation.path", "navigation.top", "toc.follow", "content.action.edit", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      
+    
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
+</html>

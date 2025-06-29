@@ -1,0 +1,2266 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab1-MiniCluster/">
+      
+      
+        <link rel="prev" href="../Lab0-LinuxCrashCourse/">
+      
+      
+        <link rel="next" href="../../slides/">
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>实验一：简单集群搭建 - HPC101 (2025)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#实验一简单集群搭建" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101 (2025)" class="md-header__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101 (2025)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              实验一：简单集群搭建
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="zjusct" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  
+    
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../slides/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  课程幻灯片
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101 (2025)" class="md-nav__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    HPC101 (2025)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../.." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    课程信息
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            课程信息
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../guide/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    使用集群
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1_2" id="__nav_1_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            使用集群
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/env/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    软件环境
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    提交作业
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    使用在线测评
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    集群概况
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程实验
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            课程实验
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../Lab0-LinuxCrashCourse/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Lab0-LinuxCrashCourse
+    
+  </span>
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            Lab0-LinuxCrashCourse
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="./" class="md-nav__link md-nav__link--active">
+              
+  
+  
+  <span class="md-ellipsis">
+    Lab1-MiniCluster
+    
+  </span>
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Lab1-MiniCluster
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../slides/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    课程幻灯片
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#导言计算机集群" class="md-nav__link">
+    <span class="md-ellipsis">
+      导言：计算机集群
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验内容和要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验内容和要求
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验内容和要求">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#提交内容" class="md-nav__link">
+    <span class="md-ellipsis">
+      提交内容
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解从源码构建-linux-应用---以-angband-为例" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解：从源码构建 Linux 应用 - 以 Angband 为例
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：从源码构建 Linux 应用 - 以 Angband 为例">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#软件包源码的组织方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      软件包源码的组织方式
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#令人头疼的依赖关系与链接库" class="md-nav__link">
+    <span class="md-ellipsis">
+      令人头疼的依赖关系与链接库
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#不怎么自动的自动化构建工具" class="md-nav__link">
+    <span class="md-ellipsis">
+      不怎么自动的自动化构建工具
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解集群环境搭建与配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解：集群环境搭建与配置
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：集群环境搭建与配置">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#集群节点间的连接与互访" class="md-nav__link">
+    <span class="md-ellipsis">
+      集群节点间的连接与互访
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mpi-一个程序如何在不同机器间通信" class="md-nav__link">
+    <span class="md-ellipsis">
+      MPI: 一个程序如何在不同机器间通信
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#性能测试-benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      性能测试 Benchmark
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务一从源码构建-openmpi-和-hpl" class="md-nav__link">
+    <span class="md-ellipsis">
+      任务一：从源码构建 OpenMPI 和 HPL
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务二搭建集群并使用-hpl-测试性能" class="md-nav__link">
+    <span class="md-ellipsis">
+      任务二：搭建集群并使用 HPL 测试性能
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bonus-任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bonus 任务
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bonus 任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#集群搭建" class="md-nav__link">
+    <span class="md-ellipsis">
+      集群搭建
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#软件安装" class="md-nav__link">
+    <span class="md-ellipsis">
+      软件安装
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#技术杂谈" class="md-nav__link">
+    <span class="md-ellipsis">
+      技术杂谈
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="技术杂谈">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#包管理器" class="md-nav__link">
+    <span class="md-ellipsis">
+      包管理器
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nfs" class="md-nav__link">
+    <span class="md-ellipsis">
+      NFS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#其他" class="md-nav__link">
+    <span class="md-ellipsis">
+      其他
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考资料
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab1-MiniCluster/index.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="实验一简单集群搭建">实验一：简单集群搭建<a class="headerlink" href="#实验一简单集群搭建" title="Permanent link">&para;</a></h1>
+<div class="admonition tip">
+<p class="admonition-title">QC PASS</p>
+<p>本实验流程已经通过检查，请放心食用。</p>
+<p>负责助教：郝星星 @mrhaoxx</p>
+</div>
+<h2 id="导言计算机集群">导言：计算机集群<a class="headerlink" href="#导言计算机集群" title="Permanent link">&para;</a></h2>
+<p>在 Lab 0 中，我们已经获得了 Linux 虚拟机环境，熟悉了 Linux 命令行的基本操作，对 Linux 系统的文件路径、用户权限、环境变量等基本概念有了一定的了解。在接下来的实验中，这些基础知识将会被广泛应用。</p>
+<p>本次实验或许是你第一次接触到计算机集群。所谓计算机集群，就是将多台计算机连接在一起，通过网络协同工作，以完成一些大规模的计算任务。为什么我们需要计算机集群呢？因为单体的制造成本和性能是有限的。制造芯片时，人们想把单个处理器的性能提升到极致，但是遇到了物理限制：一块集成电路上的晶体管数量越多，设计就越复杂，发热就越严重，功耗就越大，性能就越低。因此，人们开始尝试将多个处理器连接在一起，就有了现代多核处理器。制造计算机时，也可以放置多个 CPU（常见的服务器一般都具有两颗），但放置更多只会增加单台计算机的设计和制造难度。与其想着怎么把单体造强，不如想着怎么把多个单体连接在一起，怎么让它们协同工作，这就是并行计算思想的由来。</p>
+<h2 id="实验内容和要求">实验内容和要求<a class="headerlink" href="#实验内容和要求" title="Permanent link">&para;</a></h2>
+<p>本次实验，我们将使用四台Linux节点搭建一个简易的集群，并对该集群进行性能测试，最后提交测试结果和实验报告。</p>
+<div class="admonition tip">
+<p class="admonition-title">如何食用本 Lab</p>
+<p>本 Lab 有 <strong>知识讲解</strong> 和 <strong>任务</strong> 两部分，其中 <strong>知识讲解</strong> 不需要体现在报告中。</p>
+<ul>
+<li>本次实验对基础知识介绍得比较详细，其中蓝色框框是希望你 take home 的知识点，请确保理解。</li>
+<li>任务部分需要自行完成，请遵守诚信守则。</li>
+<li>和 Lab 0 一样，如果你对这些内容轻车熟路，就不需要阅读知识讲解，直接完成任务即可。</li>
+</ul>
+</div>
+<h3 id="提交内容">提交内容<a class="headerlink" href="#提交内容" title="Permanent link">&para;</a></h3>
+<p>总的来说，你需要先阅读 <strong>知识讲解</strong> 部分，然后逐个完成 <strong>任务</strong> 部分，并将自己完成的过程记录在实验报告中。你需要提交以下的内容：</p>
+<ol>
+<li>使用中文完成的实验报告 PDF 文件，内容至少包括下面的过程:<ul>
+<li>软件安装：下载 OpenMPI、BLAS 和 HPL 的源代码并编译安装。</li>
+<li>集群搭建：使用虚拟机 / Docker 容器 / 或者你喜欢的其他方式构建集群，配置节点间互联、测试节点间通信。</li>
+<li>性能测试：在虚拟机集群上使用 OpenMPI 运行 HPL 性能测试，记录测试结果。</li>
+</ul>
+</li>
+<li>HPL 输出结果文本文件</li>
+<li>如果修改了代码，请提交修改后的代码和一份修改说明。</li>
+</ol>
+<p>如果有其他较长的纯文本形式的代码或者配置文件，无需包含在实验报告正文中，可以和 HPL 结果文件一样，作为附件提交。</p>
+<div class="admonition tip">
+<p class="admonition-title">如何写一份好的实验报告</p>
+<ol>
+<li>包含以下基本内容：<ul>
+<li>实验环境：软硬件的细微差别也有可能导致实验过程和结果产生较大差异，因此记录实验环境是非常重要的。这包括宿主机硬件情况，操作系统版本，所使用的 Hypervisor 种类，虚拟机的硬件配置以及网络配置。</li>
+<li>实验过程：实验手册已经给出了详细步骤，因此这一部分你不需要再赘述，只需要给出关键截图证明你按步骤完成了即可。我们希望看到的是你在实验过程中遇到了哪些问题，以及你是如何解决的。</li>
+<li>实验结果及分析：对于希望你照做的实验（比如本次实验），本就有一个标准的结果，不需要进行分析。但如果是需要你自己设计的实验，那么你需要对实验结果进行分析，解释为什么会得到这样的结果。</li>
+</ul>
+</li>
+<li>详略得当。一般来说，下面这两种实验报告都不是好的实验报告：<ul>
+<li>长达数十页的报告：贴满截图和源代码，正文内容却很少。</li>
+<li>简陋的实验报告：只有几张截图，没有有效的解释。</li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">注意事项</p>
+<p>这些注意事项来源于历年同学们的常见问题，希望你能够避免：</p>
+<ul>
+<li>不要滥用 <code>root</code> 用户，尽量使用普通用户进行操作。在需要权限的时候使用 <code>sudo</code>，这能够提醒你谨慎操作。也不要频繁在 <code>root</code> 用户和普通用户之间切换，除非你明白自己在做什么，否则只会让两边环境都变乱。在 <code>root</code> 用户下工作与普通用户有诸多细微不同，也很容易破坏环境，下面就是一个例子：</li>
+</ul>
+<p><center><a class="glightbox" href="image/root_abuse.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="root_abuse" src="image/root_abuse.webp" width="50%" /></a></center></p>
+<ul>
+<li>理解工作目录和家目录这两个目录。工作目录是你当前所在的目录，家目录是你登录时所在的目录。工作目录与程序在哪无关，与你现在在哪有关。很多程序默认在工作目录下寻找文件（比如 HPL）。如果你在 <code>/dir</code> 下运行它，而配置文件在 <code>/home/user</code> 下，那么程序就会找不到配置文件。在运行 MPI 时，也要注意工作目录的问题。</li>
+</ul>
+</div>
+<h2 id="知识讲解从源码构建-linux-应用---以-angband-为例">知识讲解：从源码构建 Linux 应用 - 以 Angband 为例<a class="headerlink" href="#知识讲解从源码构建-linux-应用---以-angband-为例" title="Permanent link">&para;</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">前置知识</p>
+<p>掌握 Lab 0 中的内容：Linux 命令行基本操作、软件包管理、用户、文件系统、文件权限。</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">学习目标</p>
+<p>这一部分的学习目标是了解如何从源代码构建并安装 Linux 应用。这是一个非常基础的操作，但在实际的软件开发和运维中经常会遇到。我们强烈推荐动手跟着尝试一下，但如果时间紧张，也请详细阅读文档展示的过程并理解知识。我们希望这部分的讲解能够有助于你完成后续 OpenMPI 等软件的构建和安装。</p>
+<p><strong>这一部分不需要体现在报告中。</strong></p>
+</div>
+<p>日常使用电脑时，你安装软件的流程一般是：去网上搜索 -&gt; 下载安装包 -&gt; 点击安装 -&gt; 完成，这是因为 Windows / macOS 用户的设备架构统一，并且依赖库比较完备，所以二进制文件基本通用，只要别人替你编译好就能够直接运行。而在 Linux 生态中，使用者的 CPU 架构以及其他硬件和软件配置极其多样。比如在 Lab0 中，或许你已经在 <a href="https://mirrors.zju.edu.cn/debian-cd/current/">这个页面</a> 见到过 Debian 为相当多的指令集发布了 ISO，例如：</p>
+<ul>
+<li><strong>amd64</strong>：也称为 x86-64 或 x64，是 64 位 x86 指令集架构。它是 Intel 和 AMD 64 位处理器的通用指令集架构。这种架构通常用于个人计算机、服务器和工作站等通用计算设备上。</li>
+<li><strong>arm64</strong>：也称为 AArch64，是 ARMv8-A 及其之后架构的 64 位指令集。它设计用于移动设备、嵌入式系统和服务器等多种用途的设备上，具有较低的功耗和更好的性能。</li>
+<li><strong>i386</strong>：也称为 x86 或 IA-32，是 Intel 32 位 x86 指令集架构。它是早期个人计算机和服务器的常见架构，现在仍然在一些老旧的设备和系统中使用。</li>
+</ul>
+<p>我国自研的龙芯 LoongArch、近年来很火的 RISC-V 等架构也在逐渐普及，并即将在 Debian 13 得到官方支持。</p>
+<p>由此可见，面对如此多样的指令集结构，软件开发者想要为每一种架构都编译一份软件包十分困难。因此，在 Linux 生态中，源代码是最通用的软件分发形式。</p>
+<div class="admonition note">
+<p class="admonition-title">在 Linux 生态中，源代码是最通用的软件分发形式。</p>
+</div>
+<p>在该部分，我们将以 <a href="https://rephial.org/">Angband</a>（一个开源的 ASCII 地牢猎手游戏）为例，学习如何从源代码构建软件包，并解决构建过程中可能遇到的问题。</p>
+<h3 id="软件包源码的组织方式">软件包源码的组织方式<a class="headerlink" href="#软件包源码的组织方式" title="Permanent link">&para;</a></h3>
+<p>进入 <a href="https://rephial.org/">Angband</a> 的网站，点击 Source Code，下载最新的源代码压缩包并解压。</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>wget<span class="w"> </span>https://github.com/angband/angband/releases/download/4.2.5/Angband-4.2.5.tar.gz
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>tar<span class="w"> </span>xvf<span class="w"> </span>Angband-4.2.5.tar.gz
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">cd</span><span class="w"> </span>Angband-4.2.5
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>ls
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">如果你在下载时遇到了问题</p>
+<p>你的虚拟机可能因为网络问题连不上 GitHub。此时可以在宿主机下载好，然后通过 <code>scp</code> 命令传输到虚拟机中。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">熟悉开源软件源代码的目录结构</p>
+<p>一般的开源软件包源码的目录结构如下所示：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>.
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── bin：存放软件包的可执行文件（binary）。
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├── src：存放软件包的源代码文件（source）。
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>├── lib：存放软件包的库文件（libraries）。
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>├── docs：存放软件包的文档文件，可能包括用户手册、API文档等。
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>└── README.md：包含软件包的说明文档，通常包括软件包的简要介绍、安装指南和使用说明。
+</span></code></pre></div>
+<p>通常在目录的顶层有一个 README 文件，这就是该软件包的说明书，通常包含：</p>
+<ul>
+<li>该应用程序的简介。</li>
+<li>依赖性：你需要在你的系统上安装其他什么的软件，以便这个应用程序能够构建和运行。</li>
+<li>构建说明：你构建该软件所需要采取的明确步骤。偶尔，他们会在一个专门的文件中包含这些信息，这个文件被直观地称为 INSTALL。</li>
+</ul>
+</div>
+<p>查看 <code>README.md</code> 文件，我们发现 Angband 的维护者给出了在线说明的链接，描述了如何编译代码。跟随 compile it yourself 的链接前往网站，查看 Linux 章节的 Native builds 小节。你能找到构建 Angband 的命令吗？</p>
+<details class="success">
+<summary>Check your answer</summary>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>./configure<span class="w"> </span>--with-no-install
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>make
+</span></code></pre></div>
+<p>网站上还描述了依赖性：“有几个不同的可选构建的前端（GCU、SDL、SDL2 和 X11），你可以使用诸如 --enable-sdl，--disable-x11 的参数配置。” 目前这可能对你来说看起来像天书，但你经常编译代码后就会习惯。</p>
+<p>Angband 非常灵活，无论是否有这些可选的依赖，都可以进行编译，所以现在，假装没有额外的依赖。</p>
+</details>
+<p>执行它们，如果遇到错误，尝试解决。在下面的自动化构建工具一节，我们将解释这些命令。</p>
+<div class="admonition question">
+<p class="admonition-title">帮帮我！</p>
+<p>有位同学在运行 <code>./configure</code> 时遇到了这样的错误：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>checking build system type... aarch64-unknown-linux-gnu
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>checking host system type... aarch64-unknown-linux-gnu
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>checking for a BSD-compatible install... /usr/bin/install -c
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>checking for sphinx-build... no
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>checking for sphinx-build3... no
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>checking for sphinx-build2... no
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>checking for cc... no
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>checking for gcc... no
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>checking for clang... no
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>configure: error: in `/home/user/Angband-4.2.5&#39;:
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="hll">configure: error: no acceptable C compiler found in $PATH
+</span></span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>See`config.log&#39; for more details
+</span></code></pre></div>
+<p>请问这位同学应该怎么做？</p>
+<details class="success">
+<summary>答案</summary>
+<p>这位同学需要安装 C 编译器。在 Debian 发行版中，你可以通过 <a href="https://packages.debian.org/index">Debian 搜索软件包</a> 搜索你需要的软件包，也可以直接在互联网搜索。在这里，我们常用 <code>gcc</code> 作为 C 编译器，如果你想要更多的编译器，还可以安装 <code>build-essential</code> 软件包，它包含了全面的编译器和构建工具。</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>update
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>build-essential
+</span></code></pre></div>
+<p>然后再次运行 <code>./configure</code>。</p>
+</details>
+</div>
+<p>正确执行完成后，你会在 <code>src</code> 目录下找到 <code>angband</code> 可执行文件。尝试运行它，看看你能否看到游戏界面。</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>src/angband
+</span></code></pre></div>
+<h3 id="令人头疼的依赖关系与链接库">令人头疼的依赖关系与链接库<a class="headerlink" href="#令人头疼的依赖关系与链接库" title="Permanent link">&para;</a></h3>
+<div class="admonition note">
+<p class="admonition-title">链接</p>
+<p>实际的工程开发中，采用的一定是多文件编程: 编译器将每个代码文件分别编译后，还需要将它们合在一起变成一个软件，<strong>合在一起的过程就是链接的过程</strong>。这些内容在 C 语言课程中应该会覆盖到，但如果你没有学过，也不用担心，可以学习一下翁恺老师的 <a href="https://classroom.zju.edu.cn/livingroom?course_id=53613&amp;sub_id=1028201&amp;tenant_code=112">智云课堂</a> 或者 <a href="https://www.icourse163.org/course/ZJU-200001">MOOC</a> (第五周) 中对大程序结构的详细介绍。</p>
+<p>链接分为静态链接和动态链接。静态链接是指在编译时将库文件的代码和程序代码合并在一起，生成一个完全独立的可执行文件。动态链接是指在程序运行时，加载库文件，从而节省存储空间，提高程序的复用性和灵活性。</p>
+<ul>
+<li>静态链接<ul>
+<li>如果你的程序与静态库链接，那么链接器会将静态库中的代码复制到你的程序中。这样，你的程序就不再依赖静态库了，可以在任何地方运行。但是，如果静态库中的代码发生了变化，你的程序并不会自动更新，你需要重新编译你的程序。</li>
+<li>在 Linux 系统上，静态库的文件名以 <code>.a</code> 结尾，比如 <code>libm.a</code>。在 Window 上，静态库的文件名以 <code>.lib</code> 结尾，比如 <code>libm.lib</code>。静态库可以使用 <code>ar</code> （archive program）工具创建。</li>
+</ul>
+</li>
+<li>动态链接<ul>
+<li>当你的程序与动态库链接时，程序中创建了一个表。在程序运行前，操作系统将需要的外部函数的机器码加载到内存中，这就是动态链接过程。</li>
+<li>与静态链接相比，动态链接使程序文件更小，因为一个动态库可以被多个程序共享，节省磁盘空间。部分操作系统还允许动态库代码在内存中的共享，还能够节省内存。动态库升级时，也不需要重写编译你的程序。</li>
+<li>在 Linux 系统上，动态库的文件名以 <code>.so</code> 结尾，比如 <code>libm.so</code>。在 Window 上，动态库的文件名以 <code>.dll</code> 结尾，比如 <code>libm.dll</code>。</li>
+</ul>
+</li>
+</ul>
+<p>动态链接具有上面描述的优点，因此一般程序会尽可能地执行动态链接。</p>
+<p>链接相关的问题可能出现在链接时（静态链接）、程序运行前和运行中（动态链接）。下面是一些常见的问题。</p>
+<div class="nt-cards nt-grid cols-3">
+<div class="nt-card">
+<div class="nt-card-wrap">
+<div>
+<div class="nt-card-image tags"><a class="glightbox" href="image/undefined_reference.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="未定义的引用" src="image/undefined_reference.webp" /></a></div>
+<div class="nt-card-content">
+<p class="nt-card-title">未定义的引用</p>
+<p class="nt-card-text">执行链接时最令人头疼的问题。首先应当阅读库的使用说明，接下来搜索缺失的符号可能位于哪些库文件中。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="nt-card">
+<div class="nt-card-wrap">
+<div>
+<div class="nt-card-image tags"><a class="glightbox" href="image/lose_dll.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="缺失 `.dll`" src="image/lose_dll.webp" /></a></div>
+<div class="nt-card-content">
+<p class="nt-card-title">缺失 <code>.dll</code></p>
+<p class="nt-card-text">常用 Windows 的同学多多少少见过这个报错，这也是缺少动态链接库造成的。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="nt-card">
+<div class="nt-card-wrap">
+<div>
+<div class="nt-card-image tags"><a class="glightbox" href="image/missing_library.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="缺失 `.so`" src="image/missing_library.webp" /></a></div>
+<div class="nt-card-content">
+<p class="nt-card-title">缺失 <code>.so</code></p>
+<p class="nt-card-text">Linux 上的动态库一般通过 <code>apt</code> 管理，<a href="https://fostips.com/tell-package-name-contains-specific-file-ubuntu-linux-mint/">搜索相应的包</a> 并安装即可。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>如果你的虚拟机之前没有安装过相关软件包，那么你大概率无法成功看到游戏界面，它什么输出都没有就退出了。</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>user@debian:~/Angband-4.2.5$<span class="w"> </span>src/angband
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>user@debian:~/Angband-4.2.5$
+</span></code></pre></div>
+<p>回看刚刚 <code>./configure</code> 的输出，它其实给出了警告：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Configuration:
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  Install path:                           (not used)
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>  binary path:                            (not used)
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>  config path:                            /home/user/Angband-4.2.5/lib/
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  lib path:                               /home/user/Angband-4.2.5/lib/
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>  doc path:                               (not used)
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>  var path:                               /home/user/Angband-4.2.5/lib/
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>  gamedata path:                          /home/user/Angband-4.2.5/lib/
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>  documentation:                          No
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>-- Frontends --
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="hll">- Curses                                  No; missing libraries
+</span></span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>- X11                                     No; missing libraries
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>- SDL2                                    Disabled
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>- SDL                                     Disabled
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>- Windows                                 Disabled
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>- Test                                    No
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>- Stats                                   No
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>- Spoilers                                Yes
+</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>
+</span><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>- SDL2 sound                              Disabled
+</span><span id="__span-7-23"><a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>- SDL sound                               Disabled
+</span><span id="__span-7-24"><a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="hll">configure: WARNING: No player frontends are enabled.  Check your --enable options and prerequisites for the frontends.
+</span></span></code></pre></div>
+<p>搜索一下 <code>ncurses</code> 库，你会了解到它是一个用于在 UNIX-like 系统上进行文本界面操作的库。它提供了一套 API，使得开发者能够在终端上创建和管理文本界面应用程序，包括窗口、菜单、对话框、文本输入等功能。Angband 使用了了 <code>ncurses</code> 库来实现游戏界面。但这个库不会被包含在 Angband 的源代码中，也没有默认包含在系统中，因此我们需要手动安装。通过网络搜索，我们得知 <code>ncurses</code> 库包含在 <code>libncurses5-dev</code> 软件包中，我们可以通过下面的命令安装它：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>libncurses5-dev
+</span></code></pre></div>
+<p>安装完成后再次运行 <code>./configure</code>，它应当能够识别到 <code>ncurses</code> 库：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>-- Frontends --
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="hll">- Curses                                  Yes
+</span></span></code></pre></div>
+<p>再次运行 <code>make</code>，运行生成的 <code>src/angband</code>，你应当能够看到游戏界面了。</p>
+<figure>
+<a class="glightbox" href="image/angband.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="angband" src="image/angband.webp" width="80%" /></a>
+
+<figcaption>Angband 游戏界面</figcaption>
+</figure>
+<p>在刚刚的过程中，我们解决了一个简单的依赖问题：Angband -&gt; ncurses。在 HPC 应用中，实际的依赖关系极其复杂：</p>
+<figure>
+<a class="glightbox" href="image/depencency_iceberg.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="dependency_iceberg" src="image/depencency_iceberg.webp" /></a>
+
+<figcaption>大型软件的依赖关系<br /><small>来源：<a href="https://spack-tutorial.readthedocs.io/en/sc21/_static/slides/spack-sc21-tutorial-slides.pdf">Managing HPC Software Complexity with Spack</a></small></figcaption>
+</figure>
+<p>别担心，接下来的自动化工具和包管理器会帮你解决一切问题<del>（当然也可能产生一堆问题）</del>。</p>
+<div class="admonition note">
+<p class="admonition-title">What we have learnt</p>
+<ul>
+<li>留意 <code>./configure</code> 的输出，它一般负责检查系统环境是否满足软件包的依赖。</li>
+<li>使用 <code>apt</code> 安装缺失的库。</li>
+</ul>
+</div>
+<h3 id="不怎么自动的自动化构建工具">不怎么自动的自动化构建工具<a class="headerlink" href="#不怎么自动的自动化构建工具" title="Permanent link">&para;</a></h3>
+<p>在上面的例子中，我们使用了 <code>./configure</code> 和 <code>make</code> 来构建软件包，它们就是 GNU Autotools 构建系统的一部分。如果没有它们，我们就需要手动写一行行命令、检查系统配置是否满足要求、使用编译器来编译源代码、链接器来链接目标文件，这是一项非常繁琐的工作。</p>
+<div class="admonition note">
+<p class="admonition-title">自动化构建工具简介</p>
+<p>自动化构建工具（Automated Build Tools）是用于自动化软件构建过程的工具，它们可以自动执行编译、链接、测试和部署等一系列操作，从而减少手动操作，提高软件开发的效率和质量。</p>
+<p>自动化构建工具的主要功能包括：</p>
+<ul>
+<li><strong>编译和链接</strong>：自动化构建工具可以自动执行源代码的编译和链接操作，生成可执行文件、共享库或其他目标文件。</li>
+<li><strong>依赖管理</strong>：在构建过程中，自动化构建工具可以检测源代码文件之间的依赖关系，并且只重新构建发生变化的文件，从而加快构建速度。</li>
+<li><strong>代码检查</strong>：自动化构建工具可以集成代码静态分析和代码风格检查工具，帮助开发者发现潜在的代码问题并提出改进建议。</li>
+<li><strong>单元测试</strong>：自动化构建工具可以自动运行单元测试，并生成测试报告，帮助开发者确保代码的质量和稳定性。</li>
+<li><strong>打包和部署</strong>：自动化构建工具可以自动将构建好的软件打包成可分发的安装包，并且自动部署到指定的环境中。</li>
+</ul>
+<p>自动化构建工具的出现主要是为了解决软件开发过程中的重复性、繁琐性和容易出错的问题。通过自动化构建工具，开发者可以将重复性的任务交给计算机自动执行，节省了大量的时间和精力。同时，自动化构建工具可以提高软件构建的一致性和可重复性，减少了由于人为操作而引入的错误，提高了软件的质量和稳定性。因此，自动化构建工具已经成为现代软件开发过程中不可或缺的一部分。</p>
+</div>
+<p>学习使用自动化构建工具、理解它的工作原理并在使用中解决它遇到的错误是一个比较痛苦的过程，但它相比原始的手动构建过程，能够大大提高软件开发的效率。下面的两张 PPT 把这一原因解释得很清楚：即使 Autotools 很老、很难用、人们厌恶它，但它提供了一套标准的解决方案，能够在大部分项目中通用。Learn once, use everywhere。</p>
+<figure>
+<a class="glightbox" href="image/why_autotools.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="why_autotools" src="image/why_autotools.webp" /></a>
+
+<figcaption>即使人们厌恶它，但仍然在使用自动化构建工具<br /><small>来源：<a href="https://elinux.org/images/4/43/Petazzoni.pdf">GNU Autotools: A Tutorial</a></small></figcaption>
+</figure>
+<p>现在，让我们简单了解一下常见的两种构建工具的使用方法。</p>
+<div class="admonition note">
+<p class="admonition-title">GNU Autotools</p>
+<p>GNU Autotools 是一套用于自动化软件构建的工具集，包括 Autoconf、Automake 和 Libtool。它们可以帮助开发者在不同的操作系统和编译器上构建软件包，提供了一种跨平台的构建解决方案。</p>
+<ul>
+<li><strong>Autoconf</strong>：Autoconf 是一个用于生成配置脚本的工具，它可以根据系统环境和用户选项生成一个可移植的配置脚本，用于检查系统环境、生成 Makefile 和配置头文件等。</li>
+<li><strong>Automake</strong>：Automake 是一个用于生成 Makefile 的工具，它可以根据 Makefile.am 文件生成标准的 Makefile 文件，用于编译和链接源代码。</li>
+<li><strong>Libtool</strong>：Libtool 是一个用于管理库文件的工具，它可以处理库文件的版本号、共享库和静态库的生成、链接和安装等操作。</li>
+</ul>
+<p>GNU Autotools 的工作流程一般是：首先使用 Autoconf 生成 configure 脚本，然后使用 configure 脚本生成 Makefile 文件，最后使用 Makefile 文件编译和链接源代码，生成可执行文件或库文件。写成命令就是：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>./configure
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>make
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>make<span class="w"> </span>install
+</span></code></pre></div>
+<p>流程中的每一个环节都可以根据需要进行定制。如下图：</p>
+<p><figure markdown="span">
+<a class="glightbox" href="image/gnu_autotools.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="gnu_autotools" src="image/gnu_autotools.webp" /></a>
+<figcaption>GNU Autotools 的工作流程<br /><small>来源：<a href="https://elinux.org/images/4/43/Petazzoni.pdf">GNU Autotools: A Tutorial</a></small></figcaption>
+</figure></p>
+<p>要如何修改这些文件，应当阅读项目文档如 <code>README</code> 和 <code>INSTALL</code> 等文件。有时，也可以通过为这些命令添加参数来修改行为。</p>
+</div>
+<p>回看 Angband 最开始的软件包内容，你会发现其中只有 <code>./configure</code>，没有 <code>Makefile</code>。<code>Makefile</code> 是在你运行 <code>./configure</code> 后生成的。在接下来的任务部分，你也会遇到无需 <code>./configure</code> 而是需要修改 <code>Makefile</code> 的情况。总之，GUN Autotools 提供的是一个高度可自定义的框架，具体怎么使用一定要阅读软件包的文档。</p>
+<div class="admonition note">
+<p class="admonition-title">CMake</p>
+<p>CMake 是一个更加现代化的开源的跨平台的构建工具。它使用一种类似于脚本的语言来描述构建过程，然后根据这个描述生成相应的构建文件。与 GNU Autotools 相比，它提供了更多的功能，与更多的现代软件如 IDE 实现了集成，因此在一些项目中取代了 Autotools。但编写 <code>CMakeLists.txt</code> 也比 <code>Makefile</code> 更为抽象，理解和使用难度也更大。</p>
+<p><figure markdown="span">
+<a class="glightbox" href="image/CMakeGeneral_Diagram.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="CMakeGeneral_Diagram" src="image/CMakeGeneral_Diagram.webp" width="50%" /></a>
+  <figcaption>CMake 的优势是跨平台<br /><small>来源：<a href="https://logins.github.io/programming/2020/05/17/CMakeInVisualStudio.html">Why Using CMake - Riccardo Loggini</a></small></figcaption>
+</figure></p>
+<p>CMake 的另一大优势是缓存。CMake 会在第一次运行时生成一些缓存文件，这个文件记录了所有的配置信息，包括编译器、编译选项、依赖库等。这样，当你修改了源代码后，只需要重新运行 CMake，它就会根据缓存文件重新生成构建文件，而不需要重新进行检查、配置和生成。对于大型项目的增量开发和构建来说，这极大地节约了时间。</p>
+<p>CMake 的工作流程一般是：首先编写 CMakeLists.txt 文件，描述项目的目录结构、源代码文件、依赖库等信息，然后使用 CMake 工具生成构建文件，最后使用构建工具（如 make、ninja 等）编译和链接源代码，生成可执行文件或库文件。对应的命令如下：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>cmake<span class="w"> </span>-B<span class="w"> </span>build
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build
+</span></code></pre></div>
+</div>
+<p>Angband 也提供了 CMake 的构建方式。查看 Angband 在线文档，你能找到使用 CMake 构建以 GCU 为前端的命令吗？</p>
+<details class="success">
+<summary>Check your answer</summary>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>mkdir<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>build
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>cmake<span class="w"> </span>-DSUPPORT_GCU_FRONTEND<span class="o">=</span>ON<span class="w"> </span>..
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>make
+</span></code></pre></div>
+</details>
+<p>你应该能看到 <code>Angband</code> 程序直接生成在该目录下，同时 <code>lib</code> 等必要的目录也被拷贝了一份。这种构建方式不会污染源代码目录，是一种比较好的实践。</p>
+<h2 id="知识讲解集群环境搭建与配置">知识讲解：集群环境搭建与配置<a class="headerlink" href="#知识讲解集群环境搭建与配置" title="Permanent link">&para;</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">前置知识</p>
+<p>掌握 Lab0 中的内容：虚拟机、网络、SSH。</p>
+</div>
+<h3 id="集群节点间的连接与互访">集群节点间的连接与互访<a class="headerlink" href="#集群节点间的连接与互访" title="Permanent link">&para;</a></h3>
+<p>计算机之间通过网络连接。在网络中，有两个重要的地址：MAC 地址和 IP 地址。通过 Lab 0 的学习，你应该理解了这两种地址如何通过 ARP 协议联系在一起，也理解了虚拟机中的 NAT 网络。做任务时，你需要克隆虚拟机。克隆出来的新虚拟机的 MAC 地址与原来的虚拟机相同。思考一下，如果同时启动这两台虚拟机，它们能正常通信吗？你可以参考 <a href="https://serverfault.com/questions/462178/duplicate-mac-address-on-the-same-lan-possible">Duplicate MAC address on the same LAN possible? - StackExchange</a>。</p>
+<p><a href="https://en.wikipedia.org/wiki/Computer_cluster">计算机集群（Cluster）</a>是连接在一起、协同工作的一组计算机，集群中的每个计算机都是一个节点。在集群中，由软件将不同的计算任务（task）分配（schedule）到相应的一个或一群节点（node）上。通常会有一个节点作为主节点（master/root node），其他节点作为从节点（slave node）。主节点负责调度任务（当然也可能负责执行部分任务），从节点负责执行任务。此外，也通常会有一个共享的文件系统，用于存储任务数据和结果，这些技术将在<a href="#nfs">第三部分</a>介绍。</p>
+<figure>
+<a class="glightbox" href="image/cluster.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="cluster" src="image/cluster.webp" /></a>
+
+<figcaption>计算机集群的协作<br /><small>来源：<a href="https://www.geeksforgeeks.org/an-overview-of-cluster-computing/">An Overview of Cluster Computing - GeeksforGeeks</a></small></figcaption>
+</figure>
+<p>在 Lab 0 中，我们已经学习了如何通过 SSH 使用密码访问虚拟机。在集群中，节点之间的互访往往也通过 SSH 完成，但要求无交互（non-interactive）。想要实现无需输入密码就能互相认证，就需使用 SSH 的密钥认证（key-based authentication）。</p>
+<p>SSH 密钥认证基于密码学中的非对称加密算法。在 SSH 密钥认证中，用户有两个密钥：私钥（private key）和公钥（public key），它们一一配对：用私钥加密的数据，只有用对应的公钥才能解密，同理，用公钥加密的数据，只有用对应的私钥才能解密。<strong>私钥只有用户自己知道，公钥可以公开</strong>。</p>
+<p>所谓配置 SSH 密钥认证，就是让服务器信任该公钥，允许持有该私钥的用户连接。(对这一过程感兴趣的同学，可以阅读下面的简单介绍。)</p>
+<details class="- note">
+<summary>SSH 密钥认证的原理</summary>
+<p>用户可以将公钥放在服务器上，当用户连接服务器时，服务器会用公钥加密一个随机数发送给用户，用户用私钥加密这个随机数，然后用这个随机数加密数据发送给服务器，服务器用公钥解密数据。根据非对称加密的原理，如果用户能够成功加密，则说明用户拥有该私钥，这样就验证了用户的身份，连接可以成功建立。</p>
+<p><figure markdown="span">
+<a class="glightbox" href="image/ssh.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="ssh" src="image/ssh.webp" style="background-color: white;" /></a>
+<figcaption>SSH 密钥认证<br /><small>来源：<a href="https://stackoverflow.com/questions/59555705/how-ssh-encrypts-communications-when-using-password-based-authentication">How SSH encrypts communications, when using password-based authentication? - StackOverflow</a></small></figcaption>
+</figure></p>
+</details>
+<p>在集群中，我们需要在主节点中生成密钥对，将主节点的公钥放在从节点上，这样主节点就能够通过 SSH 密钥认证连接到从节点。你可以阅读 <a href="https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server">How To Configure SSH Key-Based Authentication on a Linux Server - DigitalOcean</a> 了解如何配置 SSH 密钥认证。基本操作如下：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>ssh-keygen<span class="w"> </span>-t<span class="w"> </span>ed25519<span class="w"> </span><span class="c1"># 生成密钥对，使用 ed25519 算法 (强烈推荐)</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>ssh-copy-id<span class="w"> </span>user@hostname<span class="w"> </span><span class="c1"># 将公钥放在服务器上</span>
+</span></code></pre></div>
+<p>需要注意的是，认证基于用户。不是说主节点可以连接到从节点，而应当说主节点上的某个用户可以连接到从节点上的某个用户。如果在主节点上为 <code>root</code> 用户生成密钥对，却在从节点上将公钥放置进 <code>test</code> 用户的 <code>.ssh/authorized_keys</code> 文件中，那么显然无法以密钥认证的方式登录到从节点的 <code>root</code> 用户。</p>
+<h3 id="mpi-一个程序如何在不同机器间通信">MPI: 一个程序如何在不同机器间通信<a class="headerlink" href="#mpi-一个程序如何在不同机器间通信" title="Permanent link">&para;</a></h3>
+<p>MPI 指的是 <a href="http://www.mpi-forum.org/">Message Passing Interface</a>，是程序在不同机器间发送、接收数据的接口标准，类似于定义了一套通信的 API。它被设计用于支持并行计算系统的架构，使得开发者能够方便地开发可移植的消息传递程序。MPI 编程能力在高性能计算的实践与学习中也是非常基础的技能。</p>
+<p>而 OpenMPI 是一个开源的 MPI 标准的实现，由一些科研机构和企业一起开发和维护。在接下来的任务中，我们需要编译安装 OpenMPI。</p>
+<p><code>mpirun</code> 是 OpenMPI 提供的 MPI 启动程序，负责在指定的节点上启动 MPI 程序，此后程序间的通信由 MPI 库负责。可以为 <code>mpirun</code> 指定参数，比如启动的进程数、启动的节点等。阅读 <a href="https://docs.open-mpi.org/en/main/launching-apps/quickstart.html">10.1. Quick start: Launching MPI applications - OpenMPI main documentation</a> 和 <a href="https://docs.open-mpi.org/en/main/launching-apps/ssh.html">10.6. Launching with SSH - OpenMPI main documentation</a>，了解如何使用 <code>mpirun</code> 通过 SSH 的方式启动 OpenMPI 程序，如何指定启动的节点和进程数，如何指定工作路径。</p>
+<div class="admonition question">
+<p class="admonition-title">回答以下问题</p>
+<ul>
+<li>如何为 <code>mpirun</code> 指定节点和进程数？</li>
+<li>如何为 <code>mpirun</code> 指定工作路径？</li>
+<li>如果不指定工作路径，<code>mpirun</code> 会在哪个路径启动程序？如何验证你的答案。</li>
+</ul>
+<details class="success">
+<summary>Check your answer</summary>
+<ul>
+<li>
+<p>一般使用 <code>--hostfile</code> 和 hostfile 一起指定节点和进程数。OpenMPI 的 hostfile 的格式如下：</p>
+<div class="language-text highlight"><span class="filename">hostfile</span><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>node1 slots=4
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>node2 slots=4
+</span></code></pre></div>
+<p>这个 hostfile 描述了有两个节点的集群，每个节点使用 4 个核心。</p>
+</li>
+<li>
+<p>使用 <code>--wdir</code> 指定工作路径。如果未指定，尝试 <code>mpirun</code> 执行时的工作路径。若路径不存在，为 <code>$HOME</code>。你可以通过 <code>mpirun ls</code> 来尝试验证。</p>
+</li>
+</ul>
+</details>
+</div>
+<div class="admonition note">
+<p class="admonition-title">使用 <code>mpirun</code> 在集群中运行 MPI 程序，可以指定节点、进程数和工作路径等。</p>
+</div>
+<h3 id="性能测试-benchmark">性能测试 Benchmark<a class="headerlink" href="#性能测试-benchmark" title="Permanent link">&para;</a></h3>
+<p><a href="https://www.netlib.org/benchmark/hpl/">HPL</a>（high performance Linpack）是评测计算系统性能的程序，是早期 <a href="https://www.netlib.org/linpack/">Linpack</a> 评测程序的并行版本，支持大规模并行超级计算系统。其报告的每秒浮点运算次数（floating-point operations per second，简称 FLOPS）是世界超级计算机 Top500 列表排名的依据。</p>
+<p>BLAS 是 Basic Linear Algebra Subprograms 的缩写，是一组用于实现基本线性代数运算的函数库。HPL 使用 BLAS 库来实现矩阵运算，因此需要 BLAS 库的支持。</p>
+<div class="admonition note">
+<p class="admonition-title">HPL 通过求解线性系统来评估计算机集群的浮点性能</p>
+</div>
+<p>如果你对 HPL 的算法细节感兴趣，可以展开阅读下面的内容。</p>
+<details class="- note">
+<summary>HPL 的算法细节</summary>
+<p>HPL 算法使用 64 位浮点精度矩阵行偏主元 LU 分解加回代求解线性系统。矩阵是稠密实矩阵，矩阵单元由伪随机数生成器产生，符合正态分布。</p>
+<p>线性系统定义为：</p>
+<div class="arithmatex">\[
+Ax=b; A\in R^{N\times N}; x, b \in R^N
+\]</div>
+<p>行偏主元 LU 分解 <span class="arithmatex">\(N×(N+1)\)</span> 系数矩阵 <span class="arithmatex">\([A,b]\)</span>：</p>
+<div class="arithmatex">\[
+P_r[A,b] = [[L\cdot U], y];
+P_r, L, U \in R^{N\times N}; y \in R^N
+\]</div>
+<p>其中，<span class="arithmatex">\(P_r\)</span> 表示行主元交换矩阵，分解过程中下三角矩阵因子 <span class="arithmatex">\(L\)</span> 已经作用于 <span class="arithmatex">\(b\)</span>，解 <span class="arithmatex">\(x\)</span> 通过求解上三角矩阵系统得到：</p>
+<div class="arithmatex">\[
+Ux=y
+\]</div>
+<p>HPL 采用分块 LU 算法，每个分块是一个 <span class="arithmatex">\(NB\)</span> 列的细长矩阵，称为 panel。LU 分解主循环采用 right-looking 算法，单步循环计算 panel 的 LU 分解和更新剩余矩阵。基本算法如下图所示，其中 <span class="arithmatex">\(A_{1,1}\)</span> 和 <span class="arithmatex">\(A_{2,1}\)</span> 表示 panel 数据。需要特别说明的是，图示矩阵是行主顺序，HPL 代码中矩阵是列主存储的。</p>
+<p><figure markdown="span">
+<a class="glightbox" href="image/hpl_1.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="hpl_1" src="image/hpl_1.webp" width="80%" /></a>
+<figcaption>分块 LU 算法<br /><small>来源：<a href="https://kns.cnki.net/kcms2/article/abstract?v=qwZretP9BaHvUBwZiPjDpzt_KPtU2PXJSK0YVwCUYeCUQFlgxSAJKvStsXKUQgi7vp0dzvK1lhS5OYFXUgXXdKGZL9ljRGRsbRhmjx411BBN35dOaoxrEhTaj2fwikpGLUS9jtc7unQ=&uniplatform=NZKPT&language=CHS">复杂异构计算系统 HPL 的优化</a></small></figcaption>
+</figure></p>
+<p>计算公式如下：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\left [\frac{L_{1,1}}{L_{2,1}}, U_{1,1} \right ] &amp;= LU(\frac{A_{1,1}}{A_{2,1}}) \\
+U_{1,2} &amp;= L_{1,1}^{-1}A_{1,2} \\
+A_{2,2}^{update} &amp;= A_{2,2} - L_{2,1}U_{1,2}
+\end{aligned}
+\]</div>
+<p>第 1 个公式表示 panel 的 LU 分解，第 2 个公式表示求解 <span class="arithmatex">\(U\)</span>，一般使用 <code>DTRSM</code> 函数，第 3 个公式表示矩阵更新，一般使用 <code>DGEMM</code> 函数。</p>
+<p>对于分布式内存计算系统，HPL 并行计算模式基于 MPI，每个进程是基本计算单元。进程组织成二维网格。矩阵 A 被划分为 <span class="arithmatex">\(NB×NB\)</span> 的逻辑块，以 Block-Cycle 方式分配到二维进程网格，数据布局示例如图所示。</p>
+<p><figure markdown="span">
+<a class="glightbox" href="image/hpl_2.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="hpl_2" src="image/hpl_2.webp" /></a>
+<figcaption>进程网格和数据布局<br /><small>来源：<a href="https://kns.cnki.net/kcms2/article/abstract?v=qwZretP9BaHvUBwZiPjDpzt_KPtU2PXJSK0YVwCUYeCUQFlgxSAJKvStsXKUQgi7vp0dzvK1lhS5OYFXUgXXdKGZL9ljRGRsbRhmjx411BBN35dOaoxrEhTaj2fwikpGLUS9jtc7unQ=&uniplatform=NZKPT&language=CHS">复杂异构计算系统 HPL 的优化</a></small></figcaption>
+</figure></p>
+<p>对于具有多列的进程网格，单步循环只有一列进程执行 panel 分解计算，panel 分解过程中每一列执行一次 panel 的行交换算法选择并通信最大主元行。Panel 分解计算完成后，把已分解数据广播到其他进程列。HPL 基础代码包含 6 类广播算法，可以通过测试选择较优的算法。</p>
+<p>HPL 采用行主元算法，单步矩阵更新之前，要把 panel 分解时选出的最大主元行交换到 <span class="arithmatex">\(U\)</span> 矩阵中，需要执行未更新矩阵的主元行交换和广播。主元行交换和广播后，每个进程获得完整的主元行数据。</p>
+<p>矩阵更新包括两部分计算，一是使用 <code>DTRSM</code> 求解 <span class="arithmatex">\(U\)</span>，二是使用 <code>DGEMM</code> 更新矩阵数据。</p>
+<p>LU 分解完成后，HPL 使用回代求解 <span class="arithmatex">\(x\)</span>，并验证解的正确性。</p>
+</details>
+<h2 id="任务一从源码构建-openmpi-和-hpl">任务一：从源码构建 OpenMPI 和 HPL<a class="headerlink" href="#任务一从源码构建-openmpi-和-hpl" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">学习 Makefile 基本语法</p>
+<p>过程中你会遇到需要修改 <code>Makefile</code> 的步骤，因此希望你了解 <code>Makefile</code> 的基本语法。这一内容本应在 C 语言课程中完成讲授，不过大部分老师都省略了这部分。所以如果你没有学过，可以参考 <a href="https://www.bilibili.com/video/BV188411L7d2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.813 4.653h.854q2.266.08 3.773 1.574Q23.946 7.72 24 9.987v7.36q-.054 2.266-1.56 3.773c-1.506 1.507-2.262 1.524-3.773 1.56H5.333q-2.266-.054-3.773-1.56C.053 19.614.036 18.858 0 17.347v-7.36q.054-2.267 1.56-3.76t3.773-1.574h.774l-1.174-1.12a1.23 1.23 0 0 1-.373-.906q0-.534.373-.907l.027-.027q.4-.373.92-.373t.92.373L9.653 4.44q.107.106.187.213h4.267a.8.8 0 0 1 .16-.213l2.853-2.747q.4-.373.92-.373c.347 0 .662.151.929.4s.391.551.391.907q0 .532-.373.906zM5.333 7.24q-1.12.027-1.88.773-.76.748-.786 1.894v7.52q.026 1.146.786 1.893t1.88.773h13.334q1.12-.026 1.88-.773t.786-1.893v-7.52q-.026-1.147-.786-1.894t-1.88-.773zM8 11.107q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q0-.56.386-.947.387-.386.947-.386m8 0q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q.025-.586.4-.96.373-.373.933-.373"/></svg></span> Makefile 20 分钟入门 - 南方科技大学计算机系</a>进行学习。</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">提醒：完成任务时请认真阅读文档，看不懂的地方可以搜索 / 问 GPT / 问助教。</p>
+</div>
+<p>这几个项目的依赖关系是：</p>
+<pre class="mermaid"><code>flowchart LR
+    A[HPL] --&gt; B[CBLAS] --&gt; D[LAPACK]
+    A[HPL] --&gt; C[OpenMPI] -.-&gt; E[zlib]</code></pre>
+<p>因此，你需要先编译 OpenMPI，BLAS 和 CBLAS，然后再编译依赖他们的 HPL。</p>
+<p>zlib 是 OpenMPI 的可选依赖，用于改善数据传输性能，可在构建 OpenMPI 前安装 <code>zlib1g-dev</code>。</p>
+<ul>
+<li>构建并安装 OpenMPI：<ul>
+<li>前往 <a href="https://www.open-mpi.org/software/ompi/">OpenMPI 官网</a> 下载最新版本源码。</li>
+<li>解压源码，进入源码目录，阅读 <code>README.md</code>。</li>
+<li>前往在线文档，查看<a href="https://docs.open-mpi.org/en/v5.0.x/installing-open-mpi/quickstart.html">构建和安装部分</a>，按文档指示构建并安装 OpenMPI。</li>
+<li>验证安装是否成功。提示：运行 <code>ompi_info -all</code>。</li>
+</ul>
+</li>
+<li>构建 BLAS，CBLAS：<ul>
+<li>下载指定版本 BLAS 源码: <a href="assets/blas-3.12.0.tgz">blas-3.12.0.tgz</a>, 并完成构建。</li>
+<li>下载指定版本 CBLAS 源码: <a href="assets/CBLAS.tgz">CBLAS.tgz</a>。相应修改 <code>Makefile.in</code> 后完成构建。<code>我们希望你能解决所有报错。</code></li>
+<li>如果没有错误，两个目录中都会生成一个 <code>.a</code> 文件，这是待会要用到的静态链接库。</li>
+</ul>
+</li>
+</ul>
+<figure>
+<a class="glightbox" href="image/blas.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="BLAS" src="image/blas.webp" width="50%" /></a>
+</figure>
+<ul>
+<li>构建 HPL：<ul>
+<li>前往 <a href="https://netlib.org/benchmark/hpl/software.html">HPL 官网</a>，下载最新版本源码。</li>
+<li>解压源码，进入源码目录，阅读 <code>README</code>。</li>
+<li>按文档指示构建 HPL。提示：上面的 BLAS 被称为 FBLAS，以与 CBLAS 区分。</li>
+<li>如果没有错误，可以按文档中的描述找到 <code>xhpl</code> 可执行文件。</li>
+</ul>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">不得不品的手动编译</p>
+<p>在编译安装过程中会出现各种各样的问题，因为某些项目的源代码更新不频繁，可能在新的环境中无法正常编译，这是很常见的现象。
+因此，即使有很多自动化编译安装的方法，我们还是希望你能够亲自动手编译安装这些项目，来积累解决编译失败问题的经验。</p>
+<p>遇到问题时，你可以借助搜索引擎、StackOverflow 以及 AI 工具，尝试解决它们。</p>
+<p>如果你遇到了无法解决的困难，可以参考下面的解答和说明。如果还是无法解决，请向我们反馈。</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">如何阅读错误信息并处理错误</p>
+<p>命令行与图形界面的一大不同就是，在命令的运行过程中会给出很多记录（Log）和错误信息（Error Message）。新手可能都有畏难心理，觉得这些信息很难看懂/看了也没有什么用，但很多时候解决方法已经在错误信息中了。举个例子，下面是运行 <code>make</code> 时产生的一些信息，你能指出错误是什么吗？</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-15-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-15-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-15-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-15-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-15-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-15-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-15-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-15-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-15-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-15-10">10</a></span>
+<span class="normal"><a href="#__codelineno-15-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1"></a>make[1]: Leaving directory &#39;/home/test/hpl/hpl-2.3&#39;
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2"></a>make -f Make.top build_src arch=Linux_PII_CBLAS
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3"></a>make[1]: Entering directory &#39;/home/test/hpl/hpl-2.3&#39;
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4"></a>( cd src/auxil/Linux_PII_CBLAS; make )
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5"></a>make[2]: Entering directory &#39;/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS&#39;
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6"></a>Makefile:47: Make.inc: No such file or directory
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7"></a>make[2]: *** No rule to make target &#39;Make.inc&#39;.  Stop.
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8"></a>make[2]: Leaving directory &#39;/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS&#39;
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9"></a>make[1]: *** [Make.top:54: build_src] Error 2
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10"></a>make[1]: Leaving directory &#39;/home/test/hpl/hpl-2.3&#39;
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11"></a>make: *** [Make.top:54: build] Error 2
+</span></code></pre></div></td></tr></table></div>
+<details class="success">
+<summary>Check your answer</summary>
+<p>错误是第 6 行的 <code>Makefile:47: Make.inc: No such file or directory</code>。这个错误信息的开头是 <code>Makefile:47</code>，表示错误发生在 Makefile 的第 47 行。错误原因是 <code>Make.inc</code> 文件不存在。</p>
+<p>那么如何解决这个问题呢？<strong>当然是去发生错误的地方看看</strong>。跳转到 <code>/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS</code> 这个文件夹，使用 <code>ls -lah</code> 命令查看文件夹中的文件，我们得到如下结果：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>total 5.5K
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>drwxr-xr-x 2 test test  4.0K May  6  2024 .
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>drwxr-xr-x 3 test test 11.0K May  6  2024 ..
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>lrwxrwxrwx 1 test test    36 May  6  2024 Make.inc -&gt; /home/test/hpl/hpl/Make.Linux_PII_CBLAS
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>-rw-r--r-- 1 test test  5.0K May  6  2024 Makefile
+</span></code></pre></div>
+<p>对比一下现在的位置：<code>/home/test/hpl/hpl-2.3/</code>，显然上面路径中是把 <code>hpl-2.3</code> 写成了 <code>hpl</code>。修改顶层 Makefile 中的路径即可解决问题。</p>
+</details>
+<p>总结步骤如下：</p>
+<ol>
+<li>阅读提示信息，定位错误位置和原因（如果读不懂，去 Google 或扔给 ChatGPT）。</li>
+<li>去错误现场，看看发生了什么。</li>
+<li>根据提示和查阅得到的资料修复错误。</li>
+</ol>
+</div>
+<details class="success">
+<summary>步骤参考及说明</summary>
+<p><strong>请务必在阅读本部分之前，先参考知识讲解，尝试自己构建 OpenMPI, BLAS 和 HPL。</strong></p>
+<ul>
+<li>OpenMPI</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>zlib1g-dev
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>wget<span class="w"> </span><span class="s2">&quot;https://download.open-mpi.org/release/open-mpi/v5.0/openmpi-5.0.3.tar.gz&quot;</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>tar<span class="w"> </span>xvf<span class="w"> </span>openmpi-5.0.3.tar.gz
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="nb">cd</span><span class="w"> </span>openmpi-5.0.3
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>./configure<span class="w"> </span><span class="c1"># 对于绝大多数软件包，不带参数将默认安装到 /usr/local/ 下</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="c1"># 此时不需要修改 PATH 和 LD_LIBRARY_PATH 等</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="c1"># 如果你使用 --prefix 参数指定了安装路径，则可能需要修改 PATH 和 LD_LIBRARY_PATH。</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>make
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>sudo<span class="w"> </span>make<span class="w"> </span>install<span class="w"> </span><span class="c1"># 安装到系统目录 /usr/local 需要 root 权限</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>sudo<span class="w"> </span>ldconfig<span class="w"> </span><span class="c1"># 更新动态链接库缓存</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>ompi_info<span class="w"> </span>--all<span class="w"> </span><span class="c1"># 查看安装信息</span>
+</span></code></pre></div>
+<p>最后一步 <code>ldconfig</code> 在手册中没有没有记录，是比较容易遇到问题的一点。需要额外做这一步的原因可以在这个帖子找到：<a href="https://lists.nongnu.org/archive/html/libtool/2014-05/msg00021.html">why is ldconfig needed after installation</a>：</p>
+<blockquote>
+<p><code>ldconfig</code> has to be run because the dynamic linker maintains a cache of available libraries that has to be updated.  <code>libtool</code> does this when run with libtool --mode=finish on the installation directory.  I'm not sure if it does this when it thinks the directory isn't listed in the system library search path, though.</p>
+<p>I investigated this a bit further. <code>libtool --mode=finish</code> is indeed called and it calls <code>ldconfig -n /usr/local/lib</code> but that doesn't update the cache as I want.</p>
+<p>What does the <code>-n</code> switch? The man page says:</p>
+<blockquote>
+<p><code>-n</code> Only process directories specified on the command line. Don’t process the trusted directories (/lib and /usr/lib) nor those specified in /etc/ld.so.conf. Implies -N.</p>
+</blockquote>
+<p>IIUC, that means that the cache is not rebuilt because I have <code>/usr/local/lib</code> in <code>/etc/ld.so.conf</code>. Why is ldconfig called with <code>-n</code>? I did some digging and found that it's been like that since beginning of time, or at least since v0.6a.</p>
+</blockquote>
+<ul>
+<li>BLAS</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>wget<span class="w"> </span><span class="s2">&quot;http://www.netlib.org/blas/blas-3.12.0.tgz&quot;</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>tar<span class="w"> </span>xvf<span class="w"> </span>blas-3.12.0.tgz
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="nb">cd</span><span class="w"> </span>BLAS-3.12.0
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>make
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="c1"># 继续完成 CBLAS 的构建</span>
+</span></code></pre></div>
+<ul>
+<li>HPL</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>wget<span class="w"> </span><span class="s2">&quot;https://netlib.org/benchmark/hpl/hpl-2.3.tar.gz&quot;</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>tar<span class="w"> </span>xvf<span class="w"> </span>hpl-2.3.tar.gz
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="nb">cd</span><span class="w"> </span>hpl-2.3
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>cp<span class="w"> </span>setup/Make.Linux_PII_FBLAS<span class="w"> </span>.
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>vim<span class="w"> </span>Make.Linux_PII_FBLAS<span class="w"> </span><span class="c1"># 修改 Makefile</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>make<span class="w"> </span><span class="nv">arch</span><span class="o">=</span>Linux_PII_FBLAS
+</span></code></pre></div>
+<p><code>Make.Linux_PII_FBLAS</code> 中需要修改的部分有</p>
+<div class="admonition warning">
+<p class="admonition-title">注意</p>
+<p><strong>修改仅供参考</strong>, 请根据你的实际情况进行修改。</p>
+</div>
+<div class="language-makefile highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="nv">TOPdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>HOME<span class="k">)</span>/hpl-2.3<span class="w">        </span><span class="p">|</span><span class="w"> </span><span class="nv">TOPdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>HOME<span class="k">)</span>/hpl
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="nv">MPdir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>/usr/local<span class="w">             </span><span class="p">|</span><span class="w"> </span><span class="nv">MPdir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>/usr/local/mpi
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="nv">MPlib</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>MPdir<span class="k">)</span>/lib/libmpi.so<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="nv">MPlib</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>MPdir<span class="k">)</span>/lib/libmpich.a
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="nv">LAdir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>HOME<span class="k">)</span>/BLAS-3.12.0<span class="w">    </span><span class="p">|</span><span class="w"> </span><span class="nv">LAdir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>HOME<span class="k">)</span>/netlib/ARCHIVES/Linux_PII
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="nv">LAlib</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>LAdir<span class="k">)</span>/blas_LINUX.a<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="nv">LAlib</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>LAdir<span class="k">)</span>/libf77blas.a<span class="w"> </span><span class="k">$(</span>LAdir<span class="k">)</span>/libatlas.a
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="nv">LINKER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/usr/bin/gfortran<span class="w">      </span><span class="p">|</span><span class="w"> </span><span class="nv">LINKER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/usr/bin/g77
+</span></code></pre></div>
+<p>生成的可执行文件在 <code>bin/Linux_PII_FBLAS</code> 目录下：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>$ ls bin/Linux_PII_FBLAS/
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>HPL.dat  xhpl
+</span></code></pre></div>
+</details>
+<h2 id="任务二搭建集群并使用-hpl-测试性能">任务二：搭建集群并使用 HPL 测试性能<a class="headerlink" href="#任务二搭建集群并使用-hpl-测试性能" title="Permanent link">&para;</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">任选一种你喜欢的集群搭建方式即可</p>
+<p>我们不对集群搭建的方式做硬性限制，只需注意有以下要求：</p>
+<ul>
+<li>至少有 4 个在线节点。</li>
+<li>节点之间能够通过 ssh 进行互联。MPI 能正常工作。</li>
+</ul>
+<p>你可以从下面的几种方式中任选一种，也可以使用其他方式。</p>
+</div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">使用虚拟机搭建集群</label><label for="__tabbed_1_2">使用 Docker 搭建集群</label><label for="__tabbed_1_3">使用你喜欢的方式搭建集群</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<ul>
+<li>连接与互访：<ul>
+<li>克隆三次虚拟机，得到四台虚拟机组成的集群。为新克隆的虚拟机重新生成 MAC 地址。</li>
+<li>将它们分别命名为 <code>node01</code>、<code>node02</code>、<code>node03</code>、<code>node04</code>。注意，不只是在 Hypervisor 中修改名字，还需要在虚拟机中修改 <code>/etc/hostname</code>。</li>
+<li>获取它们的 IP 地址，在 <code>node01</code> 中修改 <code>/etc/hosts</code> 文件，添加其他节点的 IP 地址。</li>
+<li>在 <code>node01</code> 中生成密钥对，将公钥放在其他节点上。</li>
+<li>验证 SSH 密钥认证是否成功。</li>
+</ul>
+</li>
+<li>测试 MPI 运行：<ul>
+<li>在 <code>node01</code> 上写一个 <code>hostfile</code>，指定节点和进程数。</li>
+<li>使用该 <code>hostfile</code> 执行 <code>mpirun</code>，在所有节点上运行 <code>uptime</code> 或 <code>cat /etc/hostname</code>。</li>
+</ul>
+</li>
+<li>运行 HPL：<ul>
+<li>使用 <code>mpirun</code> 在所有节点上运行 <code>xhpl</code>，查看运行结果。提示：注意工作路径。</li>
+<li>阅读 HPL 源码包中的 <code>TUNING</code> 文件，了解 <code>HPL.dat</code> 文件的配置，尝试修改 <code>HPL.dat</code> 文件，重新运行 <code>xhpl</code>。</li>
+<li>给出你得到的最高性能数据以及对应的 <code>HPL.dat</code> 配置。尝试解释你所作的修改对性能的影响。</li>
+</ul>
+</li>
+</ul>
+<details class="success">
+<summary>步骤参考和说明</summary>
+<ul>
+<li>连接与互访</li>
+</ul>
+<div class="nt-cards nt-grid cols-3">
+<div class="nt-card">
+<div class="nt-card-wrap">
+<div>
+<div class="nt-card-image tags"><a class="glightbox" href="image/clone_vm_1.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="克隆菜单" src="image/clone_vm_1.webp" /></a></div>
+<div class="nt-card-content">
+<p class="nt-card-title">克隆菜单</p>
+<p class="nt-card-text">右键虚拟机-&gt;Manage-&gt;Clone</p>
+</div>
+</div>
+</div>
+</div>
+<div class="nt-card">
+<div class="nt-card-wrap">
+<div>
+<div class="nt-card-image tags"><a class="glightbox" href="image/clone_vm_2.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="完全克隆" src="image/clone_vm_2.webp" /></a></div>
+<div class="nt-card-content">
+<p class="nt-card-title">完全克隆</p>
+<p class="nt-card-text">Clone Type 两种都行，链接模式磁盘空间占用会小一点</p>
+</div>
+</div>
+</div>
+</div>
+<div class="nt-card">
+<div class="nt-card-wrap">
+<div>
+<div class="nt-card-image tags"><a class="glightbox" href="image/generate_mac.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="生成 MAC 地址" src="image/generate_mac.webp" /></a></div>
+<div class="nt-card-content">
+<p class="nt-card-title">生成 MAC 地址</p>
+<p class="nt-card-text">右键虚拟机-&gt;Settings-&gt;Network Adapter-&gt;Advanced-&gt;Generate</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># 修改主机名</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>sudo<span class="w"> </span>vim<span class="w"> </span>/etc/hostname
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>sudo<span class="w"> </span>reboot
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="c1"># 获取 IP 地址</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>ip<span class="w"> </span>a
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="c1"># 修改 /etc/hosts</span>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>sudo<span class="w"> </span>vim<span class="w"> </span>/etc/hosts
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="c1"># 生成密钥对</span>
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="c1"># 注意不需要为密钥设置密码，全程回车即可</span>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>ssh-keygen
+</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a><span class="c1"># 将公钥放在其他节点上</span>
+</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>ssh-copy-id<span class="w"> </span>user@hostname
+</span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="c1"># 验证 SSH 密钥认证是否成功</span>
+</span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>ssh<span class="w"> </span>user@hostname
+</span></code></pre></div>
+<p><code>/etc/hosts</code> 举例如下：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>127.0.1.1       node01
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>192.168.136.130 node02
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>192.168.136.131 node03
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>192.168.136.132 node04
+</span></code></pre></div>
+<ul>
+<li>测试 MPI 运行</li>
+</ul>
+<p><code>hostfile</code> 举例如下：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>node01 slots=1
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>node02 slots=2
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>node03 slots=3
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>node04 slots=4
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>mpirun<span class="w"> </span>--hostfile<span class="w"> </span>hostfile<span class="w"> </span>cat<span class="w"> </span>/etc/hostname
+</span></code></pre></div>
+<p>成功的结果如下图所示：</p>
+<p><a class="glightbox" href="image/mpi.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="mpi" src="image/mpi.webp" /></a></p>
+<p>MPI 会给出较多的提示信息，比如图中的就不影响程序正常运行，可以忽略或按照提示关闭提醒。</p>
+<ul>
+<li>运行 HPL</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="c1"># 切换工作目录到 HPL 所在目录，xhpl 需要在工作目录下找到 HPL.dat</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="nb">cd</span><span class="w"> </span>hpl-2.3/bin/Linux_PII_FBLAS/
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>mpirun<span class="w"> </span>--hostfile<span class="w"> </span>hostfile<span class="w"> </span>./xhpl
+</span></code></pre></div>
+<p>运行结果如下图所示：</p>
+<p><a class="glightbox" href="image/hpl.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="hpl" src="image/hpl.webp" /></a></p>
+</details>
+</div>
+<div class="tabbed-block">
+<ul>
+<li>
+<p>创建 Dockerfile：</p>
+<ul>
+<li>安装必要的依赖包和编译工具</li>
+<li>配置 SSH 服务用于容器间通信</li>
+<li>配置 SSH 密钥认证</li>
+<li>基于 Linux 镜像创建包含编译安装 MPI 和 HPL 的 Dockerfile</li>
+</ul>
+</li>
+<li>
+<p>构建和运行容器：</p>
+<ul>
+<li>使用 docker-compose 创建多个容器实例</li>
+<li>配置容器网络实现互联</li>
+<li>设置容器主机名和 hosts 文件</li>
+</ul>
+</li>
+<li>
+<p>运行 HPL 测试：</p>
+<ul>
+<li>在容器中配置 hostfile</li>
+<li>使用 mpirun 运行 HPL 测试</li>
+<li>调整 HPL.dat 参数优化性能</li>
+</ul>
+</li>
+</ul>
+<details class="success">
+<summary>步骤参考和说明</summary>
+<ul>
+<li>创建 Dockerfile</li>
+</ul>
+<div class="language-dockerfile highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="c"># 你可以自由地选择镜像，但下面的过程可能需要修改</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="k">FROM</span><span class="w"> </span><span class="s">ubuntu:25.04</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="c"># 安装依赖</span>
+</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="k">RUN</span><span class="w"> </span>apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="w">    </span>build-essential<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-27-7"><a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="w">    </span>openssh-server
+</span><span id="__span-27-8"><a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>
+</span><span id="__span-27-9"><a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a><span class="k">WORKDIR</span><span class="w"> </span><span class="s">/opt</span>
+</span><span id="__span-27-10"><a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>
+</span><span id="__span-27-11"><a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="c"># 这里需要你手动填写指令，来完成 MPI，CBLAS，HPL 的安装</span>
+</span><span id="__span-27-12"><a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a>
+</span><span id="__span-27-13"><a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="c"># to be filled</span>
+</span><span id="__span-27-14"><a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a>
+</span><span id="__span-27-15"><a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="c"># 你可以在这里配置密钥认证，可以直接使用 root 用户，也可以创建用户</span>
+</span><span id="__span-27-16"><a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a>
+</span><span id="__span-27-17"><a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a><span class="k">EXPOSE</span><span class="w"> </span><span class="s">22</span>
+</span><span id="__span-27-18"><a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a><span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;service&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ssh&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;start&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-D&quot;</span><span class="p">]</span>
+</span></code></pre></div>
+<ul>
+<li>创建 docker-compose.yml</li>
+</ul>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3&#39;</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">  </span><span class="nt">node01</span><span class="p">:</span>
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
+</span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node01</span>
+</span><span id="__span-28-6"><a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+</span><span id="__span-28-7"><a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="w">      </span><span class="nt">hpl_net</span><span class="p">:</span>
+</span><span id="__span-28-8"><a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="w">        </span><span class="nt">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">172.20.0.2</span>
+</span><span id="__span-28-9"><a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>
+</span><span id="__span-28-10"><a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a><span class="w">  </span><span class="nt">node02</span><span class="p">:</span>
+</span><span id="__span-28-11"><a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a><span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
+</span><span id="__span-28-12"><a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node02</span>
+</span><span id="__span-28-13"><a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a><span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+</span><span id="__span-28-14"><a id="__codelineno-28-14" name="__codelineno-28-14" href="#__codelineno-28-14"></a><span class="w">      </span><span class="nt">hpl_net</span><span class="p">:</span>
+</span><span id="__span-28-15"><a id="__codelineno-28-15" name="__codelineno-28-15" href="#__codelineno-28-15"></a><span class="w">        </span><span class="nt">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">172.20.0.3</span>
+</span><span id="__span-28-16"><a id="__codelineno-28-16" name="__codelineno-28-16" href="#__codelineno-28-16"></a>
+</span><span id="__span-28-17"><a id="__codelineno-28-17" name="__codelineno-28-17" href="#__codelineno-28-17"></a><span class="w">  </span><span class="nt">node03</span><span class="p">:</span>
+</span><span id="__span-28-18"><a id="__codelineno-28-18" name="__codelineno-28-18" href="#__codelineno-28-18"></a><span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
+</span><span id="__span-28-19"><a id="__codelineno-28-19" name="__codelineno-28-19" href="#__codelineno-28-19"></a><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node03</span>
+</span><span id="__span-28-20"><a id="__codelineno-28-20" name="__codelineno-28-20" href="#__codelineno-28-20"></a><span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+</span><span id="__span-28-21"><a id="__codelineno-28-21" name="__codelineno-28-21" href="#__codelineno-28-21"></a><span class="w">      </span><span class="nt">hpl_net</span><span class="p">:</span>
+</span><span id="__span-28-22"><a id="__codelineno-28-22" name="__codelineno-28-22" href="#__codelineno-28-22"></a><span class="w">        </span><span class="nt">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">172.20.0.4</span>
+</span><span id="__span-28-23"><a id="__codelineno-28-23" name="__codelineno-28-23" href="#__codelineno-28-23"></a>
+</span><span id="__span-28-24"><a id="__codelineno-28-24" name="__codelineno-28-24" href="#__codelineno-28-24"></a><span class="w">  </span><span class="nt">node04</span><span class="p">:</span>
+</span><span id="__span-28-25"><a id="__codelineno-28-25" name="__codelineno-28-25" href="#__codelineno-28-25"></a><span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
+</span><span id="__span-28-26"><a id="__codelineno-28-26" name="__codelineno-28-26" href="#__codelineno-28-26"></a><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node04</span>
+</span><span id="__span-28-27"><a id="__codelineno-28-27" name="__codelineno-28-27" href="#__codelineno-28-27"></a><span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+</span><span id="__span-28-28"><a id="__codelineno-28-28" name="__codelineno-28-28" href="#__codelineno-28-28"></a><span class="w">      </span><span class="nt">hpl_net</span><span class="p">:</span>
+</span><span id="__span-28-29"><a id="__codelineno-28-29" name="__codelineno-28-29" href="#__codelineno-28-29"></a><span class="w">        </span><span class="nt">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">172.20.0.5</span>
+</span><span id="__span-28-30"><a id="__codelineno-28-30" name="__codelineno-28-30" href="#__codelineno-28-30"></a>
+</span><span id="__span-28-31"><a id="__codelineno-28-31" name="__codelineno-28-31" href="#__codelineno-28-31"></a><span class="nt">networks</span><span class="p">:</span>
+</span><span id="__span-28-32"><a id="__codelineno-28-32" name="__codelineno-28-32" href="#__codelineno-28-32"></a><span class="w">  </span><span class="nt">hpl_net</span><span class="p">:</span>
+</span><span id="__span-28-33"><a id="__codelineno-28-33" name="__codelineno-28-33" href="#__codelineno-28-33"></a><span class="w">    </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bridge</span>
+</span><span id="__span-28-34"><a id="__codelineno-28-34" name="__codelineno-28-34" href="#__codelineno-28-34"></a><span class="w">    </span><span class="nt">ipam</span><span class="p">:</span>
+</span><span id="__span-28-35"><a id="__codelineno-28-35" name="__codelineno-28-35" href="#__codelineno-28-35"></a><span class="w">      </span><span class="nt">config</span><span class="p">:</span>
+</span><span id="__span-28-36"><a id="__codelineno-28-36" name="__codelineno-28-36" href="#__codelineno-28-36"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">subnet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">172.20.0.0/16</span>
+</span></code></pre></div>
+<ul>
+<li>构建和启动容器</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="c1"># 构建镜像</span>
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>docker-compose<span class="w"> </span>build
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>
+</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="c1"># 启动容器</span>
+</span><span id="__span-29-5"><a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-29-6"><a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>
+</span><span id="__span-29-7"><a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a><span class="c1"># 进入主节点配置</span>
+</span><span id="__span-29-8"><a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>node01<span class="w"> </span>bash
+</span></code></pre></div>
+<ul>
+<li>运行 HPL 测试</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="c1"># 创建 hostfile, docker 会帮助我们自动进行 dns 解析</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;node01 slots=1&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>hostfile
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;node02 slots=1&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>hostfile
+</span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;node03 slots=1&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>hostfile
+</span><span id="__span-30-5"><a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;node04 slots=1&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>hostfile
+</span><span id="__span-30-6"><a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>
+</span><span id="__span-30-7"><a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a><span class="c1"># 运行 HPL</span>
+</span><span id="__span-30-8"><a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a><span class="nb">cd</span><span class="w"> </span>/path/to/hpl-2.3
+</span><span id="__span-30-9"><a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a>
+</span><span id="__span-30-10"><a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a>mpirun<span class="w"> </span>--hostfile<span class="w"> </span>hostfile<span class="w"> </span>./xhpl
+</span></code></pre></div>
+</details>
+</div>
+<div class="tabbed-block">
+<p>如果你觉得这两种方法都不适合你，请使用你喜欢的方式搭建集群，并完成 HPL 测试。</p>
+</div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">性能调优</p>
+<p>在完成基本的 HPL 测试后，你可以尝试通过以下方法提高性能：</p>
+<ol>
+<li>
+<p>调整 HPL.dat 参数：</p>
+<ul>
+<li>调整问题规模 N 以充分利用内存</li>
+<li>调整分块大小 NB 以优化计算效率</li>
+<li>调整 P×Q 进程网格布局以匹配集群拓扑</li>
+</ul>
+</li>
+<li>
+<p>编译优化：</p>
+<ul>
+<li>更换编译器</li>
+<li>修改编译优化选项</li>
+<li>尝试更换 BLAS 库</li>
+</ul>
+</li>
+<li>
+<p>运行环境优化：</p>
+<ul>
+<li>优化 OpenMP 绑核参数</li>
+<li>调整 MPI 进程绑定，rank 拓扑</li>
+</ul>
+</li>
+</ol>
+<p>请记录你尝试过的优化方法及其效果，分析性能提升的原因。性能的绝对值不作为评判依据，重要的是你通过哪些方法提高了性能，以及你对这些优化方法的理解。</p>
+</div>
+<h2 id="bonus-任务">Bonus 任务<a class="headerlink" href="#bonus-任务" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Bonus 任务是什么?</p>
+<p>Bonus 任务是一些比较有挑战性的任务，<strong>选做</strong>。我们鼓励大家尝试完成。在实验报告中记录你对于 Bonus 任务尝试过的解决方法，将根据完成度获得该次实验的加分。</p>
+<p>其中，加星标 (<code>*</code>) 的 Bonus 任务难度较大，完成其中的 1 至 2 个便能证明你的实力。加星标的任务<strong>仅作为选拔超算队新成员的依据，不参与课程评价和实验加分</strong>。欢迎希望加入超算队的同学挑战它们。</p>
+<p>Lab1 在课程开始后还会再提交一次，你还可以利用期末考试后至开课前期的空闲时间继续补充自己尝试的内容。</p>
+</div>
+<p>在完成 Bonus 任务前，你可以先阅读<a href="#技术杂谈">技术杂谈</a>章节，了解一些相关的知识。</p>
+<h3 id="集群搭建">集群搭建<a class="headerlink" href="#集群搭建" title="Permanent link">&para;</a></h3>
+<div class="admonition tip">
+<p class="admonition-title">Bonus</p>
+<ul>
+<li>正确为每台机器设置主机名，并能从主机名解析出 IP 地址。</li>
+<li>通过 NFS 或其他共享文件系统，实现集群间文件共享。</li>
+<li><strong>(*)</strong> 通过 nis 或 ldap 等方法实现集群间用户（组）共享和管理。</li>
+<li><strong>(*)</strong> 选择你喜欢的节点指标，日志收集，监控等方法，并利用 grafana 等工具进行可视化。</li>
+<li><strong>(*)</strong> 如果你通过虚拟机或物理机等方式进行实验，可以尝试利用 pxe 引导集群启动。</li>
+</ul>
+</div>
+<h3 id="软件安装">软件安装<a class="headerlink" href="#软件安装" title="Permanent link">&para;</a></h3>
+<div class="admonition tip">
+<p class="admonition-title">Bonus</p>
+<ul>
+<li>你也可以尝试其它 BLAS 实现，如更新版本的 <a href="https://www.netlib.org/lapack/">LAPACK</a>，<a href="http://www.openmathlib.org/OpenBLAS/">OpenBLAS</a>，<a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html">MKL</a>，<a href="https://www.amd.com/en/developer/aocl.html">AOCL</a> 等, 并比较它们的性能。</li>
+<li>使用 spack 包管理器安装 OpenMPI、多种 BLAS 并 相应编译多种 HPL。</li>
+</ul>
+</div>
+<h2 id="技术杂谈">技术杂谈<a class="headerlink" href="#技术杂谈" title="Permanent link">&para;</a></h2>
+<h3 id="包管理器">包管理器<a class="headerlink" href="#包管理器" title="Permanent link">&para;</a></h3>
+<p>大型软件的依赖关系非常复杂，我们不可能手动调查其依赖关系，下载每一项依赖进行构建。包管理器维护了软件包的依赖关系，可以自动下载、构建和安装软件包。包管理器还提供了软件包的版本管理、卸载、更新等功能，甚至会提供环境管理服务。它相当于你电脑中的软件管家。</p>
+<ul>
+<li>Debian 系统使用 <code>apt</code> 包管理器提供常用软件包，以二进制的形式进行软件分发。</li>
+<li><a href="https://spack.io/">Spack</a> 是 HPC 领域最知名的包管理器，提供高性能计算领域几乎所有软件包的构建和安装。它通常需要从源码构建软件包，有非常多选项可以配置。</li>
+<li><a href="https://docs.conda.io/en/latest/">Conda</a> 用于管理 Python 环境和软件包。</li>
+</ul>
+<p>目前，超算队集群使用 Spack 作为包管理器，提供了大部分软件包的构建和安装。如果你能够在本 Lab 熟悉该工具，将会为后续实验和项目的环境管理提供很大帮助。你可以阅读以下资料：</p>
+<ul>
+<li><a href="https://spack.readthedocs.io/en/latest/">Spack 官方文档</a></li>
+<li><a href="https://docs.zjusct.io/operation/software/spack/">包管理器：Spack - ZJUSCT 文档与博客</a></li>
+</ul>
+<h3 id="docker">Docker<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h3>
+<p>Docker 是一个开源的容器化平台，它允许开发者将应用程序及其依赖打包到一个可移植的容器中，然后在任何环境中运行。Docker 容器是轻量级的，因为它们共享主机系统的内核，而不是像虚拟机那样需要一个完整的操作系统。</p>
+<p>在本实验中，docker 的主要优势有：</p>
+<ul>
+<li>内存占用小：相比虚拟机，Docker 容器共享主机内核，不需要运行完整的操作系统，大大减少了内存占用</li>
+<li>便于扩展：可以快速复制和部署容器，轻松扩展集群节点数量</li>
+<li>环境一致性：在 HPC 环境中，Docker 可以创建包含所有必要软件和依赖的环境，确保集群各节点运行在相同的计算环境中</li>
+</ul>
+<h3 id="nfs">NFS<a class="headerlink" href="#nfs" title="Permanent link">&para;</a></h3>
+<p>NFS（Network File System）是一种网络文件系统，允许客户端通过网络访问远程服务器上的文件，就像访问本地文件一样。NFS 在 HPC 集群中非常常见，用于共享用户的主目录、应用程序和数据集。这样，无论用户登录到集群的哪个节点，都能访问相同的文件和应用程序。</p>
+<p>NFS 的主要特点包括：</p>
+<ul>
+<li><strong>透明性</strong>：客户端用户无需知道文件实际存储在哪里，可以像访问本地文件一样访问远程文件。</li>
+<li><strong>集中管理</strong>：所有文件都存储在服务器上，便于集中管理和备份。</li>
+<li><strong>共享访问</strong>：多个客户端可以同时访问同一个文件系统。</li>
+</ul>
+<p>设置 NFS 服务器和客户端的基本步骤：</p>
+<ol>
+<li>
+<p>在服务器上安装 NFS 服务器软件：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>nfs-kernel-server
+</span></code></pre></div>
+</li>
+<li>
+<p>配置要共享的目录，编辑 <code>/etc/exports</code> 文件：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>/home<span class="w"> </span><span class="m">172</span>.20.0.0/16<span class="o">(</span>rw,sync,no_subtree_check<span class="o">)</span>
+</span></code></pre></div>
+</li>
+<li>
+<p>重启 NFS 服务：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>sudo<span class="w"> </span>exportfs<span class="w"> </span>-a
+</span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>nfs-kernel-server
+</span></code></pre></div>
+</li>
+<li>
+<p>在客户端安装 NFS 客户端软件：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>nfs-common
+</span></code></pre></div>
+</li>
+<li>
+<p>在客户端挂载共享目录：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>sudo<span class="w"> </span>mount<span class="w"> </span>server_ip:/home<span class="w"> </span>/home
+</span></code></pre></div>
+<p>确认成功挂载后可以写到 <code>/etc/fstab</code> 文件中，这样每次开机都会自动挂载。</p>
+</li>
+</ol>
+<p>通过 NFS，集群中的所有节点可以共享相同的文件系统，简化了文件管理和应用程序部署。</p>
+<h3 id="其他">其他<a class="headerlink" href="#其他" title="Permanent link">&para;</a></h3>
+<p>如果你有兴趣完成更多的 Bonus 任务，欢迎阅读 <a href="https://docs.zjusct.io">ZJUSCT 文档与博客</a> 中的相关内容：</p>
+<ul>
+<li><a href="https://docs.zjusct.io/operation/system/service/nis/">网络信息服务：NIS</a></li>
+<li><a href="https://docs.zjusct.io/operation/system/diskless/pxe/">引导方式：PXE</a></li>
+<li><a href="https://docs.zjusct.io/operation/observability/opentelemetry/">数据采集：OpenTelemetry</a></li>
+</ul>
+<h2 id="参考资料">参考资料<a class="headerlink" href="#参考资料" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://101.lug.ustc.edu.cn/">Linux 101 - 中国科学技术大学 Linux 用户协会</a></li>
+<li><a href="https://linux.cn/article-14033-1.html">任何人都可以通过这三个简单的步骤编译开源代码 - Linux 中国</a></li>
+<li><a href="https://www.lrde.epita.fr/~adl/autotools.html">Autotools Tutorial</a></li>
+<li><a href="https://elinux.org/images/4/43/Petazzoni.pdf">GNU Autotools: A Tutorial</a></li>
+<li><a href="https://kns.cnki.net/kcms2/article/abstract?v=qwZretP9BaHvUBwZiPjDpzt_KPtU2PXJSK0YVwCUYeCUQFlgxSAJKvStsXKUQgi7vp0dzvK1lhS5OYFXUgXXdKGZL9ljRGRsbRhmjx411BBN35dOaoxrEhTaj2fwikpGLUS9jtc7unQ=&amp;uniplatform=NZKPT&amp;language=CHS">复杂异构计算系统 HPL 的优化</a></li>
+</ul>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 27, 2025 03:55:20 UTC">May 27, 2025</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 7, 2025 16:39:17 UTC">May 7, 2025</span>
+  </span>
+
+    
+    
+    
+      
+  <span class="md-source-file__fact">
+    
+      
+  <span class="md-icon" title="Contributors">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/></svg>
+  </span>
+  <span>GitHub</span>
+
+    
+    <nav>
+      
+        <a href="https://github.com/YooLc" class="md-author" title="@YooLc">
+          
+          <img src="https://avatars.githubusercontent.com/u/52441312?v=4&size=72" alt="YooLc">
+        </a>
+      
+        <a href="https://github.com/eWloYW8" class="md-author" title="@eWloYW8">
+          
+          <img src="https://avatars.githubusercontent.com/u/114898949?v=4&size=72" alt="eWloYW8">
+        </a>
+      
+        <a href="https://github.com/yegroup001" class="md-author" title="@yegroup001">
+          
+          <img src="https://avatars.githubusercontent.com/u/139317128?v=4&size=72" alt="yegroup001">
+        </a>
+      
+        <a href="https://github.com/bowling233" class="md-author" title="@bowling233">
+          
+          <img src="https://avatars.githubusercontent.com/u/35755846?v=4&size=72" alt="bowling233">
+        </a>
+      
+      
+      
+        
+          <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab1-MiniCluster/index.md" class="md-author md-author--more">
+            +2
+          </a>
+        
+      
+    </nav>
+  </span>
+
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../Lab0-LinuxCrashCourse/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lab 0: Linux Crash Course">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Lab 0: Linux Crash Course
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../slides/" class="md-footer__link md-footer__link--next" aria-label="Next: 课程幻灯片">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                课程幻灯片
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "content.code.select", "content.code.annotate", "navigation.footer", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.tracking", "navigation.path", "navigation.top", "toc.follow", "content.action.edit", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      
+    
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
+</html>

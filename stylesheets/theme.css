@@ -1,0 +1,8 @@
+[data-md-color-scheme="zjusct"] {
+    --md-primary-fg-color:#1C1C1C;
+}
+
+[data-md-color-scheme="slate"] {
+    --md-primary-fg-color:#1C1C1C;
+    --md-default-bg-color:#151515;
+}
