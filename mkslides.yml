@@ -2,7 +2,7 @@ index:
     title: Index
     favicon: docs/assets/zjusct-hpc101.svg
     theme: slides/zjusct-style/index.css
-    #template: assets/templates/index.html.jinja # Comes with the pip package
+    template: slides/assets/templates/index.jinja
 slides:
     favicon: docs/assets/zjusct-hpc101.svg
     theme: slides/zjusct-style/slides-black.css

@@ -1,0 +1,11 @@
+{% if title %}
+# {{ title }}
+{% endif %}
+
+| Title | Slides | Slides with Notes | PDF | PDF with Notes |
+|-------|--------|-------------------|------|----------------|
+{% for s in slideshows -%}
+| {{ s.title }} | [slides]({{ s.location }}) | [slides with notes]({{ s.location }}?showNotes=true) | [PDF]({{ s.location }}?print-pdf) | [PDF with notes]({{ s.location }}?print-pdf&showNotes=separate-page) |
+{% endfor %}
+
+Slides last build at `{{ build_datetime.strftime('%Y-%m-%d %H:%M:%S') }}`.  

@@ -14,7 +14,7 @@ nav:
     - index.md
     - 使用集群: guide
   - 课程实验: lab
-  - 课程幻灯片: slides/index.html
+  - 课程幻灯片: slides/index.md
 
 theme:
   name: material
