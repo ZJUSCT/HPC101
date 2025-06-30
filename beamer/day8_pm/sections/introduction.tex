@@ -1,0 +1,36 @@
+\section{Introduction}
+\begin{frame}[fragile]{Biography}
+	\begin{tikzpicture}
+		% Timeline base line
+		\draw[thick, gray] (0,0) -- (11,0);
+
+		% Node 0: CKC AGC
+		\fill[blue] (1.5, 0) circle (0.1);
+		\draw[gray] (1.5, 0) -- (1.5, 0.5);
+		\node at (1.5, 1) {\includegraphics[width=0.8cm]{day8_pm/img/bio-ckcagc.png}};
+		\node[font=\bfseries\small] at (1.5, 2) {CKC AGC};
+		\node[font=\footnotesize, gray] at (1.5, -0.5) {Freshman};
+
+		% Node 1: ZJUSCT
+		\fill[blue] (4.0, 0) circle (0.1);
+		\draw[gray] (4.0, 0) -- (4, 0.5);
+		\node at (4.0, 1) {\includegraphics[width=0.8cm]{day8_pm/img/bio-zjusct.png}};
+		\node[font=\bfseries\small] at (4.0, 2) {ZJUSCT};
+		\node[font=\footnotesize, gray] at (4.0, -0.5) {Sophomore};
+
+		% Node 2: RC4ML Lab
+		\fill[blue] (6.5, 0) circle (0.1);
+		\draw[gray] (6.5, 0) -- (6.5, 0.5);
+		\node at (6.5, 1) {\includegraphics[width=0.8cm]{day8_pm/img/bio-rc4ml.png}};
+		\node[font=\bfseries\small] at (6.5, 2) {RC4ML Lab};
+		\node[font=\footnotesize, gray] at (6.5, -0.5) {Junior};
+
+		% Node 3: Tencent
+		\fill[blue] (9.0, 0) circle (0.1);
+		\draw[gray] (9.0, 0) -- (9.0, 0.5);
+		\node at (9.0, 1) {\includegraphics[width=0.8cm]{day8_pm/img/bio-csig.png}};
+		\node[font=\bfseries\small] at (9.0, 2) {Tencent CSIG};
+		\node[font=\footnotesize, gray] at (9.0, -0.5) {Junior};
+
+	\end{tikzpicture}
+\end{frame}
