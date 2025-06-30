@@ -22,7 +22,7 @@ all: clean lint $(TEX_FILES)
 
 %.tex: FORCE
 	$(LATEXMK) $(LATEXMK_OPTIONS) $@
-	cp .output/$(basename $@).pdf .
+	# cp .output/$(basename $@).pdf .
 
 FORCE:
 
