@@ -25,14 +25,19 @@
 \cutoc
 
 \input{day8_pm/sections/introduction}
+\input{day8_pm/sections/cpp_intro}
+\input{day8_pm/sections/parallel_overview}
+\input{day8_pm/sections/synchronization}
+\input{day8_pm/sections/producer_consumer}
+\input{day8_pm/sections/summary}
 
 \begin{frame}[fragile]{Takeaways}
 	\emoji{star} Important concepts that you should remember today:
 	\begin{itemize}
-		\item Operating System:\textbf{a resource abstractor and resource allocator.}
-		\item Process: \textbf{a unit of resource allocation and protection.}
-		\item Thread: \textbf{basic unit of execution} within a process.
-		\item Others: Memory Hierarchy, Stack Frame, etc.
+		\item \textbf{C++ Concurrency Trinity}: \texttt{std::thread}, \texttt{std::mutex}, \texttt{std::condition\_variable}
+		\item \textbf{RAII Principle}: Automatic resource management with lock guards
+		\item \textbf{Producer-Consumer Pattern}: Efficient thread communication
+		\item \textbf{Framework Selection}: Choose the right tool for the right job
 	\end{itemize}
 \end{frame}
 
