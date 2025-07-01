@@ -333,7 +333,17 @@
 }
 
 % Add footer to title page
-\newcommand*{\copyleftnotice}[1]{\def\@copyleftnotice{#1}}
+\newcommand*{\copyleftnotice}[2]{%
+    \def\@copyleftnotice{#1}%
+    \def\@creditnotice{#2}%
+}
+% Usage:
+% 显示完整信息
+% \copyleftnotice{CC-BY 4.0}{Slides partially credited to Prof. Wenbo Shen and Prof Rui Chang}
+% 只显示版权信息
+% \copyleftnotice{CC-BY 4.0}{}
+% 只显示 Credit 信息
+% \copyleftnotice{}{Slides partially credited to Prof. Wenbo Shen and Prof Rui Chang}
 \renewcommand{\maketitle}[1][\item ZJUSCT]{
     \begingroup
         \setbeamercolor{normal text}{fg = white, bg = transparent}
@@ -352,11 +362,16 @@
                     \raisebox{0.22cm}{
                         \begin{minipage}{0.65\paperwidth}
                             \begin{flushright}
-                                % Copyleft by \insertshortauthor, \insertshortinstitute
-                                Slides partially credited to Prof. Wenbo Shen and Prof Rui Chang
+                                \ifdefined\@creditnotice
+                                    \ifx\@creditnotice\@empty
+                                    \else
+                                        \@creditnotice
+                                        \ifx\@copyleftnotice\@empty\else\\
+                                        \fi
+                                    \fi
+                                \fi
                                 \ifx\@copyleftnotice\@empty
                                 \else
-                                    \\
                                     \@copyleftnotice
                                 \fi
                             \end{flushright}
