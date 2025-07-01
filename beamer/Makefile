@@ -1,16 +1,19 @@
 LATEXMK := latexmk
 LATEXMK_OPTIONS = -lualatex -interaction=nonstopmode -file-line-error -output-directory=.output
-ifneq (, $(shell which $(LATEXMK)))
-	LATEXMK := $(shell which $(LATEXMK))
-else
-	LATEXMK := docker run --rm -v $(PWD):/workdir -w /workdir texlive/texlive latexmk
-endif
 LATEXINDENT := latexindent
 LATEXINDENT_OPTIONS = -w -c=.output
-ifneq (, $(shell which $(LATEXINDENT)))
+CLEAN := rm
+CLEAN_OPTIONS = -rf
+
+ifneq (, $(shell which $(LATEXMK)))
+	# if no latex environment is detected
+	LATEXMK := $(shell which $(LATEXMK))
 	LATEXINDENT := $(shell which $(LATEXINDENT))
+	CLEAN := rm
 else
+	LATEXMK := docker run --rm -v $(PWD):/workdir -w /workdir texlive/texlive latexmk
 	LATEXINDENT := docker run --rm -v $(PWD):/workdir -w /workdir texlive/texlive latexindent
+	CLEAN := docker run --rm -v $(PWD):/workdir -w /workdir texlive/texlive rm
 endif
 
 # match for root .tex files
@@ -30,5 +33,4 @@ lint:
 	find . -name "*.tex" -exec ${LATEXINDENT} ${LATEXINDENT_OPTIONS} {} \;
 
 clean:
-	rm -rf .output
-	rm -rf *.pdf
+	$(CLEAN) $(CLEAN_OPTIONS) .output
