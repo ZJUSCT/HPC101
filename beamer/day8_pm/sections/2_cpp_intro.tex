@@ -1,34 +1,390 @@
 \section{C++ Quick Start}
 
-\subsection{C++ vs C: Key Differences}
+\subsection{Object-Oriented Programming}
 
-% 本页展示 C++ 的所有运算符
-\begin{frame}[fragile]{C++ Operators and Keywords (From \textcolor{blue}{\href{https://en.cppreference.com/w/cpp/language/}{cppreference.com}})}
+% 简单对比过程式编程和面向对象编程
+\begin{frame}[fragile]{Procedural vs Object-Oriented Programming}
     \begin{columns}
-        \begin{column}{0.6\textwidth}
-    \begin{figure}
-        \includegraphics[width=\textwidth]{day8_pm/img/1-operators}
-    \end{figure}
+        \begin{column}{0.5\textwidth}
+            \textbf{C: Procedural Programming}
+            \begin{itemize}
+                \item Focus on functions and data
+                \item Functions operate on data structures
+                \item No built-in support for encapsulation or inheritance
+            \end{itemize}
         \end{column}
-        \begin{column}{0.4\textwidth}
-            \begin{figure}
-                \includegraphics[width=0.9\textwidth]{day8_pm/img/1-keywords}
-            \end{figure}
+        \begin{column}{0.5\textwidth}
+            \textbf{C++: Object-Oriented Programming}
+            \begin{itemize}
+                \item Combines data and functions into classes
+                \item Supports encapsulation, inheritance, and polymorphism
+                \item Provides a more modular and reusable code structure
+            \end{itemize}
+        \end{column}
+    \end{columns}
+
+    A class defines a type \textbf{along with a collection of operations that are related to that type}.
+\end{frame}
+
+\begin{frame}[fragile]{Procedural vs Object-Oriented Programming}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{C Struct (Data \textcolor{orange}{and} Functions)}
+			\begin{minted}{c}
+struct Student {
+    char name[50];
+    int age;
+    float gpa;
+};
+void print_student(struct Student s) {
+    printf("Name: %s\n", s.name);
+    printf("Age: %d\n", s.age);
+    printf("GPA: %.2f\n", s.gpa);
+}
+int main() {
+    struct Student alice = {"Alice", 20, 3.8};
+    print_student(alice);
+    return 0;
+}
+			\end{minted}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\textbf{C++ Class (Data \textcolor{orange}{with} Functions)}
+			\begin{minted}{cpp}
+class Student {
+private:
+    string name;
+    int age;
+    float gpa;
+public:
+    Student(string n, int a, float g)
+        : name(n), age(a), gpa(g) {}
+    void print() {
+        cout << "Name: " << name << endl;
+        cout << "Age: " << age << endl;
+        cout << "GPA: " << gpa << endl;
+    }
+};
+int main() {
+    Student alice("Alice", 20, 3.8);
+    alice.print();  // Object calls its own method
+    return 0;
+}
+			\end{minted}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Abstract Data Types}
+    The fundamental ideas behind classes are \textbf{data abstraction} and \textbf{encapsulation}.
+
+    \begin{itemize}
+        \item \textbf{Data Abstraction}: Separation of \textcolor{blue}{interface} and \textcolor{orange}{implementation}
+        \item \textbf{Encapsulation}: Enforces this separation by hiding implementation details
+        \item Together, they define an \textbf{Abstract Data Type (ADT)}
+    \end{itemize}
+
+    \vspace{0.3em}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{Interface (What users see)}
+            \begin{itemize}
+                \item Public operations users can execute
+                \item Contract of what the class does
+                \item Think abstractly about behavior
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \textbf{Implementation (Hidden details)}
+            \begin{itemize}
+                \item Data members
+                \item Function bodies
+                \item Internal helper functions
+            \end{itemize}
         \end{column}
     \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{gear} C++ Operators and Keywords}
-    We'll meet some new friends in this class:
+\begin{frame}[fragile]{Abstract Data Type: An Example}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+        \textbf{Interface (Public)}
+            \begin{itemize}
+                \item \texttt{Book(title, author, pages, count)} - Constructor
+                \item \texttt{isAvailable()} - Check availability
+                \item \texttt{addCopies(num)} - Add copies
+            \end{itemize}
+            \vspace{0.3em}
+            \textbf{Users care about:} \\
+            \textit{What} operations are available, not \textit{how} they work
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{minted}{cpp}
+class Book {
+private:  // Implementation (Hidden)
+    string title;
+    string author;
+    int pages;
+    int count;
+public:   // Interface (Visible)
+    Book(string t, string a, int p, int c);
+    bool isAvailable() const;
+    void addCopies(int num);
+};
+            \end{minted}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Abstract Data Types: Key Benefits}
+
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{For Class Designers:}
+            \begin{itemize}
+                \item Focus on \textbf{how} the class is implemented
+                \item Can change implementation without breaking user code
+                \item Control access to internal data
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \textbf{For Class Users:}
+            \begin{itemize}
+                \item Don't need to know \textbf{how} the type works
+                \item Think abstractly about \textbf{what} the type does
+                \item Use the interface without worrying about details
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Class: Definition}
+    \begin{minted}[fontsize=\scriptsize]{cpp}
+class ClassName {
+public:  // Public interface
+    ClassName();  // Constructor
+    ~ClassName(); // Destructor
+    void publicMethod();  // Public method
+private: // Private implementation details
+    int privateData;  // Private data member
+    void privateMethod();  // Private method
+protected: // Protected members (accessible by derived classes)
+    int protectedData;  // Protected data member
+};
+    \end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]{Class: \texttt{this} pointer}
+    \textbf{The \texttt{this} pointer:} A special pointer that refers to the current object
+
     \begin{itemize}
-        \item \textbf{I/O}:  \texttt{>>}, \texttt{<<}
-        \item \textbf{Memory}: \texttt{new}, \texttt{delete}, \texttt{new[]}, \texttt{delete[]}
-        \item \textbf{Type System}: \texttt{auto}, \texttt{decltype}, \texttt{using}, \texttt{operator}
-        \item \textbf{Class}: \texttt{::}, \texttt{public}, \texttt{private}, \texttt{protected}, \texttt{friend}, \texttt{virtual}, \texttt{override}, \texttt{final}
+        \item Used inside class methods to access members of the current object
+        \item Helps distinguish between member variables and parameters with the same name
+    \end{itemize}
+
+    \textbf{Example:}
+    \begin{minted}{cpp}
+class Point {
+private:
+    int x, y;
+public:
+    Point(int x, int y) {
+        this->x = x;  // Use this to refer to member variable
+        this->y = y;  // Use this to refer to member variable
+    }
+};
+    \end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]{Encapsulation}
+	\textbf{Encapsulation enforces the separation of interface and implementation}
+	\begin{itemize}
+		\item \textbf{Hide Implementation}: Users cannot access internal details
+		\item \textbf{Control Access}: Define exactly how others can use your class
+		\item \textbf{Maintainability}: Change implementation without breaking user code
+		\item \textbf{Data Protection}: Prevent accidental or malicious modification
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Encapsulation: Access specifiers}
+	\begin{minted}[fontsize=\scriptsize]{cpp}
+class BankAccount {
+private:    // Only this class can access
+    double balance;
+public:     // Anyone can access
+    void deposit(double amount) {
+        if (amount > 0) balance += amount;  // Safe deposit
+    }
+    double getBalance() const { return balance; }  // Read-only access
+protected:  // This class and its children can access
+    void setBalance(double newBalance) { balance = newBalance; }
+};
+    \end{minted}
+    \begin{itemize}
+        \item \texttt{struct}: Members are \textbf{public} by default - less encapsulation
+        \item \texttt{class}: Members are \textbf{private} by default - enforces encapsulation
     \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{gear} C Standard I/O vs I/O Streams}
+\begin{frame}[fragile]{Inheritance: Building on Existing Code}
+	\textbf{Like a Family Tree:} Children inherit traits from parents
+
+	\begin{columns}
+		\begin{column}{0.3\textwidth}
+			\textbf{Base Class (Parent)}
+			\begin{minted}{cpp}
+class Animal {
+protected:
+    string name;
+public:
+    Animal(string n) : name(n) {}
+    void eat() { cout << name << " is eating\n"; }
+    virtual void makeSound() { cout << name << " makes a sound\n"; }
+};
+    \end{minted}
+		\end{column}
+		\begin{column}{0.7\textwidth}
+			\textbf{Derived Class (Child)}
+			\begin{minted}{cpp}
+class Dog : public Animal {
+public:
+    Dog(string n) : Animal(n) {}  // Call parent constructor
+    void makeSound() override {        // Override parent method
+        cout << name << " barks: Woof!\n";
+    }
+    void wagTail() { cout << name << " wags tail\n"; }  // New method
+};
+
+int main() {
+    Dog buddy("Buddy");
+    buddy.eat();        // Inherited from Animal
+    buddy.makeSound();  // Dog's own version
+    buddy.wagTail();    // Dog-specific behavior
+    return 0;
+}
+    \end{minted}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Polymorphism: One Interface, Many Forms}
+	\textbf{Like a Universal Remote:} Same buttons, different devices
+
+	\begin{columns}
+		\begin{column}{0.6\textwidth}
+			\begin{minted}{cpp}
+class Shape {
+public:
+    virtual double area() = 0;  // Pure virtual function
+    virtual ~Shape() = default;
+};
+class Circle : public Shape {
+    double radius;
+public:
+    Circle(double r) : radius(r) {}
+    double area() override { return 3.14159 * radius * radius; }
+};
+class Rectangle : public Shape {
+    double width, height;
+public:
+    Rectangle(double w, double h) : width(w), height(h) {}
+    double area() override { return width * height; }
+};
+    \end{minted}
+		\end{column}
+		\begin{column}{0.4\textwidth}
+
+			\begin{minted}{cpp}
+vector<unique_ptr<Shape>> shapes;
+shapes.push_back(make_unique<Circle>(5.0));
+shapes.push_back(
+    make_unique<Rectangle>(4.0, 6.0));
+for (auto& shape : shapes) {
+    cout << "Area: " << shape->area()
+         << endl;
+    // Calls correct method
+}
+    \end{minted}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\subsection{The Basics}
+% 介绍 C++ 的引用和指针
+\begin{frame}[fragile]{References}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{C Pointers}
+			\begin{minted}{c}
+void swap_c(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+int main() {
+    int x = 5, y = 10;
+    swap_c(&x, &y);  // Pass addresses
+    printf("x=%d, y=%d\n", x, y);
+    return 0;
+}
+			\end{minted}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\textbf{C++ References}
+			\begin{minted}{cpp}
+void swap_cpp(int& a, int& b) {
+    int temp = a;
+    a = b;
+    b = temp;
+}
+int main() {
+    int x = 5, y = 10;
+    swap_cpp(x, y);  // Direct pass
+    cout << "x=" << x << ", y=" << y << endl;
+    return 0;
+}
+			\end{minted}
+		\end{column}
+	\end{columns}
+
+	\vspace{0.5em}
+	\begin{itemize}
+		\item References are \textbf{aliases} for existing objects: \texttt{int a; int\& b = a;}
+		\item References must be initialized and cannot be reassigned
+	\end{itemize}
+\end{frame}
+
+
+% 本页展示 C++ 的所有运算符
+\begin{frame}[fragile]{C++ Operators and Keywords (From \textcolor{blue}{\href{https://en.cppreference.com/w/cpp/language/}{cppreference.com}})}
+	\begin{columns}
+		\begin{column}{0.6\textwidth}
+			\begin{figure}
+				\includegraphics[width=\textwidth]{day8_pm/img/1-operators}
+			\end{figure}
+		\end{column}
+		\begin{column}{0.4\textwidth}
+			\begin{figure}
+				\includegraphics[width=0.9\textwidth]{day8_pm/img/1-keywords}
+			\end{figure}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{C++ Operators and Keywords}
+	We'll meet some new friends in this class:
+	\begin{itemize}
+		\item \textbf{I/O}:  \texttt{>>}, \texttt{<<}
+		\item \textbf{Memory}: \texttt{new}, \texttt{delete}, \texttt{new[]}, \texttt{delete[]}
+		\item \textbf{Type System}: \texttt{auto}, \texttt{decltype}, \texttt{using}, \texttt{operator}
+		\item \textbf{Class}: \texttt{::}, \texttt{public}, \texttt{private}, \texttt{protected}, \texttt{friend}, \texttt{virtual}, \texttt{override}, \texttt{final}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{I/O Streams: Compared to C Standard I/O}
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\textbf{C Style}
@@ -81,39 +437,58 @@ int main() {
 \end{frame}
 
 % 上页给出代码对比，本页给出讲解
-\begin{frame}[fragile]{\emoji{gear} C Standard I/O vs I/O Streams}
+\begin{frame}[fragile]{I/O Streams}
+    \begin{table}[]
+        % table of streams: i, o, io; file, string, c
+        \begin{tabular}{cccc}
+            \hline
+            \textbf{Type} & \textbf{Input} & \textbf{Output} & \textbf{Both} \\ \hline
+            standard & \texttt{cin} & \texttt{cout}, \texttt{cerr}, \texttt{clog} &  \\ \hline
+            File         & \texttt{ifstream} & \texttt{ofstream} & \texttt{fstream} \\ \hline
+            String       & \texttt{istringstream} & \texttt{ostringstream} & \texttt{stringstream} \\ \hline
+        \end{tabular}
+    \end{table}
+
+	\textbf{Benefits of C++ Streams:}
+	\begin{itemize}
+		\item Type safety and flexibility
+		\item Easier to read and maintain code
+		\item Automatic resource cleanup when objects go out of scope
+	\end{itemize}
+\end{frame}
+
+% 给出一个 sstream 的例子，以展示相比 C 的优势
+\begin{frame}[fragile]{I/O Streams: Example}
+    \textbf{String Streams:} Like a string that can be read/written like a file
+    \begin{minted}{cpp}
+#include <sstream>
+#include <iostream>
+
+void example_string_stream() {
+    std::stringstream ss;
+    ss << "The answer is " << 42;
+    std::string result = ss.str();
+    std::cout << result << std::endl;
+}
+    \end{minted}
+
+    \textbf{Benefits:}
     \begin{itemize}
-        \item \textbf{C Standard I/O}:
-            \begin{itemize}
-                \item Uses functions like \texttt{printf}, \texttt{fopen}, and \texttt{fclose}
-                \item Requires manual resource management
-            \end{itemize}
-        \item \textbf{C++ I/O Streams}:
-            \begin{itemize}
-                \item Uses \textbf{classes} like \texttt{std::ifstream}, and \texttt{std::ofstream}
-                \item Automatically manages resources
-                \item \textbf{Stream Operators}: \texttt{<<} and \texttt{>>}
-            \end{itemize}
-    \end{itemize}
-    \vspace{0.5em}
-    \textbf{Benefits of C++ Streams:}
-    \begin{itemize}
-        \item Type safety and flexibility
-        \item Easier to read and maintain code
-        \item Automatic resource cleanup when objects go out of scope
+        \item Concise syntax for formatting strings
+        \item No need for manual memory management
+        \item Can be used with any type that supports stream operators
     \end{itemize}
 \end{frame}
 
 % 介绍命名空间，标准库的所有名字都在命名空间 std 中
-\begin{frame}[fragile]{\emoji{gear} Namespaces}
-    \textbf{Namespaces}:
-    \begin{itemize}
-        \item C++ uses namespaces to avoid \textbf{name collisions}
-        \item \textbf{Standard library} functions and classes are in the \texttt{std} namespace
-        \item Use \texttt{using namespace std;} to avoid prefixing with \texttt{std::} (should be avoided in header files and large projects)
-    \end{itemize}
-    \textbf{Example:}
-    \begin{minted}[fontsize=\scriptsize]{cpp}
+\begin{frame}[fragile]{Namespaces}
+	\begin{itemize}
+		\item C++ uses namespaces to avoid \textbf{name collisions}
+		\item \textbf{Standard library} functions and classes are in the \texttt{std} namespace
+		\item Use \texttt{using namespace std;} to avoid prefixing with \texttt{std::} (should be avoided in header files and large projects)
+	\end{itemize}
+	\textbf{Example:}
+	\begin{minted}[fontsize=\scriptsize]{cpp}
 #include <iostream>
 using namespace std;
 cout << "Hello, World!" << endl;
@@ -121,281 +496,66 @@ cout << "Hello, World!" << endl;
 \end{frame}
 
 % 介绍运算符语法
-\begin{frame}[fragile]{\emoji{gear} C++ Operators}
-    \textbf{Operators in C++}:
-    \begin{itemize}
-        \item Operators are \textbf{special functions} with concise syntax
-        \item Can be \textbf{overloaded} to provide custom behavior for user-defined types
-        \item Operators for \textbf{primitive types} like \texttt{int}, \texttt{float}, etc. cannot be overloaded
-    \end{itemize}
+\begin{frame}[fragile]{Class: Operator overloading}
+	\begin{itemize}
+        \item C++ lets us define what the operators mean \textbf{when applied to objects of class type}.
+		\item They are \textbf{special functions} with concise syntax
+		\item Can be \textbf{overloaded} to provide custom behavior for user-defined types
+        \item In a user-defined operator overload, \textbf{any type} can be used as return type (including \texttt{void})
+		\item Operators for \textbf{primitive types} like \texttt{int}, \texttt{float}, etc. cannot be overloaded
+	\end{itemize}
 
-    \textbf{Overloading Syntax:}
-    \begin{minted}[fontsize=\scriptsize]{cpp}
+	\textbf{Syntax:}
+	\begin{minted}[fontsize=\scriptsize]{cpp}
 <return_type> operator<operator_symbol>(<parameters>) { /* Implementation */ }
 // An illustration of overloading the + operator
 int operator+(int a, int b) { return a + b; }
     \end{minted}
 \end{frame}
 
-% 介绍 I/O 操作符
-\begin{frame}[fragile]{\emoji{gear} I/O Operators}
-    \textbf{Signature of I/O Operators}:
-    \begin{minted}[fontsize=\scriptsize]{cpp}
+% 以 I/O 操作符为例，介绍运算符重载：巧妙地通过重载，利用了移位运算符的语法
+\begin{frame}[fragile]{Class: Operator overloading}
+    \textbf{Why Overload I/O Operators?}
+    \begin{itemize}
+        \item Makes it easy to print custom objects
+        \item Uses existing syntax (\texttt{<<} and \texttt{>>}) for a natural feel
+    \end{itemize}
+
+    \textbf{Prototype}
+    % A prototype demonstrating how stream class overloads the I/O operators
+    \begin{minted}{cpp}
 template< class Traits >
 basic_ostream<char, Traits>&
     operator<<( basic_ostream<char, Traits>& os, const char* s );
 basic_istream& operator>>( int& value );
     \end{minted}
     \textbf{Example Usage}:
-    \begin{minted}[fontsize=\scriptsize]{cpp}
+	\begin{minted}{cpp}
 cout << "Hello, World!" << endl;
 cin >> user_input;
     \end{minted}
 \end{frame}
 
-% 介绍 C++ 的引用和指针
-\begin{frame}[fragile]{\emoji{link} References vs Pointers}
-	\begin{columns}
-		\begin{column}{0.5\textwidth}
-			\textbf{C Pointers}
-			\begin{minted}{c}
-void swap_c(int* a, int* b) {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-int main() {
-    int x = 5, y = 10;
-    swap_c(&x, &y);  // Pass addresses
-    printf("x=%d, y=%d\n", x, y);
-    return 0;
-}
-			\end{minted}
-		\end{column}
-		\begin{column}{0.5\textwidth}
-			\textbf{C++ References}
-			\begin{minted}{cpp}
-void swap_cpp(int& a, int& b) {
-    int temp = a;
-    a = b;
-    b = temp;
-}
-int main() {
-    int x = 5, y = 10;
-    swap_cpp(x, y);  // Direct pass
-    cout << "x=" << x << ", y=" << y << endl;
-    return 0;
-}
-			\end{minted}
-		\end{column}
-	\end{columns}
+\subsection{Containers and Algorithms}
+\begin{frame}[fragile]{STL: Your Programming Toolbox}
+	\textbf{Standard Template Library (STL):}
+	\begin{itemize}
+		\item \textbf{Containers}: Ready-made data structures (like toolboxes)
+		\item \textbf{Algorithms}: Common operations (like tools)
+		\item \textbf{Iterators}: Ways to access container elements (like handles)
+	\end{itemize}
 
 	\vspace{0.5em}
+	\textbf{Why use STL instead of arrays?}
 	\begin{itemize}
-        \item References are \textbf{aliases} for existing objects: \texttt{int a; int\& b = a;}
-		\item References must be initialized and cannot be reassigned
+		\item \textbf{Safety}: Automatic bounds checking and memory management
+		\item \textbf{Convenience}: Built-in functions for common operations
+		\item \textbf{Performance}: Optimized implementations
+		\item \textbf{Compatibility}: Works seamlessly with C++ features
 	\end{itemize}
 \end{frame}
 
-\subsection{Object-Oriented Programming}
-\begin{frame}[fragile]{\emoji{gear} What is Object-Oriented Programming?}
-    \textbf{Think of it like building with LEGO blocks:}
-    \begin{itemize}
-        \item In C: You have \textbf{functions} (tools) and \textbf{variables} (materials)
-        \item In C++: You can create \textbf{custom LEGO blocks} (classes) that contain both data and functions
-    \end{itemize}
-
-    \vspace{0.5em}
-    \textbf{C++ OOP Features:}
-    \begin{itemize}
-        \item \textbf{Classes and Objects}: Define custom data types with behavior
-        \item \textbf{Encapsulation}: Keep data safe inside the "block"
-        \item \textbf{Inheritance}: Create new blocks based on existing ones
-        \item \textbf{Polymorphism}: Use different blocks with the same interface
-    \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{\emoji{building-construction} Classes vs Structs: From C to C++}
-	\begin{columns}
-		\begin{column}{0.5\textwidth}
-			\textbf{C Struct (Data Only)}
-			\begin{minted}{c}
-struct Student {
-    char name[50];
-    int age;
-    float gpa;
-};
-void print_student(struct Student s) {
-    printf("Name: %s\n", s.name);
-    printf("Age: %d\n", s.age);
-    printf("GPA: %.2f\n", s.gpa);
-}
-int main() {
-    struct Student alice = {"Alice", 20, 3.8};
-    print_student(alice);
-    return 0;
-}
-			\end{minted}
-		\end{column}
-		\begin{column}{0.5\textwidth}
-			\textbf{C++ Class (Data + Functions)}
-			\begin{minted}{cpp}
-class Student {
-private:
-    string name;
-    int age;
-    float gpa;
-public:
-    Student(string n, int a, float g)
-        : name(n), age(a), gpa(g) {}
-    void print() {
-        cout << "Name: " << name << endl;
-        cout << "Age: " << age << endl;
-        cout << "GPA: " << gpa << endl;
-    }
-};
-int main() {
-    Student alice("Alice", 20, 3.8);
-    alice.print();  // Object calls its own method
-    return 0;
-}
-			\end{minted}
-		\end{column}
-	\end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{\emoji{lock} Encapsulation: Protecting Your Data}
-    \textbf{Why Encapsulation?}
-    \begin{itemize}
-        \item \textbf{Data Protection}: Prevent accidental modification
-        \item \textbf{Interface Control}: Define how others can use your class
-        \item \textbf{Easy Maintenance}: Change implementation without breaking user code
-    \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{\emoji{lock} Encapsulation: Protecting Your Data}
-    \textbf{Access Levels:}
-    \begin{minted}[fontsize=\scriptsize]{cpp}
-class BankAccount {
-private:    // Only this class can access
-    double balance;
-
-public:     // Anyone can access
-    void deposit(double amount) {
-        if (amount > 0) balance += amount;  // Safe deposit
-    }
-
-    double getBalance() const { return balance; }  // Read-only access
-
-protected:  // This class and its children can access
-    void setBalance(double newBalance) { balance = newBalance; }
-};
-    \end{minted}
-\end{frame}
-
-\begin{frame}[fragile]{\emoji{family} Inheritance: Building on Existing Code}
-    \textbf{Like a Family Tree:} Children inherit traits from parents
-
-    \begin{columns}
-        \begin{column}{0.3\textwidth}
-            \textbf{Base Class (Parent)}
-    \begin{minted}{cpp}
-class Animal {
-protected:
-    string name;
-public:
-    Animal(string n) : name(n) {}
-    void eat() { cout << name << " is eating\n"; }
-    virtual void makeSound() { cout << name << " makes a sound\n"; }
-};
-    \end{minted}
-        \end{column}
-        \begin{column}{0.7\textwidth}
-            \textbf{Derived Class (Child)}
-    \begin{minted}{cpp}
-class Dog : public Animal {
-public:
-    Dog(string n) : Animal(n) {}  // Call parent constructor
-    void makeSound() override {        // Override parent method
-        cout << name << " barks: Woof!\n";
-    }
-    void wagTail() { cout << name << " wags tail\n"; }  // New method
-};
-
-int main() {
-    Dog buddy("Buddy");
-    buddy.eat();        // Inherited from Animal
-    buddy.makeSound();  // Dog's own version
-    buddy.wagTail();    // Dog-specific behavior
-    return 0;
-}
-    \end{minted}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{\emoji{shuffle-tracks-button} Polymorphism: One Interface, Many Forms}
-    \textbf{Like a Universal Remote:} Same buttons, different devices
-
-    \begin{columns}
-        \begin{column}{0.6\textwidth}
-    \begin{minted}{cpp}
-class Shape {
-public:
-    virtual double area() = 0;  // Pure virtual function
-    virtual ~Shape() = default;
-};
-class Circle : public Shape {
-    double radius;
-public:
-    Circle(double r) : radius(r) {}
-    double area() override { return 3.14159 * radius * radius; }
-};
-class Rectangle : public Shape {
-    double width, height;
-public:
-    Rectangle(double w, double h) : width(w), height(h) {}
-    double area() override { return width * height; }
-};
-    \end{minted}
-        \end{column}
-        \begin{column}{0.4\textwidth}
-
-    \begin{minted}{cpp}
-vector<unique_ptr<Shape>> shapes;
-shapes.push_back(make_unique<Circle>(5.0));
-shapes.push_back(
-    make_unique<Rectangle>(4.0, 6.0));
-for (auto& shape : shapes) {
-    cout << "Area: " << shape->area()
-         << endl;
-    // Calls correct method
-}
-    \end{minted}
-    \end{column}
-    \end{columns}
-\end{frame}
-
-\subsection{Containers and Algorithms}
-\begin{frame}[fragile]{\emoji{toolbox} STL: Your Programming Toolbox}
-    \textbf{Standard Template Library (STL):}
-    \begin{itemize}
-        \item \textbf{Containers}: Ready-made data structures (like toolboxes)
-        \item \textbf{Algorithms}: Common operations (like tools)
-        \item \textbf{Iterators}: Ways to access container elements (like handles)
-    \end{itemize}
-
-    \vspace{0.5em}
-    \textbf{Why use STL instead of arrays?}
-    \begin{itemize}
-        \item \textbf{Safety}: Automatic bounds checking and memory management
-        \item \textbf{Convenience}: Built-in functions for common operations
-        \item \textbf{Performance}: Optimized implementations
-        \item \textbf{Compatibility}: Works seamlessly with C++ features
-    \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{\emoji{package} Common Containers: Your Data Storage Options}
+\begin{frame}[fragile]{Common Containers: Your Data Storage Options}
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\textbf{Vector: Dynamic Array}
@@ -434,23 +594,23 @@ if (scores.find("David") != scores.end()) {
 	\end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{gear} Algorithms: Ready-Made Solutions}
-    \textbf{Common algorithms you'll use:}
-    \begin{table}[]
-        \begin{tabular}{|l|l|}
-        \hline
-        \textbf{Category}       & \textbf{Algorithms}                                                                 \\ \hline
-        \textbf{Sorting}        & \texttt{sort}, \texttt{stable\_sort}, \texttt{partial\_sort}, \texttt{nth\_element} \\ \hline
-        \textbf{Searching}      & \texttt{find}, \texttt{binary\_search}, \texttt{lower\_bound}, \texttt{upper\_bound} \\ \hline
-        \textbf{Modifying}      & \texttt{copy}, \texttt{swap}, \texttt{replace}, \texttt{fill}, \texttt{transform}   \\ \hline
-        \textbf{Set Operations} & \texttt{set\_union}, \texttt{set\_intersection}, \texttt{set\_difference}           \\ \hline
-        \textbf{Numeric}        & \texttt{accumulate}, \texttt{inner\_product}, \texttt{adjacent\_difference}         \\ \hline
-        \end{tabular}
-    \end{table}
+\begin{frame}[fragile]{Algorithms: Ready-Made Solutions}
+	\textbf{Common algorithms you'll use:}
+	\begin{table}[]
+		\begin{tabular}{|l|l|}
+			\hline
+			\textbf{Category}       & \textbf{Algorithms}                                                                  \\ \hline
+			\textbf{Sorting}        & \texttt{sort}, \texttt{stable\_sort}, \texttt{partial\_sort}, \texttt{nth\_element}  \\ \hline
+			\textbf{Searching}      & \texttt{find}, \texttt{binary\_search}, \texttt{lower\_bound}, \texttt{upper\_bound} \\ \hline
+			\textbf{Modifying}      & \texttt{copy}, \texttt{swap}, \texttt{replace}, \texttt{fill}, \texttt{transform}    \\ \hline
+			\textbf{Set Operations} & \texttt{set\_union}, \texttt{set\_intersection}, \texttt{set\_difference}            \\ \hline
+			\textbf{Numeric}        & \texttt{accumulate}, \texttt{inner\_product}, \texttt{adjacent\_difference}          \\ \hline
+		\end{tabular}
+	\end{table}
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{gear} Algorithms: Ready-Made Solutions}
-    \begin{minted}[fontsize=\scriptsize]{cpp}
+\begin{frame}[fragile]{Algorithms: Ready-Made Solutions}
+	\begin{minted}[fontsize=\scriptsize]{cpp}
 vector<int> numbers = {64, 34, 25, 12, 22, 11, 90};
 // Sort the vector
 sort(numbers.begin(), numbers.end());
@@ -470,20 +630,20 @@ cout << "Numbers > 30: " << count << endl;
     \end{minted}
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{person-tipping-hand} More on STL Algorithms}
-    \begin{figure}
-        \includegraphics[width=\textwidth]{day8_pm/img/2-algorithms}
-    \end{figure}
+\begin{frame}[fragile]{More on STL Algorithms}
+	\begin{figure}
+		\includegraphics[width=\textwidth]{day8_pm/img/2-algorithms}
+	\end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{person-tipping-hand} More on STL Algorithms}
-    \textcolor{blue}{\href{https://www.youtube.com/watch?v=2olsGf6JIkU&ab_channel=CppCon}{CppCon 2018: 105 STL Algorithms in Less Than an Hour}}
-    \begin{figure}
-        \includegraphics[width=0.7\textwidth]{day8_pm/img/2-cppcon2018}
-    \end{figure}
+\begin{frame}[fragile]{More on STL Algorithms}
+	\textcolor{blue}{\href{https://www.youtube.com/watch?v=2olsGf6JIkU&ab_channel=CppCon}{CppCon 2018: 105 STL Algorithms in Less Than an Hour}}
+	\begin{figure}
+		\includegraphics[width=0.7\textwidth]{day8_pm/img/2-cppcon2018}
+	\end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{vs} Containers vs C Arrays: The Upgrade}
+\begin{frame}[fragile]{Containers vs C Arrays: The Upgrade}
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\textbf{C Arrays (Manual Everything)}
@@ -515,7 +675,20 @@ for (int num : arr) {
 \end{frame}
 
 \subsection{Essential Features for Concurrency}
-\begin{frame}[fragile]{\emoji{rocket} Lambda Expressions: The Core of Thread Functions}
+\begin{frame}[fragile]{Callable Objects}
+    \textbf{Function Call Operator}
+    \begin{minted}{cpp}
+function (arg1, arg2, arg3,...)
+    \end{minted}
+
+    \textbf{Callable Object}
+    \begin{itemize}
+        \item An object that can be called like a function
+        \item Functions and pointers to functions, \textbf{lambdas}, objects created by bind, and \textbf{classes that overload the function-call operator}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Lambda Expressions: The Core of Thread Functions}
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\textbf{C Function Pointers}
@@ -564,7 +737,7 @@ int main() {
 
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{brain} Lambda Expressions: The Core of Thread Functions}
+\begin{frame}[fragile]{Lambda Expressions: The Core of Thread Functions}
 	\textbf{Lambda Capture Modes:}
 	\begin{itemize}
 		\item \texttt{[]} - Capture nothing
@@ -574,7 +747,7 @@ int main() {
 	\end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{brain} Smart Pointers vs Manual Memory Management}
+\begin{frame}[fragile]{Smart Pointers vs Manual Memory Management}
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\textbf{C malloc/free}
@@ -625,26 +798,7 @@ cout << "Data: " << ptr->getData() << endl;
 	\end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{brain} Auto Type Deduction: Let the Compiler Figure It Out}
-	\begin{columns}
-		\begin{column}{0.5\textwidth}
-			\textbf{Without Auto (Verbose)}
-			\begin{minted}{cpp}
-int x = 42;
-double y = 3.14;
-const char* str = "Hello";
-
-vector<int> vec{1,2,3};
-vector<int>::iterator it = vec.begin();
-
-// Very long type names
-map<string, int> scores;
-map<string, int>::iterator map_it
-    = scores.find("Alice");
-			\end{minted}
-		\end{column}
-		\begin{column}{0.5\textwidth}
-			\textbf{With Auto (Clean)}
+\begin{frame}[fragile]{Auto Type Deduction: Let the Compiler Figure It Out}
 			\begin{minted}{cpp}
 auto x = 42;              // int
 auto y = 3.14;            // double
@@ -653,20 +807,36 @@ vector<int> vec{1,2,3};
 auto it = vec.begin();    // vector<int>::iterator
 // Complex types made simple
 map<string, int> scores;
-auto map_it = scores.find("Alice");
+auto map_it = scores.find("Alice"); // map<string, int>::iterator
 // Range-based for loop
-for(auto& pair : scores) {
+for(auto& pair : scores) { // std::pair<const string, int>
     cout << pair.first << ": " << pair.second << endl;
 }
 			\end{minted}
-		\end{column}
-	\end{columns}
-
-	\vspace{0.5em}
-	\textbf{Benefits:}
 	\begin{itemize}
 		\item \textbf{Less typing}: Compiler deduces the type
 		\item \textbf{Maintainable}: Change type in one place
 		\item \textbf{Generic}: Works with complex template types
 	\end{itemize}
+\end{frame}
+
+% 按时间引入 C++ 对并行编程的支持
+% C++11：Threads, Mutual exclusion, Atomic operations, Condition variables, Futures
+% C++20：Cooperative cancellation, Semaphores, Latches and Barriers
+\begin{frame}[fragile]{Concurrency support library}
+    \begin{itemize}
+        \item \textbf{C++11} (We will learn):
+              \begin{itemize}
+                  \item \texttt{<thread>}: Create and manage threads
+                  \item \texttt{<mutex>}: Mutual exclusion for shared data
+                  \item \texttt{<atomic>}: Atomic operations for thread safety
+                  \item \texttt{<condition\_variable>}: Synchronization between threads
+                  \item \texttt{<future>}: Asynchronous results
+              \end{itemize}
+        \item \textbf{C++20}:
+              \begin{itemize}
+                  \item \texttt{<stop\_token>}: Cooperative cancellation
+                  \item \texttt{<semaphore>}, \texttt{<latch>}, and \texttt{<barrier>}: Advanced synchronization
+              \end{itemize}
+    \end{itemize}
 \end{frame}
