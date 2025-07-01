@@ -5,7 +5,7 @@
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\textbf{C Style}
-			\begin{minted}[fontsize=\scriptsize]{c}
+			\begin{minted}{c}
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -25,7 +25,7 @@ int main() {
 		\end{column}
 		\begin{column}{0.5\textwidth}
 			\textbf{C++ Style}
-			\begin{minted}[fontsize=\scriptsize]{cpp}
+			\begin{minted}{cpp}
 #include <iostream>
 #include <fstream>
 
@@ -55,7 +55,7 @@ int main() {
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\textbf{C Pointers}
-			\begin{minted}[fontsize=\scriptsize]{c}
+			\begin{minted}{c}
 void swap_c(int* a, int* b) {
     int temp = *a;
     *a = *b;
@@ -72,7 +72,7 @@ int main() {
 		\end{column}
 		\begin{column}{0.5\textwidth}
 			\textbf{C++ References}
-			\begin{minted}[fontsize=\scriptsize]{cpp}
+			\begin{minted}{cpp}
 void swap_cpp(int& a, int& b) {
     int temp = a;
     a = b;
@@ -103,7 +103,7 @@ int main() {
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\textbf{C Function Pointers}
-			\begin{minted}[fontsize=\scriptsize]{c}
+			\begin{minted}{c}
 #include <pthread.h>
 
 void* thread_func(void* arg) {
@@ -124,7 +124,7 @@ int main() {
 		\end{column}
 		\begin{column}{0.5\textwidth}
 			\textbf{C++ Lambda}
-			\begin{minted}[fontsize=\scriptsize]{cpp}
+			\begin{minted}{cpp}
 #include <thread>
 #include <iostream>
 
@@ -160,7 +160,7 @@ int main() {
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\textbf{Auto Type Deduction}
-			\begin{minted}[fontsize=\scriptsize]{cpp}
+			\begin{minted}{cpp}
 #include <vector>
 #include <map>
 
@@ -184,7 +184,7 @@ int main() {
 		\end{column}
 		\begin{column}{0.5\textwidth}
 			\textbf{Smart Pointers}
-			\begin{minted}[fontsize=\scriptsize]{cpp}
+			\begin{minted}{cpp}
 #include <memory>
 
 class Resource {

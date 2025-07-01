@@ -3,11 +3,7 @@
 \subsection{The Need for Condition Variables}
 \begin{frame}[fragile]{\emoji{sleeping} Why Not Just Use Busy-Waiting?}
 	\textbf{Naive Approach: Polling}
-	\begin{minted}[fontsize=\scriptsize]{cpp}
-#include <queue>
-#include <mutex>
-#include <thread>
-
+	\begin{minted}{cpp}
 std::queue<int> buffer;
 std::mutex buffer_mutex;
 bool done = false;
@@ -25,16 +21,8 @@ void consumer_busy_wait() {
 }
 	\end{minted}
 
-	\vspace{0.5em}
-	\textbf{Problems with Busy-Waiting}:
-	\begin{itemize}
-		\item \emoji{fire} \textbf{CPU Waste}: Constant checking consumes cycles
-		\item \emoji{battery} \textbf{Power Drain}: High energy consumption
-		\item \emoji{lock} \textbf{Lock Contention}: Frequent mutex acquisition
-		\item \emoji{chart-decreasing} \textbf{Poor Scalability}: Performance degrades with more threads
-	\end{itemize}
+	\textbf{Problems}: CPU Waste • Power Drain • Lock Contention • Poor Scalability
 
-	\vspace{0.5em}
 	\emoji{bulb} \textbf{Solution}: Condition Variables - Sleep until notified!
 \end{frame}
 
@@ -49,22 +37,15 @@ void consumer_busy_wait() {
 
 	\vspace{0.5em}
 	\textbf{Basic Pattern}:
-	\begin{minted}[fontsize=\scriptsize]{cpp}
-#include <condition_variable>
-#include <mutex>
-
+	\begin{minted}{cpp}
 std::mutex mtx;
 std::condition_variable cv;
 bool ready = false;
 
 void waiter() {
     std::unique_lock<std::mutex> lock(mtx);
-
-    // Wait until ready becomes true
-    cv.wait(lock, []{ return ready; });
-
-    // Proceed when condition is met
-    std::cout << "Condition met, proceeding..." << std::endl;
+    cv.wait(lock, []{ return ready; });  // Sleep until ready
+    std::cout << "Condition met!" << std::endl;
 }
 
 void notifier() {
@@ -76,12 +57,7 @@ void notifier() {
 }
 	\end{minted}
 
-	\emoji{warning} \textbf{Key Points}:
-	\begin{itemize}
-		\item Always use \texttt{unique\_lock} with condition variables
-		\item Always check condition in a loop or use predicate form
-		\item Modify shared state before notifying
-	\end{itemize}
+	\textbf{Key Points}: Use \texttt{unique\_lock} • Always use predicate • Modify before notify
 \end{frame}
 
 \begin{frame}[fragile]{\emoji{gear} How Condition Variables Work}
@@ -109,7 +85,7 @@ void notifier() {
 
 	\vspace{0.5em}
 	\textbf{Why Use Predicates?}
-	\begin{minted}[fontsize=\scriptsize]{cpp}
+	\begin{minted}{cpp}
 // Vulnerable to spurious wakeups
 cv.wait(lock);
 if (condition) { /* work */ }
@@ -124,12 +100,10 @@ while (!condition) {
 \end{frame}
 
 \subsection{Thread-Safe Queue Implementation}
-\begin{frame}[fragile]{\emoji{package} Thread-Safe Queue Design}
-	\begin{minted}[fontsize=\scriptsize]{cpp}
-#include <queue>
-#include <mutex>
-#include <condition_variable>
+\begin{frame}[fragile]{\emoji{package} Thread-Safe Queue: Structure}
+	\textbf{Class Definition}:
 
+	\begin{minted}[fontsize=\tiny]{cpp}
 template<typename T>
 class ThreadSafeQueue {
 private:
@@ -138,143 +112,93 @@ private:
     std::condition_variable condition_;
 
 public:
-    void push(const T& item) {
-        {
-            std::lock_guard<std::mutex> lock(mutex_);
-            queue_.push(item);
-        }
-        condition_.notify_one();  // Notify waiting consumers
-    }
-
-    T pop() {
-        std::unique_lock<std::mutex> lock(mutex_);
-
-        // Wait until queue is not empty
-        condition_.wait(lock, [this] { return !queue_.empty(); });
-
-        T item = queue_.front();
-        queue_.pop();
-        return item;
-    }
-
-    bool empty() const {
-        std::lock_guard<std::mutex> lock(mutex_);
-        return queue_.empty();
-    }
-
-    size_t size() const {
-        std::lock_guard<std::mutex> lock(mutex_);
-        return queue_.size();
-    }
+    void push(const T& item);
+    T pop();  // Blocks until item available
+    bool empty() const;
+    size_t size() const;
 };
 	\end{minted}
 \end{frame}
 
-\subsection{Producer-Consumer Implementation}
-\begin{frame}[fragile]{\emoji{factory} Complete Producer-Consumer Example}
-\begin{minted}[fontsize=\scriptsize]{cpp}
-#include <iostream>
-#include <thread>
-#include <chrono>
-#include <random>
+\begin{frame}[fragile]{\emoji{package} Thread-Safe Queue: Implementation}
+	\textbf{Core Methods}:
 
-ThreadSafeQueue<int> shared_queue;
-bool production_done = false;
-std::mutex done_mutex;
-
-void producer(int id, int num_items) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(1, 100);
-
-    for (int i = 0; i < num_items; ++i) {
-        int item = dis(gen);
-        shared_queue.push(item);
-
-        std::cout << "Producer " << id << " produced: " << item << std::endl;
-
-        // Simulate production time
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	\begin{minted}[fontsize=\tiny]{cpp}
+void push(const T& item) {
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        queue_.push(item);
     }
-
-    std::cout << "Producer " << id << " finished" << std::endl;
+    condition_.notify_one();  // Wake up waiting consumers
 }
 
-void consumer(int id) {
-    while (true) {
-        // Check if production is done and queue is empty
-        {
-            std::lock_guard<std::mutex> lock(done_mutex);
-            if (production_done && shared_queue.empty()) {
-                break;
-            }
-        }
+T pop() {
+    std::unique_lock<std::mutex> lock(mutex_);
+    condition_.wait(lock, [this] { return !queue_.empty(); });
 
-        try {
-            int item = shared_queue.pop();
-            std::cout << "Consumer " << id << " consumed: " << item << std::endl;
-
-            // Simulate consumption time
-            std::this_thread::sleep_for(std::chrono::milliseconds(150));
-        } catch (...) {
-            // Handle empty queue case if needed
-        }
-    }
-
-    std::cout << "Consumer " << id << " finished" << std::endl;
+    T item = queue_.front();
+    queue_.pop();
+    return item;
 }
 	\end{minted}
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{rocket} Running the Producer-Consumer System}
-	\begin{minted}[fontsize=\scriptsize]{cpp}
+\subsection{Producer-Consumer Implementation}
+\begin{frame}[fragile]{\emoji{factory} Producer-Consumer: Simplified Example}
+	\begin{minted}[fontsize=\tiny]{cpp}
+ThreadSafeQueue<int> shared_queue;
+bool done = false;
+
+void producer(int id, int num_items) {
+    for (int i = 0; i < num_items; ++i) {
+        int item = rand() % 100;
+        shared_queue.push(item);
+        std::cout << "Producer " << id << " produced: " << item << std::endl;
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+
+void consumer(int id) {
+    while (!done) {
+        int item = shared_queue.pop();  // Blocks until available
+        std::cout << "Consumer " << id << " consumed: " << item << std::endl;
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));
+    }
+}
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{\emoji{rocket} Running the System}
+	\begin{minted}[fontsize=\tiny]{cpp}
 int main() {
-    const int NUM_PRODUCERS = 2;
-    const int NUM_CONSUMERS = 3;
-    const int ITEMS_PER_PRODUCER = 5;
+    std::vector<std::thread> threads;
 
-    std::vector<std::thread> producers;
-    std::vector<std::thread> consumers;
-
-    // Start consumers first
-    for (int i = 0; i < NUM_CONSUMERS; ++i) {
-        consumers.emplace_back(consumer, i);
+    // Start 3 consumers
+    for (int i = 0; i < 3; ++i) {
+        threads.emplace_back(consumer, i);
     }
 
-    // Start producers
-    for (int i = 0; i < NUM_PRODUCERS; ++i) {
-        producers.emplace_back(producer, i, ITEMS_PER_PRODUCER);
+    // Start 2 producers
+    for (int i = 0; i < 2; ++i) {
+        threads.emplace_back(producer, i, 5);  // 5 items each
     }
 
-    // Wait for all producers to finish
-    for (auto& p : producers) {
-        p.join();
-    }
+    // Wait for producers to finish (simplified)
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    done = true;  // Signal consumers to stop
 
-    // Signal that production is done
-    {
-        std::lock_guard<std::mutex> lock(done_mutex);
-        production_done = true;
+    // Wait for all threads
+    for (auto& t : threads) {
+        t.join();
     }
-
-    // Wait for all consumers to finish
-    for (auto& c : consumers) {
-        c.join();
-    }
-
-    std::cout << "All threads completed successfully!" << std::endl;
 
     return 0;
 }
 	\end{minted}
 
-	\textbf{Expected Behavior}:
-	\begin{itemize}
-		\item Producers generate items at different rates
-		\item Consumers process items as they become available
-		\item No race conditions or data corruption
-		\item Graceful shutdown when production completes
-	\end{itemize}
+	\textbf{Benefits}: Efficient waiting • No busy loops • Thread-safe communication
 \end{frame}
 
 \begin{frame}[fragile]{\emoji{chart-increasing} Performance Comparison}

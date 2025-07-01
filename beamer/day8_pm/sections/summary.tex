@@ -85,7 +85,7 @@
 	\begin{columns}
 		\begin{column}{0.3\textwidth}
 			\textbf{OpenMP Version}
-			\begin{minted}[fontsize=\tiny]{cpp}
+			\begin{minted}{cpp}
 #include <omp.h>
 #include <random>
 
@@ -114,7 +114,7 @@ double monte_carlo_openmp(long samples) {
 		\end{column}
 		\begin{column}{0.35\textwidth}
 			\textbf{C++ Thread Version}
-			\begin{minted}[fontsize=\tiny]{cpp}
+			\begin{minted}{cpp}
 #include <thread>
 #include <vector>
 #include <atomic>
@@ -158,7 +158,7 @@ double monte_carlo_cpp(long samples) {
 		\end{column}
 		\begin{column}{0.35\textwidth}
 			\textbf{MPI Version}
-			\begin{minted}[fontsize=\tiny]{cpp}
+			\begin{minted}{cpp}
 #include <mpi.h>
 
 double monte_carlo_mpi(long samples) {
@@ -240,7 +240,7 @@ double monte_carlo_mpi(long samples) {
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\textbf{Asynchronous Programming}
-			\begin{minted}[fontsize=\small]{cpp}
+			\begin{minted}{cpp}
 #include <future>
 
 auto future = std::async(std::launch::async,
@@ -253,7 +253,7 @@ auto result = future.get();  // Wait for result
 			\end{minted}
 
 			\textbf{Atomic Operations}
-			\begin{minted}[fontsize=\small]{cpp}
+			\begin{minted}{cpp}
 #include <atomic>
 
 std::atomic<int> counter{0};
@@ -265,7 +265,7 @@ void increment() {
 		\end{column}
 		\begin{column}{0.5\textwidth}
 			\textbf{Thread Pools}
-			\begin{minted}[fontsize=\small]{cpp}
+			\begin{minted}{cpp}
 class ThreadPool {
     std::vector<std::thread> workers;
     std::queue<std::function<void()>> tasks;

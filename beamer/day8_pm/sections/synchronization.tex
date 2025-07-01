@@ -1,14 +1,10 @@
 \section{Shared Data Synchronization}
 
 \subsection{Race Conditions}
-\begin{frame}[fragile]{\emoji{racing-car} Race Condition Demonstration}
+\begin{frame}[fragile]{\emoji{racing-car} Race Condition Demonstration (1/2)}
 	\textbf{The Problem}: Multiple threads accessing shared data simultaneously
 
 	\begin{minted}[fontsize=\scriptsize]{cpp}
-#include <thread>
-#include <vector>
-#include <iostream>
-
 int counter = 0;  // Shared global variable
 
 void increment_unsafe(int iterations) {
@@ -16,32 +12,29 @@ void increment_unsafe(int iterations) {
         counter++;  // NOT thread-safe!
     }
 }
+	\end{minted}
+\end{frame}
 
-int main() {
-    const int NUM_THREADS = 4;
-    const int ITERATIONS = 100000;
+\begin{frame}[fragile]{\emoji{racing-car} Race Condition Demonstration (2/2)}
+	\textbf{Threading Code}:
 
-    std::vector<std::thread> threads;
-
-    // Create threads that increment counter
-    for(int i = 0; i < NUM_THREADS; i++) {
-        threads.emplace_back(increment_unsafe, ITERATIONS);
-    }
-
-    // Wait for all threads to complete
-    for(auto& t : threads) {
-        t.join();
-    }
-
-    std::cout << "Expected: " << NUM_THREADS * ITERATIONS << std::endl;
-    std::cout << "Actual:   " << counter << std::endl;
-    std::cout << "Lost:     " << (NUM_THREADS * ITERATIONS - counter) << std::endl;
-
-    return 0;
+	\begin{minted}[fontsize=\scriptsize]{cpp}
+// Create 4 threads, each incrementing 100000 times
+std::vector<std::thread> threads;
+for(int i = 0; i < 4; i++) {
+    threads.emplace_back(increment_unsafe, 100000);
 }
+
+// Wait for completion
+for(auto& t : threads) {
+    t.join();
+}
+
+std::cout << "Expected: 400000" << std::endl;
+std::cout << "Actual:   " << counter << std::endl;
 	\end{minted}
 
-	\textbf{Expected output}: 400000 \quad \textbf{Typical actual output}: 387234 (varies!)
+	\textbf{Expected}: 400000 \quad \textbf{Typical actual}: 387234 (varies!)
 \end{frame}
 
 \begin{frame}[fragile]{\emoji{microscope} Why Race Conditions Happen}
@@ -50,13 +43,13 @@ int main() {
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\textbf{C++ Code}
-			\begin{minted}[fontsize=\scriptsize]{cpp}
+			\begin{minted}{cpp}
 counter++;
 			\end{minted}
 
 			\vspace{1em}
 			\textbf{Assembly (x86-64)}
-			\begin{minted}[fontsize=\scriptsize]{asm}
+			\begin{minted}{asm}
 mov    eax, DWORD PTR [counter]
 add    eax, 1
 mov    DWORD PTR [counter], eax
@@ -98,65 +91,44 @@ mov    DWORD PTR [counter], eax
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\textbf{C pthread Mutex}
-			\begin{minted}[fontsize=\scriptsize]{c}
-#include <pthread.h>
-
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-int counter = 0;
-
+			\begin{minted}{c}
+pthread_mutex_t mutex =
+  PTHREAD_MUTEX_INITIALIZER;
 void* increment_safe(void* arg) {
     int iterations = *(int*)arg;
-
     for(int i = 0; i < iterations; i++) {
         pthread_mutex_lock(&mutex);
-        counter++;  // Critical section
+        counter++;
         pthread_mutex_unlock(&mutex);
     }
-
     return NULL;
 }
-
-// In main: manual cleanup
+// Manual cleanup required
 pthread_mutex_destroy(&mutex);
 			\end{minted}
 		\end{column}
 		\begin{column}{0.5\textwidth}
 			\textbf{C++ RAII Lock}
-			\begin{minted}[fontsize=\scriptsize]{cpp}
-#include <mutex>
-
+			\begin{minted}{cpp}
 std::mutex mtx;
-int counter = 0;
-
 void increment_safe(int iterations) {
     for(int i = 0; i < iterations; i++) {
-        std::lock_guard<std::mutex> lock(mtx);
-        counter++;  // Critical section
-        // Automatic unlock when lock goes out of scope
+        std::lock_guard<std::mutex>
+          lock(mtx);
+        counter++;
+        // Auto unlock at scope end
     }
-}
-
-// Automatic cleanup - no explicit destroy needed
+}// Automatic cleanup!
 			\end{minted}
 		\end{column}
 	\end{columns}
 
 	\vspace{0.5em}
-	\textbf{RAII Benefits}:
-	\begin{itemize}
-		\item \textbf{Exception Safety}: Lock released even if exception thrown
-		\item \textbf{No Manual Management}: Automatic acquire/release
-		\item \textbf{Scope-based}: Clear lifetime semantics
-	\end{itemize}
+	\textbf{RAII Benefits}: Exception Safety • No Manual Management • Scope-based
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{hammer-and-wrench} Fixed Counter Example}
+\begin{frame}[fragile]{\emoji{hammer-and-wrench} Fixed Counter Example (1/2)}
 	\begin{minted}[fontsize=\scriptsize]{cpp}
-#include <thread>
-#include <vector>
-#include <mutex>
-#include <iostream>
-
 std::mutex counter_mutex;
 int counter = 0;
 
@@ -166,32 +138,27 @@ void increment_safe(int iterations) {
         counter++;  // Now thread-safe!
     }
 }
-
-int main() {
-    const int NUM_THREADS = 4;
-    const int ITERATIONS = 100000;
-
-    std::vector<std::thread> threads;
-
-    // Create threads
-    for(int i = 0; i < NUM_THREADS; i++) {
-        threads.emplace_back(increment_safe, ITERATIONS);
-    }
-
-    // Wait for completion
-    for(auto& t : threads) {
-        t.join();
-    }
-
-    std::cout << "Expected: " << NUM_THREADS * ITERATIONS << std::endl;
-    std::cout << "Actual:   " << counter << std::endl;
-    std::cout << "Success:  " << (counter == NUM_THREADS * ITERATIONS ? "Y" : "N") << std::endl;
-
-    return 0;
-}
 	\end{minted}
+\end{frame}
 
-	\textbf{Output}: Expected: 400000, Actual: 400000, Success: Y
+\begin{frame}[fragile]{\emoji{hammer-and-wrench} Fixed Counter Example (2/2)}
+	\textbf{Usage}:
+
+	\begin{minted}[fontsize=\scriptsize]{cpp}
+// Same threading code as before
+std::vector<std::thread> threads;
+for(int i = 0; i < 4; i++) {
+    threads.emplace_back(increment_safe, 100000);
+}
+
+for(auto& t : threads) {
+    t.join();
+}
+
+std::cout << "Expected: 400000" << std::endl;
+std::cout << "Actual:   " << counter << std::endl;
+// Result: Success: Y (always!)
+	\end{minted}
 \end{frame}
 
 \subsection{Deadlock Prevention}
@@ -206,20 +173,18 @@ int main() {
 
 	\vspace{1em}
 	\textbf{Classic Deadlock Example}:
-	\begin{minted}[fontsize=\scriptsize]{cpp}
+	\begin{minted}{cpp}
 std::mutex mutex1, mutex2;
-
 void thread1() {
-    std::lock_guard<std::mutex> lock1(mutex1);  // Lock mutex1
+    std::lock_guard<std::mutex> lock1(mutex1);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    std::lock_guard<std::mutex> lock2(mutex2);  // Wait for mutex2 (held by thread2)
+    std::lock_guard<std::mutex> lock2(mutex2);  // Waits forever
     // Do work...
 }
-
 void thread2() {
-    std::lock_guard<std::mutex> lock2(mutex2);  // Lock mutex2
+    std::lock_guard<std::mutex> lock2(mutex2);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    std::lock_guard<std::mutex> lock1(mutex1);  // Wait for mutex1 (held by thread1)
+    std::lock_guard<std::mutex> lock1(mutex1);  // Waits forever
     // Do work...
 }
 	\end{minted}
@@ -227,49 +192,47 @@ void thread2() {
 	\emoji{warning} \textbf{Result}: Both threads wait forever!
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{shield} Deadlock Prevention Strategies}
-	\textbf{Strategy 1: Ordered Locking}
+\begin{frame}[fragile]{\emoji{shield} Deadlock Prevention: Strategy 1}
+	\textbf{Ordered Locking}
+
 	\begin{minted}[fontsize=\scriptsize]{cpp}
 std::mutex mutex1, mutex2;
 
 void thread1() {
-    std::lock_guard<std::mutex> lock1(mutex1);  // Always lock in same order
+    std::lock_guard<std::mutex> lock1(mutex1);  // Same order
     std::lock_guard<std::mutex> lock2(mutex2);
     // Do work...
 }
 
 void thread2() {
-    std::lock_guard<std::mutex> lock1(mutex1);  // Same order as thread1
+    std::lock_guard<std::mutex> lock1(mutex1);  // Same order
     std::lock_guard<std::mutex> lock2(mutex2);
-    // Do work...
-}
-	\end{minted}
-
-	\textbf{Strategy 2: Atomic Multi-lock}
-	\begin{minted}[fontsize=\scriptsize]{cpp}
-void thread1() {
-    std::unique_lock<std::mutex> lock1(mutex1, std::defer_lock);
-    std::unique_lock<std::mutex> lock2(mutex2, std::defer_lock);
-
-    std::lock(lock1, lock2);  // Atomic acquisition of both locks
-    // Do work...
-}  // Automatic release of both locks
-
-void thread2() {
-    std::unique_lock<std::mutex> lock1(mutex1, std::defer_lock);
-    std::unique_lock<std::mutex> lock2(mutex2, std::defer_lock);
-
-    std::lock(lock1, lock2);  // Same atomic acquisition
     // Do work...
 }
 	\end{minted}
 \end{frame}
 
-\begin{frame}[fragile]{\emoji{bank} Practical Example: Bank Transfer}
-	\begin{minted}[fontsize=\scriptsize]{cpp}
-#include <mutex>
-#include <iostream>
+\begin{frame}[fragile]{\emoji{shield} Deadlock Prevention: Strategy 2}
+	\textbf{Atomic Multi-lock}
 
+	\begin{minted}[fontsize=\scriptsize]{cpp}
+void thread1() {
+    std::unique_lock<std::mutex> lock1(mutex1, std::defer_lock);
+    std::unique_lock<std::mutex> lock2(mutex2, std::defer_lock);
+
+    std::lock(lock1, lock2);  // Atomic acquisition
+    // Do work...
+}  // Automatic release
+
+void thread2() {
+    // ... same pattern ...
+    std::lock(lock1, lock2);  // Same atomic acquisition
+}
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{\emoji{bank} Bank Transfer: Class Definition}
+	\begin{minted}[fontsize=\tiny]{cpp}
 class BankAccount {
 private:
     double balance;
@@ -284,36 +247,30 @@ public:
     }
 
     // Safe transfer using ordered locking
-    static void transfer(BankAccount& from, BankAccount& to, double amount) {
-        // Ensure consistent lock ordering by address
-        if (&from < &to) {
-            std::lock_guard<std::mutex> lock1(from.mtx);
-            std::lock_guard<std::mutex> lock2(to.mtx);
-            from.balance -= amount;
-            to.balance += amount;
-        } else {
-            std::lock_guard<std::mutex> lock1(to.mtx);
-            std::lock_guard<std::mutex> lock2(from.mtx);
-            from.balance -= amount;
-            to.balance += amount;
-        }
-    }
+    static void transfer(BankAccount& from, BankAccount& to,
+                        double amount);
 };
+	\end{minted}
+\end{frame}
 
-int main() {
-    BankAccount alice(1000);
-    BankAccount bob(500);
-
-    std::thread t1([&]() { BankAccount::transfer(alice, bob, 100); });
-    std::thread t2([&]() { BankAccount::transfer(bob, alice, 50); });
-
-    t1.join();
-    t2.join();
-
-    std::cout << "Alice: $" << alice.get_balance() << std::endl;
-    std::cout << "Bob: $" << bob.get_balance() << std::endl;
-
-    return 0;
+\begin{frame}[fragile]{\emoji{bank} Bank Transfer: Implementation}
+	\begin{minted}[fontsize=\tiny]{cpp}
+void BankAccount::transfer(BankAccount& from, BankAccount& to,
+                          double amount) {
+    // Prevent deadlock with consistent lock ordering
+    if (&from < &to) {
+        std::lock_guard<std::mutex> lock1(from.mtx);
+        std::lock_guard<std::mutex> lock2(to.mtx);
+        from.balance -= amount;
+        to.balance += amount;
+    } else {
+        std::lock_guard<std::mutex> lock1(to.mtx);
+        std::lock_guard<std::mutex> lock2(from.mtx);
+        from.balance -= amount;
+        to.balance += amount;
+    }
 }
+
+// Usage: BankAccount::transfer(alice, bob, 100);
 	\end{minted}
 \end{frame}
