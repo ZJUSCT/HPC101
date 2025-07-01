@@ -4,7 +4,7 @@
 \begin{frame}[fragile]{\emoji{racing-car} Race Condition Demonstration (1/2)}
 	\textbf{The Problem}: Multiple threads accessing shared data simultaneously
 
-	\begin{minted}[fontsize=\scriptsize]{cpp}
+	\begin{minted}{cpp}
 int counter = 0;  // Shared global variable
 
 void increment_unsafe(int iterations) {
@@ -18,7 +18,7 @@ void increment_unsafe(int iterations) {
 \begin{frame}[fragile]{\emoji{racing-car} Race Condition Demonstration (2/2)}
 	\textbf{Threading Code}:
 
-	\begin{minted}[fontsize=\scriptsize]{cpp}
+	\begin{minted}{cpp}
 // Create 4 threads, each incrementing 100000 times
 std::vector<std::thread> threads;
 for(int i = 0; i < 4; i++) {
@@ -128,7 +128,7 @@ void increment_safe(int iterations) {
 \end{frame}
 
 \begin{frame}[fragile]{\emoji{hammer-and-wrench} Fixed Counter Example (1/2)}
-	\begin{minted}[fontsize=\scriptsize]{cpp}
+	\begin{minted}{cpp}
 std::mutex counter_mutex;
 int counter = 0;
 
@@ -144,7 +144,7 @@ void increment_safe(int iterations) {
 \begin{frame}[fragile]{\emoji{hammer-and-wrench} Fixed Counter Example (2/2)}
 	\textbf{Usage}:
 
-	\begin{minted}[fontsize=\scriptsize]{cpp}
+	\begin{minted}{cpp}
 // Same threading code as before
 std::vector<std::thread> threads;
 for(int i = 0; i < 4; i++) {
@@ -195,7 +195,7 @@ void thread2() {
 \begin{frame}[fragile]{\emoji{shield} Deadlock Prevention: Strategy 1}
 	\textbf{Ordered Locking}
 
-	\begin{minted}[fontsize=\scriptsize]{cpp}
+	\begin{minted}{cpp}
 std::mutex mutex1, mutex2;
 
 void thread1() {
@@ -215,7 +215,7 @@ void thread2() {
 \begin{frame}[fragile]{\emoji{shield} Deadlock Prevention: Strategy 2}
 	\textbf{Atomic Multi-lock}
 
-	\begin{minted}[fontsize=\scriptsize]{cpp}
+	\begin{minted}{cpp}
 void thread1() {
     std::unique_lock<std::mutex> lock1(mutex1, std::defer_lock);
     std::unique_lock<std::mutex> lock2(mutex2, std::defer_lock);
@@ -232,7 +232,7 @@ void thread2() {
 \end{frame}
 
 \begin{frame}[fragile]{\emoji{bank} Bank Transfer: Class Definition}
-	\begin{minted}[fontsize=\tiny]{cpp}
+	\begin{minted}{cpp}
 class BankAccount {
 private:
     double balance;
@@ -254,7 +254,7 @@ public:
 \end{frame}
 
 \begin{frame}[fragile]{\emoji{bank} Bank Transfer: Implementation}
-	\begin{minted}[fontsize=\tiny]{cpp}
+	\begin{minted}{cpp}
 void BankAccount::transfer(BankAccount& from, BankAccount& to,
                           double amount) {
     // Prevent deadlock with consistent lock ordering

@@ -103,7 +103,7 @@ while (!condition) {
 \begin{frame}[fragile]{\emoji{package} Thread-Safe Queue: Structure}
 	\textbf{Class Definition}:
 
-	\begin{minted}[fontsize=\tiny]{cpp}
+	\begin{minted}{cpp}
 template<typename T>
 class ThreadSafeQueue {
 private:
@@ -123,7 +123,7 @@ public:
 \begin{frame}[fragile]{\emoji{package} Thread-Safe Queue: Implementation}
 	\textbf{Core Methods}:
 
-	\begin{minted}[fontsize=\tiny]{cpp}
+	\begin{minted}{cpp}
 void push(const T& item) {
     {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -145,7 +145,7 @@ T pop() {
 
 \subsection{Producer-Consumer Implementation}
 \begin{frame}[fragile]{\emoji{factory} Producer-Consumer: Simplified Example}
-	\begin{minted}[fontsize=\tiny]{cpp}
+	\begin{minted}{cpp}
 ThreadSafeQueue<int> shared_queue;
 bool done = false;
 
@@ -171,7 +171,7 @@ void consumer(int id) {
 \end{frame}
 
 \begin{frame}[fragile]{\emoji{rocket} Running the System}
-	\begin{minted}[fontsize=\tiny]{cpp}
+	\begin{minted}{cpp}
 int main() {
     std::vector<std::thread> threads;
 

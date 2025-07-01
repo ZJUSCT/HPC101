@@ -1,7 +1,34 @@
 \section{C++ Quick Start}
 
 \subsection{C++ vs C: Key Differences}
-\begin{frame}[fragile]{\emoji{gear} C++ vs C: Core Differences}
+
+% 本页展示 C++ 的所有运算符
+\begin{frame}[fragile]{C++ Operators and Keywords (From \textcolor{blue}{\href{https://en.cppreference.com/w/cpp/language/}{cppreference.com}})}
+    \begin{columns}
+        \begin{column}{0.6\textwidth}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{day8_pm/img/1-operators}
+    \end{figure}
+        \end{column}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+                \includegraphics[width=0.9\textwidth]{day8_pm/img/1-keywords}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{\emoji{gear} C++ Operators and Keywords}
+    We'll meet some new friends in this class:
+    \begin{itemize}
+        \item \textbf{I/O}:  \texttt{>>}, \texttt{<<}
+        \item \textbf{Memory}: \texttt{new}, \texttt{delete}, \texttt{new[]}, \texttt{delete[]}
+        \item \textbf{Type System}: \texttt{auto}, \texttt{decltype}, \texttt{using}
+        \item \textbf{Class}: \texttt{::}, \texttt{public}, \texttt{private}, \texttt{protected}, \texttt{friend}, \texttt{virtual}, \texttt{override}, \texttt{final}
+    \end{itemize}
+\end{frame}
+    
+\begin{frame}[fragile]{\emoji{gear} C Standard I/O vs I/O Streams}
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
 			\textbf{C Style}
@@ -17,6 +44,10 @@ int main() {
     FILE* fp = fopen("test.txt", "r");
     if (fp) {
         // Manual resource management
+        char line[100];
+        while (fgets(line, 100, fp) != NULL) {
+            printf("%s", line);
+        }
         fclose(fp);
     }
     return 0;
@@ -33,23 +64,68 @@ void print_msg() {
     std::cout << "Hello from C++!" << std::endl;
 }
 
-class FileHandler {
-public:
-    FileHandler(const char* fname)
-        : fp(std::fopen(fname, "r")) {}
-    ~FileHandler() { if(fp) std::fclose(fp); }
-private:
-    FILE* fp;
-};
-
 int main() {
-    FileHandler fh("test.txt");  // RAII
+    std::ifstream file("test.txt");
+    if (file.is_open()) {
+        // Automatic resource management
+        std::string line;
+        while (std::getline(file, line)) {
+            std::cout << line << std::endl;
+        }
+    }
     return 0;
 }
 			\end{minted}
 		\end{column}
 	\end{columns}
 \end{frame}
+
+% 上页给出代码对比，本页给出讲解
+\begin{frame}[fragile]{\emoji{gear} C Standard I/O vs I/O Streams}
+    \begin{itemize}
+        \item \textbf{C Standard I/O}:
+            \begin{itemize}
+                \item Uses functions like \texttt{printf}, \texttt{fopen}, and \texttt{fclose}
+                \item Requires manual resource management
+            \end{itemize}
+        \item \textbf{C++ I/O Streams}:
+            \begin{itemize}
+                \item Uses classes like \texttt{std::cout}, \texttt{std::ifstream}, and \texttt{std::ofstream}
+                \item Automatically manages resources
+                \item \textbf{Stream Operators}: \texttt{<<} and \texttt{>>}
+            \end{itemize}
+    \end{itemize}
+    \vspace{0.5em}
+    \textbf{Benefits of C++ Streams:}
+    \begin{itemize}
+        \item Type safety and flexibility
+        \item Easier to read and maintain code
+        \item Automatic resource cleanup when objects go out of scope
+    \end{itemize}
+\end{frame}
+
+% 介绍命名空间，标准库的所有名字都在命名空间 std 中；并介绍 << >> 运算符
+\begin{frame}[fragile]{\emoji{gear} C Standard I/O vs I/O Streams}
+    \begin{itemize}
+        \item \textbf{Namespaces}:
+            \begin{itemize}
+                \item C++ uses namespaces to avoid name collisions
+                \item Standard library functions and classes are in the \texttt{std} namespace
+            \end{itemize}
+        \item \textbf{Stream Operators}:
+            \begin{itemize}
+                \item \texttt{<<} is used for output (stream insertion)
+                \item \texttt{>>} is used for input (stream extraction)
+            \end{itemize}
+    \end{itemize}
+    \vspace{0.5em}
+    \textbf{Example:}
+    \begin{minted}{cpp}
+std::cout << "Hello, World!" << std::endl;
+std::cin >> user_input;
+    \end{minted}
+\end{frame}
+
 
 \begin{frame}[fragile]{\emoji{link} References vs Pointers}
 	\begin{columns}
@@ -61,7 +137,6 @@ void swap_c(int* a, int* b) {
     *a = *b;
     *b = temp;
 }
-
 int main() {
     int x = 5, y = 10;
     swap_c(&x, &y);  // Pass addresses
@@ -78,7 +153,6 @@ void swap_cpp(int& a, int& b) {
     a = b;
     b = temp;
 }
-
 int main() {
     int x = 5, y = 10;
     swap_cpp(x, y);  // Direct pass
@@ -90,10 +164,8 @@ int main() {
 	\end{columns}
 
 	\vspace{0.5em}
-	\textbf{Key Differences:}
 	\begin{itemize}
 		\item References must be initialized and cannot be reassigned
-		\item No pointer arithmetic with references
 		\item Cleaner syntax for function parameters
 	\end{itemize}
 \end{frame}
