@@ -1,8 +1,50 @@
-\section{Summary and Framework Selection}
+\section{Summary}
 
-\subsection{Core Concepts Review}
+\subsection{C++ Language Essentials Review}
+\begin{frame}[fragile]{\emoji{books} C++ Key Features Covered Today}
+	\textbf{Object-Oriented Programming Fundamentals}:
+	\begin{itemize}
+		\item \textbf{Classes \& Objects}: Encapsulation, inheritance, polymorphism
+		\item \textbf{RAII Principle}: Resource Acquisition Is Initialization
+		\item \textbf{Move Semantics}: Efficient resource transfer with \texttt{std::move}
+		\item \textbf{Smart Pointers}: \texttt{unique\_ptr}, \texttt{shared\_ptr} for memory safety
+	\end{itemize}
+
+	\vspace{0.5em}
+	\textbf{Modern C++ Features}:
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\begin{minted}{cpp}
+// Lambda expressions
+auto lambda = [](int x) { return x * 2; };
+
+// Auto type deduction
+auto result = expensive_function();
+
+// Range-based for loops
+for (const auto& item : container) {
+    process(item);
+}
+			\end{minted}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\begin{minted}{cpp}
+// References vs pointers
+int& ref = variable;  // Always valid
+int* ptr = &variable; // Can be null
+
+// Template basics
+template<typename T>
+void process(T&& value) {
+    // Perfect forwarding
+}
+			\end{minted}
+		\end{column}
+	\end{columns}
+\end{frame}
+
 \begin{frame}[fragile]{\emoji{brain} C++ Concurrency Core Concepts}
-	\textbf{The Three Pillars}:
+	\textbf{The Three Pillars of C++ Concurrency}:
 
 	\begin{tikzpicture}
 		% Pillar 1: Thread
@@ -14,7 +56,7 @@
 		% Pillar 2: Mutex
 		\node[draw, rectangle, fill=green!20, minimum height=3cm, minimum width=2.5cm] (mutex) at (4,0) {};
 		\node[font=\bfseries] at (4,1) {\texttt{std::mutex}};
-		\node[font=\small, align=center] at (4,0) {Mutual Exclusion\\RAII Locking\\Deadlock Prevention};
+		\node[font=\small, align=center] at (4,0) {Mutual Exclusion\\RAII Locking\\Race Condition Prevention};
 		\node[font=\small] at (4,-1) {lock\_guard};
 
 		% Pillar 3: Condition Variable
@@ -24,61 +66,359 @@
 		\node[font=\small] at (8,-1) {wait() / notify()};
 	\end{tikzpicture}
 
-	\vspace{2em}
-	\textbf{Best Practices Checklist}:
+	\vspace{1.5em}
+	\textbf{Advanced Features}:
 	\begin{itemize}
-		\item \emoji{check-mark} Always join() or detach() threads
-		\item \emoji{check-mark} Use RAII locks (\texttt{lock\_guard}, \texttt{unique\_lock})
-		\item \emoji{check-mark} Avoid deadlocks with ordered locking
-		\item \emoji{check-mark} Use condition variables instead of busy-waiting
-		\item \emoji{check-mark} Pass by value or \texttt{std::ref} explicitly
+		\item \textbf{C++17 Parallel Algorithms}: \texttt{std::execution::par} for automatic parallelization
+		\item \textbf{Thread-Safe Containers}: Building producer-consumer queues
+		\item \textbf{Hardware Awareness}: \texttt{thread::hardware\_concurrency()}
 	\end{itemize}
 \end{frame}
 
-\subsection{Framework Selection Guide}
-\begin{frame}[fragile]{\emoji{compass} When to Choose Which Framework}
-	\begin{tikzpicture}[node distance=1.5cm]
-		% Decision tree
-		\node[draw, diamond, fill=yellow!20] (start) {Parallel Task};
+\subsection{C++ Parallel Programming Key Points}
+\begin{frame}[fragile]{\emoji{gear} Thread Management Best Practices}
+	\textbf{Thread Lifecycle Management}:
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{Correct Thread Handling}
+			\begin{minted}{cpp}
+void safe_threading() {
+    std::thread t(worker_function);
 
-		\node[draw, diamond, below left of=start, fill=blue!10] (pattern) {Regular Pattern?};
-		\node[draw, diamond, below right of=start, fill=blue!10] (scale) {Scale Requirement?};
+    // Always ensure join or detach
+    if (t.joinable()) {
+        t.join();  // Wait for completion
+    }
 
-		\node[draw, rectangle, below of=pattern, fill=green!20] (openmp) {OpenMP};
-		\node[draw, rectangle, below left of=scale, fill=red!20] (cpp) {C++ Thread};
-		\node[draw, rectangle, below right of=scale, fill=purple!20] (mpi) {MPI};
+    // Or for fire-and-forget
+    // t.detach();
+}
+			\end{minted}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\textbf{RAII Thread Guard}
+			\begin{minted}{cpp}
+class thread_guard {
+    std::thread& t;
+public:
+    explicit thread_guard(std::thread& t_)
+        : t(t_) {}
+
+    ~thread_guard() {
+        if (t.joinable()) {
+            t.join();
+        }
+    }
+};
+			\end{minted}
+		\end{column}
+	\end{columns}
+
+	\vspace{1em}
+	\textbf{Parameter Passing Rules}:
+	\begin{itemize}
+		\item Arguments are \textbf{copied by default} into thread
+		\item Use \texttt{std::ref()} for reference passing
+		\item Use \texttt{std::move()} for efficient resource transfer
+		\item Be careful with pointer/reference lifetimes
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\emoji{lock} Synchronization Patterns}
+	\textbf{Mutex Usage Patterns}:
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{Basic Protection}
+			\begin{minted}{cpp}
+class ThreadSafeCounter {
+private:
+    int count = 0;
+    mutable std::mutex mtx;
+public:
+    void increment() {
+        std::lock_guard<std::mutex> lock(mtx);
+        ++count;
+    }
+
+    int get() const {
+        std::lock_guard<std::mutex> lock(mtx);
+        return count;
+    }
+};
+			\end{minted}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\textbf{Deadlock Prevention}
+			\begin{minted}{cpp}
+// Ordered locking
+void transfer(BankAccount& from,
+              BankAccount& to, double amount) {
+    if (&from < &to) {
+        std::lock_guard<std::mutex> lock1(from.mtx);
+        std::lock_guard<std::mutex> lock2(to.mtx);
+    } else {
+        std::lock_guard<std::mutex> lock2(to.mtx);
+        std::lock_guard<std::mutex> lock1(from.mtx);
+    }
+    from.balance -= amount;
+    to.balance += amount;
+}
+			\end{minted}
+		\end{column}
+	\end{columns}
+
+	\vspace{1em}
+	\textbf{Producer-Consumer with Condition Variables}:
+	\begin{itemize}
+		\item Replace busy-waiting with efficient event-driven synchronization
+		\item Use \texttt{unique\_lock} for flexible locking with condition variables
+		\item Always check conditions in a loop to handle spurious wakeups
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\emoji{rocket} Modern C++ Parallel Features}
+	\textbf{C++17 Parallel Algorithms}:
+	\begin{columns}
+		\begin{column}{0.6\textwidth}
+			\begin{minted}{cpp}
+#include <execution>
+#include <algorithm>
+
+std::vector<int> data(1000000);
+std::iota(data.begin(), data.end(), 1);
+
+// Sequential execution
+std::sort(data.begin(), data.end());
+
+// Parallel execution
+std::sort(std::execution::par,
+          data.begin(), data.end());
+
+// Parallel + vectorized
+std::sort(std::execution::par_unseq,
+          data.begin(), data.end());
+			\end{minted}
+		\end{column}
+		\begin{column}{0.4\textwidth}
+			\textbf{Execution Policies}:
+			\begin{itemize}
+				\item \texttt{seq}: Sequential
+				\item \texttt{par}: Parallel
+				\item \texttt{par\_unseq}: Parallel + Vectorized
+				\item \texttt{unseq}: Vectorized (C++20)
+			\end{itemize}
+
+			\vspace{1em}
+			\textbf{Available Algorithms}:
+			\begin{itemize}
+				\item \texttt{std::for\_each}
+				\item \texttt{std::transform}
+				\item \texttt{std::reduce}
+				\item \texttt{std::sort}
+				\item Many others...
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
+\subsection{Framework Comparison: Morning vs Afternoon}
+\begin{frame}[fragile]{\emoji{compass} Parallel Programming Framework Selection}
+	\textbf{Decision Tree}:
+	\begin{tikzpicture}[node distance=2cm]
+		% Main decision point
+		\node[draw, diamond, fill=yellow!20] (start) at (0,0) {Parallel Task};
+
+		% First level decisions
+		\node[draw, diamond, below left of=start, fill=blue!10] (pattern) {Regular\\Data Pattern?};
+		\node[draw, diamond, below right of=start, fill=blue!10] (scale) {Scale\\Requirement?};
+
+		% Solutions
+		\node[draw, rectangle, below of=pattern, fill=green!20] (openmp) {\textbf{OpenMP}\\(Morning)};
+		\node[draw, rectangle, below left of=scale, fill=red!20] (cpp) {\textbf{C++ Threads}\\(Afternoon)};
+		\node[draw, rectangle, below right of=scale, fill=purple!20] (mpi) {\textbf{MPI}\\(Morning)};
 
 		% Arrows with labels
-		\draw[->] (start) -- node[above left] {Data Parallel} (pattern);
-		\draw[->] (start) -- node[above right] {Task Parallel} (scale);
+		\draw[->] (start) -- node[above left] {Loop-based} (pattern);
+		\draw[->] (start) -- node[above right] {Complex Logic} (scale);
 		\draw[->] (pattern) -- node[left] {Yes} (openmp);
 		\draw[->] (scale) -- node[above left] {Single Node} (cpp);
 		\draw[->] (scale) -- node[above right] {Multi-node} (mpi);
 	\end{tikzpicture}
+\end{frame}
 
-	\vspace{1em}
-	\textbf{Detailed Comparison}:
+\begin{frame}{\emoji{vs} Framework Comparison Matrix}
 	\begin{table}[h]
 		\centering
-		\tiny
+		\scriptsize
 		\begin{tabular}{|l|c|c|c|}
 			\hline
-			\textbf{Criteria}    & \textbf{OpenMP} & \textbf{C++ Thread} & \textbf{MPI} \\
+			\textbf{Feature}         & \textbf{OpenMP} & \textbf{C++ Threads} & \textbf{MPI} \\
 			\hline
-			Learning Curve       & Easy            & Moderate            & Hard         \\
-			Development Time     & Fast            & Medium              & Slow         \\
-			Performance Control  & Low             & High                & High         \\
-			Debugging Complexity & Low             & Medium              & High         \\
-			Memory Model         & Shared          & Shared              & Distributed  \\
-			Scalability          & 1-64 cores      & 1-32 cores          & 1000s cores  \\
+			\textbf{Learning Curve}  & \textcolor{green}{Easy}    & \textcolor{orange}{Moderate}     & \textcolor{red}{Hard} \\
+			\textbf{Development Time}& \textcolor{green}{Fast}    & \textcolor{orange}{Medium}       & \textcolor{red}{Slow} \\
+			\textbf{Control Level}   & \textcolor{red}{Low}       & \textcolor{green}{High}          & \textcolor{green}{High} \\
+			\textbf{Memory Model}    & Shared          & Shared               & Distributed \\
+			\textbf{Scalability}     & 1-64 cores      & 1-32 cores           & 1000s cores \\
+			\textbf{Debugging}       & \textcolor{green}{Easy}    & \textcolor{orange}{Medium}       & \textcolor{red}{Hard} \\
 			\hline
-			\textbf{Best For}    & Loops           & Complex Logic       & HPC Clusters \\
+			\textbf{Best Use Case}   & Data Parallel   & Producer-Consumer    & HPC Clusters \\
+			                         & Loops           & Complex Sync         & Supercomputing \\
 			\hline
 		\end{tabular}
 	\end{table}
+
+	\vspace{1em}
+	\textbf{Key Insights}:
+	\begin{itemize}
+		\item \textbf{OpenMP}: Pragma-based, excellent for parallelizing existing loops
+		\item \textbf{C++ Threads}: Fine-grained control, perfect for complex synchronization patterns
+		\item \textbf{MPI}: Message passing, designed for distributed memory systems
+	\end{itemize}
 \end{frame}
 
-\subsection{Comprehensive Example}
+\subsection{Practical Implementation Examples}
+\begin{frame}[fragile]{\emoji{hammer} Common Parallel Patterns Implementation}
+	\textbf{Producer-Consumer Pattern (C++ Threads)}:
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\begin{minted}{cpp}
+template<typename T>
+class ThreadSafeQueue {
+private:
+    std::queue<T> queue_;
+    mutable std::mutex mutex_;
+    std::condition_variable condition_;
+
+public:
+    void push(T item) {
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            queue_.push(std::move(item));
+        }
+        condition_.notify_one();
+    }
+
+    T pop() {
+        std::unique_lock<std::mutex> lock(mutex_);
+        condition_.wait(lock, [this] {
+            return !queue_.empty();
+        });
+        T result = std::move(queue_.front());
+        queue_.pop();
+        return result;
+    }
+};
+			\end{minted}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\textbf{Usage Example}:
+			\begin{minted}{cpp}
+ThreadSafeQueue<int> taskQueue;
+
+// Producer thread
+void producer() {
+    for (int i = 0; i < 100; ++i) {
+        taskQueue.push(i);
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(10));
+    }
+}
+
+// Consumer thread
+void consumer(int id) {
+    while (true) {
+        try {
+            int task = taskQueue.pop();
+            std::cout << "Consumer " << id
+                     << " processing: " << task
+                     << std::endl;
+            // Process task...
+        } catch (...) {
+            break;
+        }
+    }
+}
+			\end{minted}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{\emoji{gear} Parallel Reduction Comparison}
+	\textbf{Sum Array Elements - Three Approaches}:
+	\begin{columns}
+		\begin{column}{0.33\textwidth}
+			\textbf{OpenMP}
+			\begin{minted}{cpp}
+long parallel_sum_openmp(
+    const std::vector<int>& arr) {
+    long sum = 0;
+
+    #pragma omp parallel for \
+        reduction(+:sum)
+    for (size_t i = 0; i < arr.size(); ++i) {
+        sum += arr[i];
+    }
+
+    return sum;
+}
+			\end{minted}
+		\end{column}
+		\begin{column}{0.33\textwidth}
+			\textbf{C++ Threads}
+			\begin{minted}{cpp}
+long parallel_sum_threads(
+    const std::vector<int>& arr) {
+
+    unsigned num_threads =
+        std::thread::hardware_concurrency();
+    std::vector<std::thread> threads;
+    std::vector<long> results(num_threads);
+
+    size_t chunk_size = arr.size() / num_threads;
+
+    for (unsigned i = 0; i < num_threads; ++i) {
+        threads.emplace_back([&, i]() {
+            size_t start = i * chunk_size;
+            size_t end = (i == num_threads - 1) ?
+                arr.size() : (i + 1) * chunk_size;
+
+            results[i] = std::accumulate(
+                arr.begin() + start,
+                arr.begin() + end, 0L);
+        });
+    }
+
+    for (auto& t : threads) t.join();
+
+    return std::accumulate(
+        results.begin(), results.end(), 0L);
+}
+			\end{minted}
+		\end{column}
+		\begin{column}{0.33\textwidth}
+			\textbf{C++17 Parallel}
+			\begin{minted}{cpp}
+long parallel_sum_cpp17(
+    const std::vector<int>& arr) {
+
+    return std::reduce(
+        std::execution::par,
+        arr.begin(),
+        arr.end(),
+        0L
+    );
+}
+			\end{minted}
+
+			\vspace{2em}
+			\textbf{Complexity Comparison}:
+			\begin{itemize}
+				\item OpenMP: 6 lines
+				\item C++ Threads: 25 lines
+				\item C++17: 4 lines
+			\end{itemize}
+		\end{column}
+	\end{columns}
+\end{frame}
 \begin{frame}[fragile]{\emoji{dart} Monte Carlo π Calculation: All Frameworks}
 	\textbf{Problem}: Estimate π using random point sampling
 
@@ -295,4 +635,79 @@ public:
 		\item Implement lock-free data structures
 		\item Build thread pools and work-stealing algorithms
 	\end{enumerate}
+\end{frame}
+
+\subsection{Key Takeaways}
+\begin{frame}[fragile]{\emoji{star} Today's Essential Learning Points}
+	\textbf{C++ Concurrency Trinity}:
+	\begin{enumerate}
+		\item \textbf{\texttt{std::thread}}: Thread creation and lifecycle management
+		\item \textbf{\texttt{std::mutex}}: Race condition prevention with RAII
+		\item \textbf{\texttt{std::condition\_variable}}: Efficient event-driven synchronization
+	\end{enumerate}
+
+	\vspace{1em}
+	\textbf{Programming Paradigm Shift}:
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{From Sequential Thinking}:
+			\begin{itemize}
+				\item Single execution path
+				\item Direct variable access
+				\item Simple debugging
+				\item Predictable timing
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\textbf{To Concurrent Thinking}:
+			\begin{itemize}
+				\item Multiple execution paths
+				\item Synchronized data access
+				\item Complex interactions
+				\item Non-deterministic timing
+			\end{itemize}
+		\end{column}
+	\end{columns}
+
+	\vspace{1em}
+	\textbf{Framework Selection Summary}:
+	\begin{itemize}
+		\item \textbf{Quick prototyping}: Use OpenMP for data-parallel loops
+		\item \textbf{Fine control}: Use C++ threads for complex synchronization
+		\item \textbf{Massive scale}: Use MPI for distributed computing
+		\item \textbf{Modern C++}: Use parallel algorithms for standard operations
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\emoji{motorway} Next Steps in Your Parallel Programming Journey}
+	\textbf{Immediate Practice}:
+	\begin{itemize}
+		\item Implement the producer-consumer pattern from today's examples
+		\item Convert a sequential algorithm to use parallel STL algorithms
+		\item Experiment with the parallel execution assignment (NVIDIA HPC SDK)
+	\end{itemize}
+
+	\vspace{1em}
+	\textbf{Advanced Topics to Explore}:
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\begin{itemize}
+				\item \textbf{Memory Models}: Understanding memory ordering
+				\item \textbf{Lock-free Programming}: Using atomics effectively
+				\item \textbf{Thread Pools}: Efficient task management
+				\item \textbf{Async/Future}: Modern asynchronous patterns
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\begin{itemize}
+				\item \textbf{GPU Programming}: CUDA, OpenCL, SYCL
+				\item \textbf{Distributed Computing}: Advanced MPI patterns
+				\item \textbf{High-Level Frameworks}: Intel TBB, OpenCV parallel
+				\item \textbf{Performance Analysis}: Profiling and optimization
+			\end{itemize}
+		\end{column}
+	\end{columns}
+
+	\vspace{1em}
+	\textbf{Remember}: Start simple, measure performance, and gradually add complexity!
 \end{frame}

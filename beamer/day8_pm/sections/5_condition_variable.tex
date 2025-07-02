@@ -12,10 +12,8 @@ void consumer() {
     while (true) {
         {
             std::lock_guard<std::mutex> lock(data_mutex);
-            if (data_ready) {
-                // Process data
-                data_ready = false;
-                break;
+            if (data_ready) {  /* Process data */
+                data_ready = false; break;
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -24,11 +22,9 @@ void consumer() {
 }
 	\end{minted}
 
-	\textbf{Problems}:
 	\begin{itemize}
 		\item CPU wastage from constant polling
-		\item Unnecessary latency
-		\item Unpredictable timing
+		\item Unnecessary latency, unpredictable timing
 	\end{itemize}
 \end{frame}
 
@@ -39,9 +35,7 @@ void consumer() {
 std::mutex m;
 std::condition_variable cv;
 bool data_ready = false;
-
-void producer() {
-    // Prepare data...
+void producer() { /* Prepare data...*/
     {
         std::lock_guard<std::mutex> lock(m);
         data_ready = true;
@@ -67,9 +61,9 @@ void consumer() {
 		\item \texttt{std::condition\_variable}: Works only with \texttt{std::mutex}
 		\item \texttt{std::condition\_variable\_any}: Works with any mutex type (extra overhead)
 	\end{itemize}
+\end{frame}
 
-	\vspace{1em}
-	\textbf{Basic Usage Pattern}:
+\begin{frame}[fragile]{Condition Variable Basics}
 	\begin{minted}{cpp}
 std::mutex m;
 std::condition_variable cv;
@@ -103,8 +97,14 @@ template<class Predicate>
 void wait(std::unique_lock<std::mutex>& lock, Predicate pred);
 	\end{minted}
 
-	\vspace{0.5em}
-	\textbf{How} \texttt{wait()} \textbf{works}:
+	\textbf{Predicate version equivalent to}:
+	\begin{minted}{cpp}
+while (!pred()) wait(lock);  // Handles spurious wakeups
+	\end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]{How wait() Works Internally}
 	\begin{enumerate}
 		\item Atomically releases the mutex
 		\item Blocks current thread
@@ -112,12 +112,6 @@ void wait(std::unique_lock<std::mutex>& lock, Predicate pred);
 		\item Re-acquires mutex when awakened
 		\item Checks predicate (if provided)
 	\end{enumerate}
-
-	\vspace{0.5em}
-	\textbf{Predicate version equivalent to}:
-	\begin{minted}{cpp}
-while (!pred()) wait(lock);  // Handles spurious wakeups
-	\end{minted}
 \end{frame}
 
 \begin{frame}[fragile]{Why unique\_lock Instead of lock\_guard?}
@@ -181,8 +175,9 @@ cv.notify_one();   // Then notify
 		\item Consumers wait when queue is empty
 		\item No busy waiting or polling
 	\end{itemize}
+\end{frame}
 
-	\vspace{1em}
+\begin{frame}[fragile]{Thread-Safe Queue Design}
 	\textbf{Core Components}:
 	\begin{minted}{cpp}
 template<typename T>
@@ -207,19 +202,14 @@ public:
 	\begin{minted}{cpp}
 template<typename T>
 void ThreadSafeQueue<T>::push(const T& item) {
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        queue_.push(item);
-    }
+    {   std::lock_guard<std::mutex> lock(mutex_);
+        queue_.push(item); }
     condition_.notify_one();  // Wake up waiting consumer
 }
-
 template<typename T>
 void ThreadSafeQueue<T>::push(T&& item) {
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        queue_.push(std::move(item));
-    }
+    {   std::lock_guard<std::mutex> lock(mutex_);
+        queue_.push(std::move(item)); }
     condition_.notify_one();
 }
 	\end{minted}
@@ -250,7 +240,10 @@ T ThreadSafeQueue<T>::pop() {
     return item;
 }
 	\end{minted}
+\end{frame}
 
+
+\begin{frame}[fragile]{Implementation: Pop Operation}
 	\textbf{Alternative with timeout}:
 	\begin{minted}{cpp}
 template<typename T>
@@ -273,26 +266,22 @@ bool ThreadSafeQueue<T>::try_pop(T& item,
 
 	\begin{minted}{cpp}
 ThreadSafeQueue<int> queue;
-
 void producer(int start, int count) {
     for (int i = start; i < start + count; ++i) {
         queue.push(i);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
-
 void consumer(int id) {
     for (int i = 0; i < 5; ++i) {
         int value = queue.pop();  // Blocks until item available
         std::cout << "Consumer " << id << " got: " << value << std::endl;
     }
 }
-
 int main() {
     std::thread prod1(producer, 0, 10);
     std::thread cons1(consumer, 1);
     std::thread cons2(consumer, 2);
-
     prod1.join(); cons1.join(); cons2.join();
     return 0;
 }
@@ -309,8 +298,9 @@ int main() {
 		\item \textbf{Keep critical sections short}: Minimize lock contention
 		\item \textbf{Choose notify method wisely}: \texttt{notify\_one()} vs \texttt{notify\_all()}
 	\end{enumerate}
+\end{frame}
 
-	\vspace{1em}
+\begin{frame}{Condition Variable Best Practices}
 	\textbf{Common Patterns}:
 	\begin{itemize}
 		\item Producer-Consumer queues
