@@ -226,7 +226,7 @@ A& a_lref = a; // lvalue reference
 A&& a_rref = a; // rvalue reference
 	\end{minted}
 
-    See: \textcolor{blue}{\href{https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n2027.html}{A Brief Introduction to Rvalue References - Bjarne Stroustrup}}
+	See: \textcolor{blue}{\href{https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n2027.html}{A Brief Introduction to Rvalue References - Bjarne Stroustrup}}
 \end{frame}
 
 % 介绍移动语义
@@ -249,14 +249,14 @@ template <class T> swap(T& a, T& b) {
 
 % 介绍 move()
 \begin{frame}[fragile]{Class: \texttt{std::move}}
-    \textbf{std::move:} A utility function that casts an object to an rvalue reference
-    \begin{itemize}
-        \item Indicates that the object can be moved
-        \item Does not actually move anything, just changes the type
-    \end{itemize}
+	\textbf{std::move:} A utility function that casts an object to an rvalue reference
+	\begin{itemize}
+		\item Indicates that the object can be moved
+		\item Does not actually move anything, just changes the type
+	\end{itemize}
 
-    \textbf{Prototype:}
-    \begin{minted}{cpp}
+	\textbf{Prototype:}
+	\begin{minted}{cpp}
 template <class T>
 typename remove_reference<T>::type&&
 move(T&& a)
@@ -264,7 +264,7 @@ move(T&& a)
     return a;
 }
     \end{minted}
-    It is now up to client code to overload key functions on whether their argument is an lvalue or rvalue.
+	It is now up to client code to overload key functions on whether their argument is an lvalue or rvalue.
 \end{frame}
 
 % 介绍拷贝
@@ -343,9 +343,9 @@ p2.display();               // Displays moved point
 		\item Can be defined to perform custom cleanup actions
 	\end{itemize}
 
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-	\begin{minted}{cpp}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\begin{minted}{cpp}
 class Point {
 public:
     // Destructor
@@ -354,17 +354,17 @@ public:
     }
 };
         \end{minted}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-                    \begin{minted}{cpp}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\begin{minted}{cpp}
 int main() {
     Point p(10, 20);  // Constructor called
     p.display();      // Displays point
     return 0;        // Destructor called automatically
 }
     \end{minted}
-    \end{column}
-    \end{columns}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 
