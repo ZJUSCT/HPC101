@@ -58,6 +58,8 @@ Slurm 有三种提交任务的方式：
 - `sbatch`
 - `salloc`
 
+### 批处理任务
+
 使用 `sbatch` 提交任务时，脚本文件模板如下：
 
 ```shell title="job.sh"
@@ -123,6 +125,33 @@ srun -N 2 -p M7 -w M700,M701 --mpi=pmi2 --ntasks-per-node=1 --cpus-per-task=96 x
 job%2j-%2t.out
     job128-00.out, job128-01.out, ...
 ```
+
+### 交互式任务
+
+使用 `salloc` 可以申请节点进行交互式任务：
+
+1. **申请节点**：
+
+    ```bash
+    salloc -p V100
+    ```
+
+2. **连接到分配的节点**：
+
+    ```bash
+    ssh nodename
+    ```
+
+    你也可以使用 `-w` 参数指定申请的节点名：
+
+    ```bash
+    salloc -p V100 -w v63
+    ```
+
+!!! tip
+
+    使用 `salloc` 申请到节点后，记得在完成工作后使用 `exit` 命令或 `scancel` 释放资源。
+
 
 ## 查看任务
 
