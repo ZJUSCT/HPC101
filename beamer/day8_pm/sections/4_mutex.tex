@@ -1,0 +1,199 @@
+\section{<mutex>}
+
+\subsection{Race Conditions}
+\begin{frame}[fragile]{Race Condition Problem}
+	\textbf{The Core Issue}: Multiple threads accessing shared data
+
+	\begin{minted}{cpp}
+int counter = 0;  // Shared variable
+
+void increment_unsafe(int iterations) {
+    for(int i = 0; i < iterations; i++) {
+        counter++;  // NOT thread-safe!
+    }
+}
+	\end{minted}
+
+	\begin{minted}{cpp}
+// 4 threads, each incrementing 100000 times
+std::vector<std::thread> threads;
+for(int i = 0; i < 4; i++) {
+    threads.emplace_back(increment_unsafe, 100000);
+}
+for(auto& t : threads) { t.join(); }
+
+// Expected: 400000, Actual: varies (e.g., 387234)
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Why Race Conditions Happen}
+	\textbf{Assembly breakdown of} \texttt{counter++}:
+
+	\begin{columns}
+		\begin{column}{0.4\textwidth}
+			\begin{minted}{asm}
+mov eax, [counter]  // Read
+add eax, 1          // Modify
+mov [counter], eax  // Write
+			\end{minted}
+		\end{column}
+		\begin{column}{0.6\textwidth}
+			\textbf{Thread Interleaving Problem}:
+			\begin{itemize}
+				\item Thread 1 reads counter = 0
+				\item Thread 2 reads counter = 0
+				\item Thread 1 writes counter = 1
+				\item Thread 2 writes counter = 1
+				\item \textbf{Lost update!} Should be 2
+			\end{itemize}
+		\end{column}
+	\end{columns}
+
+	\vspace{0.5em}
+	\textbf{Critical Section}: Code accessing shared resources
+\end{frame}
+
+\subsection{Protecting Shared Data with Mutexes}
+\begin{frame}[fragile]{C++ Mutex Solution}
+	\textbf{Using} \texttt{std::mutex} \textbf{with RAII}:
+
+	\begin{minted}{cpp}
+std::mutex counter_mutex;
+int counter = 0;
+
+void increment_safe(int iterations) {
+    for(int i = 0; i < iterations; i++) {
+        std::lock_guard<std::mutex> lock(counter_mutex);
+        counter++;  // Now thread-safe!
+        // Automatic unlock when lock goes out of scope
+    }
+}
+	\end{minted}
+
+	\textbf{RAII Benefits}:
+	\begin{itemize}
+		\item Exception safety
+		\item Automatic cleanup
+		\item No manual lock/unlock
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Structured Data Protection}
+	\textbf{Class-based Protection}:
+
+	\begin{minted}{cpp}
+class ThreadSafeCounter {
+private:
+    int count = 0;
+    mutable std::mutex mtx;
+
+public:
+    void increment() {
+        std::lock_guard<std::mutex> lock(mtx);
+        ++count;
+    }
+
+    int get() const {
+        std::lock_guard<std::mutex> lock(mtx);
+        return count;
+    }
+};
+	\end{minted}
+
+	\textbf{Key Principle}: Keep data and mutex together
+\end{frame}
+
+\subsection{Deadlock Prevention}
+\begin{frame}[fragile]{The Deadlock Problem}
+	\textbf{Classic Deadlock Scenario}:
+
+	\begin{minted}{cpp}
+std::mutex mutex1, mutex2;
+
+void thread1() {
+    std::lock_guard<std::mutex> lock1(mutex1);
+    // ... some work ...
+    std::lock_guard<std::mutex> lock2(mutex2);  // Waits forever
+}
+
+void thread2() {
+    std::lock_guard<std::mutex> lock2(mutex2);
+    // ... some work ...
+    std::lock_guard<std::mutex> lock1(mutex1);  // Waits forever
+}
+	\end{minted}
+
+	\textbf{Result}: Circular wait → Deadlock!
+\end{frame}
+
+\begin{frame}[fragile]{Deadlock Solutions}
+	\textbf{Strategy 1: Ordered Locking}
+	\begin{minted}{cpp}
+// Always lock in same order
+std::lock_guard<std::mutex> lock1(mutex1);  // First
+std::lock_guard<std::mutex> lock2(mutex2);  // Second
+	\end{minted}
+
+	\textbf{Strategy 2: Atomic Multi-lock}
+	\begin{minted}{cpp}
+std::unique_lock<std::mutex> lock1(mutex1, std::defer_lock);
+std::unique_lock<std::mutex> lock2(mutex2, std::defer_lock);
+std::lock(lock1, lock2);  // Atomic acquisition
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Deadlock Solutions}
+	\textbf{Strategy 3: Address-based Ordering}
+	\begin{minted}{cpp}
+if (&mutex1 < &mutex2) {
+    std::lock_guard<std::mutex> lock1(mutex1);
+    std::lock_guard<std::mutex> lock2(mutex2);
+} else {
+    std::lock_guard<std::mutex> lock2(mutex2);
+    std::lock_guard<std::mutex> lock1(mutex1);
+}
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Practical Example: Bank Transfer}
+	\begin{minted}{cpp}
+class BankAccount {
+    double balance;
+    mutable std::mutex mtx;
+public:
+    static void transfer(BankAccount& from, BankAccount& to,
+                        double amount) {
+        // Prevent deadlock with consistent ordering
+        if (&from < &to) {
+            std::lock_guard<std::mutex> lock1(from.mtx);
+            std::lock_guard<std::mutex> lock2(to.mtx);
+        } else {
+            std::lock_guard<std::mutex> lock1(to.mtx);
+            std::lock_guard<std::mutex> lock2(from.mtx);
+        }
+        from.balance -= amount;
+        to.balance += amount;
+    }
+};
+	\end{minted}
+\end{frame}
+
+\subsection{Key Takeaways}
+\begin{frame}{Mutex Best Practices}
+	\begin{enumerate}
+		\item \textbf{Use RAII}: \texttt{std::lock\_guard} over manual lock/unlock
+		\item \textbf{Keep critical sections short}: Minimize lock duration
+		\item \textbf{Consistent lock ordering}: Prevent deadlocks
+		\item \textbf{Encapsulate}: Keep data and mutex together
+		\item \textbf{Avoid nested locks}: When possible
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}{C++ Mutex Tools}
+	\begin{itemize}
+		\item \texttt{std::mutex} - Basic mutual exclusion
+		\item \texttt{std::lock\_guard} - RAII lock wrapper
+		\item \texttt{std::unique\_lock} - Flexible locking
+		\item \texttt{std::lock()} - Multi-mutex atomic locking
+	\end{itemize}
+\end{frame}

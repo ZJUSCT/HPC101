@@ -438,55 +438,58 @@ int main() {
 \begin{frame}[fragile]{Hardware Concurrency}
 	\textbf{thread::hardware\_concurrency():} Get optimal thread count
 
-	\begin{columns}
-		\begin{column}{0.5\textwidth}
-			\textbf{Basic Usage}
-			\begin{minted}{cpp}
-int main() {
-    unsigned int num_threads =
-        thread::hardware_concurrency();
+	\begin{minted}{cpp}
+unsigned int num_threads = thread::hardware_concurrency();
 
-    if (num_threads == 0) {
-        num_threads = 2;  // Fallback
-    }
-
-    cout << "Using " << num_threads
-              << " threads" << endl;
-
-    vector<thread> threads;
-
-    for (unsigned int i = 0; i < num_threads; ++i) {
-        threads.emplace_back(worker, i);
-    }
-
-    for (auto& t : threads) {
-        t.join();
-    }
-
-    return 0;
+if (num_threads == 0) {
+    num_threads = 2;  // Fallback if not available
 }
-			\end{minted}
-		\end{column}
-		\begin{column}{0.5\textwidth}
-			\textbf{Parallel Algorithm Example}
-			\begin{minted}{cpp}
-#include <thread>
-#include <vector>
-#include <numeric>
-#include <iostream>
 
+cout << "Using " << num_threads << " threads" << endl;
+
+vector<thread> threads;
+for (unsigned int i = 0; i < num_threads; ++i) {
+    threads.emplace_back(worker, i);
+}
+
+for (auto& t : threads) {
+    t.join();
+}
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Parallel Accumulate - Helper Function}
+	\textbf{Step 1:} Define the worker function for each thread
+
+	\begin{minted}{cpp}
 template<typename Iterator, typename T>
-void accumulate_block(Iterator first,
-                     Iterator last, T& result) {
+void accumulate_block(Iterator first, Iterator last, T& result) {
     result = accumulate(first, last, result);
 }
+	\end{minted}
 
+	\textbf{Function Purpose:}
+	\begin{itemize}
+		\item Each thread processes a block of data
+		\item Computes sum of elements from \texttt{first} to \texttt{last}
+		\item Stores result in reference parameter
+		\item Uses standard library \texttt{accumulate} function
+	\end{itemize}
+
+	\vspace{1em}
+	\textbf{Next:} Calculate optimal thread configuration
+\end{frame}
+
+\begin{frame}[fragile]{Parallel Accumulate - Thread Configuration}
+	\textbf{Step 2:} Calculate optimal number of threads and work distribution
+
+	\begin{minted}{cpp}
 template<typename Iterator, typename T>
 T parallel_accumulate(Iterator first, Iterator last, T init) {
     unsigned long const length = distance(first, last);
-
     if (!length) return init;
 
+    // Configuration parameters
     unsigned long const min_per_thread = 25;
     unsigned long const max_threads =
         (length + min_per_thread - 1) / min_per_thread;
@@ -495,167 +498,66 @@ T parallel_accumulate(Iterator first, Iterator last, T init) {
         thread::hardware_concurrency();
 
     unsigned long const num_threads =
-        min(hardware_threads != 0 ?
-                 hardware_threads : 2, max_threads);
+        min(hardware_threads != 0 ? hardware_threads : 2, max_threads);
 
     unsigned long const block_size = length / num_threads;
-
-    vector<T> results(num_threads);
-    vector<thread> threads(num_threads - 1);
-
-    Iterator block_start = first;
-    for (unsigned long i = 0; i < (num_threads - 1); ++i) {
-        Iterator block_end = block_start;
-        advance(block_end, block_size);
-        threads[i] = thread(accumulate_block<Iterator, T>,
-                                block_start, block_end,
-                                ref(results[i]));
-        block_start = block_end;
-    }
-    accumulate_block(block_start, last, results[num_threads - 1]);
-
-    for (auto& entry : threads)
-        entry.join();
-
-    return accumulate(results.begin(), results.end(), init);
+    // ...
 }
-			\end{minted}
-		\end{column}
-	\end{columns}
+	\end{minted}
+
+	\textbf{Logic:} Balance between overhead and parallelism
 \end{frame}
 
-\begin{frame}[fragile]{Dynamic Thread Management}
-	\textbf{Example:} Multi-threaded Array Sum with Dynamic Thread Count
+\begin{frame}[fragile]{Parallel Accumulate - Thread Creation \& Execution}
+	\textbf{Step 3:} Create threads and distribute work
 
 	\begin{minted}{cpp}
-#include <thread>
-#include <vector>
-#include <numeric>
-#include <iostream>
-
-void partial_sum(const vector<int>& arr, size_t start, size_t end, long long& result) {
-    result = 0;
-    for(size_t i = start; i < end; i++) {
-        result += arr[i];
-    }
+// Storage for results and threads
+vector<T> results(num_threads);
+vector<thread> threads(num_threads - 1);
+// Create worker threads (all but last)
+Iterator block_start = first;
+for (unsigned long i = 0; i < (num_threads - 1); ++i) {
+    Iterator block_end = block_start;
+    advance(block_end, block_size);
+    threads[i] = thread(accumulate_block<Iterator, T>,
+                        block_start, block_end, ref(results[i]));
+    block_start = block_end;
 }
-
-int main() {
-    const size_t SIZE = 1000000;
-    vector<int> data(SIZE, 1);  // All elements = 1
-
-    // Determine optimal thread count
-    unsigned int num_threads = thread::hardware_concurrency();
-    if (num_threads == 0) num_threads = 4;  // Fallback
-
-    // Ensure we don't create more threads than needed
-    if (num_threads > SIZE) num_threads = SIZE;
-
-    cout << "Using " << num_threads << " threads for " << SIZE << " elements" << endl;
-
-    vector<thread> threads;
-    vector<long long> partial_results(num_threads, 0);
-
-    size_t chunk_size = SIZE / num_threads;
-
-    // Create worker threads
-    for(unsigned int i = 0; i < num_threads; i++) {
-        size_t start = i * chunk_size;
-        size_t end = (i == num_threads-1) ? SIZE : (i+1) * chunk_size;
-
-        threads.emplace_back(partial_sum, cref(data),
-                           start, end, ref(partial_results[i]));
-    }
-
-    // Wait for completion and sum results
-    for(auto& t : threads) {
-        t.join();
-    }
-
-    long long total = accumulate(partial_results.begin(), partial_results.end(), 0LL);
-
-    cout << "Total sum: " << total << endl;
-    return 0;
-}
+// Main thread handles the last block
+accumulate_block(block_start, last, results[num_threads - 1]);
+// Wait for all threads and combine results
+for (auto& entry : threads) entry.join();
+return accumulate(results.begin(), results.end(), init);
 	\end{minted}
 \end{frame}
 
 \subsection{Identifying Threads}
 
-\begin{frame}[fragile]{Thread IDs}
+\begin{frame}[fragile]{Thread IDs - Basic Usage}
 	\textbf{thread::id:} Unique identifier for each thread
 
-	\begin{columns}
-		\begin{column}{0.5\textwidth}
-			\textbf{Basic Thread ID Usage}
-			\begin{minted}{cpp}
-#include <thread>
-#include <iostream>
-
+	\begin{minted}{cpp}
 void worker() {
-    cout << "Thread ID: "
-              << this_thread::get_id()
-              << endl;
+    cout << "Thread ID: " << this_thread::get_id() << endl;
 }
+cout << "Main thread ID: " << this_thread::get_id() << endl;
+thread t(worker);
+cout << "Worker thread ID: " << t.get_id() << endl;
+t.join();
+cout << "After join: " << t.get_id() << endl;  // Default ID
+	\end{minted}
 
-int main() {
-    cout << "Main thread ID: "
-              << this_thread::get_id()
-              << endl;
-
-    thread t(worker);
-
-    cout << "Worker thread ID: "
-              << t.get_id() << endl;
-
-    t.join();
-
-    cout << "After join, thread ID: "
-              << t.get_id() << endl;  // Default-constructed ID
-
-    return 0;
-}
-			\end{minted}
-		\end{column}
-		\begin{column}{0.5\textwidth}
-			\textbf{Thread ID Comparison}
-			\begin{minted}{cpp}
-#include <thread>
-#include <iostream>
-#include <map>
-
-map<thread::id, string> thread_names;
-
-void name_thread(const string& name) {
-    thread_names[this_thread::get_id()] = name;
-    cout << "Thread " << name
-              << " ID: " << this_thread::get_id()
-              << endl;
-}
-
-int main() {
-    thread_names[this_thread::get_id()] = "main";
-
-    thread t1([](){ name_thread("worker1"); });
-    thread t2([](){ name_thread("worker2"); });
-
-    cout << "Main thread: "
-              << thread_names[this_thread::get_id()]
-              << endl;
-
-    t1.join();
-    t2.join();
-
-    return 0;
-}
-			\end{minted}
-		\end{column}
-	\end{columns}
+	\textbf{Key Functions:}
+	\begin{itemize}
+		\item \texttt{this\_thread::get\_id()}: Get current thread's ID
+		\item \texttt{thread\_obj.get\_id()}: Get thread object's ID
+		\item Default-constructed ID represents "no thread"
+	\end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Thread ID Properties}
-	\textbf{Key Properties of thread::id:}
-
+\begin{frame}[fragile]{Thread ID Properties \& Usage}
+	\textbf{Thread ID Characteristics:}
 	\begin{itemize}
 		\item \textbf{Unique:} Each executing thread has a unique ID
 		\item \textbf{Comparable:} Can be compared for equality and ordering
@@ -664,61 +566,61 @@ int main() {
 	\end{itemize}
 
 	\begin{minted}{cpp}
-#include <thread>
-#include <iostream>
-#include <unordered_set>
-
-int main() {
-    thread::id main_id = this_thread::get_id();
-    thread::id default_id;  // Default-constructed
-
-    cout << "Main ID == Default ID: "
-              << (main_id == default_id) << endl;  // false
-
-    cout << "Default ID == Default ID: "
-              << (default_id == thread::id{}) << endl;  // true
-
-    // Use as hash key
-    unordered_set<thread::id> thread_set;
-    thread_set.insert(main_id);
-
-    thread t([](){
-        // Thread IDs are thread-local
-        thread::id this_id = this_thread::get_id();
-        cout << "Worker thread ID: " << this_id << endl;
-    });
-
-    t.join();
-
-    return 0;
-}
+// Thread ID comparison
+thread::id main_id = this_thread::get_id();
+thread::id default_id;  // Default-constructed
+cout << "IDs equal: " << (main_id == default_id) << endl;  // false
+// Use as container key
+unordered_set<thread::id> thread_set;
+thread_set.insert(main_id);
+// Useful for debugging and thread identification
+map<thread::id, string> thread_names;
+thread_names[this_thread::get_id()] = "main_thread";
 	\end{minted}
 \end{frame}
 
 \begin{frame}[fragile]{\emoji{light-bulb} Best Practices Summary}
-	\textbf{Thread Management Checklist:}
+    \scriptsize
+	\textbf{Thread Management:}
+	\begin{itemize}
+		\item Always \texttt{join()} or \texttt{detach()} threads before destruction
+		\item Use RAII (e.g., \texttt{thread\_guard}) for exception safety
+		\item Prefer \texttt{move} semantics for thread ownership transfer
+	\end{itemize}
 
+	\textbf{Parameter Passing:}
+	\begin{itemize}
+		\item Be careful with string literals - convert to \texttt{std::string} explicitly
+		\item Use \texttt{std::ref()} for reference parameters
+		\item Move unique resources (e.g., \texttt{unique\_ptr}) when transferring ownership
+	\end{itemize}
+
+	\textbf{Performance:}
+	\begin{itemize}
+		\item Use \texttt{hardware\_concurrency()} to determine optimal thread count
+		\item Balance thread overhead vs. parallelism (minimum work per thread)
+		\item Consider thread pool patterns for repeated tasks
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\emoji{books} Key Takeaways}
+	\textbf{Core Concepts Mastered:}
 	\begin{enumerate}
-		\item \textbf{Always handle thread lifecycle:} Call \texttt{join()} or \texttt{detach()}
-		\item \textbf{Use RAII:} Wrap threads in guard classes for exception safety
-		\item \textbf{Be careful with parameter passing:}
-		      \begin{itemize}
-			      \item Force conversions before thread creation
-			      \item Use \texttt{ref()} for references
-			      \item Use \texttt{move()} for unique resources
-		      \end{itemize}
-		\item \textbf{Avoid the most vexing parse:} Use \texttt{\{\}} or lambdas
-		\item \textbf{Choose thread count wisely:} Use \texttt{hardware\_concurrency()}
-		\item \textbf{Use thread IDs for debugging:} Identify threads uniquely
+		\item \textbf{Thread Creation:} Functions, lambdas, member functions
+		\item \textbf{Synchronization:} \texttt{join()} vs \texttt{detach()} patterns
+		\item \textbf{Exception Safety:} RAII wrappers for automatic cleanup
+		\item \textbf{Move Semantics:} Efficient thread and resource transfer
+		\item \textbf{Runtime Optimization:} Hardware-aware thread configuration
 	\end{enumerate}
 
 	\vspace{1em}
-	\textbf{Key Concepts:}
+	\textbf{Next Steps:}
 	\begin{itemize}
-		\item \textbf{RAII}: Resource Acquisition Is Initialization
-		\item \textbf{Joinable}: Thread can be waited for completion
-		\item \textbf{Detached}: Thread runs independently, no control
-		\item \textbf{Move-only}: Threads cannot be copied, only moved
-		\item \textbf{Thread ID}: Unique identifier for each thread
+		\item Thread synchronization with mutexes and locks
+		\item Condition variables for thread coordination
+		\item Parallel algorithms in the standard library
 	\end{itemize}
+
+	\vspace{1em}
+	\textbf{Remember:} Modern C++ threading is about safety, efficiency, and expressiveness!
 \end{frame}

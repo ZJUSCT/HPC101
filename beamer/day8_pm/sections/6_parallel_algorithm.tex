@@ -1,0 +1,263 @@
+\section{Parallel Algorithms}
+
+\subsection{Parallelizing the Standard Library Algorithms}
+\begin{frame}[fragile]{C++17 Parallel Algorithms}
+	\textbf{Enhancement to Standard Library}: Parallel execution support
+
+	\begin{minted}{cpp}
+#include <algorithm>
+#include <execution>
+#include <vector>
+
+std::vector<int> my_data = {3, 1, 4, 1, 5, 9, 2, 6};
+
+// Serial execution (C++11/14)
+std::sort(my_data.begin(), my_data.end());
+
+// Parallel execution (C++17)
+std::sort(std::execution::par, my_data.begin(), my_data.end());
+	\end{minted}
+
+	\textbf{Key Change}: Additional first parameter for execution policy
+
+	\vspace{0.5em}
+	\textbf{Available for}: \texttt{std::sort}, \texttt{std::for\_each}, \texttt{std::transform}, \texttt{std::reduce}, and many more!
+\end{frame}
+
+\subsection{Execution Policies}
+\begin{frame}[fragile]{Execution Policy Types}
+	\textbf{Four execution policies available}:
+
+	\begin{minted}{cpp}
+#include <execution>
+
+// 1. Sequential (same as no policy)
+std::execution::sequenced_policy      // std::execution::seq
+
+// 2. Parallel
+std::execution::parallel_policy       // std::execution::par
+
+// 3. Parallel + Vectorized
+std::execution::parallel_unsequenced_policy  // std::execution::par_unseq
+
+// 4. Unsequenced (C++20)
+std::execution::unsequenced_policy    // std::execution::unseq
+	\end{minted}
+
+	\vspace{1em}
+	\textbf{Usage Examples}:
+	\begin{minted}{cpp}
+std::sort(std::execution::seq, v.begin(), v.end());
+std::sort(std::execution::par, v.begin(), v.end());
+std::sort(std::execution::par_unseq, v.begin(), v.end());
+	\end{minted}
+\end{frame}
+
+\begin{frame}{General Effects of Execution Policies}
+	\textbf{std::execution::sequenced\_policy}:
+	\begin{itemize}
+		\item Same as traditional serial execution
+		\item Single thread, sequential order
+	\end{itemize}
+
+	\vspace{0.5em}
+	\textbf{std::execution::parallel\_policy}:
+	\begin{itemize}
+		\item Multiple threads allowed
+		\item Operations may be interleaved
+		\item No vectorization guarantees
+	\end{itemize}
+
+	\vspace{0.5em}
+	\textbf{std::execution::parallel\_unsequenced\_policy}:
+	\begin{itemize}
+		\item Multiple threads + vectorization
+		\item Operations may execute in any order
+		\item Best performance potential
+		\item Requires thread-safe operations
+	\end{itemize}
+\end{frame}
+
+\subsection{The Parallel Algorithms from the C++ Standard Library}
+\begin{frame}[fragile]{Examples of Using Parallel Algorithms}
+	\textbf{Parallel Transform}:
+	\begin{minted}{cpp}
+std::vector<int> input = {1, 2, 3, 4, 5};
+std::vector<int> output(input.size());
+
+std::transform(std::execution::par,
+               input.begin(), input.end(),
+               output.begin(),
+               [](int x) { return x * x; });
+	\end{minted}
+
+	\textbf{Parallel For Each}:
+	\begin{minted}{cpp}
+std::vector<std::string> words = {"hello", "world", "parallel"};
+
+std::for_each(std::execution::par,
+              words.begin(), words.end(),
+              [](std::string& word) {
+                  std::transform(word.begin(), word.end(),
+                                word.begin(), ::toupper);
+              });
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Parallel Reduce and Accumulate}
+	\textbf{Parallel Reduction}:
+	\begin{minted}{cpp}
+std::vector<int> numbers(1000000);
+std::iota(numbers.begin(), numbers.end(), 1);
+
+// Parallel sum
+auto sum = std::reduce(std::execution::par,
+                       numbers.begin(), numbers.end(),
+                       0);
+
+// Parallel sum with custom operation
+auto product = std::reduce(std::execution::par,
+                          numbers.begin(), numbers.end(),
+                          1,
+                          std::multiplies<int>());
+	\end{minted}
+
+	\textbf{Transform Reduce}:
+	\begin{minted}{cpp}
+auto squared_sum = std::transform_reduce(
+    std::execution::par,
+    numbers.begin(), numbers.end(),
+    0,
+    std::plus<>(),
+    [](int x) { return x * x; }
+);
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Counting Visits Example}
+	\textbf{Website Analytics - Parallel Processing}:
+
+	\begin{minted}{cpp}
+struct Visit {
+    std::string page;
+    int user_id;
+    std::chrono::time_point<std::chrono::system_clock> timestamp;
+};
+
+std::vector<Visit> visits = load_visits();
+
+// Count unique pages visited in parallel
+std::sort(std::execution::par, visits.begin(), visits.end(),
+          [](const Visit& a, const Visit& b) {
+              return a.page < b.page;
+          });
+
+// Count visits per page
+std::map<std::string, int> page_counts;
+auto current = visits.begin();
+while (current != visits.end()) {
+    auto range_end = std::upper_bound(
+        std::execution::par,
+        current, visits.end(), *current,
+        [](const Visit& a, const Visit& b) {
+            return a.page < b.page;
+        });
+
+    page_counts[current->page] =
+        std::distance(current, range_end);
+    current = range_end;
+}
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Performance Considerations}
+	\textbf{When to Use Parallel Algorithms}:
+	\begin{itemize}
+		\item Large datasets (typically > 10,000 elements)
+		\item CPU-intensive operations
+		\item Independent computations
+	\end{itemize}
+
+	\textbf{Overhead Example}:
+	\begin{minted}{cpp}
+// Small dataset - sequential might be faster
+std::vector<int> small_data(100);
+std::sort(std::execution::seq, small_data.begin(), small_data.end());
+
+// Large dataset - parallel beneficial
+std::vector<int> large_data(1000000);
+std::sort(std::execution::par, large_data.begin(), large_data.end());
+	\end{minted}
+
+	\textbf{Thread Safety Requirements}:
+	\begin{itemize}
+		\item Operations must be thread-safe for \texttt{par} and \texttt{par\_unseq}
+		\item Avoid shared mutable state
+		\item Use atomic operations when necessary
+	\end{itemize}
+\end{frame}
+
+\subsection{Assignment: GPU Execution with NVIDIA}
+\begin{frame}{Homework Assignment}
+    \textbf{Research Task}:
+    \begin{enumerate}
+        \item Review NVIDIA compiler manual (nvc++)
+        \item Study how to run C++ standard algorithms on GPU
+        \item Observe CUDA calls generated by the compiler
+    \end{enumerate}
+
+    \vspace{1em}
+    \textbf{Experiment Steps}:
+    \begin{enumerate}
+        \item Install NVIDIA HPC SDK
+        \item Compile parallel algorithms with GPU support
+        \item Use \texttt{-stdpar=gpu} compile option
+        \item Analyze generated CUDA code
+    \end{enumerate}
+
+    \vspace{1em}
+    \textbf{Expected Results}:
+    \begin{itemize}
+        \item Standard C++ code runs without modification
+        \item GPU kernel functions are auto-generated
+        \item Significant performance improvement observed
+    \end{itemize}
+
+    \vspace{0.5em}
+    \textbf{Tip}: Use \texttt{nvprof} or \texttt{nsys} for performance analysis
+\end{frame}
+
+\begin{frame}[fragile]{Assignment Example Code}
+    \textbf{Test Code Template}:
+
+    \begin{minted}{cpp}
+#include <algorithm>
+#include <execution>
+#include <vector>
+#include <chrono>
+#include <iostream>
+
+int main() {
+    const size_t N = 10'000'000;
+    std::vector<int> data(N);
+    std::iota(data.begin(), data.end(), 1);
+    std::random_shuffle(data.begin(), data.end());
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    // This should run on GPU with nvc++ -stdpar=gpu
+    std::sort(std::execution::par_unseq,
+              data.begin(), data.end());
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<
+        std::chrono::milliseconds>(end - start);
+
+    std::cout << "Sorting took: " << duration.count()
+              << " ms" << std::endl;
+    return 0;
+}
+    \end{minted}
+
+    \textbf{Compile Command}: \texttt{nvc++ -stdpar=gpu -O3 test.cpp -o test}
+\end{frame}

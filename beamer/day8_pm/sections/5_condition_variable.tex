@@ -1,0 +1,324 @@
+\section{<condition\_variable>}
+
+\subsection{Waiting for an Event or Other Condition}
+\begin{frame}[fragile]{The Problem with Polling}
+	\textbf{Inefficient Waiting with} \texttt{sleep\_for}:
+
+	\begin{minted}{cpp}
+bool data_ready = false;
+std::mutex data_mutex;
+
+void consumer() {
+    while (true) {
+        {
+            std::lock_guard<std::mutex> lock(data_mutex);
+            if (data_ready) {
+                // Process data
+                data_ready = false;
+                break;
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        // Wastes CPU cycles and introduces latency!
+    }
+}
+	\end{minted}
+
+	\textbf{Problems}:
+	\begin{itemize}
+		\item CPU wastage from constant polling
+		\item Unnecessary latency
+		\item Unpredictable timing
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Event-Driven Solution}
+	\textbf{Better Approach}: Wait for notification instead of polling
+
+	\begin{minted}{cpp}
+std::mutex m;
+std::condition_variable cv;
+bool data_ready = false;
+
+void producer() {
+    // Prepare data...
+    {
+        std::lock_guard<std::mutex> lock(m);
+        data_ready = true;
+    }
+    cv.notify_one();  // Wake up waiting thread
+}
+
+void consumer() {
+    std::unique_lock<std::mutex> lock(m);
+    cv.wait(lock, []{return data_ready;});
+    // Data is ready, process it
+}
+	\end{minted}
+
+	\textbf{Benefits}: Efficient waiting, immediate response, no CPU waste
+\end{frame}
+
+\subsection{Waiting for a Condition with Condition Variables}
+\begin{frame}[fragile]{Condition Variable Types}
+	\textbf{Two Implementations Available}:
+
+	\begin{itemize}
+		\item \texttt{std::condition\_variable}: Works only with \texttt{std::mutex}
+		\item \texttt{std::condition\_variable\_any}: Works with any mutex type (extra overhead)
+	\end{itemize}
+
+	\vspace{1em}
+	\textbf{Basic Usage Pattern}:
+	\begin{minted}{cpp}
+std::mutex m;
+std::condition_variable cv;
+bool condition = false;
+
+void waiter() {
+    std::unique_lock<std::mutex> lock(m);
+    cv.wait(lock, []{return condition;});
+    // Condition is now true
+}
+
+void notifier() {
+    {
+        std::lock_guard<std::mutex> lock(m);
+        condition = true;
+    }
+    cv.notify_one();  // or notify_all()
+}
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Understanding wait() Overloads}
+	\textbf{Two versions of} \texttt{wait()}:
+
+	\begin{minted}{cpp}
+// Version 1: Basic wait
+void wait(std::unique_lock<std::mutex>& lock);
+
+// Version 2: Wait with predicate (recommended)
+template<class Predicate>
+void wait(std::unique_lock<std::mutex>& lock, Predicate pred);
+	\end{minted}
+
+	\vspace{0.5em}
+	\textbf{How} \texttt{wait()} \textbf{works}:
+	\begin{enumerate}
+		\item Atomically releases the mutex
+		\item Blocks current thread
+		\item Waits for notification
+		\item Re-acquires mutex when awakened
+		\item Checks predicate (if provided)
+	\end{enumerate}
+
+	\vspace{0.5em}
+	\textbf{Predicate version equivalent to}:
+	\begin{minted}{cpp}
+while (!pred()) wait(lock);  // Handles spurious wakeups
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Why unique\_lock Instead of lock\_guard?}
+	\textbf{Condition variables need flexible locking}:
+
+	\begin{minted}{cpp}
+// This WON'T work - lock_guard can't be unlocked
+std::lock_guard<std::mutex> lock(m);
+cv.wait(lock);  // Compiler error!
+
+// This WORKS - unique_lock supports unlock/relock
+std::unique_lock<std::mutex> lock(m);
+cv.wait(lock);  // Can unlock and relock automatically
+	\end{minted}
+
+	\vspace{0.5em}
+	\textbf{Key Difference}:
+	\begin{itemize}
+		\item \texttt{lock\_guard}: RAII-only, cannot be manually unlocked
+		\item \texttt{unique\_lock}: Flexible, supports deferred/conditional locking
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Notification Methods}
+	\textbf{Two ways to notify waiting threads}:
+
+	\begin{minted}{cpp}
+std::condition_variable cv;
+
+// Wake up ONE waiting thread
+cv.notify_one();
+
+// Wake up ALL waiting threads
+cv.notify_all();
+	\end{minted}
+
+	\vspace{1em}
+	\textbf{When to use each}:
+	\begin{itemize}
+		\item \texttt{notify\_one()}: When only one thread should process the event
+		\item \texttt{notify\_all()}: When multiple threads need to check the condition
+	\end{itemize}
+
+	\vspace{0.5em}
+	\textbf{Best Practice}: Always modify shared state before notifying
+	\begin{minted}{cpp}
+{
+    std::lock_guard<std::mutex> lock(m);
+    ready = true;  // Change state first
+}
+cv.notify_one();   // Then notify
+	\end{minted}
+\end{frame}
+
+\subsection{Building a Thread-Safe Queue with Condition Variables}
+\begin{frame}[fragile]{Thread-Safe Queue Design}
+	\textbf{Requirements}:
+	\begin{itemize}
+		\item Multiple producers can push safely
+		\item Multiple consumers can pop safely
+		\item Consumers wait when queue is empty
+		\item No busy waiting or polling
+	\end{itemize}
+
+	\vspace{1em}
+	\textbf{Core Components}:
+	\begin{minted}{cpp}
+template<typename T>
+class ThreadSafeQueue {
+private:
+    std::queue<T> queue_;
+    mutable std::mutex mutex_;
+    std::condition_variable condition_;
+
+public:
+    void push(const T& item);
+    T pop();
+    bool empty() const;
+    size_t size() const;
+};
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Implementation: Push Operation}
+	\textbf{Producer side - Adding items}:
+
+	\begin{minted}{cpp}
+template<typename T>
+void ThreadSafeQueue<T>::push(const T& item) {
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        queue_.push(item);
+    }
+    condition_.notify_one();  // Wake up waiting consumer
+}
+
+template<typename T>
+void ThreadSafeQueue<T>::push(T&& item) {
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        queue_.push(std::move(item));
+    }
+    condition_.notify_one();
+}
+	\end{minted}
+
+	\textbf{Key Points}:
+	\begin{itemize}
+		\item Lock only while modifying queue
+		\item Notify after releasing lock
+		\item Support both copy and move semantics
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Implementation: Pop Operation}
+	\textbf{Consumer side - Retrieving items}:
+
+	\begin{minted}{cpp}
+template<typename T>
+T ThreadSafeQueue<T>::pop() {
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    // Wait until queue is not empty
+    condition_.wait(lock, [this] {
+        return !queue_.empty();
+    });
+
+    T item = std::move(queue_.front());
+    queue_.pop();
+    return item;
+}
+	\end{minted}
+
+	\textbf{Alternative with timeout}:
+	\begin{minted}{cpp}
+template<typename T>
+bool ThreadSafeQueue<T>::try_pop(T& item,
+                                 std::chrono::milliseconds timeout) {
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (condition_.wait_for(lock, timeout,
+                           [this] { return !queue_.empty(); })) {
+        item = std::move(queue_.front());
+        queue_.pop();
+        return true;
+    }
+    return false;  // Timeout occurred
+}
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Complete Usage Example}
+	\textbf{Producer-Consumer with Thread-Safe Queue}:
+
+	\begin{minted}{cpp}
+ThreadSafeQueue<int> queue;
+
+void producer(int start, int count) {
+    for (int i = start; i < start + count; ++i) {
+        queue.push(i);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+void consumer(int id) {
+    for (int i = 0; i < 5; ++i) {
+        int value = queue.pop();  // Blocks until item available
+        std::cout << "Consumer " << id << " got: " << value << std::endl;
+    }
+}
+
+int main() {
+    std::thread prod1(producer, 0, 10);
+    std::thread cons1(consumer, 1);
+    std::thread cons2(consumer, 2);
+
+    prod1.join(); cons1.join(); cons2.join();
+    return 0;
+}
+	\end{minted}
+\end{frame}
+
+\subsection{Key Takeaways}
+\begin{frame}{Condition Variable Best Practices}
+	\textbf{Essential Guidelines}:
+	\begin{enumerate}
+		\item \textbf{Always use predicates}: Protects against spurious wakeups
+		\item \textbf{Use unique\_lock}: Required for condition variable flexibility
+		\item \textbf{Modify state before notify}: Ensure consistency
+		\item \textbf{Keep critical sections short}: Minimize lock contention
+		\item \textbf{Choose notify method wisely}: \texttt{notify\_one()} vs \texttt{notify\_all()}
+	\end{enumerate}
+
+	\vspace{1em}
+	\textbf{Common Patterns}:
+	\begin{itemize}
+		\item Producer-Consumer queues
+		\item Event signaling
+		\item Worker thread pools
+		\item Barrier synchronization
+	\end{itemize}
+
+	\vspace{1em}
+	\textbf{Remember}: Condition variables are more efficient than polling for event-driven synchronization!
+\end{frame}
