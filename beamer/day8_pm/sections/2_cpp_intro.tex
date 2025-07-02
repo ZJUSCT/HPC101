@@ -4,26 +4,26 @@
 
 % 简单对比过程式编程和面向对象编程
 \begin{frame}[fragile]{Procedural vs Object-Oriented Programming}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \textbf{C: Procedural Programming}
-            \begin{itemize}
-                \item Focus on functions and data
-                \item Functions operate on data structures
-                \item No built-in support for encapsulation or inheritance
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \textbf{C++: Object-Oriented Programming}
-            \begin{itemize}
-                \item Combines data and functions into classes
-                \item Supports encapsulation, inheritance, and polymorphism
-                \item Provides a more modular and reusable code structure
-            \end{itemize}
-        \end{column}
-    \end{columns}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{C: Procedural Programming}
+			\begin{itemize}
+				\item Focus on functions and data
+				\item Functions operate on data structures
+				\item No built-in support for encapsulation or inheritance
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\textbf{C++: Object-Oriented Programming}
+			\begin{itemize}
+				\item Combines data and functions into classes
+				\item Supports encapsulation, inheritance, and polymorphism
+				\item Provides a more modular and reusable code structure
+			\end{itemize}
+		\end{column}
+	\end{columns}
 
-    A class defines a type \textbf{along with a collection of operations that are related to that type}.
+	A class defines a type \textbf{along with a collection of operations that are related to that type}.
 \end{frame}
 
 \begin{frame}[fragile]{Procedural vs Object-Oriented Programming}
@@ -76,50 +76,50 @@ int main() {
 \end{frame}
 
 \begin{frame}[fragile]{Abstract Data Types}
-    The fundamental ideas behind classes are \textbf{data abstraction} and \textbf{encapsulation}.
+	The fundamental ideas behind classes are \textbf{data abstraction} and \textbf{encapsulation}.
 
-    \begin{itemize}
-        \item \textbf{Data Abstraction}: Separation of \textcolor{blue}{interface} and \textcolor{orange}{implementation}
-        \item \textbf{Encapsulation}: Enforces this separation by hiding implementation details
-        \item Together, they define an \textbf{Abstract Data Type (ADT)}
-    \end{itemize}
+	\begin{itemize}
+		\item \textbf{Data Abstraction}: Separation of \textcolor{blue}{interface} and \textcolor{orange}{implementation}
+		\item \textbf{Encapsulation}: Enforces this separation by hiding implementation details
+		\item Together, they define an \textbf{Abstract Data Type (ADT)}
+	\end{itemize}
 
-    \vspace{0.3em}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \textbf{Interface (What users see)}
-            \begin{itemize}
-                \item Public operations users can execute
-                \item Contract of what the class does
-                \item Think abstractly about behavior
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \textbf{Implementation (Hidden details)}
-            \begin{itemize}
-                \item Data members
-                \item Function bodies
-                \item Internal helper functions
-            \end{itemize}
-        \end{column}
-    \end{columns}
+	\vspace{0.3em}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{Interface (What users see)}
+			\begin{itemize}
+				\item Public operations users can execute
+				\item Contract of what the class does
+				\item Think abstractly about behavior
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\textbf{Implementation (Hidden details)}
+			\begin{itemize}
+				\item Data members
+				\item Function bodies
+				\item Internal helper functions
+			\end{itemize}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \begin{frame}[fragile]{Abstract Data Type: An Example}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-        \textbf{Interface (Public)}
-            \begin{itemize}
-                \item \texttt{Book(title, author, pages, count)} - Constructor
-                \item \texttt{isAvailable()} - Check availability
-                \item \texttt{addCopies(num)} - Add copies
-            \end{itemize}
-            \vspace{0.3em}
-            \textbf{Users care about:} \\
-            \textit{What} operations are available, not \textit{how} they work
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{minted}{cpp}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{Interface (Public)}
+			\begin{itemize}
+				\item \texttt{Book(title, author, pages, count)} - Constructor
+				\item \texttt{isAvailable()} - Check availability
+				\item \texttt{addCopies(num)} - Add copies
+			\end{itemize}
+			\vspace{0.3em}
+			\textbf{Users care about:} \\
+			\textit{What} operations are available, not \textit{how} they work
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\begin{minted}{cpp}
 class Book {
 private:  // Implementation (Hidden)
     string title;
@@ -132,34 +132,34 @@ public:   // Interface (Visible)
     void addCopies(int num);
 };
             \end{minted}
-        \end{column}
-    \end{columns}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \begin{frame}[fragile]{Abstract Data Types: Key Benefits}
 
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \textbf{For Class Designers:}
-            \begin{itemize}
-                \item Focus on \textbf{how} the class is implemented
-                \item Can change implementation without breaking user code
-                \item Control access to internal data
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \textbf{For Class Users:}
-            \begin{itemize}
-                \item Don't need to know \textbf{how} the type works
-                \item Think abstractly about \textbf{what} the type does
-                \item Use the interface without worrying about details
-            \end{itemize}
-        \end{column}
-    \end{columns}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{For Class Designers:}
+			\begin{itemize}
+				\item Focus on \textbf{how} the class is implemented
+				\item Can change implementation without breaking user code
+				\item Control access to internal data
+			\end{itemize}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\textbf{For Class Users:}
+			\begin{itemize}
+				\item Don't need to know \textbf{how} the type works
+				\item Think abstractly about \textbf{what} the type does
+				\item Use the interface without worrying about details
+			\end{itemize}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \begin{frame}[fragile]{Class: Definition}
-    \begin{minted}[fontsize=\scriptsize]{cpp}
+	\begin{minted}[fontsize=\scriptsize]{cpp}
 class ClassName {
 public:  // Public interface
     ClassName();  // Constructor
@@ -174,17 +174,32 @@ protected: // Protected members (accessible by derived classes)
     \end{minted}
 \end{frame}
 
+% 介绍类的实例化
+\begin{frame}[fragile]{Class: Instantiation}
+	Instantiate a class to create an object
+	\begin{itemize}
+		\item Use the class name as a type
+		\item Call the constructor to initialize the object
+		\item Objects are instances of the class
+	\end{itemize}
+	\begin{minted}{cpp}
+int main() {
+    Point p(10, 20);  // Create an object of Point
+    p.display();      // Call public method
+    return 0;
+}
+    \end{minted}
+\end{frame}
 
 \begin{frame}[fragile]{Class: \texttt{this} pointer}
-    \textbf{The \texttt{this} pointer:} A special pointer that refers to the current object
+	A special pointer that refers to the current object
 
-    \begin{itemize}
-        \item Used inside class methods to access members of the current object
-        \item Helps distinguish between member variables and parameters with the same name
-    \end{itemize}
+	\begin{itemize}
+		\item Used inside class methods to access members of the current object
+		\item Helps distinguish between member variables and parameters with the same name
+	\end{itemize}
 
-    \textbf{Example:}
-    \begin{minted}{cpp}
+	\begin{minted}{cpp}
 class Point {
 private:
     int x, y;
@@ -196,6 +211,162 @@ public:
 };
     \end{minted}
 \end{frame}
+
+% 介绍右值引用
+\begin{frame}[fragile]{Class: Rvalue References}
+	\textbf{Rvalue Reference:} A new reference type introduced in C++11
+	\begin{itemize}
+		\item Allows binding to temporary objects (rvalues)
+		\item Syntax: \texttt{Type\&\&} (double ampersand)
+		\item Enables move semantics and perfect forwarding
+	\end{itemize}
+
+	\begin{minted}{cpp}
+A& a_lref = a; // lvalue reference
+A&& a_rref = a; // rvalue reference
+	\end{minted}
+
+    See: \textcolor{blue}{\href{https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n2027.html}{A Brief Introduction to Rvalue References - Bjarne Stroustrup}}
+\end{frame}
+
+% 介绍移动语义
+\begin{frame}[fragile]{Class: Move Semantics}
+	\begin{minted}{cpp}
+template <class T> swap(T& a, T& b)
+{
+    T tmp(a);   // now we have two copies of a
+    a = b;      // now we have two copies of b
+    b = tmp;    // now we have two copies of tmp (aka a)
+}
+
+template <class T> swap(T& a, T& b) {
+    T tmp = std::move(a);
+    a = std::move(b);
+    b = std::move(tmp);
+}
+    \end{minted}
+\end{frame}
+
+% 介绍 move()
+\begin{frame}[fragile]{Class: \texttt{std::move}}
+    \textbf{std::move:} A utility function that casts an object to an rvalue reference
+    \begin{itemize}
+        \item Indicates that the object can be moved
+        \item Does not actually move anything, just changes the type
+    \end{itemize}
+
+    \textbf{Prototype:}
+    \begin{minted}{cpp}
+template <class T>
+typename remove_reference<T>::type&&
+move(T&& a)
+{
+    return a;
+}
+    \end{minted}
+    It is now up to client code to overload key functions on whether their argument is an lvalue or rvalue.
+\end{frame}
+
+% 介绍拷贝
+\begin{frame}[fragile]{Class: Copying Objects}
+	C++ allows copying objects using the copy constructor
+	\begin{itemize}
+		\item Copy constructor: when an object is passed by value or returned from a function
+		\item Default copy constructor performs a shallow copy (member-wise copy)
+		\item Custom copy constructor can be defined for deep copying
+	\end{itemize}
+
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\begin{minted}{cpp}
+class Point {
+public:
+    // Custom copy constructor
+    Point(const Point& other) {
+        x = other.x;
+        y = other.y;
+    }
+};
+\end{minted}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\begin{minted}{cpp}
+Point p1(10, 20);
+Point p2 = p1;  // Calls copy constructor
+p2.display();   // Displays copied point
+    \end{minted}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+% 介绍移动
+\begin{frame}[fragile]{Class: Moving Objects}
+	C++11 introduced move semantics to optimize resource management
+	\begin{itemize}
+		\item Move constructor transfers ownership of resources from one object to another
+		\item Avoids deep copying, improving performance for temporary objects
+		\item Use \texttt{std::move} to indicate an object can be moved
+	\end{itemize}
+
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\begin{minted}{cpp}
+class Point {
+public:
+    // Move constructor
+    Point(Point&& other) noexcept {
+        x = other.x;
+        y = other.y;
+        other.x = 0;  // Leave moved-from object in a valid state
+        other.y = 0;
+    }
+};
+\end{minted}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\begin{minted}{cpp}
+Point p1(10, 20);
+Point p2 = std::move(p1);  // Calls move constructor
+p2.display();               // Displays moved point
+            \end{minted}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+
+% 介绍析构
+\begin{frame}[fragile]{Class: Destructor}
+	\textbf{Destructor:} A special member function called when an object goes out of scope or is deleted
+	\begin{itemize}
+		\item Cleans up resources (memory, file handles, etc.)
+		\item Automatically called when the object is destroyed
+		\item Can be defined to perform custom cleanup actions
+	\end{itemize}
+
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+	\begin{minted}{cpp}
+class Point {
+public:
+    // Destructor
+    ~Point() {
+        cout << "Point(" << x << ", " << y << ") destroyed" << endl;
+    }
+};
+        \end{minted}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+                    \begin{minted}{cpp}
+int main() {
+    Point p(10, 20);  // Constructor called
+    p.display();      // Displays point
+    return 0;        // Destructor called automatically
+}
+    \end{minted}
+    \end{column}
+    \end{columns}
+\end{frame}
+
 
 
 \begin{frame}[fragile]{Encapsulation}
@@ -223,10 +394,10 @@ protected:  // This class and its children can access
     void setBalance(double newBalance) { balance = newBalance; }
 };
     \end{minted}
-    \begin{itemize}
-        \item \texttt{struct}: Members are \textbf{public} by default - less encapsulation
-        \item \texttt{class}: Members are \textbf{private} by default - enforces encapsulation
-    \end{itemize}
+	\begin{itemize}
+		\item \texttt{struct}: Members are \textbf{public} by default - less encapsulation
+		\item \texttt{class}: Members are \textbf{private} by default - enforces encapsulation
+	\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Inheritance: Building on Existing Code}
@@ -438,16 +609,16 @@ int main() {
 
 % 上页给出代码对比，本页给出讲解
 \begin{frame}[fragile]{I/O Streams}
-    \begin{table}[]
-        % table of streams: i, o, io; file, string, c
-        \begin{tabular}{cccc}
-            \hline
-            \textbf{Type} & \textbf{Input} & \textbf{Output} & \textbf{Both} \\ \hline
-            standard & \texttt{cin} & \texttt{cout}, \texttt{cerr}, \texttt{clog} &  \\ \hline
-            File         & \texttt{ifstream} & \texttt{ofstream} & \texttt{fstream} \\ \hline
-            String       & \texttt{istringstream} & \texttt{ostringstream} & \texttt{stringstream} \\ \hline
-        \end{tabular}
-    \end{table}
+	\begin{table}[]
+		% table of streams: i, o, io; file, string, c
+		\begin{tabular}{cccc}
+			\hline
+			\textbf{Type} & \textbf{Input}         & \textbf{Output}                             & \textbf{Both}         \\ \hline
+			standard      & \texttt{cin}           & \texttt{cout}, \texttt{cerr}, \texttt{clog} &                       \\ \hline
+			File          & \texttt{ifstream}      & \texttt{ofstream}                           & \texttt{fstream}      \\ \hline
+			String        & \texttt{istringstream} & \texttt{ostringstream}                      & \texttt{stringstream} \\ \hline
+		\end{tabular}
+	\end{table}
 
 	\textbf{Benefits of C++ Streams:}
 	\begin{itemize}
@@ -459,8 +630,8 @@ int main() {
 
 % 给出一个 sstream 的例子，以展示相比 C 的优势
 \begin{frame}[fragile]{I/O Streams: Example}
-    \textbf{String Streams:} Like a string that can be read/written like a file
-    \begin{minted}{cpp}
+	\textbf{String Streams:} Like a string that can be read/written like a file
+	\begin{minted}{cpp}
 #include <sstream>
 #include <iostream>
 
@@ -472,12 +643,12 @@ void example_string_stream() {
 }
     \end{minted}
 
-    \textbf{Benefits:}
-    \begin{itemize}
-        \item Concise syntax for formatting strings
-        \item No need for manual memory management
-        \item Can be used with any type that supports stream operators
-    \end{itemize}
+	\textbf{Benefits:}
+	\begin{itemize}
+		\item Concise syntax for formatting strings
+		\item No need for manual memory management
+		\item Can be used with any type that supports stream operators
+	\end{itemize}
 \end{frame}
 
 % 介绍命名空间，标准库的所有名字都在命名空间 std 中
@@ -498,10 +669,10 @@ cout << "Hello, World!" << endl;
 % 介绍运算符语法
 \begin{frame}[fragile]{Class: Operator overloading}
 	\begin{itemize}
-        \item C++ lets us define what the operators mean \textbf{when applied to objects of class type}.
+		\item C++ lets us define what the operators mean \textbf{when applied to objects of class type}.
 		\item They are \textbf{special functions} with concise syntax
 		\item Can be \textbf{overloaded} to provide custom behavior for user-defined types
-        \item In a user-defined operator overload, \textbf{any type} can be used as return type (including \texttt{void})
+		\item In a user-defined operator overload, \textbf{any type} can be used as return type (including \texttt{void})
 		\item Operators for \textbf{primitive types} like \texttt{int}, \texttt{float}, etc. cannot be overloaded
 	\end{itemize}
 
@@ -515,21 +686,21 @@ int operator+(int a, int b) { return a + b; }
 
 % 以 I/O 操作符为例，介绍运算符重载：巧妙地通过重载，利用了移位运算符的语法
 \begin{frame}[fragile]{Class: Operator overloading}
-    \textbf{Why Overload I/O Operators?}
-    \begin{itemize}
-        \item Makes it easy to print custom objects
-        \item Uses existing syntax (\texttt{<<} and \texttt{>>}) for a natural feel
-    \end{itemize}
+	\textbf{Why Overload I/O Operators?}
+	\begin{itemize}
+		\item Makes it easy to print custom objects
+		\item Uses existing syntax (\texttt{<<} and \texttt{>>}) for a natural feel
+	\end{itemize}
 
-    \textbf{Prototype}
-    % A prototype demonstrating how stream class overloads the I/O operators
-    \begin{minted}{cpp}
+	\textbf{Prototype}
+	% A prototype demonstrating how stream class overloads the I/O operators
+	\begin{minted}{cpp}
 template< class Traits >
 basic_ostream<char, Traits>&
     operator<<( basic_ostream<char, Traits>& os, const char* s );
 basic_istream& operator>>( int& value );
     \end{minted}
-    \textbf{Example Usage}:
+	\textbf{Example Usage}:
 	\begin{minted}{cpp}
 cout << "Hello, World!" << endl;
 cin >> user_input;
@@ -537,54 +708,28 @@ cin >> user_input;
 \end{frame}
 
 \begin{frame}[fragile]{Function Overloading: Same Name, Different Parameters}
-    \textbf{Function Overloading:} Multiple functions with the same name but different parameters
+	\textbf{Function Overloading:} Multiple functions with the same name but different parameters
 
-    \begin{itemize}
-        \item C++ allows multiple functions with the same name
-        \item Functions must differ in number or type of parameters
-        \item Compiler chooses the best match based on arguments
-        \item Return type alone is \textbf{not} enough to distinguish functions
-    \end{itemize}
-
-    \textbf{Example:}
-    \begin{minted}[fontsize=\scriptsize]{cpp}
-void print(int value) {
-    cout << "Integer: " << value << endl;
-}
-void print(double value) {
-    cout << "Double: " << value << endl;
-}
-void print(const string& value) {
-    cout << "String: " << value << endl;
-}
-int main() {
-    print(42);        // Calls print(int)
-    print(3.14);      // Calls print(double)
-    print("Hello");   // Calls print(const string&)
-    return 0;
-}
-    \end{minted}
+	\begin{itemize}
+		\item C++ allows multiple functions with the same name
+		\item Functions must differ in number or type of parameters
+		\item Compiler chooses the best match based on arguments
+		\item Return type alone is \textbf{not} enough to distinguish functions
+	\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Function Overloading vs C Naming Conventions}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \textbf{C Style: Different Names}
-            \begin{minted}[fontsize=\tiny]{c}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{C Style: Different Names}
+			\begin{minted}[fontsize=\tiny]{c}
 #include <stdio.h>
 #include <math.h>
 
 // Need different names for each type
-int abs_int(int x) {
-    return x < 0 ? -x : x;
-}
-double abs_double(double x) {
-    return x < 0.0 ? -x : x;
-}
-float abs_float(float x) {
-    return x < 0.0f ? -x : x;
-}
-
+int abs_int(int x) { return x < 0 ? -x : x; }
+double abs_double(double x) { return x < 0.0 ? -x : x; }
+float abs_float(float x) { return x < 0.0f ? -x : x; }
 int main() {
     printf("%d\n", abs_int(-5));
     printf("%.2f\n", abs_double(-3.14));
@@ -592,55 +737,48 @@ int main() {
     return 0;
 }
             \end{minted}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \textbf{C++ Style: Overloaded Functions}
-            \begin{minted}[fontsize=\tiny]{cpp}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\textbf{C++ Style: Overloaded Functions}
+			\begin{minted}[fontsize=\tiny]{cpp}
 #include <iostream>
 #include <cmath>
 using namespace std;
-
 // Same name, different parameters
-int abs(int x) {
-    return x < 0 ? -x : x;
-}
-double abs(double x) {
-    return x < 0.0 ? -x : x;
-}
-float abs(float x) {
-    return x < 0.0f ? -x : x;
-}
+int abs(int x) { return x < 0 ? -x : x; }
+double abs(double x) { return x < 0.0 ? -x : x; }
+float abs(float x) { return x < 0.0f ? -x : x; }
 
 int main() {
-    cout << abs(-5) << endl;      // Calls abs(int)
-    cout << abs(-3.14) << endl;   // Calls abs(double)
-    cout << abs(-2.5f) << endl;   // Calls abs(float)
+    cout << abs(-5) << endl;   // Calls abs(int)
+    cout << abs(-3.14) << endl;// Calls abs(doubl)
+    cout << abs(-2.5f) << endl;// Calls abs(float)
     return 0;
 }
             \end{minted}
-        \end{column}
-    \end{columns}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \begin{frame}[fragile]{Function Overloading: Rules and Best Practices}
-    \textbf{Overloading Rules:}
-    \begin{itemize}
-        \item Functions must differ in \textbf{number} or \textbf{type} of parameters
-        \item \textbf{const} and non-const parameters are considered different
-        \item Reference and non-reference parameters are different
-        \item Return type alone cannot distinguish overloaded functions
-    \end{itemize}
+	\textbf{Overloading Rules:}
+	\begin{itemize}
+		\item Functions must differ in \textbf{number} or \textbf{type} of parameters
+		\item \textbf{const} and non-const parameters are considered different
+		\item Reference and non-reference parameters are different
+		\item Return type alone cannot distinguish overloaded functions
+	\end{itemize}
 
-    \textbf{Example of Valid Overloads:}
-    \begin{minted}[fontsize=\scriptsize]{cpp}
+	\textbf{Example of Valid Overloads:}
+	\begin{minted}[fontsize=\scriptsize]{cpp}
 void func(int x);                    // Version 1
 void func(double x);                 // Version 2: different type
-void func(int x, int y);             // Version 3: different number of parameters
+void func(int x, int y);             // Version 3: different number of para
 void func(const int& x);             // Version 4: different parameter form
 // void func(int x) { return 5; }    // ERROR: Only return type differs
     \end{minted}
 
-    \textbf{Best Practice:} Use overloading for functions that perform \textbf{similar operations} on different types
+	\textbf{Best Practice:} Use overloading for functions that perform \textbf{similar operations} on different types
 \end{frame}
 
 \subsection{Containers and Algorithms}
@@ -783,16 +921,16 @@ for (int num : arr) {
 
 \subsection{Essential Features for Concurrency}
 \begin{frame}[fragile]{Callable Objects}
-    \textbf{Function Call Operator}
-    \begin{minted}{cpp}
+	\textbf{Function Call Operator}
+	\begin{minted}{cpp}
 function (arg1, arg2, arg3,...)
     \end{minted}
 
-    \textbf{Callable Object}
-    \begin{itemize}
-        \item An object that can be called like a function
-        \item Functions and pointers to functions, \textbf{lambdas}, objects created by bind, and \textbf{classes that overload the function-call operator}.
-    \end{itemize}
+	\textbf{Callable Object}
+	\begin{itemize}
+		\item An object that can be called like a function
+		\item Functions and pointers to functions, \textbf{lambdas}, objects created by bind, and \textbf{classes that overload the function-call operator}.
+	\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Lambda Expressions: The Core of Thread Functions}
@@ -845,13 +983,13 @@ int main() {
 \end{frame}
 
 \begin{frame}[fragile]{Lambda Expressions: Syntax}
-    \begin{minted}{cpp}
+	\begin{minted}{cpp}
 auto lambda_name = [capture](parameters) -> return_type {
     // function body
 };
     \end{minted}
-    \textbf{Example:}
-    \begin{minted}{cpp}
+	\textbf{Example:}
+	\begin{minted}{cpp}
 auto add = [](int a, int b) -> int {
     return a + b;
 };
@@ -860,13 +998,13 @@ cout << "Sum: " << add(3, 4) << endl; // Outputs 7
 \end{frame}
 
 \begin{frame}[fragile]{Lambda Expressions: Capture Clause}
-    \begin{itemize}
-        \item \texttt{[capture]}: How to access variables from the surrounding scope
-        \item \texttt{[=]}: Capture all by value
-        \item \texttt{[\&]}: Capture all by reference
-        \item \texttt{[id]}: Capture specific variable by value
-        \item \texttt{[\&id]}: Capture specific variable by reference
-    \end{itemize}
+	\begin{itemize}
+		\item \texttt{[capture]}: How to access variables from the surrounding scope
+		\item \texttt{[=]}: Capture all by value
+		\item \texttt{[\&]}: Capture all by reference
+		\item \texttt{[id]}: Capture specific variable by value
+		\item \texttt{[\&id]}: Capture specific variable by reference
+	\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Smart Pointers vs Manual Memory Management}
@@ -921,7 +1059,7 @@ cout << "Data: " << ptr->getData() << endl;
 \end{frame}
 
 \begin{frame}[fragile]{Auto Type Deduction: Let the Compiler Figure It Out}
-			\begin{minted}{cpp}
+	\begin{minted}{cpp}
 auto x = 42;              // int
 auto y = 3.14;            // double
 auto str = "Hello";       // const char*
@@ -945,11 +1083,11 @@ for(auto& pair : scores) { // std::pair<const string, int>
 \subsection{Templates: Generic Programming}
 
 \begin{frame}[fragile]{Templates: Write Once, Use for Any Type}
-    \textbf{Problem:} Writing the same function for different types
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \textbf{Without Templates}
-            \begin{minted}[fontsize=\tiny]{cpp}
+	\textbf{Problem:} Writing the same function for different types
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{Without Templates}
+			\begin{minted}[fontsize=\tiny]{cpp}
 int max_int(int a, int b) {
     return a > b ? a : b;
 }
@@ -961,10 +1099,10 @@ string max_string(string a, string b) {
 }
 // Need separate function for each type!
             \end{minted}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \textbf{With Templates}
-            \begin{minted}[fontsize=\tiny]{cpp}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\textbf{With Templates}
+			\begin{minted}[fontsize=\tiny]{cpp}
 template<typename T>
 T max_value(T a, T b) {
     return a > b ? a : b;
@@ -975,15 +1113,15 @@ int result1 = max_value(10, 20);        // T = int
 double result2 = max_value(3.14, 2.71); // T = double
 string result3 = max_value("hello", "world"); // T = string
             \end{minted}
-        \end{column}
-    \end{columns}
+		\end{column}
+	\end{columns}
 
-    \textbf{Benefits:} Code reuse, type safety, performance (no runtime overhead)
+	\textbf{Benefits:} Code reuse, type safety, performance (no runtime overhead)
 \end{frame}
 
 \begin{frame}[fragile]{Function Templates: Generic Functions}
-    \textbf{Syntax:}
-    \begin{minted}{cpp}
+	\textbf{Syntax:}
+	\begin{minted}{cpp}
 template<typename T>
 return_type function_name(parameters) {
     // function body
@@ -992,8 +1130,8 @@ return_type function_name(parameters) {
 \end{frame}
 
 \begin{frame}[fragile]{Class Templates: Generic Classes}
-    \textbf{Example: Generic Stack}
-    \begin{minted}{cpp}
+	\textbf{Example: Generic Stack}
+	\begin{minted}{cpp}
 template<typename T>
 class Stack {
 private:
@@ -1018,7 +1156,7 @@ public:
 \end{frame}
 
 \begin{frame}[fragile]{Class Templates: Usage}
-    \begin{minted}{cpp}
+	\begin{minted}{cpp}
 int main() {
     // Stack of integers
     Stack<int> int_stack;
@@ -1042,8 +1180,8 @@ int main() {
 \end{frame}
 
 \begin{frame}[fragile]{STL: Built with Templates}
-    \textbf{The Standard Template Library uses templates extensively:}
-    \begin{minted}{cpp}
+	\textbf{The Standard Template Library uses templates extensively:}
+	\begin{minted}{cpp}
 // All STL containers are templates
 vector<int> numbers;           // vector of integers
 vector<string> names;          // vector of strings
@@ -1060,20 +1198,20 @@ list<string> words = {"hello", "world", "cpp"};
 auto it = find(words.begin(), words.end(), "world");
     \end{minted}
 
-    \textbf{This is why STL is so powerful and flexible!}
+	\textbf{This is why STL is so powerful and flexible!}
 \end{frame}
 
 % 介绍模板的应用：在 CUTLASS 等库中，模板是刚需，因为xxx
 \begin{frame}[fragile]{Templates: The Power of Generic Programming}
-    \textbf{Templates are essential for libraries like CUTLASS (CUDA Templates for Linear Algebra Subroutines):}
-    \begin{itemize}
-        \item \textbf{Performance}: Templates allow for compile-time optimizations
-        \item \textbf{Flexibility}: Write code that works with any type
-        \item \textbf{Reusability}: Create generic algorithms and data structures
-    \end{itemize}
+	\textbf{Templates are essential for libraries like CUTLASS (CUDA Templates for Linear Algebra Subroutines):}
+	\begin{itemize}
+		\item \textbf{Performance}: Templates allow for compile-time optimizations
+		\item \textbf{Flexibility}: Write code that works with any type
+		\item \textbf{Reusability}: Create generic algorithms and data structures
+	\end{itemize}
 
-    \textbf{Example: CUTLASS uses templates to define matrix multiplication:}
-    \begin{minted}{cpp}
+	\textbf{Example: CUTLASS uses templates to define matrix multiplication:}
+	\begin{minted}{cpp}
 template<typename T>
 void matrix_multiply(const T* A, const T* B, T* C, int M, int N, int K) {
     for (int i = 0; i < M; ++i) {
@@ -1087,14 +1225,14 @@ void matrix_multiply(const T* A, const T* B, T* C, int M, int N, int K) {
 }
     \end{minted}
 
-    \textbf{This allows CUTLASS to support different data types (float, double, etc.) without rewriting the code!}
+	\textbf{This allows CUTLASS to support different data types (float, double, etc.) without rewriting the code!}
 \end{frame}
 
 \begin{frame}[fragile]{Templates: The dark side}
-    \begin{figure}
-        \includegraphics[width=0.8\textwidth]{day8_pm/img/2-templates}
-        \caption{Cite: Yoolc's Sharing on CUTLASS}
-    \end{figure}
+	\begin{figure}
+		\includegraphics[width=0.8\textwidth]{day8_pm/img/2-templates}
+		\caption{Cite: Yoolc's Sharing on CUTLASS}
+	\end{figure}
 \end{frame}
 
 \subsection{Concurrency Support}
@@ -1102,19 +1240,19 @@ void matrix_multiply(const T* A, const T* B, T* C, int M, int N, int K) {
 % C++11：Threads, Mutual exclusion, Atomic operations, Condition variables, Futures
 % C++20：Cooperative cancellation, Semaphores, Latches and Barriers
 \begin{frame}[fragile]{Concurrency support library}
-    \begin{itemize}
-        \item \textbf{C++11} (We will learn):
-              \begin{itemize}
-                  \item \texttt{<thread>}: Create and manage threads
-                  \item \texttt{<mutex>}: Mutual exclusion for shared data
-                  \item \texttt{<atomic>}: Atomic operations for thread safety
-                  \item \texttt{<condition\_variable>}: Synchronization between threads
-                  \item \texttt{<future>}: Asynchronous results
-              \end{itemize}
-        \item \textbf{C++20}:
-              \begin{itemize}
-                  \item \texttt{<stop\_token>}: Cooperative cancellation
-                  \item \texttt{<semaphore>}, \texttt{<latch>}, and \texttt{<barrier>}: Advanced synchronization
-              \end{itemize}
-    \end{itemize}
+	\begin{itemize}
+		\item \textbf{C++11} (We will learn):
+		      \begin{itemize}
+			      \item \texttt{<thread>}: Create and manage threads
+			      \item \texttt{<mutex>}: Mutual exclusion for shared data
+			      \item \texttt{<atomic>}: Atomic operations for thread safety
+			      \item \texttt{<condition\_variable>}: Synchronization between threads
+			      \item \texttt{<future>}: Asynchronous results
+		      \end{itemize}
+		\item \textbf{C++20}:
+		      \begin{itemize}
+			      \item \texttt{<stop\_token>}: Cooperative cancellation
+			      \item \texttt{<semaphore>}, \texttt{<latch>}, and \texttt{<barrier>}: Advanced synchronization
+		      \end{itemize}
+	\end{itemize}
 \end{frame}
