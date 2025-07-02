@@ -320,6 +320,9 @@ void naive_gemm(uint8_t* A, int8_t* B, uint32_t* C, int m, int n, int k) {
 
 请学习 [AMX 矩阵乘法详解](#amx-矩阵乘法详解) 部分，使用 AMX 指令扩展中的 tile 操作，替换上面的 AVX 优化代码。
 
+!!! warning
+    仅 M700 和 M701 节点支持 AMX 指令集，请确保在这些型号的设备上运行相关代码。
+
 !!! tip "优化提示"
 
     对于 AMX 的具体操作，可以参考课上提供的代码示例。
@@ -366,7 +369,7 @@ void naive_gemm(uint8_t* A, int8_t* B, uint32_t* C, int m, int n, int k) {
     1. 代码
     2. 简单实验报告，包含
         1. 思路
-        2. 正确性与加速比
+        2. 正确性、加速比和运行时间
         3. OJ 运行结果 (可选)
 
 ## 自动化测试
