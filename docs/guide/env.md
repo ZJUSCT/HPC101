@@ -92,6 +92,9 @@ $ module avail
    hpl/2.3.0-7q6z7jv
 ```
 
+!!! note "Tips"
+    Spack 安装或解析依赖过程较慢属于正常现象。若出现长时间无响应的情况，可添加 `--debug` 参数以查看详细调试信息。
+
 ### Conda
 
 集群预装了 Conda，用户不需要自行安装。你可以直接使用 `conda activate` 激活默认 Conda 环境：
