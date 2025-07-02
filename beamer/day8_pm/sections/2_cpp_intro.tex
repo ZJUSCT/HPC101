@@ -313,76 +313,6 @@ for (auto& shape : shapes) {
 \end{frame}
 
 \subsection{The Basics}
-% 介绍 C++ 的引用和指针
-\begin{frame}[fragile]{References}
-	\begin{columns}
-		\begin{column}{0.5\textwidth}
-			\textbf{C Pointers}
-			\begin{minted}{c}
-void swap_c(int* a, int* b) {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-int main() {
-    int x = 5, y = 10;
-    swap_c(&x, &y);  // Pass addresses
-    printf("x=%d, y=%d\n", x, y);
-    return 0;
-}
-			\end{minted}
-		\end{column}
-		\begin{column}{0.5\textwidth}
-			\textbf{C++ References}
-			\begin{minted}{cpp}
-void swap_cpp(int& a, int& b) {
-    int temp = a;
-    a = b;
-    b = temp;
-}
-int main() {
-    int x = 5, y = 10;
-    swap_cpp(x, y);  // Direct pass
-    cout << "x=" << x << ", y=" << y << endl;
-    return 0;
-}
-			\end{minted}
-		\end{column}
-	\end{columns}
-
-	\vspace{0.5em}
-	\begin{itemize}
-		\item References are \textbf{aliases} for existing objects: \texttt{int a; int\& b = a;}
-		\item References must be initialized and cannot be reassigned
-	\end{itemize}
-\end{frame}
-
-
-% 本页展示 C++ 的所有运算符
-\begin{frame}[fragile]{C++ Operators and Keywords (From \textcolor{blue}{\href{https://en.cppreference.com/w/cpp/language/}{cppreference.com}})}
-	\begin{columns}
-		\begin{column}{0.6\textwidth}
-			\begin{figure}
-				\includegraphics[width=\textwidth]{day8_pm/img/1-operators}
-			\end{figure}
-		\end{column}
-		\begin{column}{0.4\textwidth}
-			\begin{figure}
-				\includegraphics[width=0.9\textwidth]{day8_pm/img/1-keywords}
-			\end{figure}
-		\end{column}
-	\end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{C++ Operators and Keywords}
-	We'll meet some new friends in this class:
-	\begin{itemize}
-		\item \textbf{I/O}:  \texttt{>>}, \texttt{<<}
-		\item \textbf{Memory}: \texttt{new}, \texttt{delete}, \texttt{new[]}, \texttt{delete[]}
-		\item \textbf{Type System}: \texttt{auto}, \texttt{decltype}, \texttt{using}, \texttt{operator}
-		\item \textbf{Class}: \texttt{::}, \texttt{public}, \texttt{private}, \texttt{protected}, \texttt{friend}, \texttt{virtual}, \texttt{override}, \texttt{final}
-	\end{itemize}
-\end{frame}
 
 \begin{frame}[fragile]{I/O Streams: Compared to C Standard I/O}
 	\begin{columns}
@@ -434,6 +364,76 @@ int main() {
 			\end{minted}
 		\end{column}
 	\end{columns}
+\end{frame}
+
+% 介绍 C++ 的引用和指针
+\begin{frame}[fragile]{References}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\textbf{C Pointers}
+			\begin{minted}{c}
+void swap_c(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+int main() {
+    int x = 5, y = 10;
+    swap_c(&x, &y);  // Pass addresses
+    printf("x=%d, y=%d\n", x, y);
+    return 0;
+}
+			\end{minted}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\textbf{C++ References}
+			\begin{minted}{cpp}
+void swap_cpp(int& a, int& b) {
+    int temp = a;
+    a = b;
+    b = temp;
+}
+int main() {
+    int x = 5, y = 10;
+    swap_cpp(x, y);  // Direct pass
+    cout << "x=" << x << ", y=" << y << endl;
+    return 0;
+}
+			\end{minted}
+		\end{column}
+	\end{columns}
+
+	\vspace{0.5em}
+	\begin{itemize}
+		\item References are \textbf{aliases} for existing objects: \texttt{int a; int\& b = a;}
+		\item References must be initialized and cannot be reassigned
+	\end{itemize}
+\end{frame}
+
+% 本页展示 C++ 的所有运算符
+\begin{frame}[fragile]{C++ Operators and Keywords (From \textcolor{blue}{\href{https://en.cppreference.com/w/cpp/language/}{cppreference.com}})}
+	\begin{columns}
+		\begin{column}{0.6\textwidth}
+			\begin{figure}
+				\includegraphics[width=\textwidth]{day8_pm/img/1-operators}
+			\end{figure}
+		\end{column}
+		\begin{column}{0.4\textwidth}
+			\begin{figure}
+				\includegraphics[width=0.9\textwidth]{day8_pm/img/1-keywords}
+			\end{figure}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{C++ Operators and Keywords}
+	We'll meet some new friends in this class:
+	\begin{itemize}
+		\item \textbf{I/O}:  \texttt{>>}, \texttt{<<}
+		\item \textbf{Memory}: \texttt{new}, \texttt{delete}, \texttt{new[]}, \texttt{delete[]}
+		\item \textbf{Type System}: \texttt{auto}, \texttt{decltype}, \texttt{using}, \texttt{operator}
+		\item \textbf{Class}: \texttt{::}, \texttt{public}, \texttt{private}, \texttt{protected}, \texttt{friend}, \texttt{virtual}, \texttt{override}, \texttt{final}
+	\end{itemize}
 \end{frame}
 
 % 上页给出代码对比，本页给出讲解
@@ -534,6 +534,113 @@ basic_istream& operator>>( int& value );
 cout << "Hello, World!" << endl;
 cin >> user_input;
     \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Function Overloading: Same Name, Different Parameters}
+    \textbf{Function Overloading:} Multiple functions with the same name but different parameters
+
+    \begin{itemize}
+        \item C++ allows multiple functions with the same name
+        \item Functions must differ in number or type of parameters
+        \item Compiler chooses the best match based on arguments
+        \item Return type alone is \textbf{not} enough to distinguish functions
+    \end{itemize}
+
+    \textbf{Example:}
+    \begin{minted}[fontsize=\scriptsize]{cpp}
+void print(int value) {
+    cout << "Integer: " << value << endl;
+}
+void print(double value) {
+    cout << "Double: " << value << endl;
+}
+void print(const string& value) {
+    cout << "String: " << value << endl;
+}
+int main() {
+    print(42);        // Calls print(int)
+    print(3.14);      // Calls print(double)
+    print("Hello");   // Calls print(const string&)
+    return 0;
+}
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Function Overloading vs C Naming Conventions}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{C Style: Different Names}
+            \begin{minted}[fontsize=\tiny]{c}
+#include <stdio.h>
+#include <math.h>
+
+// Need different names for each type
+int abs_int(int x) {
+    return x < 0 ? -x : x;
+}
+double abs_double(double x) {
+    return x < 0.0 ? -x : x;
+}
+float abs_float(float x) {
+    return x < 0.0f ? -x : x;
+}
+
+int main() {
+    printf("%d\n", abs_int(-5));
+    printf("%.2f\n", abs_double(-3.14));
+    printf("%.2f\n", abs_float(-2.5f));
+    return 0;
+}
+            \end{minted}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \textbf{C++ Style: Overloaded Functions}
+            \begin{minted}[fontsize=\tiny]{cpp}
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+// Same name, different parameters
+int abs(int x) {
+    return x < 0 ? -x : x;
+}
+double abs(double x) {
+    return x < 0.0 ? -x : x;
+}
+float abs(float x) {
+    return x < 0.0f ? -x : x;
+}
+
+int main() {
+    cout << abs(-5) << endl;      // Calls abs(int)
+    cout << abs(-3.14) << endl;   // Calls abs(double)
+    cout << abs(-2.5f) << endl;   // Calls abs(float)
+    return 0;
+}
+            \end{minted}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Function Overloading: Rules and Best Practices}
+    \textbf{Overloading Rules:}
+    \begin{itemize}
+        \item Functions must differ in \textbf{number} or \textbf{type} of parameters
+        \item \textbf{const} and non-const parameters are considered different
+        \item Reference and non-reference parameters are different
+        \item Return type alone cannot distinguish overloaded functions
+    \end{itemize}
+
+    \textbf{Example of Valid Overloads:}
+    \begin{minted}[fontsize=\scriptsize]{cpp}
+void func(int x);                    // Version 1
+void func(double x);                 // Version 2: different type
+void func(int x, int y);             // Version 3: different number of parameters
+void func(const int& x);             // Version 4: different parameter form
+// void func(int x) { return 5; }    // ERROR: Only return type differs
+    \end{minted}
+
+    \textbf{Best Practice:} Use overloading for functions that perform \textbf{similar operations} on different types
 \end{frame}
 
 \subsection{Containers and Algorithms}
@@ -737,14 +844,29 @@ int main() {
 
 \end{frame}
 
-\begin{frame}[fragile]{Lambda Expressions: The Core of Thread Functions}
-	\textbf{Lambda Capture Modes:}
-	\begin{itemize}
-		\item \texttt{[]} - Capture nothing
-		\item \texttt{[=]} - Capture by value
-		\item \texttt{[\&]} - Capture by reference
-		\item \texttt{[id]} - Capture specific variable by value
-	\end{itemize}
+\begin{frame}[fragile]{Lambda Expressions: Syntax}
+    \begin{minted}{cpp}
+auto lambda_name = [capture](parameters) -> return_type {
+    // function body
+};
+    \end{minted}
+    \textbf{Example:}
+    \begin{minted}{cpp}
+auto add = [](int a, int b) -> int {
+    return a + b;
+};
+cout << "Sum: " << add(3, 4) << endl; // Outputs 7
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Lambda Expressions: Capture Clause}
+    \begin{itemize}
+        \item \texttt{[capture]}: How to access variables from the surrounding scope
+        \item \texttt{[=]}: Capture all by value
+        \item \texttt{[\&]}: Capture all by reference
+        \item \texttt{[id]}: Capture specific variable by value
+        \item \texttt{[\&id]}: Capture specific variable by reference
+    \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Smart Pointers vs Manual Memory Management}
@@ -820,6 +942,162 @@ for(auto& pair : scores) { // std::pair<const string, int>
 	\end{itemize}
 \end{frame}
 
+\subsection{Templates: Generic Programming}
+
+\begin{frame}[fragile]{Templates: Write Once, Use for Any Type}
+    \textbf{Problem:} Writing the same function for different types
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{Without Templates}
+            \begin{minted}[fontsize=\tiny]{cpp}
+int max_int(int a, int b) {
+    return a > b ? a : b;
+}
+double max_double(double a, double b) {
+    return a > b ? a : b;
+}
+string max_string(string a, string b) {
+    return a > b ? a : b;
+}
+// Need separate function for each type!
+            \end{minted}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \textbf{With Templates}
+            \begin{minted}[fontsize=\tiny]{cpp}
+template<typename T>
+T max_value(T a, T b) {
+    return a > b ? a : b;
+}
+
+// Usage - compiler generates code automatically
+int result1 = max_value(10, 20);        // T = int
+double result2 = max_value(3.14, 2.71); // T = double
+string result3 = max_value("hello", "world"); // T = string
+            \end{minted}
+        \end{column}
+    \end{columns}
+
+    \textbf{Benefits:} Code reuse, type safety, performance (no runtime overhead)
+\end{frame}
+
+\begin{frame}[fragile]{Function Templates: Generic Functions}
+    \textbf{Syntax:}
+    \begin{minted}{cpp}
+template<typename T>
+return_type function_name(parameters) {
+    // function body
+}
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Class Templates: Generic Classes}
+    \textbf{Example: Generic Stack}
+    \begin{minted}{cpp}
+template<typename T>
+class Stack {
+private:
+    vector<T> elements;
+public:
+    void push(const T& item) {
+        elements.push_back(item);
+    }
+    T pop() {
+        if (elements.empty()) {
+            throw runtime_error("Stack is empty");
+        }
+        T top = elements.back();
+        elements.pop_back();
+        return top;
+    }
+    bool empty() const {
+        return elements.empty();
+    }
+};
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Class Templates: Usage}
+    \begin{minted}{cpp}
+int main() {
+    // Stack of integers
+    Stack<int> int_stack;
+    int_stack.push(10);
+    int_stack.push(20);
+    cout << "Popped: " << int_stack.pop() << endl;  // Output: 20
+
+    // Stack of strings
+    Stack<string> string_stack;
+    string_stack.push("hello");
+    string_stack.push("world");
+    cout << "Popped: " << string_stack.pop() << endl;  // Output: world
+
+    // Stack of custom objects
+    Stack<Student> student_stack;
+    student_stack.push(Student("Alice", 20, 3.8));
+
+    return 0;
+}
+    \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{STL: Built with Templates}
+    \textbf{The Standard Template Library uses templates extensively:}
+    \begin{minted}{cpp}
+// All STL containers are templates
+vector<int> numbers;           // vector of integers
+vector<string> names;          // vector of strings
+vector<Student> students;      // vector of custom objects
+
+map<string, int> scores;       // map from string to int
+map<int, vector<string>> groups; // map from int to vector of strings
+
+// STL algorithms work with any container
+vector<int> nums = {3, 1, 4, 1, 5};
+sort(nums.begin(), nums.end());
+
+list<string> words = {"hello", "world", "cpp"};
+auto it = find(words.begin(), words.end(), "world");
+    \end{minted}
+
+    \textbf{This is why STL is so powerful and flexible!}
+\end{frame}
+
+% 介绍模板的应用：在 CUTLASS 等库中，模板是刚需，因为xxx
+\begin{frame}[fragile]{Templates: The Power of Generic Programming}
+    \textbf{Templates are essential for libraries like CUTLASS (CUDA Templates for Linear Algebra Subroutines):}
+    \begin{itemize}
+        \item \textbf{Performance}: Templates allow for compile-time optimizations
+        \item \textbf{Flexibility}: Write code that works with any type
+        \item \textbf{Reusability}: Create generic algorithms and data structures
+    \end{itemize}
+
+    \textbf{Example: CUTLASS uses templates to define matrix multiplication:}
+    \begin{minted}{cpp}
+template<typename T>
+void matrix_multiply(const T* A, const T* B, T* C, int M, int N, int K) {
+    for (int i = 0; i < M; ++i) {
+        for (int j = 0; j < N; ++j) {
+            C[i * N + j] = 0;
+            for (int k = 0; k < K; ++k) {
+                C[i * N + j] += A[i * K + k] * B[k * N + j];
+            }
+        }
+    }
+}
+    \end{minted}
+
+    \textbf{This allows CUTLASS to support different data types (float, double, etc.) without rewriting the code!}
+\end{frame}
+
+\begin{frame}[fragile]{Templates: The dark side}
+    \begin{figure}
+        \includegraphics[width=0.8\textwidth]{day8_pm/img/2-templates}
+        \caption{Cite: Yoolc's Sharing on CUTLASS}
+    \end{figure}
+\end{frame}
+
+\subsection{Concurrency Support}
 % 按时间引入 C++ 对并行编程的支持
 % C++11：Threads, Mutual exclusion, Atomic operations, Condition variables, Futures
 % C++20：Cooperative cancellation, Semaphores, Latches and Barriers
