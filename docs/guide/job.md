@@ -78,6 +78,8 @@ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 mpirun xhpl
 ```
 
+sbatch提交任务的方法可以参考:https://hpc.pku.edu.cn/_book/guide/slurm/sbatch.html
+
 在运行 Intel MPI 时，需要设置环境变量 `I_MPI_PMI_LIBRARY`。例如，使用 `srun` 运行 `xhpl` 时:
 
 ```shell hl_lines="3 10 12"
