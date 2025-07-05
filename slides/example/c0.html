@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        
+            <link rel="icon" href="../assets/zjusct-hpc101.svg">
+        
+
+        <link rel="stylesheet" href="../assets/reveal-js/dist/reveal.css" />
+
+        
+            <link rel="stylesheet" href="../assets/slides-black.css" />
+        
+        
+            <link rel="stylesheet" href="../assets/vs.css" />
+        
+
+        
+            
+        
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section data-markdown
+                
+                >
+                    <textarea data-template>
+                        # How to use the slides
+
+---
+
+## Next / previous slide
+
+Just use the arrow keys on your keyboard, or the arrows in the lower right corner.
+
+You can also use the `Home` and `End` keys on your keyboard to go to the beginning or end of the slideshow.
+
+---
+
+## Vertical slides
+
+It is also possible to use vertical slides. Again you can use the arrow keys on your keyboard, or the arrows in the lower right corner, to also go up or down.
+
+-v-
+
+## Example vertical
+
+You don't have to use vertical slides, but it is there if you want to.
+
+---
+
+## Goto specific slide
+
+If you need to go to a specific slide, you can press `g` on your keyboard and type the slide number of the slide you want to go to.
+
+You can see the slide numbers in the lower right corner. There is also a progress bar at the bottom.
+
+---
+
+## Overview
+
+To get a quick overview of all the slides, or quickly go to another slide, press `esc` on your keyboard.
+
+---
+
+## Search
+
+To quickly search for keywords through the slides, press `ctrl + shift + f` on your keyboard to enter a search term and press `Enter` to search for it.
+
+---
+
+## Pause
+
+To pause the slideshow, press `b` on your keyboard.
+
+---
+
+## Speaker notes
+
+Just like Powerpoint, you can add notes in the Markdown file. These notes won't show up in the slides, but are visible in the [speaker view](https://revealjs.com/speaker-view/). You can summon this dedicated speaker view window by just pressing `s` on your keyboard. Try it out here to see the notes.
+
+Note:
+
+Yay, you found the notes!
+
+---
+
+_Tip: In some browser, you need to allow popups. If you do and the speaker view windows comes up blank, just try again._
+
+It should look something like this:
+
+![Speaker view](./img/speaker-view.png)
+
+---
+
+## Zoom
+
+Hold down the `alt` key on your keyboard and click on any element to [zoom](https://github.com/fat/zoom.js/) towards it. Click again to zoom back out.
+
+_For Linux users: use `ctrl + click` in instead of `alt + click`._
+
+---
+                    </textarea>
+                </section>
+            </div>
+        </div>
+        <script src="../assets/reveal-js/dist/reveal.js"></script>
+        <script src="../assets/reveal-js/plugin/highlight/highlight.js"></script>
+        <script src="../assets/reveal-js/plugin/markdown/markdown.js"></script>
+        <script src="../assets/reveal-js/plugin/math/math.js"></script>
+        <script src="../assets/reveal-js/plugin/notes/notes.js"></script>
+        <script src="../assets/reveal-js/plugin/search/search.js"></script>
+        <script src="../assets/reveal-js/plugin/zoom/zoom.js"></script>
+
+        
+            
+                
+                    
+                        <script src="https://cdn.jsdelivr.net/npm/reveal.js-mermaid-plugin/plugin/mermaid/mermaid.min.js"></script>
+                    
+                
+            
+        
+
+        <script>
+            Reveal.initialize({
+                
+                    
+                        history: true,
+                    
+                        slideNumber: "c/t",
+                    
+                
+                plugins: [
+                    RevealMarkdown, // Must come before the other plugins so they can hook into the generated HTML.
+                    RevealHighlight,
+                    RevealMath.KaTeX,
+                    RevealNotes,
+                    RevealSearch,
+                    RevealZoom,
+
+                    
+                        
+                            
+                                RevealMermaid,
+                            
+                        
+                    
+                ],
+            });
+        </script>
+    </body>
+</html>
