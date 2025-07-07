@@ -95,6 +95,38 @@ $ module avail
 !!! note "Tips"
     Spack 安装或解析依赖过程较慢属于正常现象。若出现长时间无响应的情况，可添加 `--debug` 参数以查看详细调试信息。
 
+集群上目前在 `/pxe/opt/spack` 目录下安装了 `Spack`（下称集群 Spack），提供了常用的编译环境。 你可以通过如下命令，将集群 Spack 设置为本地 Spack 的上游 Spack 实例，从而复用集群 Spack 已安装的软件包，节省安装时间。
+
+```shell
+spack config add upstreams:zjusct-spack:install_tree:/pxe/opt/spack/opt/spack
+```
+
+你可以通过 `spack env list` 来查看已经构建好的环境：
+```shell
+==> 4 environments
+    hpc101-cuda  hpc101-gnu  hpc101-intel  hpc101-llvm
+```
+
+并通过 `spack env activate <env_name>` 来加载相应的环境。
+
+加载环境后，你可以通过 `spack find` 来查看已经安装的软件包。
+
+```shell
+==> In environment hpc101-intel
+==> 5 root specs
+[+] intel-oneapi-compilers  [+] intel-oneapi-mpi  [+] intel-oneapi-vtune
+[+] intel-oneapi-mkl        [+] intel-oneapi-tbb
+
+-- linux-debian12-icelake / gcc@12.2.0 --------------------------
+gcc-runtime@12.2.0               intel-oneapi-mpi@2021.14.0
+glibc@2.36                       intel-oneapi-tbb@2022.0.0
+intel-oneapi-compilers@2025.0.0  intel-oneapi-vtune@2025.0.0
+intel-oneapi-mkl@2024.2.2
+==> 7 installed packages
+```
+
+更多 Spack 操作，请参考 [该文档](https://docs.zjusct.io/operation/software/spack/).
+
 ### Conda
 
 集群预装了 Conda，用户不需要自行安装。你可以直接使用 `conda activate` 激活默认 Conda 环境：
