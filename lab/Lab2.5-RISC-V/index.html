@@ -1,0 +1,1927 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab2.5-RISC-V/">
+      
+      
+        <link rel="prev" href="../Lab2-Vectorization/">
+      
+      
+        <link rel="next" href="../../slides/">
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>Lab 2.5: 向量化进阶 (RISC-V) - HPC101 (2025)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: white; }
+    .gscrollbar-fixer { padding-right: 15px; }
+    .gdesc-inner { font-size: 0.75rem; }
+    body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+    body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#实验-25-向量化进阶-risc-v" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101 (2025)" class="md-header__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101 (2025)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Lab 2.5: 向量化进阶 (RISC-V)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="zjusct" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../slides/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  课程幻灯片
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101 (2025)" class="md-nav__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    HPC101 (2025)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程信息
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            课程信息
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    欢迎来到 HPC 101 超算短学期
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_1_2" id="__nav_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    使用集群
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            使用集群
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/env/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    软件环境
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    登陆节点
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    提交作业
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    使用在线测评
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    集群概况
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程实验
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            课程实验
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 0: Linux 快速入门
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 1: 简单集群搭建
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 2: 向量化计算
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Lab 2.5: 向量化进阶 (RISC-V)
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 2.5: 向量化进阶 (RISC-V)
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验目的
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解-risc-v-指令集" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解: RISC-V 指令集
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解-risc-v-vector-向量化扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解: RISC-V Vector 向量化扩展
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解: RISC-V Vector 向量化扩展">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#基本概念" class="md-nav__link">
+    <span class="md-ellipsis">
+      基本概念
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="基本概念">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#硬件参数-elen-与-vlen" class="md-nav__link">
+    <span class="md-ellipsis">
+      硬件参数: ELEN 与 VLEN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#运行参数-sew-与-lmul" class="md-nav__link">
+    <span class="md-ellipsis">
+      运行参数: SEW 与 LMUL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#编程方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      编程方式
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="编程方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intrinsic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Intrinsic
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#数据类型" class="md-nav__link">
+    <span class="md-ellipsis">
+      数据类型
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vsetvl-系列指令" class="md-nav__link">
+    <span class="md-ellipsis">
+      vsetvl 系列指令
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#常见操作" class="md-nav__link">
+    <span class="md-ellipsis">
+      常见操作
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解-spacemit-ime-矩阵扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解: SpaceMiT IME 矩阵扩展
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务一-使用-rvv-intrinsic-实现整数矩阵乘法" class="md-nav__link">
+    <span class="md-ellipsis">
+      任务一: 使用 RVV Intrinsic 实现整数矩阵乘法
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务二-使用-spacemit-ime-指令扩展实现整数矩阵乘法" class="md-nav__link">
+    <span class="md-ellipsis">
+      任务二: 使用 SpaceMiT IME 指令扩展实现整数矩阵乘法
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务二: 使用 SpaceMiT IME 指令扩展实现整数矩阵乘法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#内联汇编" class="md-nav__link">
+    <span class="md-ellipsis">
+      内联汇编
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="内联汇编">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#示例" class="md-nav__link">
+    <span class="md-ellipsis">
+      示例
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vmadot-的使用提示" class="md-nav__link">
+    <span class="md-ellipsis">
+      vmadot 的使用提示
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务与要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务与要求
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#自动化测试" class="md-nav__link">
+    <span class="md-ellipsis">
+      自动化测试
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../slides/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    课程幻灯片
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验目的
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解-risc-v-指令集" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解: RISC-V 指令集
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解-risc-v-vector-向量化扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解: RISC-V Vector 向量化扩展
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解: RISC-V Vector 向量化扩展">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#基本概念" class="md-nav__link">
+    <span class="md-ellipsis">
+      基本概念
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="基本概念">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#硬件参数-elen-与-vlen" class="md-nav__link">
+    <span class="md-ellipsis">
+      硬件参数: ELEN 与 VLEN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#运行参数-sew-与-lmul" class="md-nav__link">
+    <span class="md-ellipsis">
+      运行参数: SEW 与 LMUL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#编程方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      编程方式
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="编程方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intrinsic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Intrinsic
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#数据类型" class="md-nav__link">
+    <span class="md-ellipsis">
+      数据类型
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vsetvl-系列指令" class="md-nav__link">
+    <span class="md-ellipsis">
+      vsetvl 系列指令
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#常见操作" class="md-nav__link">
+    <span class="md-ellipsis">
+      常见操作
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解-spacemit-ime-矩阵扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解: SpaceMiT IME 矩阵扩展
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务一-使用-rvv-intrinsic-实现整数矩阵乘法" class="md-nav__link">
+    <span class="md-ellipsis">
+      任务一: 使用 RVV Intrinsic 实现整数矩阵乘法
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务二-使用-spacemit-ime-指令扩展实现整数矩阵乘法" class="md-nav__link">
+    <span class="md-ellipsis">
+      任务二: 使用 SpaceMiT IME 指令扩展实现整数矩阵乘法
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务二: 使用 SpaceMiT IME 指令扩展实现整数矩阵乘法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#内联汇编" class="md-nav__link">
+    <span class="md-ellipsis">
+      内联汇编
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="内联汇编">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#示例" class="md-nav__link">
+    <span class="md-ellipsis">
+      示例
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vmadot-的使用提示" class="md-nav__link">
+    <span class="md-ellipsis">
+      vmadot 的使用提示
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务与要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务与要求
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#自动化测试" class="md-nav__link">
+    <span class="md-ellipsis">
+      自动化测试
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab2.5-RISC-V/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="实验-25-向量化进阶-risc-v">实验 2.5: 向量化进阶 (RISC-V)<a class="headerlink" href="#实验-25-向量化进阶-risc-v" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">实验信息</p>
+<p>负责助教：李晨潇, 刘烨, 洪奕迅</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Sponsor Segue</p>
+<p>本实验所使用的集群节点为 <a href="https://www.spacemit.com/">进迭时空</a> 为短学期课程建设提供的 <a href="https://www.spacemit.com/spacemit-muse-pi-pro/">Muse Pi Pro 开发板</a>。</p>
+<p><div style="display: flex; width: 100%; align-items: center;">
+    <div style="width: 56%; text-align: center; padding: 0 10px;">
+        <a class="glightbox" href="./image/muse-pi-pro.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img src="./image/muse-pi-pro.webp" alt="Muse Pi Pro" style="width: 100%; height: auto;"></a>
+    </div>
+    <div style="width: 44%; text-align: center; padding: 0 10px;">
+        <a class="glightbox" href="./image/muse-pi-pro-realife.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img src="./image/muse-pi-pro-realife.webp" alt="小型开发版集群" style="width: 100%; height: auto;"></a>
+    </div>
+</div></p>
+<p>这些开发板与超算队维护的 x86-64 节点一样，位于 510 机房，并接入了自动化构建的 Linux rootfs，以及 Slurm 集群调度，与 x86-64 节点共享家目录文件。它们的节点编号是 <code>rv00</code>-<code>rv03</code>, 位于 Slurm 的 <code>riscv</code> 分区。</p>
+<p>本实验截止后，这些节点也会继续面向同学们开放，欢迎大家积极体验！</p>
+</div>
+<h2 id="实验目的">实验目的<a class="headerlink" href="#实验目的" title="Permanent link">&para;</a></h2>
+<p>本实验在「实验 2: 向量化计算」相同背景的基础上，以 RISC-V 的 V (Vector) 和进迭时空的 IME 矩阵扩展为例，向同学们介绍与 AVX, AMX 不同的向量 / 矩阵扩展设计思路。旨在让感兴趣的同学了解开放指令集架构 RISC-V 的生态，学习能够适配不同向量单元长度的向量扩展的设计，进而对向量化加速有更深入的理解。</p>
+<h2 id="知识讲解-risc-v-指令集">知识讲解: RISC-V 指令集<a class="headerlink" href="#知识讲解-risc-v-指令集" title="Permanent link">&para;</a></h2>
+<div style="display: flex; width: 100%; align-items: center; justify-content: center;">
+    <div style="width: 50%; text-align: center; padding: 0 10px;">
+        <a class="glightbox" href="./image/riscv.svg" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img src="./image/riscv.svg" alt="RISC-V" style="width: 100%; height: auto;"></a>
+    </div>
+</div>
+
+<p>RISC-V 是一个开源的、基于精简指令集（RISC）原则的指令集架构（ISA）。 RISC-V 诞生于 2010 年，并逐渐发展成为一个全球性的开放协作项目，被认为是继 x86 和 ARM 之后，全球三大主流指令集架构之一。与后者不同的是，RISC-V 属于开放的、非盈利性质的 <a href="https://community.riscv.org">RISC-V 国际基金会</a>。这样的初衷是确保 RISC-V 生态不受某家公司或某个国家的影响。</p>
+<p>RISC-V 的主要特点和优势包括：</p>
+<ul>
+<li><strong>开源和开放</strong>：
+    RISC-V 是一种开放的ISA，这意味着任何人都可以免费使用、修改和分发它，无需支付许可费用，这促进了创新和合作</li>
+<li><strong>模块化和可扩展</strong>：
+    RISC-V 的设计是模块化的，允许用户根据需求定制指令集，支持不同位宽的处理器（32位、64位、128位等）</li>
+<li><strong>简洁高效</strong>：
+    RISC-V 采用了精简指令集原则，指令集相对简单，易于实现和理解，有助于提高能效和降低功耗。因此目前有越来越多的低功耗 MCU 采用 RISC-V 指令集。</li>
+<li><strong>全球社区支持</strong>：
+    RISC-V 得到了全球范围内的广泛社区支持，有来自学术界和产业界的众多贡献者参与其中。</li>
+</ul>
+<p>RISC-V 采用模块化指令设计，它包含基础指令集和扩展指令集两部分。其中基础指令集是最小的指令子集，只要配上相应的特权态 (privileged) 指令集，它就能够保证运行起一个操作系统。在完成基础指令集的基础上，开发者可以选择所需要的扩展指令集模块用以完成自己的需求，例如乘除法扩展指令集 "M"，浮点指令集"F"，向量指令集 "V" 等。</p>
+<p>对于 32 位的 RV32I 而言，RISC-V 最基础的整数指令集只有 40 条指令，而 64 位的 RV64I 也只是增加了一些 64 位数据的访存指令。下面是 <a href="https://github.com/jameslzhu/riscv-card">riscv-card</a> 汇总的 RV32I 基础整数指令集的指令定义与功能（<strong>这部分仅需简单了解</strong>，因此中间有关指令编码的 Opcode, Funct3 和 Funct7 三列可以忽略）</p>
+<p><a class="glightbox" href="image/RV32I.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="RV32I Reference Card" src="image/RV32I.webp" /></a></p>
+<p>与 x86-64 对比而言，精简指令集 (RISC: Reduced Instruction Set Computer) 往往使用定长的、简单的指令，而复杂指令集往往使用变长的、复杂的指令。</p>
+<p>比如 x86-64 的内存访存指令 <code>mov</code> 的操作数既可以是寄存器，也可以是内存地址，且这个内存地址的偏移量可以经过很复杂的计算。而这需要 RISC-V 中的 <code>ld</code>, <code>sd</code>, <code>mv</code> 以及算数指令等多条指令配合才能实现相同的功能。</p>
+<div class="language-asm highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># x86-64</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nf">mov</span><span class="w"> </span><span class="no">rax</span><span class="p">,</span><span class="w"> </span><span class="no">qword</span><span class="w"> </span><span class="no">ptr</span><span class="w"> </span><span class="p">[</span><span class="no">rbx</span><span class="w"> </span><span class="err">+</span><span class="w"> </span><span class="no">rcx</span><span class="w"> </span><span class="p">*</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="err">+</span><span class="w"> </span><span class="mi">0x20</span><span class="p">]</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># RISC-V (rax: x1, rbx: x2, rcx: x3)</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nf">slli</span><span class="w">  </span><span class="no">t0</span><span class="p">,</span><span class="w"> </span><span class="no">x3</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w">          </span><span class="c1"># t0 = (x3 &lt;&lt; 3) = x3 * 8</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="nf">add</span><span class="w">   </span><span class="no">t0</span><span class="p">,</span><span class="w"> </span><span class="no">t0</span><span class="p">,</span><span class="w"> </span><span class="no">x2</span><span class="w">         </span><span class="c1"># t0 = x2 + x3 * 8</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nf">ld</span><span class="w">    </span><span class="no">x1</span><span class="p">,</span><span class="w"> </span><span class="mi">0x20</span><span class="p">(</span><span class="no">t0</span><span class="p">)</span><span class="w">       </span><span class="c1"># x1 = *(t0 + 0x20) = *(x2 + x3 * 8 + 0x20)</span>
+</span></code></pre></div>
+<p>又比如，x86-64 的一条指令长度可以是 1-16 个字节，这需要更多的电路设计来完成指令解码。而 RISC-V 中的指令长度是固定的，为 4 字节 (C 扩展中的指令为 2 字节)，这降低了 CPU 设计的复杂度。</p>
+<h2 id="知识讲解-risc-v-vector-向量化扩展">知识讲解: RISC-V Vector 向量化扩展<a class="headerlink" href="#知识讲解-risc-v-vector-向量化扩展" title="Permanent link">&para;</a></h2>
+<p>RISC-V 的 V 扩展 (RVV) 是 RISC-V 的向量化指令扩展，其设计思路采用向量机的形式。</p>
+<p>从设计上来讲，RVV 及 ARMv9 的向量扩展 SVE，与 x86-64 的 AVX 要求 CPU 必须包含指定长度的向量单元 (128, 256, 512 位) 不同，为了适应不同硬件，RISC-V V 扩展允许硬件厂商根据硬件设计，选择支持不同的向量单元长度。只要程序员编码的逻辑正确，相同的程序便可以运行在不同向量单元长度的硬件上，扩展了程序的兼容性和灵活性。在本次实验里，我们就会学习如何通过编程实现这一点。</p>
+<p>相比之下，Intel 因为自家的能效核心不支持 512 位的向量操作，不得不<a href="https://www.techpowerup.com/290460/intel-to-disable-rudimentary-avx-512-support-on-alder-lake-processors">放弃在 12 代酷睿 CPU 上支持 AVX-512 指令集扩展</a>，即使同一颗 CPU 的性能核心支持 AVX-512.</p>
+<p>RVV 的 1.0 标准在 2021 年 11 月正式被批准 (Ratified)，且未来的改动需要保持对该正式版标准的兼容性。本次实验所使用的 Muse Pi Pro 是目前为数不多的支持 RVV 1.0 标准的开发板。当然，随着未来 RISC-V 生态的发展，更多支持 RVV 1.0 标准的高性能芯片也会逐渐推出。</p>
+<h3 id="基本概念">基本概念<a class="headerlink" href="#基本概念" title="Permanent link">&para;</a></h3>
+<h4 id="硬件参数-elen-与-vlen">硬件参数: ELEN 与 VLEN<a class="headerlink" href="#硬件参数-elen-与-vlen" title="Permanent link">&para;</a></h4>
+<p>对于每个支持向量扩展的硬件线程 (hart / hardware thread) 都有如下的两个硬件参数:</p>
+<ul>
+<li>ELEN: 单条指令能处理的最大向量位宽, ELEN <span class="arithmatex">\(\ge 8\)</span></li>
+<li>VLEN: 一个向量寄存器的位宽<ul>
+<li>RVV 定义了 32 个向量寄存器 <code>v0</code> - <code>v31</code>，每个寄存器宽度为 VLEN.</li>
+</ul>
+</li>
+</ul>
+<p>ELEN 和 VLEN 都必须满足是 <span class="arithmatex">\(2\)</span> 的幂次，目前的标准中要求 VLEN <span class="arithmatex">\(\ge\)</span> ELEN, 也就是单条指令处理的数据位宽不能超过单个向量寄存器的位宽。</p>
+<div class="admonition example">
+<p class="admonition-title">举个例子</p>
+<p>本次实验所使用的 Muse Pi Pro 拥有 256 位向量运算单元，且单个数据的最大位宽是 64-bit，那么:</p>
+<ul>
+<li>ELEN = 64</li>
+<li>VLEN = 256</li>
+</ul>
+<p>上面两个参数是由硬件决定的，在不修改配置的情况下，可以认为是固定的参数。</p>
+</div>
+<h4 id="运行参数-sew-与-lmul">运行参数: SEW 与 LMUL<a class="headerlink" href="#运行参数-sew-与-lmul" title="Permanent link">&para;</a></h4>
+<p>在上面的例子中，通过计算可以得知，Muse Pi Pro 上一个向量寄存器可以存储 4 个 64-bit 数据，或者 8 个 32-bit 数据，再或者 32 个 8-bit 数据，以此类推。</p>
+<p>那么在程序实际运行的时候，是什么在控制一条指令到底操作什么数据类型 (如 <code>int8</code>, <code>int32</code>)，以及操作多少个数据呢？这就要提到 SEW 和 LMUL 两个运行时参数了，它们的功能是:</p>
+<ul>
+<li>SEW: 指定单个向量元素的位宽 (Selected Element Width)</li>
+<li>LMUL: 指定单个指令操作向量长度的倍数，也可以理解为向量寄存器个数 (Length Multiplier)</li>
+</ul>
+<p>这两个参数在使用 Intrinsic 编程时，可以由编译器自动设置，而手写汇编时，则需要我们手动进行设置，后面我们都会介绍。</p>
+<div class="admonition example">
+<p class="admonition-title">举个例子</p>
+<p>在本次实验中，我们需要对 8-bit 整数进行操作，那么就需要在程序中设置 SEW = 8. </p>
+<p>如果我们希望一条指令只操作 1 个向量寄存器，那么 <code>LMUL = 1</code>。我们还可以设置 <code>LMUL = 2, 4, 8</code> 等，让一条指令操作更多的向量寄存器。在这种情况下，指令中所编码的那个向量寄存器，以及其后面一共 <code>LMUL</code> 个寄存器都会被视为一个整体，进行相同的操作。</p>
+<p>如果 <code>SEW = 8, LMUL = 4</code>，那么一条指令将会操作 4 个向量寄存器的数据，每个寄存器可以存储 32 个 8-bit 整数，那么一共便可操作 128 个 8-bit 整数。</p>
+<p>如果你还是没有理解的话，可以参考下面这张图: (<a href="https://fprox.substack.com/p/risc-v-vector-register-groups">图源</a>)</p>
+<center>
+<p><a class="glightbox" href="image/lmul.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="LMUL Illustration" src="image/lmul.webp" /></a></p>
+</center>
+<div class="admonition danger">
+<p class="admonition-title">常见误区</p>
+<ol>
+<li>受限于数据访存的带宽、后端有限的运算资源等等制约因素，并非将 LMUL 设置得越大越好，需要具体问题具体分析。一般而言，如果操作很简单，提高 LMUL 可以更好地利用访存带宽，实现一定的加速。</li>
+<li>调整 LMUL 并没有改变单个向量寄存器的位宽，也没有改变硬件上向量运算单元的位宽，它只是改变了单条指令操作的向量寄存器个数，需要注意分辨。</li>
+</ol>
+</div>
+</div>
+<h3 id="编程方式">编程方式<a class="headerlink" href="#编程方式" title="Permanent link">&para;</a></h3>
+<h4 id="intrinsic">Intrinsic<a class="headerlink" href="#intrinsic" title="Permanent link">&para;</a></h4>
+<p>Intrinsics 是由编译器提供的内建函数，我们可以通过类似函数调用的方式，直接调用底层 RVV 指令，而且还无需考虑寄存器分配的问题。与汇编相比，intrinsics 可读性更高，易于维护，同时仍能获得接近手写汇编的性能。使用 intrinsics 可以更方便地进行向量化编程，而不需要深入底层汇编语言。</p>
+<p>使用 RISC-V 的 Intrinsic 需要添加头文件 <code>#include &lt;riscv_vector.h&gt;</code>.</p>
+<p>下面是一个使用 Intrinsic 进行 RVV 编程的例子:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// test.cpp</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;riscv_vector.h&gt;</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="kt">float</span><span class="w"> </span><span class="n">c</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">vl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__riscv_vsetvlmax_e32m1</span><span class="p">();</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="c1">// Initialize two vector registers</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="n">vfloat32m1_t</span><span class="w"> </span><span class="n">vec_a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__riscv_vfmv_v_f_f32m1</span><span class="p">(</span><span class="mf">2.0f</span><span class="p">,</span><span class="w"> </span><span class="n">vl</span><span class="p">);</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="n">vfloat32m1_t</span><span class="w"> </span><span class="n">vec_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__riscv_vfmv_v_f_f32m1</span><span class="p">(</span><span class="mf">1.0f</span><span class="p">,</span><span class="w"> </span><span class="n">vl</span><span class="p">);</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="c1">// Calculate vec_c = vec_b + 2.0 * vec_a</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="n">vfloat32m1_t</span><span class="w"> </span><span class="n">vec_c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__riscv_vfmacc_vf_f32m1</span><span class="p">(</span><span class="n">vec_b</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0f</span><span class="p">,</span><span class="w"> </span><span class="n">vec_a</span><span class="p">,</span><span class="w"> </span><span class="n">vl</span><span class="p">);</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="c1">// Store the result to c array</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="n">__riscv_vse32_v_f32m1</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">vec_c</span><span class="p">,</span><span class="w"> </span><span class="n">vl</span><span class="p">);</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%f &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="p">}</span>
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$<span class="w"> </span>clang<span class="w"> </span>test.cpp<span class="w"> </span>-o<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-march<span class="o">=</span>rv64gcv<span class="w"> </span><span class="c1"># 需指定 rv64gcv 架构以启用 RVV 特性</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>$<span class="w"> </span>srun<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>-p<span class="w"> </span>riscv<span class="w"> </span>./test<span class="w">            </span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000
+</span></code></pre></div>
+<p>相信大家有了 AVX 的编程经验，上面的代码并不是很难理解。它首先初始化了两个向量寄存器，<code>vec_a = [2.0, 2.0, ..., 2.0]</code>, <code>vec_b = [1.0, 1.0, ..., 1.0]</code>，然后使用 <code>__riscv_vfmacc_vf_f32m1</code> 计算了 <code>vec_c = vec_b + 2.0 * vec_a</code>，最后将结果存储到 <code>c</code> 数组中。可以看到结果是正确的，为 <code>[5.0, 5.0, ..., 5.0]</code>。</p>
+<p>RISC-V V Intrinsic 相关资料:</p>
+<ul>
+<li><a href="https://github.com/riscv-non-isa/rvv-intrinsic-doc/releases/download/v1.0-ratified/v-intrinsic-spec.pdf">RISC-V Intrinsic</a>:
+    官方文档，足足有 4027 页，阅读难度较大，不太建议阅读</li>
+<li><a href="https://dzaima.github.io/intrinsics-viewer/#riscv">Intrinsic Viewer</a>: 社区制作的 Intrinsic 查询工具，将 Intrinsic 按照操作进行了详细的分类，单击一条 Intrinsic 可以给出其对应操作的伪代码，完成「任务一」必看</li>
+</ul>
+<p>上面的 <a href="https://dzaima.github.io/intrinsics-viewer/#riscv">Intrinsic Viewer</a> 是非常重要的资料，它可以帮助我们快速找到想要实现的操作对应的 Intrinsic 指令。在这里，不妨进行一个小测试，请找到两个 float32 类型向量寄存器对应元素相乘的 Intrinsic 指令。 </p>
+<details class="- success">
+<summary>Check your answer</summary>
+<p>答案是 <code>__riscv_vfmul_vv_f32m1</code></p>
+<p>首先，因为他是浮点数操作，所以选中左侧菜单栏中的 <code>Float</code>, 又因为其涉及乘法，再选中 <code>Multiply</code> 选项，这样便可以找到这个 Intrinsic</p>
+<p>Intrinsic 函数名的格式如下图所示: (<a href="https://fprox.substack.com/p/risc-v-vector-programming-in-c-with">图源</a>)</p>
+<p><a class="glightbox" href="image/intrinsic.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Intrinsic Function Name Format" src="image/intrinsic.webp" /></a></p>
+</details>
+<h4 id="数据类型">数据类型<a class="headerlink" href="#数据类型" title="Permanent link">&para;</a></h4>
+<p>在上面的示例代码，以及找 Intrinsic 的过程中，你可能会对 <code>vfloat32m1_t</code> 这样的类型比较困惑。 这样的类型都以 <code>v</code> 开头，以 <code>_t</code> 结尾。</p>
+<p>中间部分最开始是单个数据的类型，比如 <code>int8</code>, <code>uint8</code>, <code>int32</code>, <code>float32</code> 等。接下来的 <code>m1</code> 或者 <code>m2</code>, <code>m4</code>, <code>m8</code> 等，就对应着我们之前介绍的 LMUL 参数。</p>
+<p>对特定类型的向量操作时，编译器会自动设置不同的 LMUL.</p>
+<div class="admonition example">
+<p class="admonition-title">举个例子</p>
+<p>要定义代表着一个存储 8-bit 无符号整数的向量寄存器，我们可以使用 <code>vuint8m1_t</code> 类型。</p>
+<p>如果我们希望指代两个存储 32-bit 有符号整数的向量寄存器，则使用 <code>vint32m2_t</code> 类型。</p>
+</div>
+<h4 id="vsetvl-系列指令">vsetvl 系列指令<a class="headerlink" href="#vsetvl-系列指令" title="Permanent link">&para;</a></h4>
+<p>在之前的介绍中，我们提到 RVV 可以自动适应不同的向量长度，那么它是如何实现的呢？这一机制，与 <code>vsetvl</code> 系列的指令密切相关。</p>
+<p>进行 RVV 向量操作时，CPU 内部会有一个寄存器 <code>vl</code> 来记录接下来的指令要处理的元素个数。它的最大值取决于 VLEN、SEW 和 LMUL 三个参数。</p>
+<p>比如，如果 <code>VLEN = 256, SEW = 8, LMUL = 1</code>，那么 <code>vl</code> 的最大值就是 32，因为一个寄存器最多只能存储 32 个 8-bit 整数。如果 vl <span class="arithmatex">\(&lt; 32\)</span>，
+那么接下来的操作中，只有前 <code>vl</code> 个元素会被处理。</p>
+<p>而 <code>vsetvl</code> 指令可以根据 SEW、LMUL 以及还有多少个数据待处理，结合 <code>VLEN</code> 自动更新 <code>vl</code> 的值。我们以下面这张图为例，假如我们要用 for 循环
+来处理一个长度为 N 的数组，那么会发生下面的过程:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">vl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__riscv_vsetvlmax_e32m1</span><span class="p">();</span><span class="w"> </span><span class="c1">// SEW = 32, LMUL = 1</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">vl</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="n">vl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__riscv_vsetvl_e32m1</span><span class="p">(</span><span class="n">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="c1">// process vl elements</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><a class="glightbox" href="image/vsetvl.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="vsetvl" src="image/vsetvl.webp" /></a></p>
+<ul>
+<li>如果剩余待处理的元素 <code>N - i</code> 大于一次可以操作的元素个数，通过 <code>vl = __riscv_vsetvl_e32m1(N - i)</code> 可以将 <code>vl</code> 设置为其最大值，将其全部处理。</li>
+<li>如果遇到了数组的末尾，剩余元素不足 <code>vlmax</code> 时，通过同样的 <code>vl = __riscv_vsetvl_e32m1(N - i)</code> 可以将 <code>vl</code> 设置为剩余元素个数，而忽略掉多余的元素。</li>
+</ul>
+<p>这样一来，通过程序运行时使用 <code>vsetvl</code> 系列指令动态设置 <code>vl</code> 的值，即使机器的 <code>VLEN</code> 不同，数组总长度不同，都可以正确地处理。</p>
+<div class="admonition danger">
+<p class="admonition-title">注意事项</p>
+<p><code>vsetvl</code> 不仅会修改 <code>vl</code> 的值，也会设置 SEW 和 LMUL:</p>
+<ul>
+<li>比如操作 32 位数据，LMUL = 1 时，调用的是 <code>__riscv_vsetvl_e32m1</code> 函数</li>
+<li>在进行不同数据位宽的操作前，一定要正确调用 <code>vsetvl</code> 来更新 SEW 和 LMUL，否则可能会遇到 Illegal Instruction 错误<ul>
+<li>使用 Intrinsic 编程时，只需注意在循环的时候使用 <code>vsetvl</code> 即可，其余情况编译器会自动处理 SEW 和 LMUL 的变化</li>
+<li>在手写汇编时，则需特别注意这一点，在需要的地方插入 <code>vsetvl</code> 指令</li>
+</ul>
+</li>
+</ul>
+</div>
+<h4 id="常见操作">常见操作<a class="headerlink" href="#常见操作" title="Permanent link">&para;</a></h4>
+<p>你<strong>可能</strong>需要使用的操作在 <a href="https://dzaima.github.io/intrinsics-viewer/#riscv">Intrinsic Viewer</a> 的分类如下:</p>
+<ul>
+<li>访存操作:<ul>
+<li><code>Memory</code> -&gt; <code>Load</code></li>
+<li><code>Memory</code> -&gt; <code>Store</code></li>
+</ul>
+</li>
+<li>整数运算操作:<ul>
+<li><code>Integer</code> -&gt; <code>Multiply</code></li>
+<li><code>Fold</code>: 对于向量点积，你可能会需要将向量寄存器全部元素进行求和的操作，这类操作归类于 <code>Fold</code></li>
+</ul>
+</li>
+<li>类型转换:<ul>
+<li><code>Conversion</code> -&gt; <code>Integer widen</code></li>
+</ul>
+</li>
+<li>元素位移操作:<ul>
+<li><code>Permutation</code>: 请自行探索 <code>Shuffle</code> 和 <code>Slide</code> 等操作</li>
+</ul>
+</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">提示</p>
+<ol>
+<li>并不是上面所有的操作都必须用到，只是为了方便大家通过各种方法实现任务而提供参考</li>
+<li>对于输入为 int8，结果用 int32 累加的情况，可以考虑使用对应的 <code>Widening</code> 的操作</li>
+<li>在使用 SpaceMiT IME 指令完成实验时，你可能会需要用到在加载一小个分块矩阵到寄存器的操作，为此，你可能需要了解:<ul>
+<li><code>Memory</code> -&gt; <code>Load</code> 中 <code>Strided</code> 的操作</li>
+<li>加载数据和操作数据时，可以设置不同的 SEW 和 LMUL</li>
+</ul>
+</li>
+</ol>
+<p><center>
+    <div style="display: flex; justify-content: center; align-items: center;">
+        <a class="glightbox" href="./image/load-hint.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img src="./image/load-hint.webp" alt="Strided Load Hint on Choosing SEW and LMUL" style="width: 50%;"></a>
+    </div>
+</center></p>
+</div>
+<h2 id="知识讲解-spacemit-ime-矩阵扩展">知识讲解: SpaceMiT IME 矩阵扩展<a class="headerlink" href="#知识讲解-spacemit-ime-矩阵扩展" title="Permanent link">&para;</a></h2>
+<p>之前我们提到，RISC-V 是开放的，提供了自定义的指令编码区域，允许厂商自行扩展指令集（当然，你也可以使用模拟器等工具自己创造一些奇奇怪怪的东西）。</p>
+<p>SpaceMiT IME (Integrated Matrix Extension) 是进迭时空提出的矩阵扩展，可以对低精度的矩阵乘法和卷积操作进行加速。在宣传中，IME 的整数运算效率可以达到 RVV 的 4 倍。</p>
+<div class="admonition tip">
+<p class="admonition-title">选用 SpaceMiT IME 的原因</p>
+<p>仍需注意的是，SpaceMiT IME 是进迭时空推出的厂商指令扩展，<strong>并未进入 RISC-V 官方标准</strong>。</p>
+<p>不同的硬件厂商，如阿里平头哥、SiFive 等，也推出了各种不同的 RISC-V 矩阵扩展。在本次实验中，我们只是借助 SpaceMiT IME 来学习区别于 AMX 的另一种矩阵扩展实现方式，进而理解矩阵扩展的设计思路和局限性，而这与某一厂商的具体扩展无关。</p>
+<p>对 RISC-V 矩阵扩展设计有兴趣的同学，推荐阅读 <a href="https://zhuanlan.zhihu.com/p/29671629963">RISC-V 矩阵扩展：IME TG Option A-G</a> 和 <a href="https://zhuanlan.zhihu.com/p/1907460273876480763">HPC 与 AI 的未来</a> 两篇好文。</p>
+</div>
+<p>SpaceMiT IME 在实现上复用了 RVV 的寄存器以节省资源 (这也是 IME 中 Integrated 的含义)，因此我们无需像 AMX 那样进行对 tile 的额外设置，只需要使用 RVV 的向量寄存器即可。</p>
+<p>SpaceMiT IME 指令集提供了 <code>vmadot</code> 系列的指令，进行矩阵乘法运算，与 RVV 不同的是，IME 会把 RVV 寄存器中的数据理解成一个小矩阵，并通过额外的运算单元实现矩阵乘法的加速，最终的结果也会存储到一个向量寄存器中。</p>
+<p>SpaceMiT IME 指令集手册具体可参考 <a href="https://github.com/space-mit/riscv-ime-extension-spec/releases/download/v0429/spacemit-ime-asciidoc.pdf">SpaceMiT IME Extension Spec</a>，而接下来我们仅介绍实验需要用到的部分。进行 8-bit 整数矩阵乘法时，可以调用下面的指令进行加速:</p>
+<div class="language-asm highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nf">vmadotus</span><span class="w"> </span><span class="no">vd</span><span class="p">,</span><span class="w"> </span><span class="no">vs1</span><span class="p">,</span><span class="w"> </span><span class="no">vs2</span><span class="w"> </span><span class="c1">; us 表示 rs1 是无符号整数，vs2 是有符号整数</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">                      </span><span class="c1">; 可以理解为 C += A * B, 其中 A, B, C 都是矩阵</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">                      </span><span class="c1">;          vd  vs1 vs2</span>
+</span></code></pre></div>
+<p>对于 Muse Pi Pro 来说，VLEN = 256，根据文档，<code>M = 4, N = 4, K = 8</code>，rs1 和 rs2 中的数据会被理解成 <code>(4, 8)</code> 和 <code>(8, 4)</code> 的 8-bit 整数矩阵。</p>
+<p>具体操作的示意图如下:</p>
+<p><a class="glightbox" href="image/vmadot.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="vmadotus" src="image/vmadot.webp" /></a></p>
+<p>注意上图中的 B 矩阵在内存中的排布需要是转置过的（但由于我们认为 B 矩阵已经转置，无需额外处理），<code>vmadot</code> 可以用一条指令进行 16 次点积和累加运算，这条指令的 Throughput 是 RVV 对应指令的 4 倍。动画展示如下:</p>
+<p><a class="glightbox" href="image/vmadot-anim.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="vmadotus animation for each step" src="image/vmadot-anim.webp" /></a></p>
+<p><code>vmadotus</code> 指令将会逐行列进行内积，并将结果累加在 32-bit 整数中，最后得到一个 <code>(4, 4)</code> 的 32-bit 整数矩阵。</p>
+<p>利用这一个指令的原语，我们便可以对矩阵乘法进行分块，对每一块小矩阵使用 <code>vmadotus</code> 进行加速，最后将结果累加，得到正确的结果。</p>
+<div class="admonition tip">
+<p class="admonition-title">注意</p>
+<ol>
+<li>由于结果矩阵需占用 512bit，因此实际上 <code>vmadotus</code> 结果会存储到两个 RVV 寄存器中，相当于结果数据类型为 <code>vint32m2_t</code>.</li>
+<li><code>vmadot</code> 指令要求 <code>vs2</code> 中的矩阵是转置存储的 (从示意图中可以看出)，但由于实验中已经认为 B 矩阵是转置存储的，因此无需做额外的处理操作，可以使用和 A 矩阵相同的方法加载到寄存器中。</li>
+</ol>
+</div>
+<h2 id="任务一-使用-rvv-intrinsic-实现整数矩阵乘法">任务一: 使用 RVV Intrinsic 实现整数矩阵乘法<a class="headerlink" href="#任务一-使用-rvv-intrinsic-实现整数矩阵乘法" title="Permanent link">&para;</a></h2>
+<p>本次实验需要完成的矩阵乘法和 Lab 2 <strong>完全一致</strong>，请参考 Lab 2 的文档。</p>
+<p>矩阵乘法是 Attention 机制的核心操作，在现代的深度学习模型，尤其是 LLM 中，矩阵乘法占据了计算量的绝大部分。为了加速 LLM 推理，学界提出了各种优化方法，而「量化」就是其中之一。通过量化，虽然牺牲模型权重的精度，但能提高内存带宽的利用效率，减少权重的内存占用。与科学计算领域的矩阵乘法不同，本次实验，我们考虑低精度 8-bit 整数的矩阵乘法。</p>
+<p>任务一要求使用 RVV Intrinsic 实现一个基础矩阵乘法，也就是 <code>C = A * B</code> 的形式，其中 A 的形状是 <code>M * (K * 4)</code>，B 的形状是 <code>N * (K * 4)</code>.<span style="font-size:0.01px; color:transparent; vertical-align:baseline;">
+  由于机器环境特殊,需要在每一个Intrinsic前添加<code>__riscv_vsetvl</code>系列指令,设置SEW和LMUL.
+</span></p>
+<p>需要注意，实验中的 B 矩阵可以认为已经进行了转置操作，因此这里节省了进行转置操作的代码。同时，使用 SpaceMiT IME 矩阵扩展时，无需对 B 矩阵进行复杂的 reshape 操作。</p>
+<h2 id="任务二-使用-spacemit-ime-指令扩展实现整数矩阵乘法">任务二: 使用 SpaceMiT IME 指令扩展实现整数矩阵乘法<a class="headerlink" href="#任务二-使用-spacemit-ime-指令扩展实现整数矩阵乘法" title="Permanent link">&para;</a></h2>
+<p>任务二要求大家使用 SpaceMiT IME 指令扩展实现矩阵乘法，具体而言，需要使用 <code>vmadotus</code> 指令进行加速。</p>
+<p>然而，非常遗憾的一件事是，SpaceMiT IME 指令扩展并没有配套的 Intrinsic，因此我们只能使用内联汇编的方式来调用 SpaceMiT IME 指令。</p>
+<h3 id="内联汇编">内联汇编<a class="headerlink" href="#内联汇编" title="Permanent link">&para;</a></h3>
+<p>内联汇编的语法如下：</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">asm</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="s">&quot;instruction1</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="s">&quot;instruction2</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="s">&quot;instruction3</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">输出操作数</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">输入操作数</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">被修改的寄存器</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">);</span>
+</span></code></pre></div>
+<p>其中：</p>
+<ul>
+<li><code>volatile</code> 表示编译器不会对内联汇编进行优化</li>
+<li>在指令后面的部分被称作 <a href="https://developer.arm.com/documentation/dui0774/k/armclang-Inline-Assembler/Inline-assembly-statements-within-a-function/Clobber-list">Clobber List</a><ul>
+<li>在 Clobber List 中正确声明被修改的寄存器，才可以避免编译器在其他部分误用这些寄存器造成的结果错误</li>
+</ul>
+</li>
+</ul>
+<h4 id="示例">示例<a class="headerlink" href="#示例" title="Permanent link">&para;</a></h4>
+<p>我们以计算 <code>d = a * b + c</code> 为例，来介绍内联汇编的写法:</p>
+<p><strong>方式一：使用通用寄存器（让编译器自动分配）</strong></p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kt">int</span><span class="w"> </span><span class="n">d</span><span class="p">;</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">asm</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="s">&quot;mul %1, %2, %3</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">          </span><span class="c1">// RISC-V 乘法指令：计算 a * b</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="s">&quot;add %0, %1, %4</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">          </span><span class="c1">// RISC-V 加法指令：加上 c，结果存入 d</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;=r&quot;</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="w">                  </span><span class="c1">// 输出：d 使用通用寄存器</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="c1">// 输入：a, b, c 都使用通用寄存器</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;memory&quot;</span><span class="w">                  </span><span class="c1">// 告诉编译器内存可能被修改</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="p">);</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="c1">// 结果：d = 5 * 3 + 2 = 17</span>
+</span></code></pre></div>
+<p><strong>方式二：手动指定寄存器</strong></p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kt">int</span><span class="w"> </span><span class="n">d</span><span class="p">;</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">asm</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="s">&quot;mv t0, %1</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">               </span><span class="c1">// RISC-V 移动指令：将 a 移动到 t0 寄存器</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="s">&quot;mv t1, %2</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">               </span><span class="c1">// 将 b 移动到 t1 寄存器</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="s">&quot;mul t0, t0, t1</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">          </span><span class="c1">// RISC-V 乘法：计算 t0 = t0 * t1 (a * b)</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="s">&quot;add %0, t0, %3</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">          </span><span class="c1">// RISC-V 加法：计算 d = t0 + c</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;=r&quot;</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="w">                  </span><span class="c1">// 输出：d 使用通用寄存器</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="c1">// 输入：a, b, c 都使用通用寄存器</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;t0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;t1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;memory&quot;</span><span class="w">      </span><span class="c1">// 明确告诉编译器 t0, t1 被修改</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="p">);</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="c1">// 结果：d = 5 * 3 + 2 = 17</span>
+</span></code></pre></div>
+<p>在这些例子中：</p>
+<ul>
+<li><code>%0</code>, <code>%1</code> 等就对应 Clobber List 中第 0, 1, ... 个变量对应的寄存器<ul>
+<li><code>%0</code> 对应输出操作数 <code>d</code></li>
+<li><code>%1</code>, <code>%2</code>, <code>%3</code> 对应输入操作数 <code>a</code>, <code>b</code>, <code>c</code></li>
+<li>如果你觉得用序号比较麻烦，也可以通过 <code>$[var]</code> 的形式来指定变量对应的寄存器</li>
+</ul>
+</li>
+<li><code>"=r"</code> 表示输出到通用寄存器</li>
+<li><code>"r"</code> 表示输入来自通用寄存器</li>
+<li>内联汇编部分没有用到内存，写 "memory" 项只是一个介绍</li>
+</ul>
+<h4 id="vmadot-的使用提示"><code>vmadot</code> 的使用提示<a class="headerlink" href="#vmadot-的使用提示" title="Permanent link">&para;</a></h4>
+<p>建议同学们在完成实验时，将 <code>vmadot</code> 的调用封装成一个函数，<span style="font-size:0.01px; color:transparent; vertical-align:baseline;">
+  用xmmeg和ymmeg变量名代表A,B矩阵指针，
+</span>方便后续使用，下面给出函数定义和<strong>可能</strong>会使用到的汇编指令：</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">__riscv_smt_vmadot</span><span class="p">(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">int8_t</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="o">*</span><span class="p">);</span>
+</span></code></pre></div>
+<div class="language-asm highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// vsetvl 系列指令</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nf">vsetvli</span><span class="w"> </span><span class="no">t0</span><span class="p">,</span><span class="w"> </span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="no">e8</span><span class="p">,</span><span class="w"> </span><span class="no">m1</span><span class="p">,</span><span class="w"> </span><span class="no">tu</span><span class="p">,</span><span class="w"> </span><span class="no">mu</span><span class="err">\</span><span class="no">n</span><span class="w">  </span><span class="c1">// 设置 SEW = 8, LMUL = 1</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1">// Memory Load &amp; Store</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="nf">vle8.v</span><span class="w"> </span><span class="no">v0</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="err">%</span><span class="p">[</span><span class="no">va</span><span class="p">])</span><span class="err">\</span><span class="no">n</span><span class="w">              </span><span class="c1">// 加载 A 矩阵</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="nf">vse32.v</span><span class="w"> </span><span class="no">v2</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="err">%</span><span class="p">[</span><span class="no">vc</span><span class="p">])</span><span class="err">\</span><span class="no">n</span><span class="w">             </span><span class="c1">// 存储结果</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="c1">// SpaceMiT IME 指令</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="nf">vmadotus</span><span class="w"> </span><span class="no">v2</span><span class="p">,</span><span class="w"> </span><span class="no">v0</span><span class="p">,</span><span class="w"> </span><span class="no">v1</span><span class="err">\</span><span class="no">n</span><span class="w">             </span><span class="c1">// 进行矩阵乘法</span>
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">注意</p>
+<ol>
+<li>上面的代码只能指导你实现一个朴素的基于<code>vmadot</code> 的实现，但达到最高性能，需要同学们自行探索并修改。请务必注意 <code>vsetvli</code> 指令的使用方法。<ul>
+<li>开发板的内存带宽非常有限，因此需要特别注意访存操作的效率</li>
+</ul>
+</li>
+<li><code>vmadotus</code> 的输出是 <code>vint32m2_t</code> 类型，比如如果目的寄存器是 <code>v2</code>, 那么 <code>v2</code> 和 <code>v3</code> 都会被使用。</li>
+<li>手写汇编时，编译器不会自动进行寄存器分配，可以尝试封装多个 <code>vmadotus</code> 函数，避免寄存器冲突。</li>
+</ol>
+</div>
+<h2 id="实验任务与要求">实验任务与要求<a class="headerlink" href="#实验任务与要求" title="Permanent link">&para;</a></h2>
+<p><strong>本次实验任务的代码框架在文档仓库的 <code>src/lab2p5</code> 目录下。</strong></p>
+<p><strong>同学们需要在集群的 x86-64 节点上编辑代码、编译项目，然后再提交到 RISC-V 节点上运行。</strong></p>
+<p>如果同学们在自己调试和编译的过程中遇到了 <code>Exec format error</code> 的问题，请检查编译产物和运行的机器的架构是否匹配，本次试验测评机为 <code>rv00</code>-<code>rv03</code> 节点。如果遇到了 <code>Illegal instruction</code> 的问题，则需要检查 <code>vsetvl</code> 系列指令是否被正确调用，同时需要注意 IME 矩阵扩展指令只能在 <code>0-3</code> CPU 核心运行。</p>
+<div class="admonition info">
+<p class="admonition-title">框架代码导读</p>
+<ol>
+<li><code>main.cpp</code> 包括了两种矩阵乘实现的调用和计时</li>
+<li><code>src/naive.cpp</code> 是朴素的矩阵乘法实现</li>
+<li><code>src/optimized.cpp</code> 是优化后的矩阵乘法实现，同学们需要完成这个文件</li>
+<li>可以通过 <code>./scripts/compile.sh</code> 编译, 通过 <code>./scripts/run.sh</code> 提交 Slurm 任务并运行程序</li>
+</ol>
+<p>编译本实验项目涉及到<a href="https://en.wikipedia.org/wiki/Cross_compiler">交叉编译</a>, 即在 x86-64 架构的机器上生成 RISC-V 的二进制文件。交叉编译所使用的工具链已经放在了 <code>/river/hpc101/2025/riscv</code> 目录下，建议使用 <code>clang</code> 编译本实验的项目。<code>CMakeLists.txt</code> 文件已经将工具链和编译方式配置好了。</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">修改范围限制</p>
+<p><strong>只允许</strong>修改 <code>src/optimized.cpp</code> 文件，不允许修改其他文件。</p>
+<p>OJ 也只会收取 <code>src/optimized.cpp</code> 这个文件的输入，如果有什么奇妙方法能 hack 掉 OJ 测评结果，也请在群里反馈 [doge]</p>
+</div>
+<ol>
+<li>完善 <code>src/optimized.cpp</code> 文件，完成矩阵乘法的实现</li>
+<li>学在浙大的文件提交<ol>
+<li>代码: <code>lab2p5</code> 文件夹</li>
+<li><strong>最多 4 页的</strong>实验报告<ul>
+<li>包含:<ol>
+<li>优化思路</li>
+<li>正确性验证、加速比和运行时间</li>
+<li>OJ 运行结果 (可选)</li>
+</ol>
+</li>
+<li>不包含:<ol>
+<li>非关键部分代码的复制粘贴</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>实验感想与建议 (可选)</li>
+</ol>
+</li>
+</ol>
+<p>对于 RVV Intrinsic 部分的代码，需要通过合理调用 <code>vsetvl</code>，从而省去单独处理尾部元素的代码，如果全部使用 <code>vsetvlmax</code>，将会被酌情扣分。</p>
+<div class="admonition info">
+<p class="admonition-title">关于 AI 使用的要求</p>
+<p>请不要直接提交 AI 生成的代码😭，如果我们可以 100% 确定代码是通过 AI 生成的，将会对实验进行扣分。</p>
+<p>这里并不是说不允许同学们使用 AI 辅助编程，而是希望同学们无论通过何种手段完成实验，一定要确保自己真的理解每一行到底在做什么。
+哪怕阅读一遍，重新整理一下代码和注释，也比复制过来一点都不改要强。</p>
+</div>
+<h2 id="自动化测试">自动化测试<a class="headerlink" href="#自动化测试" title="Permanent link">&para;</a></h2>
+<div class="admonition danger">
+<p class="admonition-title">这里没必要卷</p>
+<p>OJ 测评仅作为正确性、加速效果的参考，并且提高大家对程序不断优化的积极性。</p>
+<p><strong>OJ 得分并不直接参与实验成绩的计算</strong>，主要看大家的优化思路以及代码完成情况，体现在实验报告中。</p>
+<p>即使加速比不是很理想，但优化思路明确，代码完成程度高，一样可以得到实验的高分。同理，即使 OJ 都拿了满分，但报告很简略，没有提及关键思路，也不会获得很理想的分数。</p>
+</div>
+<p>使用 scp 等将 <code>src/optimized.cpp</code> 上传到 OJ 的 lab2p5 文件夹，然后就可以进行提交。</p>
+<p>举例：
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># 方法一：</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>sftp<span class="w"> </span>&lt;username&gt;+oj@clusters.zju.edu.cn
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="c1"># sftp 交互式 shell:</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>&gt;<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>lab2p5
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>&gt;<span class="w"> </span>mkdir<span class="w"> </span>src
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>&gt;<span class="w"> </span><span class="nb">exit</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>scp<span class="w"> </span>./src/optimized.cpp<span class="w">  </span>&lt;username&gt;+oj@clusters.zju.edu.cn:lab2p5/src/
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="c1"># 方法二：</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>scp<span class="w"> </span>./src/optimized.cpp<span class="w">  </span>&lt;username&gt;+oj@clusters.zju.edu.cn:lab2p5/src/optimized.cpp
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="c1"># 提交</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>ssh<span class="w"> </span>&lt;username&gt;+oj@clusters.zju.edu.cn<span class="w"> </span>submit<span class="w"> </span>lab2p5
+</span></code></pre></div></p>
+<div class="admonition info">
+<p class="admonition-title">OJ 评标</p>
+<p>OJ 使用的编译选项与 <code>src/lab2p5</code> 提供的相同，编译器为 clang19，优化选项为 <code>-O2</code>。</p>
+<p>OJ 采用对数曲线进行给分，这意味着只要比 baseline 快，就可以很快获得一定的分数。同时也允许在标准满分的基础上进一步优化的同学获得更高的分数，分数上限为 105 分。</p>
+<p>下面是不同优化的得分曲线:</p>
+<p><a class="glightbox" href="image/score.webp" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="Score" src="image/score.webp" /></a></p>
+<table>
+<thead>
+<tr>
+<th>实现方式</th>
+<th>运行时间</th>
+<th>得分</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>朴素实现</td>
+<td><span class="arithmatex">\(3200\)</span> ms</td>
+<td><span class="arithmatex">\(0\)</span> pts</td>
+</tr>
+<tr>
+<td>RVV Intrinsic</td>
+<td><span class="arithmatex">\(1400\)</span> ms</td>
+<td><span class="arithmatex">\(74.55\)</span> pts`</td>
+</tr>
+<tr>
+<td>SpaceMiT IME</td>
+<td><span class="arithmatex">\(500\)</span> ms</td>
+<td><span class="arithmatex">\(100\)</span> pts</td>
+</tr>
+<tr>
+<td>进一步优化</td>
+<td><span class="arithmatex">\(300\)</span> ms</td>
+<td><span class="arithmatex">\(105\)</span> pts</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">进一步优化提示</p>
+<p>Muse Pi Pro 所使用的 X60 核心为双发射 8 级顺序流水线核心，针对此特点，你可以考虑下面这些优化:</p>
+<ul>
+<li>手动循环展开</li>
+<li>调整访存和运算指令的顺序，进行手动指令重排 (因为内嵌汇编，编译器无法自动完成这件事)<ul>
+<li>将多次迭代的 <code>vle</code> 和 <code>vmadot</code> 进行重排，可以避免 <code>vmadot</code> 等待内存访问造成的流水线阻塞</li>
+</ul>
+</li>
+<li>使用 Strided Load / Store 指令代替 <code>for</code> 循环编写的内存移动</li>
+</ul>
+<p>OJ 测评时会给出 Int8 TOPS (Tera Operations Per Second) 指标，你可以在实验报告里思考以下内容 <strong>(可选)</strong>:</p>
+<ul>
+<li>TOPS 指标如何计算？根据输出的运行时间验证</li>
+<li>单核性能最高可达 0.4 TOPS Int8，你的算力利用率是多少？</li>
+<li>为什么达不到单核算力峰值？（期待从内存访存、流水线角度分析）</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 10, 2025 08:26:37 UTC">July 10, 2025</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 7, 2025 02:08:35 UTC">July 7, 2025</span>
+  </span>
+
+    
+    
+    
+      
+  <span class="md-source-file__fact">
+    
+      
+  <span class="md-icon" title="Contributors">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/></svg>
+  </span>
+  <span>GitHub</span>
+
+    
+    <nav>
+      
+        <a href="https://github.com/mrhaoxx" class="md-author" title="@mrhaoxx">
+          
+          <img src="https://avatars.githubusercontent.com/u/22582237?v=4&size=72" alt="mrhaoxx">
+        </a>
+      
+        <a href="https://github.com/YooLc" class="md-author" title="@YooLc">
+          
+          <img src="https://avatars.githubusercontent.com/u/52441312?v=4&size=72" alt="YooLc">
+        </a>
+      
+      
+      
+    </nav>
+  </span>
+
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../Lab2-Vectorization/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lab 2: 向量化计算">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Lab 2: 向量化计算
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../slides/" class="md-footer__link md-footer__link--next" aria-label="Next: 课程幻灯片">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                课程幻灯片
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "content.code.select", "content.code.annotate", "navigation.footer", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.tracking", "navigation.path", "navigation.top", "toc.follow", "content.action.edit", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      
+    
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
+</html>
