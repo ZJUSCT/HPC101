@@ -297,12 +297,12 @@ SpaceMiT IME 指令集提供了 `vmadot` 系列的指令，进行矩阵乘法运
 SpaceMiT IME 指令集手册具体可参考 [SpaceMiT IME Extension Spec](https://github.com/space-mit/riscv-ime-extension-spec/releases/download/v0429/spacemit-ime-asciidoc.pdf)，而接下来我们仅介绍实验需要用到的部分。进行 8-bit 整数矩阵乘法时，可以调用下面的指令进行加速:
 
 ```asm
-vmadotus vd, vs1, vs2 ; us 表示 rs1 是无符号整数，vs2 是有符号整数
+vmadotus vd, vs1, vs2 ; us 表示 vs1 是无符号整数，vs2 是有符号整数
                       ; 可以理解为 C += A * B, 其中 A, B, C 都是矩阵
                       ;          vd  vs1 vs2
 ```
 
-对于 Muse Pi Pro 来说，VLEN = 256，根据文档，`M = 4, N = 4, K = 8`，rs1 和 rs2 中的数据会被理解成 `(4, 8)` 和 `(8, 4)` 的 8-bit 整数矩阵。
+对于 Muse Pi Pro 来说，VLEN = 256，根据文档，`M = 4, N = 4, K = 8`，vs1 和 vs2 中的数据会被理解成 `(4, 8)` 和 `(8, 4)` 的 8-bit 整数矩阵。
 
 具体操作的示意图如下:
 
@@ -403,7 +403,7 @@ asm volatile (
 - `%0`, `%1` 等就对应 Clobber List 中第 0, 1, ... 个变量对应的寄存器
     - `%0` 对应输出操作数 `d`
     - `%1`, `%2`, `%3` 对应输入操作数 `a`, `b`, `c`
-    - 如果你觉得用序号比较麻烦，也可以通过 `$[var]` 的形式来指定变量对应的寄存器
+    - 如果你觉得用序号比较麻烦，也可以通过 `%[var]` 的形式来指定变量对应的寄存器
 - `"=r"` 表示输出到通用寄存器
 - `"r"` 表示输入来自通用寄存器
 - 内联汇编部分没有用到内存，写 "memory" 项只是一个介绍
