@@ -25,7 +25,7 @@
 
 本实验在「实验 2: 向量化计算」相同背景的基础上，以 RISC-V 的 V (Vector) 和进迭时空的 IME 矩阵扩展为例，向同学们介绍与 AVX, AMX 不同的向量 / 矩阵扩展设计思路。旨在让感兴趣的同学了解开放指令集架构 RISC-V 的生态，学习能够适配不同向量单元长度的向量扩展的设计，进而对向量化加速有更深入的理解。
 
-## 知识讲解: RISC-V 指令集
+## 知识讲解：RISC-V 指令集
 
 <div style="display: flex; width: 100%; align-items: center; justify-content: center;">
     <div style="width: 50%; text-align: center; padding: 0 10px;">
@@ -33,14 +33,14 @@
     </div>
 </div>
 
-RISC-V 是一个开源的、基于精简指令集（RISC）原则的指令集架构（ISA）。 RISC-V 诞生于 2010 年，并逐渐发展成为一个全球性的开放协作项目，被认为是继 x86 和 ARM 之后，全球三大主流指令集架构之一。与后者不同的是，RISC-V 属于开放的、非盈利性质的 [RISC-V 国际基金会](https://community.riscv.org)。这样的初衷是确保 RISC-V 生态不受某家公司或某个国家的影响。
+RISC-V 是一个开源的、基于精简指令集（RISC）原则的指令集架构（ISA）。RISC-V 诞生于 2010 年，并逐渐发展成为一个全球性的开放协作项目，被认为是继 x86 和 ARM 之后，全球三大主流指令集架构之一。与后者不同的是，RISC-V 属于开放的、非盈利性质的 [RISC-V 国际基金会](https://community.riscv.org)。这样的初衷是确保 RISC-V 生态不受某家公司或某个国家的影响。
 
 RISC-V 的主要特点和优势包括：
 
 - **开源和开放**：
-    RISC-V 是一种开放的ISA，这意味着任何人都可以免费使用、修改和分发它，无需支付许可费用，这促进了创新和合作
+    RISC-V 是一种开放的 ISA，这意味着任何人都可以免费使用、修改和分发它，无需支付许可费用，这促进了创新和合作
 - **模块化和可扩展**：
-    RISC-V 的设计是模块化的，允许用户根据需求定制指令集，支持不同位宽的处理器（32位、64位、128位等）
+    RISC-V 的设计是模块化的，允许用户根据需求定制指令集，支持不同位宽的处理器（32 位、64 位、128 位等）
 - **简洁高效**：
     RISC-V 采用了精简指令集原则，指令集相对简单，易于实现和理解，有助于提高能效和降低功耗。因此目前有越来越多的低功耗 MCU 采用 RISC-V 指令集。
 - **全球社区支持**：
@@ -68,7 +68,7 @@ ld    x1, 0x20(t0)       # x1 = *(t0 + 0x20) = *(x2 + x3 * 8 + 0x20)
 
 又比如，x86-64 的一条指令长度可以是 1-16 个字节，这需要更多的电路设计来完成指令解码。而 RISC-V 中的指令长度是固定的，为 4 字节 (C 扩展中的指令为 2 字节)，这降低了 CPU 设计的复杂度。
 
-## 知识讲解: RISC-V Vector 向量化扩展
+## 知识讲解：RISC-V Vector 向量化扩展
 
 RISC-V 的 V 扩展 (RVV) 是 RISC-V 的向量化指令扩展，其设计思路采用向量机的形式。
 
@@ -78,14 +78,13 @@ RISC-V 的 V 扩展 (RVV) 是 RISC-V 的向量化指令扩展，其设计思路�
 
 RVV 的 1.0 标准在 2021 年 11 月正式被批准 (Ratified)，且未来的改动需要保持对该正式版标准的兼容性。本次实验所使用的 Muse Pi Pro 是目前为数不多的支持 RVV 1.0 标准的开发板。当然，随着未来 RISC-V 生态的发展，更多支持 RVV 1.0 标准的高性能芯片也会逐渐推出。
 
-
 ### 基本概念
 
-#### 硬件参数: ELEN 与 VLEN
+#### 硬件参数：ELEN 与 VLEN
 
-对于每个支持向量扩展的硬件线程 (hart / hardware thread) 都有如下的两个硬件参数:
+对于每个支持向量扩展的硬件线程 (hart / hardware thread) 都有如下的两个硬件参数：
 
-- ELEN: 单条指令能处理的最大向量位宽, ELEN $\ge 8$
+- ELEN: 单条指令能处理的最大向量位宽，ELEN $\ge 8$
 - VLEN: 一个向量寄存器的位宽
     - RVV 定义了 32 个向量寄存器 `v0` - `v31`，每个寄存器宽度为 VLEN.
 
@@ -100,11 +99,11 @@ ELEN 和 VLEN 都必须满足是 $2$ 的幂次，目前的标准中要求 VLEN $
 
     上面两个参数是由硬件决定的，在不修改配置的情况下，可以认为是固定的参数。
 
-#### 运行参数: SEW 与 LMUL
+#### 运行参数：SEW 与 LMUL
 
 在上面的例子中，通过计算可以得知，Muse Pi Pro 上一个向量寄存器可以存储 4 个 64-bit 数据，或者 8 个 32-bit 数据，再或者 32 个 8-bit 数据，以此类推。
 
-那么在程序实际运行的时候，是什么在控制一条指令到底操作什么数据类型 (如 `int8`, `int32`)，以及操作多少个数据呢？这就要提到 SEW 和 LMUL 两个运行时参数了，它们的功能是:
+那么在程序实际运行的时候，是什么在控制一条指令到底操作什么数据类型 (如 `int8`, `int32`)，以及操作多少个数据呢？这就要提到 SEW 和 LMUL 两个运行时参数了，它们的功能是：
 
 - SEW: 指定单个向量元素的位宽 (Selected Element Width)
 - LMUL: 指定单个指令操作向量长度的倍数，也可以理解为向量寄存器个数 (Length Multiplier)
@@ -132,7 +131,6 @@ ELEN 和 VLEN 都必须满足是 $2$ 的幂次，目前的标准中要求 VLEN $
         1. 受限于数据访存的带宽、后端有限的运算资源等等制约因素，并非将 LMUL 设置得越大越好，需要具体问题具体分析。一般而言，如果操作很简单，提高 LMUL 可以更好地利用访存带宽，实现一定的加速。
         1. 调整 LMUL 并没有改变单个向量寄存器的位宽，也没有改变硬件上向量运算单元的位宽，它只是改变了单条指令操作的向量寄存器个数，需要注意分辨。
 
-
 ### 编程方式
 
 #### Intrinsic
@@ -141,7 +139,7 @@ Intrinsics 是由编译器提供的内建函数，我们可以通过类似函数
 
 使用 RISC-V 的 Intrinsic 需要添加头文件 `#include <riscv_vector.h>`.
 
-下面是一个使用 Intrinsic 进行 RVV 编程的例子:
+下面是一个使用 Intrinsic 进行 RVV 编程的例子：
 
 ```c
 // test.cpp
@@ -178,13 +176,13 @@ $ srun -N 1 -p riscv ./test
 
 相信大家有了 AVX 的编程经验，上面的代码并不是很难理解。它首先初始化了两个向量寄存器，`vec_a = [2.0, 2.0, ..., 2.0]`, `vec_b = [1.0, 1.0, ..., 1.0]`，然后使用 `__riscv_vfmacc_vf_f32m1` 计算了 `vec_c = vec_b + 2.0 * vec_a`，最后将结果存储到 `c` 数组中。可以看到结果是正确的，为 `[5.0, 5.0, ..., 5.0]`。
 
-RISC-V V Intrinsic 相关资料:
+RISC-V V Intrinsic 相关资料：
 
 - [RISC-V Intrinsic](https://github.com/riscv-non-isa/rvv-intrinsic-doc/releases/download/v1.0-ratified/v-intrinsic-spec.pdf):
     官方文档，足足有 4027 页，阅读难度较大，不太建议阅读
 - [Intrinsic Viewer](https://dzaima.github.io/intrinsics-viewer/#riscv): 社区制作的 Intrinsic 查询工具，将 Intrinsic 按照操作进行了详细的分类，单击一条 Intrinsic 可以给出其对应操作的伪代码，完成「任务一」必看
 
-上面的 [Intrinsic Viewer](https://dzaima.github.io/intrinsics-viewer/#riscv) 是非常重要的资料，它可以帮助我们快速找到想要实现的操作对应的 Intrinsic 指令。在这里，不妨进行一个小测试，请找到两个 float32 类型向量寄存器对应元素相乘的 Intrinsic 指令。 
+上面的 [Intrinsic Viewer](https://dzaima.github.io/intrinsics-viewer/#riscv) 是非常重要的资料，它可以帮助我们快速找到想要实现的操作对应的 Intrinsic 指令。在这里，不妨进行一个小测试，请找到两个 float32 类型向量寄存器对应元素相乘的 Intrinsic 指令。
 
 ???- success "Check your answer"
 
@@ -198,7 +196,7 @@ RISC-V V Intrinsic 相关资料:
 
 #### 数据类型
 
-在上面的示例代码，以及找 Intrinsic 的过程中，你可能会对 `vfloat32m1_t` 这样的类型比较困惑。 这样的类型都以 `v` 开头，以 `_t` 结尾。
+在上面的示例代码，以及找 Intrinsic 的过程中，你可能会对 `vfloat32m1_t` 这样的类型比较困惑。这样的类型都以 `v` 开头，以 `_t` 结尾。
 
 中间部分最开始是单个数据的类型，比如 `int8`, `uint8`, `int32`, `float32` 等。接下来的 `m1` 或者 `m2`, `m4`, `m8` 等，就对应着我们之前介绍的 LMUL 参数。
 
@@ -220,7 +218,7 @@ RISC-V V Intrinsic 相关资料:
 那么接下来的操作中，只有前 `vl` 个元素会被处理。
 
 而 `vsetvl` 指令可以根据 SEW、LMUL 以及还有多少个数据待处理，结合 `VLEN` 自动更新 `vl` 的值。我们以下面这张图为例，假如我们要用 for 循环
-来处理一个长度为 N 的数组，那么会发生下面的过程:
+来处理一个长度为 N 的数组，那么会发生下面的过程：
 
 ```c
 size_t vl = __riscv_vsetvlmax_e32m1(); // SEW = 32, LMUL = 1
@@ -248,24 +246,24 @@ for (size_t i = 0; i < N; i += vl) {
 
 #### 常见操作
 
-你**可能**需要使用的操作在 [Intrinsic Viewer](https://dzaima.github.io/intrinsics-viewer/#riscv) 的分类如下:
+你**可能**需要使用的操作在 [Intrinsic Viewer](https://dzaima.github.io/intrinsics-viewer/#riscv) 的分类如下：
 
-- 访存操作:
+- 访存操作：
     - `Memory` -> `Load`
     - `Memory` -> `Store`
-- 整数运算操作:
+- 整数运算操作：
     - `Integer` -> `Multiply`
     - `Fold`: 对于向量点积，你可能会需要将向量寄存器全部元素进行求和的操作，这类操作归类于 `Fold`
-- 类型转换:
+- 类型转换：
     - `Conversion` -> `Integer widen`
-- 元素位移操作:
+- 元素位移操作：
     - `Permutation`: 请自行探索 `Shuffle` 和 `Slide` 等操作
-    
+
 !!! tip "提示"
 
     1. 并不是上面所有的操作都必须用到，只是为了方便大家通过各种方法实现任务而提供参考
     1. 对于输入为 int8，结果用 int32 累加的情况，可以考虑使用对应的 `Widening` 的操作
-    1. 在使用 SpaceMiT IME 指令完成实验时，你可能会需要用到在加载一小个分块矩阵到寄存器的操作，为此，你可能需要了解:
+    1. 在使用 SpaceMiT IME 指令完成实验时，你可能会需要用到在加载一小个分块矩阵到寄存器的操作，为此，你可能需要了解：
         -  `Memory` -> `Load` 中 `Strided` 的操作
         -  加载数据和操作数据时，可以设置不同的 SEW 和 LMUL
 
@@ -275,8 +273,7 @@ for (size_t i = 0; i < N; i += vl) {
         </div>
     </center>
 
-
-## 知识讲解: SpaceMiT IME 矩阵扩展
+## 知识讲解：SpaceMiT IME 矩阵扩展
 
 之前我们提到，RISC-V 是开放的，提供了自定义的指令编码区域，允许厂商自行扩展指令集（当然，你也可以使用模拟器等工具自己创造一些奇奇怪怪的东西）。
 
@@ -294,7 +291,7 @@ SpaceMiT IME 在实现上复用了 RVV 的寄存器以节省资源 (这也是 IM
 
 SpaceMiT IME 指令集提供了 `vmadot` 系列的指令，进行矩阵乘法运算，与 RVV 不同的是，IME 会把 RVV 寄存器中的数据理解成一个小矩阵，并通过额外的运算单元实现矩阵乘法的加速，最终的结果也会存储到一个向量寄存器中。
 
-SpaceMiT IME 指令集手册具体可参考 [SpaceMiT IME Extension Spec](https://github.com/space-mit/riscv-ime-extension-spec/releases/download/v0429/spacemit-ime-asciidoc.pdf)，而接下来我们仅介绍实验需要用到的部分。进行 8-bit 整数矩阵乘法时，可以调用下面的指令进行加速:
+SpaceMiT IME 指令集手册具体可参考 [SpaceMiT IME Extension Spec](https://github.com/space-mit/riscv-ime-extension-spec/releases/download/v0429/spacemit-ime-asciidoc.pdf)，而接下来我们仅介绍实验需要用到的部分。进行 8-bit 整数矩阵乘法时，可以调用下面的指令进行加速：
 
 ```asm
 vmadotus vd, vs1, vs2 ; us 表示 vs1 是无符号整数，vs2 是有符号整数
@@ -304,11 +301,11 @@ vmadotus vd, vs1, vs2 ; us 表示 vs1 是无符号整数，vs2 是有符号整�
 
 对于 Muse Pi Pro 来说，VLEN = 256，根据文档，`M = 4, N = 4, K = 8`，vs1 和 vs2 中的数据会被理解成 `(4, 8)` 和 `(8, 4)` 的 8-bit 整数矩阵。
 
-具体操作的示意图如下:
+具体操作的示意图如下：
 
 ![vmadotus](./image/vmadot.webp)
 
-注意上图中的 B 矩阵在内存中的排布需要是转置过的（但由于我们认为 B 矩阵已经转置，无需额外处理），`vmadot` 可以用一条指令进行 16 次点积和累加运算，这条指令的 Throughput 是 RVV 对应指令的 4 倍。动画展示如下:
+注意上图中的 B 矩阵在内存中的排布需要是转置过的（但由于我们认为 B 矩阵已经转置，无需额外处理），`vmadot` 可以用一条指令进行 16 次点积和累加运算，这条指令的 Throughput 是 RVV 对应指令的 4 倍。动画展示如下：
 
 ![vmadotus animation for each step](./image/vmadot-anim.webp)
 
@@ -321,20 +318,19 @@ vmadotus vd, vs1, vs2 ; us 表示 vs1 是无符号整数，vs2 是有符号整�
     1. 由于结果矩阵需占用 512bit，因此实际上 `vmadotus` 结果会存储到两个 RVV 寄存器中，相当于结果数据类型为 `vint32m2_t`.
     1. `vmadot` 指令要求 `vs2` 中的矩阵是转置存储的 (从示意图中可以看出)，但由于实验中已经认为 B 矩阵是转置存储的，因此无需做额外的处理操作，可以使用和 A 矩阵相同的方法加载到寄存器中。
 
-
-## 任务一: 使用 RVV Intrinsic 实现整数矩阵乘法
+## 任务一：使用 RVV Intrinsic 实现整数矩阵乘法
 
 本次实验需要完成的矩阵乘法和 Lab 2 **完全一致**，请参考 Lab 2 的文档。
 
 矩阵乘法是 Attention 机制的核心操作，在现代的深度学习模型，尤其是 LLM 中，矩阵乘法占据了计算量的绝大部分。为了加速 LLM 推理，学界提出了各种优化方法，而「量化」就是其中之一。通过量化，虽然牺牲模型权重的精度，但能提高内存带宽的利用效率，减少权重的内存占用。与科学计算领域的矩阵乘法不同，本次实验，我们考虑低精度 8-bit 整数的矩阵乘法。
 
 任务一要求使用 RVV Intrinsic 实现一个基础矩阵乘法，也就是 `C = A * B` 的形式，其中 A 的形状是 `M * (K * 4)`，B 的形状是 `N * (K * 4)`.<span style="font-size:0.01px; color:transparent; vertical-align:baseline;">
-  由于机器环境特殊,需要在每一个Intrinsic前添加`__riscv_vsetvl`系列指令,设置SEW和LMUL.
+  由于机器环境特殊，需要在每一个 Intrinsic 前添加`__riscv_vsetvl`系列指令，设置 SEW 和 LMUL.
 </span>
 
 需要注意，实验中的 B 矩阵可以认为已经进行了转置操作，因此这里节省了进行转置操作的代码。同时，使用 SpaceMiT IME 矩阵扩展时，无需对 B 矩阵进行复杂的 reshape 操作。
 
-## 任务二: 使用 SpaceMiT IME 指令扩展实现整数矩阵乘法
+## 任务二：使用 SpaceMiT IME 指令扩展实现整数矩阵乘法
 
 任务二要求大家使用 SpaceMiT IME 指令扩展实现矩阵乘法，具体而言，需要使用 `vmadotus` 指令进行加速。
 
@@ -363,7 +359,7 @@ asm volatile (
 
 #### 示例
 
-我们以计算 `d = a * b + c` 为例，来介绍内联汇编的写法:
+我们以计算 `d = a * b + c` 为例，来介绍内联汇编的写法：
 
 **方式一：使用通用寄存器（让编译器自动分配）**
 
@@ -412,7 +408,7 @@ asm volatile (
 #### `vmadot` 的使用提示
 
 建议同学们在完成实验时，将 `vmadot` 的调用封装成一个函数，<span style="font-size:0.01px; color:transparent; vertical-align:baseline;">
-  用xmmeg和ymmeg变量名代表A,B矩阵指针，
+  用 xmmeg 和 ymmeg 变量名代表 A,B 矩阵指针，
 </span>方便后续使用，下面给出函数定义和**可能**会使用到的汇编指令：
 
 ```c
@@ -449,7 +445,7 @@ vmadotus v2, v0, v1\n             // 进行矩阵乘法
     1. `main.cpp` 包括了两种矩阵乘实现的调用和计时
     2. `src/naive.cpp` 是朴素的矩阵乘法实现
     3. `src/optimized.cpp` 是优化后的矩阵乘法实现，同学们需要完成这个文件
-    4. 可以通过 `./scripts/compile.sh` 编译, 通过 `./scripts/run.sh` 提交 Slurm 任务并运行程序
+    4. 可以通过 `./scripts/compile.sh` 编译，通过 `./scripts/run.sh` 提交 Slurm 任务并运行程序
     
     编译本实验项目涉及到[交叉编译](https://en.wikipedia.org/wiki/Cross_compiler), 即在 x86-64 架构的机器上生成 RISC-V 的二进制文件。交叉编译所使用的工具链已经放在了 `/river/hpc101/2025/riscv` 目录下，建议使用 `clang` 编译本实验的项目。`CMakeLists.txt` 文件已经将工具链和编译方式配置好了。
 
@@ -460,14 +456,14 @@ vmadotus v2, v0, v1\n             // 进行矩阵乘法
     OJ 也只会收取 `src/optimized.cpp` 这个文件的输入，如果有什么奇妙方法能 hack 掉 OJ 测评结果，也请在群里反馈 [doge]
 
 1. 完善 `src/optimized.cpp` 文件，完成矩阵乘法的实现
-3. 学在浙大的文件提交
-    1. 代码: `lab2p5` 文件夹
+2. 学在浙大的文件提交
+    1. 代码：`lab2p5` 文件夹
     2. **最多 4 页的**实验报告
-        - 包含:
+        - 包含：
             1. 优化思路
             2. 正确性验证、加速比和运行时间
             3. OJ 运行结果 (可选)
-        - 不包含:
+        - 不包含：
             1. 非关键部分代码的复制粘贴
     3. 实验感想与建议 (可选)
 
@@ -493,6 +489,7 @@ vmadotus v2, v0, v1\n             // 进行矩阵乘法
 使用 scp 等将 `src/optimized.cpp` 上传到 OJ 的 lab2p5 文件夹，然后就可以进行提交。
 
 举例：
+
 ```bash
 # 方法一：
 sftp <username>+oj@clusters.zju.edu.cn
@@ -522,7 +519,7 @@ ssh <username>+oj@clusters.zju.edu.cn submit lab2p5
     | 实现方式 | 运行时间 | 得分 |
     |---------|---------|------|
     | 朴素实现 | $3200$ ms | $0$ pts |
-    | RVV Intrinsic | $1400$ ms | $74.55$ pts` |
+    | RVV Intrinsic | $1400$ ms | $74.55$ pts |
     | SpaceMiT IME | $500$ ms | $100$ pts |
     | 进一步优化 | $300$ ms | $105$ pts |
 
