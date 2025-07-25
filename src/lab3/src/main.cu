@@ -27,17 +27,27 @@ void Check(const Element *a, const Element *w, Element *b) {
         conv2d_gpu_ref<Element, ElementCompute>(a, w, ref_b);
     } 
     std::cout << "Checking Results... \n";
-    size_t result_size = size_t(N) * H * W * K;
-    for (size_t i = 0; i < result_size; ++i) {
-        if (b[i] != ref_b[i]) {
-            std::cout << "\x1b[31m"
-                         "Wrong Answer"
-                         "\x1b[0m"
-                         " at "
-                      << i << std::endl;
-            std::cout << "expected " << ref_b[i] << " but found " << b[i] << std::endl;
-            delete[] ref_b;
-            return;
+    for(size_t i=0;i<size_t(N);i++)
+    {
+        for(size_t j=0;j<H;j++)
+        {
+            for(size_t k=0;k<W;k++)
+            {
+                for(size_t l=0;l<K;l++)
+                {
+
+                    int pos = i * H * W * K + j * W * K + k * K + l; 
+                    if (b[pos] != ref_b[pos]) {
+                        std::cout << "\x1b[31m"
+                                    "Wrong Answer"
+                                    "\x1b[0m"
+                                    " at (n=" << i << ", output_h=" << j << ", output_w=" << k << ", k=" << l << ")" << std::endl;
+                        std::cout<<"expected "<<ref_b[pos]<< " but find " << b[pos] << ", Keep it up!"<<std::endl;
+                        delete[] ref_b;
+                        return;
+                    }
+                }
+            }
         }
     }
     std::cout << "\x1b[32m"
