@@ -10,13 +10,12 @@
 
 本次实验目的是让大家对「向量化并行计算」进行更加深入的了解，以 Numpy 的向量化计算为基础，进一步学习 CPU 中专为向量化计算设计的 SIMD 指令扩展，如 AVX, AMX 扩展。
 
-实验文档主要分为三大部分，他们分别的作用是:
+实验文档主要分为三大部分，他们分别的作用是：
 
-- Numpy 中的向量化计算: 供大家结合课上所学，熟悉 Numpy 的向量化编程模式，需要大家在阅读后完成对应的思考题
-- x86-64 SIMD 优化: 介绍当前科学计算、深度学习等领域主要使用的 AVX-512 和 AMX 指令集，需要大家学习并完成手写向量化 Intrinsic 优化矩阵乘法的代码任务
+- Numpy 中的向量化计算：供大家结合课上所学，熟悉 Numpy 的向量化编程模式，需要大家在阅读后完成对应的思考题
+- x86-64 SIMD 优化：介绍当前科学计算、深度学习等领域主要使用的 AVX-512 和 AMX 指令集，需要大家学习并完成手写向量化 Intrinsic 优化矩阵乘法的代码任务
 
-
-## 知识讲解: Numpy 中的向量化计算
+## 知识讲解：Numpy 中的向量化计算
 
 ### 工具介绍
 
@@ -164,7 +163,7 @@ def bilinear_interp_vectorized(a: np.ndarray, b: np.ndarray) -> np.ndarray:
 - 一篇稍微硬核一点的教程：[https://www.labri.fr/perso/nrougier/from-python-to-numpy/](https://www.labri.fr/perso/nrougier/from-python-to-numpy/)
 - 更多练习：[https://github.com/rougier/numpy-100](https://github.com/rougier/numpy-100)
 
-## 知识讲解: x86-64 SIMD 优化
+## 知识讲解：x86-64 SIMD 优化
 
 ### AVX 向量指令扩展
 
@@ -204,23 +203,24 @@ def bilinear_interp_vectorized(a: np.ndarray, b: np.ndarray) -> np.ndarray:
 
 AVX-512 VNNI (Vector Neural Network Instructions) 专为卷积神经网络设计，提供了整数与低精度浮点数的运算加速指令。在本次实验中，我们对 8-bit 相乘、32-bit 累加的操作，除了使用传统的数据类型转换指令，还可以借助 AVX-512 VNNI 指令直接一步到位，减少操作次数。
 
-
 ### AMX 高级矩阵扩展
 
 AMX 是 Intel 推出的一种高级矩阵扩展，它能操纵 1024 Byte 的寄存器（称为 1 个 Tile）进行乘加运算。根据实际操作，它比 AVX-512 在运算速度上有着巨大的提升。显然，根据位宽，它的吞吐量比 AVX-512 大了 16 倍，但是它需要 16 个时钟周期才能结束一次运算，那么它究竟快在哪里呢？答案是访存提升了，使用 AMX 能够更大程度的复用寄存器，这样就省去了大量的 load 和 store 开销；不仅如此它的运算单元独立于其他运算，所以可以异步处理，将延迟隐藏在其他的任务中。不过 AMX 的运算只能以 8 位和 16 位为单位，运算单元的精度较低，所以广泛地应用于大语言模型、深度学习等领域。
 
 #### 硬件结构
 
-AMX 的硬件结构由两大部分组成: Tile 和 Accelerator。
+AMX 的硬件结构由两大部分组成：Tile 和 Accelerator。
+
 - Tile 是存储数据的 tmm 寄存器，每个 1024 Byte (1KB) 大小，目前共有 8 个（不过从官方文档的更新来看，最新的芯片应该支持 16 个 Tile 了）
-- Accelerator 是对这些数据进行的运算，目前只有一个 TMUL，用来实现 C[M][N] += A[M][K] * B[K][N]。
+- Accelerator 是对这些数据进行的运算，目前只有一个 TMUL，用来实现 $C[M][N] += A[M][K] * B[K][N]$。
 
 ![AMX_STRUCTURE](image/amx_structure.webp)
 
 #### Tile Config 配置
-AMX 运算由 Tile Config (TILECFG) 来控制，它的格式如下:
 
-```
+AMX 运算由 Tile Config (TILECFG) 来控制，它的格式如下：
+
+```text
 format of memory payload. each field is a byte.
 0: palette_id
 1: startRow (8b)
@@ -245,7 +245,7 @@ AMX 的 TMUL 复用了 16 个 AVX VNNI 计算单元，在 1 Cycle 进行 16 次 
 
 ![VNNI](image/amx_vnni.webp)
 
-这里的 $A_{ij}$ 和 $B_{ij}$ 是 32-bit 的，这点很重要，后面实际进行计算的单位是 16-bit 或者 8-bit，我们以 16-bit 作为例子，则需要 2 个元素和作为一个单元参与计算。把这 2 个元素代入上面的图示，你会发现这个 AVX VNNI 计算单元实际上和普通的矩阵乘法的行乘列是不一样的：普通矩阵乘法的 B 矩阵应该是 (K * 2) * N 这个形状的，而 TMUL 所使用的 B 矩阵的形状是 K * (N * 2)。所以为了使用 AMX 的乘加运算，我们需要对 B 矩阵进行重排（reshape）。
+这里的 $A_{ij}$ 和 $B_{ij}$ 是 32-bit 的，这点很重要，后面实际进行计算的单位是 16-bit 或者 8-bit，我们以 16-bit 作为例子，则需要 2 个元素和作为一个单元参与计算。把这 2 个元素代入上面的图示，你会发现这个 AVX VNNI 计算单元实际上和普通的矩阵乘法的行乘列是不一样的：普通矩阵乘法的 B 矩阵应该是 (K *2)* N 这个形状的，而 TMUL 所使用的 B 矩阵的形状是 K *(N* 2)。所以为了使用 AMX 的乘加运算，我们需要对 B 矩阵进行重排（reshape）。
 
 我们先从图的角度来理解一下这个重排（里面每一个方块表示一个 16 -bit 的元素）：
 
@@ -254,7 +254,7 @@ AMX 的 TMUL 复用了 16 个 AVX VNNI 计算单元，在 1 Cycle 进行 16 次 
 聪明的你一定发现了，这其实就是把 B 矩阵以 32-bit 为单位进行转置。这部分代码因为对新手比较不友好所以我在 `reshape.cpp` 里直接给出了两种实现方法，你可以挑选其中一种进行阅读，之后在报告中回答相应问题。
 
 在进行了重排之后，就可以使用 AMX 指令进行矩阵运算了，这一部分的代码就像填空题一样，在课上我们讲过了一个非常公式的方法，你需要在这里进行使用。因此，这里就给出一个比较简单的流程（如果你不熟悉的话，请去官方文档那里看伪代码）：
- 
+
 1. 确定 A，B，C 矩阵以及他们的形状和类型（这一步应当发生在重排之前）
 2. 根据形状配置 TILECFG（实验已经进行了 16 个元素的对齐，确保能够铺满）
 3. 使用 `__tile_loadd` 把 A，B 矩阵 load 到 Tile，同时使用 `__tile_zero` 初始化 C 矩阵对应的 Tile。
@@ -263,7 +263,7 @@ AMX 的 TMUL 复用了 16 个 AVX VNNI 计算单元，在 1 Cycle 进行 16 次 
 
 提供的代码 tile.h 中提供了 `init_tile_config` 函数来对 Tile 进行操纵。
 
-## 任务一: 使用 AVX 指令集实现整数矩阵乘法
+## 任务一：使用 AVX 指令集实现整数矩阵乘法
 
 ### 背景与任务
 
@@ -278,7 +278,6 @@ AMX 的 TMUL 复用了 16 个 AVX VNNI 计算单元，在 1 Cycle 进行 16 次 
 !!! danger "修改范围限制"
 
     **只允许**在 `start` 和 `end` 围出来的区域里添加代码。根据是否选择做 bonus（AMX 的矩阵乘法）选择对应的代码区域进行填写。
-
 
 ### 基准代码讲解
 
@@ -352,13 +351,12 @@ void naive_gemm(uint8_t* A, int8_t* B, uint32_t* C, int m, int n, int k) {
     }
     </style>
 
-
 ## 思考题
 
-1. 在本地环境安装 Python 和 [uv](https://docs.astral.sh/uv/getting-started/installation/) 或 MircoMamba 等环境管理工具，在激活环境后，使用 `python main.py` 运行提供的双线性插值向量化版本的例子，这个代码可以在仓库下载，在报告里回答以下问题：
-    - 代码第 22 行 - 第 24 行中的 None 起到什么作用？可以删掉吗，请说明理由？
-    - 代码第 25 行中 `a[n_idx, x_idx, y_idx]` 的 shape 是什么？这些 idx 在这里是怎么作用的？
-    - 代码第 25 行中的向量乘法中这三个向量的维度相同吗？如果不同的话，是怎么广播的？
+1. 在本地环境安装 Python 和 [uv](https://docs.astral.sh/uv/getting-started/installation/) 或 [MicroMamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html) 等环境管理工具，在激活环境后，使用 `python main.py` 运行提供的双线性插值向量化版本的例子，这个代码可以在仓库下载，在报告里回答以下问题（该问代码于文件 vectorized.py）：
+    - 代码第 21 行 - 第 23 行中的 None 起到什么作用？可以删掉吗，请说明理由？
+    - 代码第 24 行中 `a[n_idx, x_idx, y_idx]` 的 shape 是什么？这些 idx 在这里是怎么作用的？
+    - 代码第 24 行中的向量乘法中这三个向量的维度相同吗？如果不同的话，是怎么广播的？
 2. 品味 `reshape.cpp` 的的任意一个矩阵转置算法，把函数里面出现的每一个指令的功能说明（用文字的形式，说明指令的输入输出参数含义以及指令含义），指令的寻找需要参考 [Intel® Intrinsics Guide](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html)，把结果体现在报告里。
 
 ## 实验任务与要求
@@ -378,18 +376,17 @@ void naive_gemm(uint8_t* A, int8_t* B, uint32_t* C, int m, int n, int k) {
 
     同学们除了自己在集群上手动测试加速比之外，还可以使用 OJ 提交优化代码 (和同学们一起打榜 ac01)
 
-    OJ 使用方法请阅读: [使用在线测评](../../guide/oj)
+    OJ 使用方法请阅读: [使用在线测评](../../guide/oj.md)
 
 使用 scp 等将 `main.cpp, reshape.cpp, config.yaml` 上传到 OJ 的 lab2 文件夹，然后就可以进行提交。
 
 注意，`tile.h` 不允许更改，在 OJ 测评时会被覆盖成原版文件，如果你修改了 `tile.h` 进行了优化，请把优化的过程体现在实验报告中。
 
 举例：
+
 ```bash
 scp ./src/reshape.cpp  <username>+oj@clusters.zju.edu.cn:lab2/src/reshape.cpp
 scp ./main.cpp  <username>+oj@clusters.zju.edu.cn:lab2/main.cpp
 scp ./config.yaml  <username>+oj@clusters.zju.edu.cn:lab2/config.yaml
 ssh <username>+oj@clusters.zju.edu.cn submit lab2
 ```
-
-

@@ -15,7 +15,7 @@
     - Ethernet：1Gbps
     - Infiniband：HDR 200Gbps
 
-- RISC-V 集群 ([**进迭时空**](https://www.spacemit.com/)提供) 共 2 个节点
+- RISC-V 集群 ([**进迭时空**](https://www.spacemit.com/)提供) 共 8 个节点
     - CPU：Spacemit X60 @ 1.6Ghz
     - 内存：8GB
     - Ethernet：100Mbps

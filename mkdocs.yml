@@ -18,6 +18,8 @@ nav:
     - "Lab 1: 简单集群搭建": lab/Lab1-MiniCluster/index.md
     - "Lab 2: 向量化计算": lab/Lab2-Vectorization/index.md
     - "Lab 2.5: 向量化进阶 (RISC-V)": lab/Lab2.5-RISC-V/index.md
+    - "Lab 3: CUDA 卷积": lab/Lab3-CudaConv/index.md
+    - "Final Project - 大作业": lab/Final-Project/index.md
   - 课程幻灯片: slides/index.md
 
 theme:

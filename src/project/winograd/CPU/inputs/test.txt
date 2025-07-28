@@ -1,0 +1,10 @@
+5
+  3   10    10    2   2
+  3   10    10   10   2
+  3   50    50   10   2
+ 32   50    50   64   2
+ 32   50    50   64  64
+
+# ================================
+# First line: layer_num
+# Following each line: Channel Height Weight Filter Batch
