@@ -767,6 +767,12 @@ Lab 4 实验在 SLURM 集群上进行，提供了以下两个计算分区供使�
 
     如果你还有时间和余力，欢迎尝试更多的优化方法和 Bonus 任务。你也可以通过完成 Bonus 任务，来减免要求的三个任务中的一个，但请注意 Bonus 也需要花费精力来完成，直接使用 AI 生成的代码将不会被接受。
 
+???+ success "Q: oj上无法使用spack?"
+
+    可以考虑在/tmp文件中手动建立spack的用户缓存文件夹。
+
+    尝试在shell脚本中添加export SPACK_USER_CACHE_PATH=/tmp/<你的用户名>/.spack   mkdir -p $SPACK_USER_CACHE_PATH  source /pxe/opt/spack/share/spack/setup-env.sh  spack load intel-oneapi-compiler
+
 ## Bonus 任务
 
 本部分**选做**, 感兴趣的同学可以尝试完成。
