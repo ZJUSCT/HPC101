@@ -403,6 +403,21 @@ ssh <username>+oj@clusters.zju.edu.cn submit lab3
 !!! tip "优化提示"
     `conv_half` 在使用 Tensor Core 时可以较为容易的拿到满分。如果你不打算使用 Tensor Core, 可以只考虑优化 `conv_int8` 任务, 并强烈推荐你使用 DP4A 指令。
 
+### 使用 Nsight Compute 进行 Profile
+
+系统里已经预置了完整的 cuda toolkit, 位于默认目录 `/usr/local/cuda/` 下，包含了 Nsight Compute 等工具。
+
+你可以使用 Nsight Compute 来 Profile 你的 kernel, 查看你的 kernel 的访存大小，Compute 和 Memory 利用率，并获得进一步优化的方向。
+
+例如：
+```bash
+export TMPDIR=~/tmp
+mkdir -p $TMPDIR
+
+srun -p V100 --gpus 1 /usr/local/cuda/bin/ncu ./conv_int8 
+```
+
+
 ### 注意事项
 
 1. 请独立完成本次实验。你可以使用 LLM 工具，网络上的相关优化代码也十分多，但理解并自己实现是本次实验的目的。

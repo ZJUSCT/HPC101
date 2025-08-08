@@ -17,7 +17,7 @@
         </div>
     </div>
     
-    这些开发板与超算队维护的 x86-64 节点一样，位于 510 机房，并接入了自动化构建的 Linux rootfs，以及 Slurm 集群调度，与 x86-64 节点共享家目录文件。它们的节点编号是 `rv00`-`rv03`, 位于 Slurm 的 `riscv` 分区。
+    这些开发板与超算队维护的 x86-64 节点一样，位于 510 机房，并接入了自动化构建的 Linux rootfs，以及 Slurm 集群调度，与 x86-64 节点共享家目录文件。它们的节点编号是 `rv00`-`rv07`, 位于 Slurm 的 `riscv` 分区。
     
     本实验截止后，这些节点也会继续面向同学们开放，欢迎大家积极体验！
 
@@ -196,7 +196,7 @@ RISC-V V Intrinsic 相关资料：
 
 #### 数据类型
 
-在上面的示例代码，以及找 Intrinsic 的过程中，你可能会对 `vfloat32m1_t` 这样的类型比较困惑。这样的类型都以 `v` 开头，以 `_t` 结尾。
+在上面的示例代码，以及找 Intrinsic 的过程中，你可能会对 `vfloat32m1_t` 这样的类型比较困惑，这是 RVV Intrinsic 中代表向量寄存器的数据类型。这样的类型都以 `v` 开头，以 `_t` 结尾。
 
 中间部分最开始是单个数据的类型，比如 `int8`, `uint8`, `int32`, `float32` 等。接下来的 `m1` 或者 `m2`, `m4`, `m8` 等，就对应着我们之前介绍的 LMUL 参数。
 
@@ -263,19 +263,38 @@ for (size_t i = 0; i < N; i += vl) {
 
     1. 并不是上面所有的操作都必须用到，只是为了方便大家通过各种方法实现任务而提供参考
     1. 对于输入为 int8，结果用 int32 累加的情况，可以考虑使用对应的 `Widening` 的操作
-    1. 在使用 SpaceMiT IME 指令完成实验时，你可能会需要用到在加载一小个分块矩阵到寄存器的操作，为此，你可能需要了解：
-        -  `Memory` -> `Load` 中 `Strided` 的操作
-        -  加载数据和操作数据时，可以设置不同的 SEW 和 LMUL
 
-     <center>
-        <div style="display: flex; justify-content: center; align-items: center;">
-            <img src="./image/load-hint.webp" alt="Strided Load Hint on Choosing SEW and LMUL" style="width: 50%;">
-        </div>
-    </center>
+### Self Check
+
+为了让同学能够更加清楚地理解为什么要讲上面这些概念，以及 RVV 设计中的巧妙之处，请在学习完上面的内容之后，思考一个问题: 
+
+**内存中的数据，会存储自己的类型吗？** 
+
+???- success "Check your answer"
+
+    答案是否定的。(注: 仅讨论 C/C++ 这类编译型语言) 内存并不会“自带标签”告诉你“我是一个整数”或者“我是一个浮点数”，它只是无差别地保存了一堆比特位。**数据具有怎样的含义，取决于你怎样看它**。意思是说，真正决定数据类型的，是你的代码中如何定访问和操作这块数据:
+    
+    - 先从访存来讲:
+    
+        内存中一段 64-bit 的数据，它既可以是 1 个 64-bit 整数，也可以是 2 个 `float` 类型的浮点数，或者是 8 个 `char` 字符，以此类推。
+        
+        但是，对于 CPU 和内存控制器来说，它们只知道这是一块 64-bit 的数据。因此你使用 uint64m1, float32m1, 还是 int8m1 对应的 load / store，它们实际上进行的操作是相同的，就是加载 `vlen` 个比特的数据到向量寄存器。
+        
+        不过，它们进行 Strided 和 Segment 类的访存操作时行为又有所不同: 比如 uint8m1 的 Strided Load 是每 8-bit 跨一段内存，而 uint64m1 的 Strided Load 就是每 64-bit 跨一段内存。
+
+    - 再看对数据的操作:
+    
+        对于寄存器中的数据，使用整数指令进行操作，它就会被当作整数进行运算，如果使用浮点指令进行操作，它就会被当作浮点数来进行运算。使用 操作 8-bit 数据的指令，那么它就会当成 8-bit 元素的向量进行运算，使用操作 64-bit 数据的指令，那么它就会当成 64-bit 元素的向量进行运算。
+
+        看似上面是一段废话，但其实想表达的是，我们只需要 (数据类型，操作类型) 这个二元组，就能确定一个具体的数据操作。而前面这个「数据类型」，则由 (SEW, LMUL) 来唯一确定。
+        
+        在 RVV 的设计中，「数据类型」和「操作」是解耦的。RISC-V 并没有为每个二元组都定义一条指令，比如所有的浮点乘法指令都是 `vfmul.vv`，而具体处理的是多少位的浮点数、处理多少个向量，则由 `vsetvl` 设置的 SEW 和 LMUL 来决定。
 
 ## 知识讲解：SpaceMiT IME 矩阵扩展
 
-之前我们提到，RISC-V 是开放的，提供了自定义的指令编码区域，允许厂商自行扩展指令集（当然，你也可以使用模拟器等工具自己创造一些奇奇怪怪的东西）。
+### SpaceMiT IME 简介
+
+之前我们提到，RISC-V 是开放的，提供了自定义的指令编码区域，允许厂商自行扩展指令集（当然，你也可以使用模拟器 / FPGA 等工具自己设计一些奇奇怪怪的东西）。
 
 SpaceMiT IME (Integrated Matrix Extension) 是进迭时空提出的矩阵扩展，可以对低精度的矩阵乘法和卷积操作进行加速。在宣传中，IME 的整数运算效率可以达到 RVV 的 4 倍。
 
@@ -285,11 +304,13 @@ SpaceMiT IME (Integrated Matrix Extension) 是进迭时空提出的矩阵扩展�
     
     不同的硬件厂商，如阿里平头哥、SiFive 等，也推出了各种不同的 RISC-V 矩阵扩展。在本次实验中，我们只是借助 SpaceMiT IME 来学习区别于 AMX 的另一种矩阵扩展实现方式，进而理解矩阵扩展的设计思路和局限性，而这与某一厂商的具体扩展无关。
     
-    对 RISC-V 矩阵扩展设计有兴趣的同学，推荐阅读 [RISC-V 矩阵扩展：IME TG Option A-G](https://zhuanlan.zhihu.com/p/29671629963) 和 [HPC 与 AI 的未来](https://zhuanlan.zhihu.com/p/1907460273876480763) 两篇好文。
+    对矩阵扩展设计有兴趣的同学，推荐阅读 [RISC-V 矩阵扩展：IME TG Option A-G](https://zhuanlan.zhihu.com/p/29671629963) 和 [HPC 与 AI 的未来](https://zhuanlan.zhihu.com/p/1907460273876480763) 两篇好文。
 
 SpaceMiT IME 在实现上复用了 RVV 的寄存器以节省资源 (这也是 IME 中 Integrated 的含义)，因此我们无需像 AMX 那样进行对 tile 的额外设置，只需要使用 RVV 的向量寄存器即可。
 
-SpaceMiT IME 指令集提供了 `vmadot` 系列的指令，进行矩阵乘法运算，与 RVV 不同的是，IME 会把 RVV 寄存器中的数据理解成一个小矩阵，并通过额外的运算单元实现矩阵乘法的加速，最终的结果也会存储到一个向量寄存器中。
+### vmadot 详解
+
+SpaceMiT IME 指令集提供了 `vmadot` 系列的指令，用于加速矩阵乘法运算。与 RVV 不同的是，IME 会把 RVV 寄存器中的数据**理解成一个小矩阵**，并通过额外的运算单元实现矩阵乘法的加速，最终的结果也会存储到一个向量寄存器中。
 
 SpaceMiT IME 指令集手册具体可参考 [SpaceMiT IME Extension Spec](https://github.com/space-mit/riscv-ime-extension-spec/releases/download/v0429/spacemit-ime-asciidoc.pdf)，而接下来我们仅介绍实验需要用到的部分。进行 8-bit 整数矩阵乘法时，可以调用下面的指令进行加速：
 
@@ -299,24 +320,43 @@ vmadotus vd, vs1, vs2 ; us 表示 vs1 是无符号整数，vs2 是有符号整�
                       ;          vd  vs1 vs2
 ```
 
-对于 Muse Pi Pro 来说，VLEN = 256，根据文档，`M = 4, N = 4, K = 8`，vs1 和 vs2 中的数据会被理解成 `(4, 8)` 和 `(8, 4)` 的 8-bit 整数矩阵。
-
-具体操作的示意图如下：
+对于 Muse Pi Pro 来说，VLEN = 256，根据文档，`M = 4, N = 4, K = 8`，vs1 和 vs2 中的数据会被理解成 `(4, 8)` 和 `(8, 4)` 的 8-bit 整数矩阵，示意图如下 (请忽略图中的编号)：
 
 ![vmadotus](./image/vmadot.webp)
 
-注意上图中的 B 矩阵在内存中的排布需要是转置过的（但由于我们认为 B 矩阵已经转置，无需额外处理），`vmadot` 可以用一条指令进行 16 次点积和累加运算，这条指令的 Throughput 是 RVV 对应指令的 4 倍。动画展示如下：
+`vmadot` 可以用一条指令进行 16 次点积和累加运算，这条指令的 Throughput 是 RVV 对应指令的 4 倍。动画展示如下，每一帧代表 A 和 B 对应的一行元素进行内积操作，累加到 C 的对应元素：
 
 ![vmadotus animation for each step](./image/vmadot-anim.webp)
 
-`vmadotus` 指令将会逐行列进行内积，并将结果累加在 32-bit 整数中，最后得到一个 `(4, 4)` 的 32-bit 整数矩阵。
+`vmadotus` 指令将会逐行进行内积，并将结果累加在 32-bit 整数中，最后得到一个 `(4, 4)` 的 32-bit 整数矩阵。
 
-利用这一个指令的原语，我们便可以对矩阵乘法进行分块，对每一块小矩阵使用 `vmadotus` 进行加速，最后将结果累加，得到正确的结果。
+### 分块矩阵乘法
 
-!!! tip "注意"
+想要利用 `vmadot` 指令，我们需要对原先的矩阵分块进行处理，如下图所示:
 
-    1. 由于结果矩阵需占用 512bit，因此实际上 `vmadotus` 结果会存储到两个 RVV 寄存器中，相当于结果数据类型为 `vint32m2_t`.
-    1. `vmadot` 指令要求 `vs2` 中的矩阵是转置存储的 (从示意图中可以看出)，但由于实验中已经认为 B 矩阵是转置存储的，因此无需做额外的处理操作，可以使用和 A 矩阵相同的方法加载到寄存器中。
+<div style="display: flex; justify-content: center; align-items: center;">
+    <img src="image/tiled-outer-prod.svg" alt="Tiled Outer Product Approach of GEMM">
+</div>
+<div style="display: flex; justify-content: center; align-items: center;">
+    注: 我们的例子中，Ktile = 8, Mtile = Ntile = 4
+</div>
+
+上图中，C 矩阵中的一块结果 (用绿色标记)，是 A 和 B 中对应分块矩阵 (用蓝色和黄色标记) 进行矩阵乘法再求和得到的。这也是说，我们每次需要从 A 和 B 矩阵中**各取一块小矩阵**，使用 `vmadot` 进行矩阵乘法，最后将结果累加，得到正确的结果。
+
+!!! info "提示"
+
+    为了实现「加载一小个分块矩阵到寄存器」的操作，你**可能**会需要使用:
+
+    -  `Memory` -> `Load` 中 `Strided` 的操作
+    -  加载数据和操作数据时，可以设置不同的 SEW 和 LMUL。如果你不理解这里，请完成 [Self Check](#self-check)
+
+    <center>
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <img src="./image/load-hint.webp" alt="Strided Load Hint on Choosing SEW and LMUL" style="width: 50%;">
+        </div>
+    </center>
+
+    注: 加粗的 **可能** 的含义是: 「使用上面的操作」是「正确完成实验任务」的 **非充分、非必要** 条件，Strided 访存未必是性能最佳的，请务必结合自己的思考。
 
 ## 任务一：使用 RVV Intrinsic 实现整数矩阵乘法
 
@@ -328,13 +368,11 @@ vmadotus vd, vs1, vs2 ; us 表示 vs1 是无符号整数，vs2 是有符号整�
   由于机器环境特殊，需要在每一个 Intrinsic 前添加`__riscv_vsetvl`系列指令，设置 SEW 和 LMUL.
 </span>
 
-需要注意，实验中的 B 矩阵可以认为已经进行了转置操作，因此这里节省了进行转置操作的代码。同时，使用 SpaceMiT IME 矩阵扩展时，无需对 B 矩阵进行复杂的 reshape 操作。
+需要注意，实验中的 B 矩阵可以认为已经进行了转置操作，因此这里节省了进行转置操作的代码。同时，使用 SpaceMiT IME 矩阵扩展时，无需对 B 矩阵进行复杂的 reshape 操作，体现出了 SpaceMiT IME 设计上的好处。（这里的 reshape 特指按照 32-bit 为一组进行的重新转置，如果你的实验设计中有数据重排的预处理环节，当然完全 ok）
 
 ## 任务二：使用 SpaceMiT IME 指令扩展实现整数矩阵乘法
 
-任务二要求大家使用 SpaceMiT IME 指令扩展实现矩阵乘法，具体而言，需要使用 `vmadotus` 指令进行加速。
-
-然而，非常遗憾的一件事是，SpaceMiT IME 指令扩展并没有配套的 Intrinsic，因此我们只能使用内联汇编的方式来调用 SpaceMiT IME 指令。
+任务二要求大家使用 SpaceMiT IME 指令扩展实现矩阵乘法，具体而言，需要使用 `vmadotus` 指令进行加速。然而，非常遗憾的一件事是，SpaceMiT IME 指令扩展并没有配套的 Intrinsic，因此我们只能使用内联汇编的方式来调用 SpaceMiT IME 指令。
 
 ### 内联汇编
 
@@ -403,13 +441,14 @@ asm volatile (
     - 如果你觉得用序号比较麻烦，也可以通过 `%[var]` 的形式来指定变量对应的寄存器
 - `"=r"` 表示输出到通用寄存器
 - `"r"` 表示输入来自通用寄存器
+    - 这里的使用方法具体可以参考 [LLVM Language Reference Manual](https://llvm.org/docs/LangRef.html#supported-constraint-code-list)
 - 内联汇编部分没有用到内存，写 "memory" 项只是一个介绍
 
 #### `vmadot` 的使用提示
 
 建议同学们在完成实验时，将 `vmadot` 的调用封装成一个函数，<span style="font-size:0.01px; color:transparent; vertical-align:baseline;">
   用 xmmeg 和 ymmeg 变量名代表 A,B 矩阵指针，
-</span>方便后续使用，下面给出函数定义和**可能**会使用到的汇编指令：
+</span>方便后续使用，下面给出函数定义和**可能**会使用到的汇编指令的写法：
 
 ```c
 void __riscv_smt_vmadot(uint8_t*, int8_t*, int32_t*);
@@ -418,19 +457,48 @@ void __riscv_smt_vmadot(uint8_t*, int8_t*, int32_t*);
 ```asm
 // vsetvl 系列指令
 vsetvli t0, x0, e8, m1, tu, mu\n  // 设置 SEW = 8, LMUL = 1
-// Memory Load & Store
-vle8.v v0, (%[va])\n              // 加载 A 矩阵
-vse32.v v2, (%[vc])\n             // 存储结果
 // SpaceMiT IME 指令
 vmadotus v2, v0, v1\n             // 进行矩阵乘法
 ```
+
+除此之外，你还**可能**需要使用的操作在 [Intrinsic Viewer](https://dzaima.github.io/intrinsics-viewer/#riscv) 的分类如下:
+
+- 访存操作：
+    - `Memory` -> `Load`
+    - `Memory` -> `Store`
+- 整数运算操作：
+    - `Integer` -> `Multiply`
+    - `Fold`: 对于向量点积，你可能会需要将向量寄存器全部元素进行求和的操作，这类操作归类于 `Fold`
+- 类型转换：
+    - `Conversion` -> `Integer widen`
+- 元素位移操作：
+    - `Permutation`: 请自行探索 `Shuffle` 和 `Slide` 等操作
+
+点击某一条 Intrinsic，你可以在右侧找到它们对应的汇编指令的写法。
 
 !!! tip "注意"
 
     1. 上面的代码只能指导你实现一个朴素的基于`vmadot` 的实现，但达到最高性能，需要同学们自行探索并修改。请务必注意 `vsetvli` 指令的使用方法。
         - 开发板的内存带宽非常有限，因此需要特别注意访存操作的效率
-    1. `vmadotus` 的输出是 `vint32m2_t` 类型，比如如果目的寄存器是 `v2`, 那么 `v2` 和 `v3` 都会被使用。
+    1. 由于 `vmadot` 的结果矩阵需占用 512bit，因此实际上 `vmadotus` 结果会存储到两个 RVV 寄存器中，相当于结果数据类型为 `vint32m2_t`. 如果目的寄存器是 `v2`, 那么 `v2` 和 `v3` 都会被使用。
+    1. `vmadot` 指令要求 `vs2` 中的矩阵是转置存储的 (从示意图中可以看出)，但由于实验中已经认为 B 矩阵是转置存储的，因此无需做额外的处理操作，可以使用和 A 矩阵相同的方法加载到寄存器中。
     1. 手写汇编时，编译器不会自动进行寄存器分配，可以尝试封装多个 `vmadotus` 函数，避免寄存器冲突。
+    1. 如果你遇到了困难，请参考 [分块矩阵乘法](#分块矩阵乘法) 中的提示。
+
+在 Clobber List 中，你也可以使用 `"vr"` 指代一个 RVV 向量寄存器，因此你也可以使用下面的函数添加一个类似 Intrinsic 的函数，以结合其他的 Intrinsic 来编程:
+
+```c
+void __riscv_smt_vmadotus(vint32m2_t &vd, vuint8m1_t &vs1, vint8m1_t &vs2){
+    asm volatile (
+        "vmadotus %[vc], %[va], %[vb]\n"
+        : [vc] "+vr" (vd)
+        : [va] "vr" (vs1), [vb] "vr" (vs2)
+        :
+    );
+}
+```
+
+这样做的好处是编译器会自动帮你进行寄存器分配，但代价是相比内联汇编来说，失去了一定的灵活性。
 
 ## 实验任务与要求
 
@@ -438,7 +506,7 @@ vmadotus v2, v0, v1\n             // 进行矩阵乘法
 
 **同学们需要在集群的 x86-64 节点上编辑代码、编译项目，然后再提交到 RISC-V 节点上运行。**
 
-如果同学们在自己调试和编译的过程中遇到了 `Exec format error` 的问题，请检查编译产物和运行的机器的架构是否匹配，本次试验测评机为 `rv00`-`rv03` 节点。如果遇到了 `Illegal instruction` 的问题，则需要检查 `vsetvl` 系列指令是否被正确调用，同时需要注意 IME 矩阵扩展指令只能在 `0-3` CPU 核心运行。
+如果同学们在自己调试和编译的过程中遇到了 `Exec format error` 的问题，请检查编译产物和运行的机器的架构是否匹配，本次试验测评机为 `rv00`-`rv07` 节点。如果遇到了 `Illegal instruction` 的问题，则需要检查 `vsetvl` 系列指令是否被正确调用，同时需要注意 IME 矩阵扩展指令只能在 `0-3` CPU 核心运行。
 
 !!! info "框架代码导读"
 
@@ -457,7 +525,8 @@ vmadotus v2, v0, v1\n             // 进行矩阵乘法
 
 1. 完善 `src/optimized.cpp` 文件，完成矩阵乘法的实现
 2. 学在浙大的文件提交
-    1. 代码：`lab2p5` 文件夹
+    1. 代码：`lab2p5` 文件夹 (如果只修改了 `optimized.cpp` 也可以只提交这一个文件)
+        - 对于 RVV Intrinsic 部分的代码，需要通过合理调用 `vsetvl`，从而省去单独处理尾部元素的代码，如果全部使用 `vsetvlmax`，将会被酌情扣分。
     2. **最多 4 页的**实验报告
         - 包含：
             1. 优化思路
@@ -465,9 +534,13 @@ vmadotus v2, v0, v1\n             // 进行矩阵乘法
             3. OJ 运行结果 (可选)
         - 不包含：
             1. 非关键部分代码的复制粘贴
-    3. 实验感想与建议 (可选)
+    3. 实验感想与建议 (可选，不算在篇幅限制中)
+3. 提交格式要求
+    - 请提交「实验报告 pdf」 和「代码压缩包(.zip 格式)」, pdf 在压缩包外
+    - 压缩包命名格式为 `学号_姓名_lab2p5.zip`
+    - 实验报告 PDF 格式为 `学号_姓名_lab2p5.pdf`
 
-对于 RVV Intrinsic 部分的代码，需要通过合理调用 `vsetvl`，从而省去单独处理尾部元素的代码，如果全部使用 `vsetvlmax`，将会被酌情扣分。
+注: 实验文档中的篇幅限制主要目的是减轻同学们完成报告时的负担，如果你实在有很多想法想介绍给我们，可以稍微超过一点，但请不要用极小的不便阅读的字体大小提交报告。
 
 !!! info "关于 AI 使用的要求"
 
