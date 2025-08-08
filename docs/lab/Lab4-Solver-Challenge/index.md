@@ -771,7 +771,7 @@ Lab 4 实验在 SLURM 集群上进行，提供了以下两个计算分区供使�
 
     可以考虑在/tmp文件中手动建立spack的用户缓存文件夹。
 
-    尝试在shell脚本中添加export SPACK_USER_CACHE_PATH=/tmp/<你的用户名>/.spack   mkdir -p $SPACK_USER_CACHE_PATH  source /pxe/opt/spack/share/spack/setup-env.sh  spack load intel-oneapi-compiler
+    尝试在shell脚本中添加export SPACK_USER_CACHE_PATH=/tmp/<你的用户名>/.spack   mkdir -p $SPACK_USER_CACHE_PATH  source /pxe/opt/spack/share/spack/setup-env.sh  spack load intel-oneapi-compilers
 
 ## Bonus 任务
 
