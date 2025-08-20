@@ -356,7 +356,7 @@ spack install intel-oneapi-itac  # ITAC
     # 启动 Trace Analyzer GUI (需 x11 forwarding)
     traceanalyzer your_trace.stf
     # 或者命令行分析
-    itacstats your_trace.stf
+    traceanalyzer --cli your_trace.stf
     ```
 
     在 GUI 中，你可以直观地看到 MPI 函数的耗时与首要的 MPI 函数：
