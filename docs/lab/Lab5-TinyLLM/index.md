@@ -53,6 +53,10 @@ Qwen 3 在标准 Decoder-Only 架构的基础上，采用了以下优化：
 
 其他更详细的参数可以参考权重目录下的 `config.json` 文件。
 
+!!! warning "注意"
+
+    请不要直接参考 modules/config.py 中配置类的默认值，模型的实际参数值可能会有所不同。请以 `config.json` 文件中的参数为准。
+
 为了更好地理解 Qwen3 模型的核心组件，我们将重点讲解 Multi-Head Attention 和 Feed Forward Network 的实现细节。
 
 ### Self Attention Layer 详解
@@ -235,7 +239,7 @@ Qwen 3 的 Decoder Layer 主要有 Self Attention Layer 和 Feed Forward Network
 
         而模型参数的显存占用则是由参数量和数据类型决定的。在本实验中使用的数据类型是 `bfloat16`，每个参数占用 2 字节，由此可以计算出模型的总显存占用。
 
-        模型的实际显存占用可能与你计算的理论值有所不同，请你自行查找原因并在实验报告中进行分析。
+        你可以使用 `nvidia-smi` 等命令查看当前的显存占用。实际显存占用可能与你计算的理论值有所不同，请你自行查找原因并在实验报告中进行分析。
 
 ## 实验指导和提示
 
@@ -261,13 +265,40 @@ Qwen 3 的 Decoder Layer 主要有 Self Attention Layer 和 Feed Forward Network
 
 你需要完成 `modules/attention.py` 中的 `Qwen3Attention` 类和 `modules/mlp.py` 中的 `Qwen3FFN` 类的实现。
 
-我们提供了一个简单的推理脚本 `main.py`，你可以通过运行该脚本来测试你的模型是否能够输出正常的人类可读文本。你也可以通过修改 `main.py` 中的生成配置来探索不同的生成效果（如调整不同的参数、使用 `<think>` 标签强制模型思考等），欢迎同学们将自己的尝试和结果分享在实验报告中。
+我们提供了一个简单的推理脚本 `main.py`，你可以通过运行该脚本来测试你的模型是否能够输出正常的人类可读文本。
 
 我们也提供了测试用例，你需要确保你的实现能够通过测试。你可以使用以下命令来运行测试：
 
 ```bash
 python simple_test.py
 ```
+
+!!! note "欢迎大家探索不同的输入"
+
+    欢迎同学们通过修改 `main.py` 中的生成配置来探索不同的生成效果，包括但不限于：
+
+    1. 修改 `max_new_tokens` 参数来生成不同长度的文本。
+    2. 修改 `temperature`, `top_p` 和 `top_k` 等参数来控制生成文本的随机性和多样性。
+    3. 尝试不同的输入文本，观察模型的生成效果。
+    4. 目前模型是一个预测下一个 token 的基座模型，若要实现类似 ChatBot 的对话功能，你可以尝试使用 Qwen3 的 chat template 来构建对话上下文。
+
+        ```python
+        # prepare the model input
+        prompt = "Give me a short introduction to large language model."
+        messages = [
+            {"role": "user", "content": prompt}
+        ]
+        text = tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+            enable_thinking=True # Switches between thinking and non-thinking modes. Default is True.
+        )
+        ```
+    
+    5. Qwen3 模型是一个混合思考模型，模型可以自己判断何时需要进行深度思考。同时你可以在 prompt 的末尾使用 `<think>` 来提示模型进行深度思考，使用 `</think>` 来提示模型不要进行深度思考。（上述代码中 `enable_thinking` 就是通过这种方式控制思考的）
+    
+    你可以将自己的尝试和结果分享在实验报告中。
 
 ### 开发环境设置
 
