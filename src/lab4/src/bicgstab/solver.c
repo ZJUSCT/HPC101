@@ -83,7 +83,7 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
     int iter;
     for (iter = 1; iter <= max_iter; iter++) {
         if (iter % 1000 == 0) {
-            printf("Iteration %d, residul = %e\n", iter, sqrt(dot_product(r, r, N)));
+            printf("Iteration %d, residual = %e\n", iter, sqrt(dot_product(r, r, N)));
         }
 
         // 1. y = K2_inv * p (apply preconditioner)
