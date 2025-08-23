@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) by Vadim Karpusenko, PhD -->
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="343.39999" height="353.39999" id="svg2" version="1.1" inkscape:version="0.48.3.1 r9886" sodipodi:docname="SIMD.svg">
+  <defs id="defs4">
+    <marker inkscape:stockid="Arrow1Lend" orient="auto" refY="0" refX="0" id="Arrow1Lend" style="overflow:visible">
+      <path id="path3821" d="M 0,0 5,-5 -12.5,0 5,5 0,0 z" style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt" transform="matrix(-0.8,0,0,-0.8,-10,0)" inkscape:connector-curvature="0"/>
+    </marker>
+    <marker inkscape:stockid="Arrow1Mend" orient="auto" refY="0" refX="0" id="Arrow1Mend" style="overflow:visible">
+      <path id="path3827" d="M 0,0 5,-5 -12.5,0 5,5 0,0 z" style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt" transform="matrix(-0.4,0,0,-0.4,-4,0)" inkscape:connector-curvature="0"/>
+    </marker>
+    <filter inkscape:collect="always" id="filter4923" color-interpolation-filters="sRGB">
+      <feGaussianBlur inkscape:collect="always" stdDeviation="4.875" id="feGaussianBlur4925"/>
+    </filter>
+    <filter inkscape:collect="always" id="filter4927" x="-0.048749998" width="1.0975" y="-0.19499999" height="1.39" color-interpolation-filters="sRGB">
+      <feGaussianBlur inkscape:collect="always" stdDeviation="4.875" id="feGaussianBlur4929"/>
+    </filter>
+    <filter inkscape:collect="always" id="filter4931" x="-0.19499999" width="1.39" y="-0.048750002" height="1.0975" color-interpolation-filters="sRGB">
+      <feGaussianBlur inkscape:collect="always" stdDeviation="4.875" id="feGaussianBlur4933"/>
+    </filter>
+    <filter inkscape:collect="always" id="filter5019" color-interpolation-filters="sRGB">
+      <feGaussianBlur inkscape:collect="always" stdDeviation="2.25" id="feGaussianBlur5021"/>
+    </filter>
+    <filter inkscape:collect="always" id="filter5023" color-interpolation-filters="sRGB">
+      <feGaussianBlur inkscape:collect="always" stdDeviation="2.25" id="feGaussianBlur5025"/>
+    </filter>
+    <filter inkscape:collect="always" id="filter5027" color-interpolation-filters="sRGB">
+      <feGaussianBlur inkscape:collect="always" stdDeviation="2.25" id="feGaussianBlur5029"/>
+    </filter>
+    <filter inkscape:collect="always" id="filter5031" color-interpolation-filters="sRGB">
+      <feGaussianBlur inkscape:collect="always" stdDeviation="2.25" id="feGaussianBlur5033"/>
+    </filter>
+  </defs>
+  <sodipodi:namedview id="base" pagecolor="#ffffff" bordercolor="#666666" borderopacity="1.0" inkscape:pageopacity="0.0" inkscape:pageshadow="2" inkscape:zoom="1.4" inkscape:cx="-78.855196" inkscape:cy="114.34883" inkscape:document-units="px" inkscape:current-layer="layer1" showgrid="true" fit-margin-top="0" fit-margin-left="0" fit-margin-right="0" fit-margin-bottom="0" inkscape:window-width="1680" inkscape:window-height="1026" inkscape:window-x="0" inkscape:window-y="24" inkscape:window-maximized="1">
+    <inkscape:grid type="xygrid" id="grid2985" empspacing="5" visible="true" enabled="true" snapvisiblegridlinesonly="true" originx="-32.3px" originy="-654.3px"/>
+  </sodipodi:namedview>
+  <metadata id="metadata7">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <dc:title/>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g inkscape:label="Layer 1" inkscape:groupmode="layer" id="layer1" transform="translate(-32.3,-44.662183)">
+    <rect ry="20" y="126.36218" x="204" height="260" width="160" id="rect4893" style="fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter4923)"/>
+    <rect ry="20" y="56.362183" x="124" height="60" width="240" id="rect4895" style="fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter4927)"/>
+    <rect transform="matrix(0,-1,1,0,4,4)" style="fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter4931)" id="rect4897" width="239.99998" height="60" x="-372.36218" y="40" ry="20"/>
+    <rect style="fill:#787bf4;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" id="rect4830" width="160" height="260" x="200" y="122.36218" ry="20"/>
+    <rect ry="20" y="134.36218" x="222" height="60" width="60" id="rect4979" style="fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5019)"/>
+    <rect style="fill:#cbe6e0;fill-opacity:1;stroke:#000000;stroke-opacity:1" id="rect2987" width="240" height="60" x="120" y="52.362183" ry="20"/>
+    <text xml:space="preserve" style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:LMSans10;-inkscape-font-specification:LMSans10" x="240.48047" y="91.321167" id="text2991" sodipodi:linespacing="125%"><tspan sodipodi:role="line" id="tspan2993" x="240.48047" y="91.321167" style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;fill:#000000;font-family:Comic Sans MS;-inkscape-font-specification:Comic Sans MS">Instruction pool</tspan></text>
+    <rect ry="20" y="40" x="-372.36218" height="60" width="239.99998" id="rect2995" style="fill:#dad3ea;fill-opacity:1;stroke:#000000;stroke-opacity:1" transform="matrix(0,-1,1,0,0,0)"/>
+    <text sodipodi:linespacing="125%" id="text2997" y="78.847656" x="-252.51453" style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:LMSans10;-inkscape-font-specification:LMSans10" xml:space="preserve" transform="matrix(0,-1,1,0,0,0)"><tspan style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;font-family:Comic Sans MS;-inkscape-font-specification:Comic Sans MS" y="78.847656" x="-252.51453" id="tspan2999" sodipodi:role="line">Data pool</tspan></text>
+    <rect style="fill:#facfc3;fill-opacity:1;stroke:#000000;stroke-opacity:1" id="rect3769" width="60" height="60" x="220" y="132.36218" ry="20"/>
+    <rect style="fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5023)" id="rect4981" width="60" height="60" x="222" y="194.36218" ry="20"/>
+    <text xml:space="preserve" style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:LMSans10;-inkscape-font-specification:LMSans10" x="234.06793" y="170.42618" id="text3777" sodipodi:linespacing="125%"><tspan sodipodi:role="line" id="tspan3779" x="234.06793" y="170.42618">PU</tspan></text>
+    <rect ry="20" y="254.36218" x="222" height="60" width="60" id="rect4983" style="fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5027)"/>
+    <rect ry="20" y="192.36218" x="220" height="60" width="60" id="rect3790" style="fill:#facfc3;fill-opacity:1;stroke:#000000;stroke-opacity:1"/>
+    <rect style="fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter5031)" id="rect4985" width="60" height="60" x="222" y="314.36218" ry="20"/>
+    <text sodipodi:linespacing="125%" id="text3792" y="230.42618" x="234.06793" style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:LMSans10;-inkscape-font-specification:LMSans10" xml:space="preserve"><tspan y="230.42618" x="234.06793" id="tspan3794" sodipodi:role="line">PU</tspan></text>
+    <rect style="fill:#facfc3;fill-opacity:1;stroke:#000000;stroke-opacity:1" id="rect3798" width="60" height="60" x="220" y="252.36218" ry="20"/>
+    <text xml:space="preserve" style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:LMSans10;-inkscape-font-specification:LMSans10" x="234.06793" y="290.42618" id="text3800" sodipodi:linespacing="125%"><tspan sodipodi:role="line" id="tspan3802" x="234.06793" y="290.42618">PU</tspan></text>
+    <rect ry="20" y="312.36218" x="220" height="60" width="60" id="rect3806" style="fill:#facfc3;fill-opacity:1;stroke:#000000;stroke-opacity:1"/>
+    <text sodipodi:linespacing="125%" id="text3808" y="350.42618" x="234.06793" style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:LMSans10;-inkscape-font-specification:LMSans10" xml:space="preserve"><tspan y="350.42618" x="234.06793" id="tspan3810" sodipodi:role="line">PU</tspan></text>
+    <path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)" d="m 100,162.36218 120,0" id="path3812" inkscape:connector-curvature="0"/>
+    <path inkscape:connector-curvature="0" id="path4444" d="m 100,222.36218 120,0" style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"/>
+    <path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)" d="m 100,282.36218 120,0" id="path4446" inkscape:connector-curvature="0"/>
+    <path inkscape:connector-curvature="0" id="path4448" d="m 100,342.36218 120,0" style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"/>
+    <path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)" d="m 310,112.36218 0,230 -30,0" id="path4450" inkscape:connector-curvature="0" sodipodi:nodetypes="ccc"/>
+    <path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)" d="m 310,282.36218 -30,0" id="path4636" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"/>
+    <path inkscape:connector-curvature="0" id="path4822" d="m 310,222.36218 -30,0" style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)" sodipodi:nodetypes="cc"/>
+    <path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)" d="m 310,162.36218 -30,0" id="path4824" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"/>
+    <text xml:space="preserve" style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans" x="40.984188" y="90.690186" id="text4826" sodipodi:linespacing="125%"><tspan sodipodi:role="line" id="tspan4828" x="40.984188" y="90.690186">SIMD</tspan></text>
+    <text xml:space="preserve" style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Comic Sans MS;-inkscape-font-specification:Comic Sans MS" x="-318.87195" y="340" id="text4832" sodipodi:linespacing="125%" transform="matrix(0,-1,1,0,0,0)"><tspan sodipodi:role="line" id="tspan4834" x="-318.87195" y="340">Vector unit</tspan></text>
+  </g>
+</svg>

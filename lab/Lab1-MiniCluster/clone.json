@@ -1,0 +1,17 @@
+[
+  {
+    "title": "克隆菜单",
+    "content": "右键虚拟机->Manage->Clone",
+    "image": "image/clone_vm_1.webp"
+  },
+  {
+    "title": "完全克隆",
+    "content": "Clone Type 两种都行，链接模式磁盘空间占用会小一点",
+    "image": "image/clone_vm_2.webp"
+  },
+  {
+    "title": "生成 MAC 地址",
+    "content": "右键虚拟机->Settings->Network Adapter->Advanced->Generate",
+    "image": "image/generate_mac.webp"
+  }
+]
