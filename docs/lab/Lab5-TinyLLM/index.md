@@ -25,9 +25,9 @@
 2. Embedding：将 token ID 转换为高维向量表示。这一部分由 Embedding 层完成。
 3. Decoder Layers: 将输入向量依次通过多个解码器层，每层包含以下组件：
 
-   - Multi-Head Attention (MHA)：计算输入 token 之间的注意力分数。
-   - Feed Forward Network (FFN)：对每个 token 的表示进行非线性变换。
-   - Layer Normalization：对每层的输出进行归一化处理。
+    - Multi-Head Attention (MHA)：计算输入 token 之间的注意力分数。
+    - Feed Forward Network (FFN)：对每个 token 的表示进行非线性变换。
+    - Layer Normalization：对每层的输出进行归一化处理。
 
 4. Output Layer：将最后一层的输出通过线性变换和 softmax 层转换为 token ID 的概率分布。
 5. Text Generation：根据概率分布生成下一个 token，并将 token 放入 token 序列中。重复步骤 2-4 直到生成结束标志。
