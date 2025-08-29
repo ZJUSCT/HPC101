@@ -349,11 +349,16 @@ MkDocs 对 Markdown 有一些增强要求，例如要求多级列表逐级缩进
 
 ### 合并 PR
 
-本仓库主分支保护，不允许 Force Push。PR 与主分支发生冲突时，尽可能使用 Rebase 而不是将主分支的变更 Merge 到 PR 中。
+请贡献者养成良好的公共仓库 PR 习惯：
 
-请对所有 PR 进行 squash + rebase（不使用 Merge Commit）。主分支中每个 PR 应该对应一个 commit。这样可以让 commit 日志既简单又精确，同时减少不必要的噪音。
+- **Force Push：**本仓库主分支保护，不允许 Force Push。请在自己的 Fork 中随意进行修改。
+- **PR 合并：**
+    - **Draft PR：**仍有修改进行，未准备好合并时，请提交 Draft PR（Create Pull Request 右侧下拉框选择）。
+    - **Request Review：**准备合并时，点击 Ready for review，并选择 Reviewer 以提醒他们查看。
+    - **冲突处理：**PR 与主分支发生冲突时，尽可能使用 Rebase 而不是将主分支的变更 Merge 到 PR 中。
+    - **合并方式：**请对所有 PR 进行 squash + rebase（不使用 Merge Commit）。主分支中每个 PR 应该对应一个 commit。这样可以让 commit 日志既简单又精确，同时减少不必要的噪音。
 
-例外情况是包含复杂变更的拉取请求。如果遇到这种情况且提交结构良好，可以接受 rebase + merge（不使用 Merge Commit）的方式。
+        例外情况是包含复杂变更的拉取请求。如果遇到这种情况且提交结构良好，可以接受 rebase + merge（不使用 Merge Commit）的方式。
 
 ## 历史
 
