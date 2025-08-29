@@ -1,0 +1,17 @@
+[
+  {
+    "title": "未定义的引用",
+    "content": "执行链接时最令人头疼的问题。首先应当阅读库的使用说明，接下来搜索缺失的符号可能位于哪些库文件中。",
+    "image": "image/undefined_reference.webp"
+  },
+  {
+    "title": "缺失 `.dll`",
+    "content": "常用 Windows 的同学多多少少见过这个报错，这也是缺少动态链接库造成的。",
+    "image": "image/lose_dll.webp"
+  },
+  {
+    "title": "缺失 `.so`",
+    "content": "Linux 上的动态库一般通过 `apt` 管理，[搜索相应的包](https://fostips.com/tell-package-name-contains-specific-file-ubuntu-linux-mint/) 并安装即可。",
+    "image": "image/missing_library.webp"
+  }
+]
