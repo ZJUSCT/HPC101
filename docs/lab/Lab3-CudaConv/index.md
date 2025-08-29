@@ -2,7 +2,7 @@
 
 !!! info "实验信息"
 
-    负责助教：陈楷骐, 郝星星, 任朱明 
+    负责助教：陈楷骐, 郝星星, 任朱明
 
 ## 实验目的
 
@@ -200,7 +200,7 @@ $$
 基准代码为程序中的`conv2d_cuda_kernel`核函数，是未经优化的五层循环嵌套 GPU 实现，你可以在此基础上进行改进，亦或者重新自己实现。
 
 ```c++ linenums="1"
-__global__ void conv2d_cuda_kernel(const int8_t *__restrict__ a, 
+__global__ void conv2d_cuda_kernel(const int8_t *__restrict__ a,
                                    const int8_t *__restrict__ w,
                                    int8_t *__restrict__ b) {
   const int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -214,7 +214,7 @@ __global__ void conv2d_cuda_kernel(const int8_t *__restrict__ a,
           for (int r = 0; r < R; ++r) {
             for (int s = 0; s < S; ++s) {
               if (!(x < 0 || x >= size || y < 0 || y >= size)) {
-                result += static_cast<int>(a(n, x, y, c)) 
+                result += static_cast<int>(a(n, x, y, c))
                         * static_cast<int>(w(k, r, s, c));
               }
               y++;
@@ -365,7 +365,7 @@ NVIDIA 的 cuDNN 库提供了高性能的卷积实现，你可以考虑测试一
 !!! danger "这里没必要卷"
 
     OJ 测评仅作为正确性, 加速效果的参考, 并且提高大家对程序不断优化的积极性。
-    
+
     **OJ 得分并不直接参与实验成绩的计算**, 主要看大家的优化思路以及代码完成情况, 体现在实验报告中。
 
     即使加速比不是很理想, 但优化思路明确, 代码完成程度高, 一样可以得到实验的高分。同理, 即使 OJ 都拿了满分, 但报告很简略, 没有提及关键思路, 也不会获得很理想的分数。
@@ -393,7 +393,7 @@ ssh <username>+oj@clusters.zju.edu.cn submit lab3
 !!! info "OJ 评标"
 
     OJ 采用对数曲线进行给分，这意味着只要比 baseline 快，就可以很快获得一定的分数。同时也允许在标准满分的基础上进一步优化的同学获得更高的分数，分数上限为 105 分。
-    
+
     下面是不同优化的得分曲线:
 
     ![Score](./image/lab3_score.webp)
@@ -410,13 +410,13 @@ ssh <username>+oj@clusters.zju.edu.cn submit lab3
 你可以使用 Nsight Compute 来 Profile 你的 kernel, 查看你的 kernel 的访存大小，Compute 和 Memory 利用率，并获得进一步优化的方向。
 
 例如：
+
 ```bash
 export TMPDIR=~/tmp
 mkdir -p $TMPDIR
 
-srun -p V100 --gpus 1 /usr/local/cuda/bin/ncu ./conv_int8 
+srun -p V100 --gpus 1 /usr/local/cuda/bin/ncu ./conv_int8
 ```
-
 
 ### 注意事项
 

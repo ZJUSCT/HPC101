@@ -74,7 +74,7 @@ $$
 其中：
 
 - Q (Query)：查询矩阵，形状为 [batch_size, seq_len, d_model]
-- K (Key)：键矩阵，形状为 [batch_size, seq_len, d_model]  
+- K (Key)：键矩阵，形状为 [batch_size, seq_len, d_model]
 - V (Value)：值矩阵，形状为 [batch_size, seq_len, d_model]
 - mask：掩码矩阵，形状为 [batch_size, seq_len, seq_len]
 - $d_k$：Key的维度，用于缩放
@@ -297,9 +297,9 @@ python simple_test.py
             enable_thinking=True # Switches between thinking and non-thinking modes. Default is True.
         )
         ```
-    
+
     5. Qwen3 模型是一个混合思考模型，模型可以自己判断何时需要进行深度思考。同时你可以在 prompt 的末尾使用 `<think>` 来提示模型进行深度思考，使用 `</think>` 来提示模型不要进行深度思考。（上述代码中 `enable_thinking` 就是通过这种方式控制思考的）
-    
+
     你可以将自己的尝试和结果分享在实验报告中。
 
 ### 开发环境设置

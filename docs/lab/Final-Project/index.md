@@ -6,6 +6,7 @@
     负责助教：杨星宇、蒋翼泽、李厚融
 
 ## 导言
+
 在本课程的大作业中，您将会运用在课程实验中学习到的优化方法，对两个实际工程中的应用进行优化。本次大作业共包含两个应用场景，分别为：
 
 - (1) Winograd 卷积优化；
@@ -20,6 +21,7 @@
 ## 实验要求
 
 ### 实验平台
+
 大作业在本课程提供的集群上进行，您可以任选在 CPU 或 GPU 平台上进行优化，对应集群的鲲鹏 920 队列和 V100 队列（**任选其一即可**，有兴趣可以都尝试优化作为加分项）。选择不同的优化平台不会对最终得分产生影响，大作业将根据优化方法、实验报告和答辩表现进行综合评分。两个平台上的优化加速比是重要的评分依据，但并不是硬性指标；我们会分别考虑不同平台上的加速比，不会简单直接比较。
 
 鲲鹏 920 平台使用千兆以太网互联，多机互联性能较差，如果您选择了鲲鹏 920 平台，最多使用 1 个节点进行优化。请注意赛方提供的集群与我们提供的鲲鹏 920 集群支持的指令集是不同的，我们提供的集群仅支持 Neon (asimd) 指令集扩展，不支持 SVE 和 SME 指令集扩展，建议使用 Neon 指令集进行优化。
@@ -27,6 +29,7 @@
 V100 平台使用 NVLink 互联，如果您选择了 V100 平台，最多使用 1 个节点（即双卡 V100）进行优化。
 
 ### 提交要求
+
 请在截止日期前将大作业的所有提交内容压缩为 zip 格式，提交到学在浙大上，每个小组仅需组长提交一份，提交时请确保压缩包内包含以下内容：
 
 - Winograd 文件夹下：
@@ -47,7 +50,7 @@ V100 平台使用 NVLink 互联，如果您选择了 V100 平台，最多使用 
 
 提交的目录结构应如下所示：
 
-```
+```text
 project
 ├── Winograd
 │   ├── README.md
@@ -66,6 +69,7 @@ project
 ## 题目一：Winograd 卷积优化
 
 ### 题目介绍
+
 卷积计算在深度学习中广泛应用，现行的深度学习框架在卷积层中通常采用 Winograd 算法进行卷积计算，而不是直接使用卷积核滑动的方法进行计算。这两种方法在数学上是等价的，但 Winograd 卷积算法在计算量上更小，能显著提高卷积计算的速度。
 
 Winograd 卷积算法的核心思想是通过 Winograd’s 最小滤波算法将卷积运算转换为等价但计算量更小的操作，然后使用矩阵乘法来实现卷积计算。矩阵乘法有许多高性能的实现，从而使得 Winograd 卷积算法在实际应用中具有更高的性能。
@@ -90,9 +94,11 @@ Winograd 卷积算法的核心思想是通过 Winograd’s 最小滤波算法将
 具体细节请参考原始论文 [Fast Algorithms for Convolutional Neural Networks](https://arxiv.org/pdf/1509.09308)。
 
 ### 实验任务
+
 在本实验中，正确但未经优化的 Winograd 卷积基准代码已经提供，您将被要求对其进行优化以提高性能。作为参考的基准代码可以在 HPC101 课程的 [GitHub 仓库](https://github.com/ZJUSCT/HPC101/tree/main/src/project/winograd) 的 `src/project/winograd` 下找到，运行方式请参考仓库中的 `README.md`。本实验只需要考虑大小为 $3 \times 3$，具有多个通道的卷积核，参考代码使用了 Winograd $F(2 \times 2, 3 \times 3)$ （定义请参考论文）的实现，您也可以尝试使用不同的 $F(m \times m, 3 \times 3)$ 比较性能。本实验只需要修改 `winograd_conv.c` 或 `winograd_conv.cu`，其余代码不可修改（多卡并行例外）。卷积算法不可直接调用现成的实现，矩阵运算可以调用数学库。
 
 ### 参考资料
+
 1. Winograd 卷积算法的原始论文 [Fast Algorithms for Convolutional Neural Networks](https://arxiv.org/pdf/1509.09308)
 2. 高洋对 Winograd 卷积的实现方法介绍 [知乎 - “远超”理论浮点峰值](https://zhuanlan.zhihu.com/p/465739282)
 3. 一篇介绍 Winograd 算法的博客 [卷积神经网络中的Winograd快速卷积算法](https://www.cnblogs.com/shine-lee/p/10906535.html)
@@ -100,7 +106,6 @@ Winograd 卷积算法的核心思想是通过 Winograd’s 最小滤波算法将
 5. 李飞飞 CS231N 卷积介绍视频 [B站搬运版](https://www.bilibili.com/video/BV1RcApeHE71?vd_source=a47b0d0055eac7a2775a8964f0f54948&p=5&spm_id_from=333.788.videopod.episodes), [Youtube](https://www.youtube.com/watch?v=bNb2fEVKeEo&list=PL3FW7Lu3i5JvHM8ljYj-zLfQRF3EO8sYv&index=5)
 6. 一篇卷积算法介绍文章 [知乎 - CNN卷积核与通道讲解](https://zhuanlan.zhihu.com/p/251068800?spm=a2c6h.13046898.publish-article.19.38926ffaMNqpPb)
 7. 多通道卷积的介绍 [多输入多输出通道](https://zh.d2l.ai/chapter_convolutional-neural-networks/channels.html)
-
 
 ## 题目二：HPCG 基准测试优化
 
@@ -111,13 +116,13 @@ HPCG (High Performance Conjugate Gradient) 基准测试是一个旨在衡量高�
 预条件共轭梯度求解器的算法流程如下图所示。直接理解算法和伪代码可能有些困难，我们在参考资料中为您提供了共轭梯度法教程，作为一个较好的上手点；您可以先阅读该资料以了解算法的基本思路和实现细节。
 <div align = center><image src = "image/cg_algorithm.png" width = 50%></div>
 
-
 ### 实验任务
+
 在本实验中，您将被要求优化 HPCG 基准测试的性能，并报告最终的性能结果。您可以直接使用各个厂商提供的 HPCG 实现，例如 [HPCG_for_Arm](https://github.com/ARM-software/HPCG_for_Arm) 或 [nvidia-hpcg](https://github.com/NVIDIA/nvidia-hpcg)。您的优化方向可以集中在对各个配置的调整，而无需修改源代码。运行 HPCG 可能没有命令行输出；如果运行成功，您可以在当前目录下找到 `HPCG-` 开头的 `txt` 文件，里面包含了运行结果。
 
 您使用的 HPCG 实现通常会提供一个输入配置文件，名为 `hpcg.dat`，您可以通过修改该文件来调整 HPCG 的运行参数。HPCG 基准测试的输入配置文件通常包含以下内容：
 
-```
+```text
 HPCG benchmark input file
 Sandia National Laboratories; University of Tennessee, Knoxville
 104 104 104

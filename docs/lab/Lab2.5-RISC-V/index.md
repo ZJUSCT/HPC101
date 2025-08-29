@@ -16,9 +16,9 @@
             <img src="./image/muse-pi-pro-realife.webp" alt="小型开发版集群" style="width: 100%; height: auto;">
         </div>
     </div>
-    
+
     这些开发板与超算队维护的 x86-64 节点一样，位于 510 机房，并接入了自动化构建的 Linux rootfs，以及 Slurm 集群调度，与 x86-64 节点共享家目录文件。它们的节点编号是 `rv00`-`rv07`, 位于 Slurm 的 `riscv` 分区。
-    
+
     本实验截止后，这些节点也会继续面向同学们开放，欢迎大家积极体验！
 
 ## 实验目的
@@ -112,8 +112,8 @@ ELEN 和 VLEN 都必须满足是 $2$ 的幂次，目前的标准中要求 VLEN $
 
 !!! example "举个例子"
 
-    在本次实验中，我们需要对 8-bit 整数进行操作，那么就需要在程序中设置 SEW = 8. 
-    
+    在本次实验中，我们需要对 8-bit 整数进行操作，那么就需要在程序中设置 SEW = 8.
+
     如果我们希望一条指令只操作 1 个向量寄存器，那么 `LMUL = 1`。我们还可以设置 `LMUL = 2, 4, 8` 等，让一条指令操作更多的向量寄存器。在这种情况下，指令中所编码的那个向量寄存器，以及其后面一共 `LMUL` 个寄存器都会被视为一个整体，进行相同的操作。
 
     如果 `SEW = 8, LMUL = 4`，那么一条指令将会操作 4 个向量寄存器的数据，每个寄存器可以存储 32 个 8-bit 整数，那么一共便可操作 128 个 8-bit 整数。
@@ -153,7 +153,7 @@ int main() {
     // Initialize two vector registers
     vfloat32m1_t vec_a = __riscv_vfmv_v_f_f32m1(2.0f, vl);
     vfloat32m1_t vec_b = __riscv_vfmv_v_f_f32m1(1.0f, vl);
-    
+
     // Calculate vec_c = vec_b + 2.0 * vec_a
     vfloat32m1_t vec_c = __riscv_vfmacc_vf_f32m1(vec_b, 2.0f, vec_a, vl);
     // Store the result to c array
@@ -170,7 +170,7 @@ int main() {
 
 ```bash
 $ clang test.cpp -o test -march=rv64gcv # 需指定 rv64gcv 架构以启用 RVV 特性
-$ srun -N 1 -p riscv ./test            
+$ srun -N 1 -p riscv ./test
 5.000000 5.000000 5.000000 5.000000 5.000000 5.000000 5.000000 5.000000
 ```
 
@@ -266,28 +266,28 @@ for (size_t i = 0; i < N; i += vl) {
 
 ### Self Check
 
-为了让同学能够更加清楚地理解为什么要讲上面这些概念，以及 RVV 设计中的巧妙之处，请在学习完上面的内容之后，思考一个问题: 
+为了让同学能够更加清楚地理解为什么要讲上面这些概念，以及 RVV 设计中的巧妙之处，请在学习完上面的内容之后，思考一个问题:
 
-**内存中的数据，会存储自己的类型吗？** 
+**内存中的数据，会存储自己的类型吗？**
 
 ???- success "Check your answer"
 
     答案是否定的。(注: 仅讨论 C/C++ 这类编译型语言) 内存并不会“自带标签”告诉你“我是一个整数”或者“我是一个浮点数”，它只是无差别地保存了一堆比特位。**数据具有怎样的含义，取决于你怎样看它**。意思是说，真正决定数据类型的，是你的代码中如何定访问和操作这块数据:
-    
+
     - 先从访存来讲:
-    
+
         内存中一段 64-bit 的数据，它既可以是 1 个 64-bit 整数，也可以是 2 个 `float` 类型的浮点数，或者是 8 个 `char` 字符，以此类推。
-        
+
         但是，对于 CPU 和内存控制器来说，它们只知道这是一块 64-bit 的数据。因此你使用 uint64m1, float32m1, 还是 int8m1 对应的 load / store，它们实际上进行的操作是相同的，就是加载 `vlen` 个比特的数据到向量寄存器。
-        
+
         不过，它们进行 Strided 和 Segment 类的访存操作时行为又有所不同: 比如 uint8m1 的 Strided Load 是每 8-bit 跨一段内存，而 uint64m1 的 Strided Load 就是每 64-bit 跨一段内存。
 
     - 再看对数据的操作:
-    
+
         对于寄存器中的数据，使用整数指令进行操作，它就会被当作整数进行运算，如果使用浮点指令进行操作，它就会被当作浮点数来进行运算。使用 操作 8-bit 数据的指令，那么它就会当成 8-bit 元素的向量进行运算，使用操作 64-bit 数据的指令，那么它就会当成 64-bit 元素的向量进行运算。
 
         看似上面是一段废话，但其实想表达的是，我们只需要 (数据类型，操作类型) 这个二元组，就能确定一个具体的数据操作。而前面这个「数据类型」，则由 (SEW, LMUL) 来唯一确定。
-        
+
         在 RVV 的设计中，「数据类型」和「操作」是解耦的。RISC-V 并没有为每个二元组都定义一条指令，比如所有的浮点乘法指令都是 `vfmul.vv`，而具体处理的是多少位的浮点数、处理多少个向量，则由 `vsetvl` 设置的 SEW 和 LMUL 来决定。
 
 ## 知识讲解：SpaceMiT IME 矩阵扩展
@@ -301,9 +301,9 @@ SpaceMiT IME (Integrated Matrix Extension) 是进迭时空提出的矩阵扩展�
 !!! tip "选用 SpaceMiT IME 的原因"
 
     仍需注意的是，SpaceMiT IME 是进迭时空推出的厂商指令扩展，**并未进入 RISC-V 官方标准**。
-    
+
     不同的硬件厂商，如阿里平头哥、SiFive 等，也推出了各种不同的 RISC-V 矩阵扩展。在本次实验中，我们只是借助 SpaceMiT IME 来学习区别于 AMX 的另一种矩阵扩展实现方式，进而理解矩阵扩展的设计思路和局限性，而这与某一厂商的具体扩展无关。
-    
+
     对矩阵扩展设计有兴趣的同学，推荐阅读 [RISC-V 矩阵扩展：IME TG Option A-G](https://zhuanlan.zhihu.com/p/29671629963) 和 [HPC 与 AI 的未来](https://zhuanlan.zhihu.com/p/1907460273876480763) 两篇好文。
 
 SpaceMiT IME 在实现上复用了 RVV 的寄存器以节省资源 (这也是 IME 中 Integrated 的含义)，因此我们无需像 AMX 那样进行对 tile 的额外设置，只需要使用 RVV 的向量寄存器即可。
@@ -514,13 +514,13 @@ void __riscv_smt_vmadotus(vint32m2_t &vd, vuint8m1_t &vs1, vint8m1_t &vs2){
     2. `src/naive.cpp` 是朴素的矩阵乘法实现
     3. `src/optimized.cpp` 是优化后的矩阵乘法实现，同学们需要完成这个文件
     4. 可以通过 `./scripts/compile.sh` 编译，通过 `./scripts/run.sh` 提交 Slurm 任务并运行程序
-    
+
     编译本实验项目涉及到[交叉编译](https://en.wikipedia.org/wiki/Cross_compiler), 即在 x86-64 架构的机器上生成 RISC-V 的二进制文件。交叉编译所使用的工具链已经放在了 `/river/hpc101/2025/riscv` 目录下，建议使用 `clang` 编译本实验的项目。`CMakeLists.txt` 文件已经将工具链和编译方式配置好了。
 
 !!! danger "修改范围限制"
 
     **只允许**修改 `src/optimized.cpp` 文件，不允许修改其他文件。
-    
+
     OJ 也只会收取 `src/optimized.cpp` 这个文件的输入，如果有什么奇妙方法能 hack 掉 OJ 测评结果，也请在群里反馈 [doge]
 
 1. 完善 `src/optimized.cpp` 文件，完成矩阵乘法的实现
@@ -545,7 +545,7 @@ void __riscv_smt_vmadotus(vint32m2_t &vd, vuint8m1_t &vs1, vint8m1_t &vs2){
 !!! info "关于 AI 使用的要求"
 
     请不要直接提交 AI 生成的代码😭，如果我们可以 100% 确定代码是通过 AI 生成的，将会对实验进行扣分。
-    
+
     这里并不是说不允许同学们使用 AI 辅助编程，而是希望同学们无论通过何种手段完成实验，一定要确保自己真的理解每一行到底在做什么。
     哪怕阅读一遍，重新整理一下代码和注释，也比复制过来一点都不改要强。
 
@@ -554,7 +554,7 @@ void __riscv_smt_vmadotus(vint32m2_t &vd, vuint8m1_t &vs1, vint8m1_t &vs2){
 !!! danger "这里没必要卷"
 
     OJ 测评仅作为正确性、加速效果的参考，并且提高大家对程序不断优化的积极性。
-    
+
     **OJ 得分并不直接参与实验成绩的计算**，主要看大家的优化思路以及代码完成情况，体现在实验报告中。
 
     即使加速比不是很理想，但优化思路明确，代码完成程度高，一样可以得到实验的高分。同理，即使 OJ 都拿了满分，但报告很简略，没有提及关键思路，也不会获得很理想的分数。
@@ -584,7 +584,7 @@ ssh <username>+oj@clusters.zju.edu.cn submit lab2p5
     OJ 使用的编译选项与 `src/lab2p5` 提供的相同，编译器为 clang19，优化选项为 `-O2`。
 
     OJ 采用对数曲线进行给分，这意味着只要比 baseline 快，就可以很快获得一定的分数。同时也允许在标准满分的基础上进一步优化的同学获得更高的分数，分数上限为 105 分。
-    
+
     下面是不同优化的得分曲线:
 
     ![Score](./image/score.webp)

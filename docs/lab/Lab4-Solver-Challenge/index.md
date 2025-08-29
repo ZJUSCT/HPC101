@@ -31,7 +31,7 @@
 
     在科学计算领域中，许多问题的求解涉及稀疏的线性方程组，其系数矩阵为稀疏矩阵。[SuiteSparse Matrix Collection](https://sparse.tamu.edu/) 收集了将近 3000 个来自各个领域的稀疏线性方程组数据，你可以点击查看每个矩阵所属的学术类别。
 
-本次实验中，我们将会对一种求解线性方程组的迭代算法进行优化，它的名字是 **BiCGSTAB**. 
+本次实验中，我们将会对一种求解线性方程组的迭代算法进行优化，它的名字是 **BiCGSTAB**.
 
 [**BiCGSTAB**](https://en.wikipedia.org/wiki/Biconjugate_gradient_stabilized_method) (**Biconjugate Gradient Stabilized Method**, 稳定双共轭梯度法) 是一种迭代求解非对称线性系统的方法。它是 [**BiCG**](https://en.wikipedia.org/wiki/Biconjugate_gradient_method) (**Biconjugate Gradient Method**, 双共轭梯度法) 的变种，有着更快速平缓的收敛表现。在接下来的「知识讲解」部分我们会对该算法进行更详细的介绍。
 
@@ -51,13 +51,12 @@
         </div>
 
         这样一来，算法中最核心的 GEMV (矩阵乘向量) 会转化成 SpMV (稀疏矩阵乘向量)，如果直接采用 CSR 格式，对访存不是特别友好。如果想要优化访存，需要考虑重新设计数据排列方式，而这不是本次实验主要考察的内容。
-    
+
     - 真实数据与随机数据:
 
         `BiCGSTAB` 算法通常用于求解大规模的稀疏矩阵，但由于求解大规模稀疏矩阵涉及到矩阵的结构分析、性质分析等问题，这一点可以通过刚刚结束的 [SolverChallenge 25](https://www.solver-conference.cn/solverchallenge25/index.html) (第五届线性解法器算法与性能优化竞赛) 赛题来感受。如果使用本次实验中比较简单的预条件处理和原始的 BiCGSTAB 算法，在真实矩阵数据上可能会出现无法收敛、数值不稳定等情况。
 
         为了减少大家优化过程中遇到的与数值计算相关的困难，本次实验将选择随机生成的、性质较好的矩阵数据进行求解，可以顺利地使用 BiCGSTAB 算法进行求解。
-
 
 ## 知识讲解: BiCGSTAB
 
@@ -66,7 +65,7 @@
 !!!danger "前方高能预警"
 
     对于我们这样非专业背景的同学，BiCGSTAB 算法的原理可能非常难以理解💥。但是，请坐和放宽 😇，在不理解原理的情况下，我们完全可以通过分析代码来找到可以优化的地方。不过，简单了解算法的原理，会对你调试在优化时出现的数值运算的错误 (**比如残差不下降，或出现了 `NaN`**) 有所帮助。
-    
+
     为感兴趣的同学，我们准备了下面的算法推导，帮助你更好地理解 BiCGSTAB 算法的原理。**原理为选读内容，对完成实验影响不大**。
 
     ???+ info "说明"
@@ -159,7 +158,7 @@
     \mathbf{x}_{k+1} &= \mathbf{x}_k+\alpha_k\mathbf{p}_k \\
     \mathbf{r}_{k+1} &= \mathbf{r}_k - \alpha_k\mathbf{A}\mathbf{p}_k \\
     \tilde{\mathbf{r}}_{k+1} &= \tilde{\mathbf{r}}_k - \alpha_k\mathbf{A}^T\tilde{\mathbf{p}}_k \\
-    \mathbf{p}_{k+1} &= \mathbf{r}_{k+1} + \beta_k\mathbf{p}_k \\ 
+    \mathbf{p}_{k+1} &= \mathbf{r}_{k+1} + \beta_k\mathbf{p}_k \\
     \tilde{\mathbf{p}}_{k+1} &= \tilde{\mathbf{r}}_{k+1} + \beta_k\tilde{\mathbf{p}}_k \\
     \alpha_k &= \frac{\tilde{\mathbf{r}}_k^T\mathbf{r}_k}{\tilde{\mathbf{p}}_k^T\mathbf{A}\mathbf{p}_k} \\ \beta_k &= \frac{\tilde{\mathbf{r}}_{k+1}^T \mathbf{r}_{k+1}}{\tilde{\mathbf{r}}_k^T \mathbf{r}_k}
     \end{aligned}
@@ -236,7 +235,7 @@
 !!! abstract "导言"
 
     为了帮助同学们更好地掌握并行优化的技巧，我们将在下面提供相关优化思路作为参考。我们按照章节，按照顺序由浅入深地介绍了找出一段程序性能瓶颈并持续优化的基本流程，相信如果能够走完一遍，你能够收获很多实战经验。
-    
+
      **这部分文档会比较长，请做好心理准备**。推荐在进行某种特定优化时，再对照着相应章节进行阅读。在每一章节的开头处，我们用 **Subtask** 讲述了同学们在阅读完该章节内容后，可以进行的尝试、以及建议在报告中描述的内容，除了标记为 **必做** 的章节，其他章节可以自行选择是否进行尝试。
 
     在本实验中，你可以对下面的优化思路一一进行尝试，也可以自己尝试创新性的优化策略。请在报告里详细描述你对优化策略所做的尝试，哪怕结果不是很理想。
@@ -282,7 +281,7 @@ spack install intel-oneapi-itac  # ITAC
 我们通常会使用 VTune Profiler 的 `hotspots` (热点) 和 `uarch-exploration` (微架构探究) 两种模式来分别分析程序热点与并行状况、硬件使用情况与硬件瓶颈。
 
 ???+ info "Hotspot 模式"
-  
+
     对于程序的热点分析，在课程中同学们已经学会了使用 Perf 来分析程序的热点，VTune Profiler 的 hotspot 模式与 Perf 的功能类似，能够提供程序的热点信息，包括函数调用、循环、访存等。
     但是，对于多线程并行的应用程序来说，我们很多时候需要知道线程间的并行模式与并行状况，这种时候尤其需要使用 VTune Profiler 的 Hotspot 模式来分析程序。
 
@@ -297,7 +296,7 @@ spack install intel-oneapi-itac  # ITAC
     首先我们看到的是 Summary，显示了程序运行的总时间、程序热点函数、CPU使用率等关键信息：
 
     ![Summary](image/vtune_hotspot_summary.webp)
-    
+
     而在 Top-down Tree 等地方，我们可以更加详细地看到每个函数的性能信息，Flame Graph 则让我们更直观地看到程序的热点与调用关系。此时你可以分析出程序耗费时间最长的函数是哪一个，以及其对应的代码的位置 (需编译时添加 `-g` 选项)。
 
     ![Flame Graph](image/vtune_flame.webp)
@@ -305,11 +304,11 @@ spack install intel-oneapi-itac  # ITAC
     同时还能看见 Threads 的工作情况，可以用来分析并行程序中的并行状况：
 
     ![Thread](image/vtune_threads.webp)
-    
+
     如果线程间存在大量的空闲，则提示可能需要优化并行的方式。
 
 ???+ info "Uarch Exploration 模式"
-  
+
     Intel 提出了一种基于微架构视角的性能分析方法，称为 TMAM (Top-down Microarchitecture Analysis Method)。这种[自顶向下的微架构分析方法](https://www.intel.cn/content/www/cn/zh/docs/vtune-profiler/cookbook/2023-0/top-down-microarchitecture-analysis-method.html)能够帮助用户从微架构的角度分析程序的性能瓶颈，从而更有效地进行性能优化。对于给定的计算平台而言，HPC优化的理想是最大化计算单元的利用率。所以通常情况下，我们希望计算单元能充分被使用，而不是在其他部件（如访存部件）的等待中浪费。
 
     你可以使用如下的指令来进行分析：
@@ -370,7 +369,6 @@ spack install intel-oneapi-itac  # ITAC
     对于 MPI进程的 Timeline，可以在 Charts 选项中选择 Event Timeline，然后就可以查看 MPI 函数的调用时间线了：
 
     ![itac_timeline](image/itac_timeline.webp)
-
 
 ### 编译优化
 
@@ -457,7 +455,7 @@ spack install intel-oneapi-itac  # ITAC
     </div>
 
     - **ILP** 主要发生在单个处理器核心内部，它依赖于核心的硬件机制（如多发射、超标量执行、乱序执行、分支预测）来同时执行多条指令。
-    
+
         现代处理器一般都会使用流水线技术来同时执行多条指令的不同阶段，从而实现指令间的并行。传统流水线因为需要解决流水线中的各种冲突，不可避免的会在流水线中带来空泡，而由于现代处理器里其实还包含指令的乱序发射，出现空泡的几率已经大大降低，所以在编程时不太需要考虑这方面的问题。
 
         <div align="center">
@@ -495,7 +493,6 @@ spack install intel-oneapi-itac  # ITAC
     M602-M604 的 CPU 为 Intel(R) Xeon(R) Gold 5320 CPU @ 2.20GHz，为第三代志强可扩展处理器，其微架构代号为 Icelake. 从上面可以看出，对于一条 512 位双精度乘加 (`_mm512_fmadd_pd`) 指令，其首条指令的结果需要等待 4 个时钟周期，随后每个周期可以完成 2 条乘加指令 (CPI = 0.5)。
 
     以上两个指标可以辅助你**分析 CPU 流水线停顿的原因和 CPI 的瓶颈**，尤其是配合 VTune Profiler 的 Uarch Exploration 分析时。
-
 
 ### OpenMP 线程级并行
 
@@ -560,8 +557,6 @@ spack install intel-oneapi-itac  # ITAC
 
 需要注意的是，与 `OpenMP` 相比，`MPI` 的创建进程的开销和进程间通信开销往往较大。因此在使用 `MPI` 进行并行化时，你需要在并行化带来的加速效果和进程间通信的额外开销之间进行权衡。你可以通过调整进程数量、合理安排通信的时间和通信量等方式来优化 `MPI` 的并行效果。
 
-
-
 !!! danger "常见错误"
 
     在往年的实验中，有同学使用了 MPI，但是程序并没有任何加速效果。这是因为这位同学只是调用了 MPI_Init 和 MPI_Finalize 等函数，并没有进行**任务划分、并行计算、数据通信**等操作，导致实际上是每个进程独立地完成了全部的计算。请注意使用 MPI 时，上面的操作都需要通过手动编程实现。
@@ -575,7 +570,7 @@ spack install intel-oneapi-itac  # ITAC
 ???- info "使用 ITAC / VTune 分析 MPI 通信"
 
     如果使用 ITAC 对程序进行 Profile 分析，可以观察到程序运算 (蓝色) 和 MPI 通信 (红色) 占用的时间。VTune 也类似，但没有 ITAC 这么详细。
-    
+
     下图中第一个结果使用同步通信，而后面两个使用了 `Isend` / `Irecv` 的异步通信，可以观察到通信产生的空泡 (红色部分) 占比降低。
 
     <div align="center">
@@ -602,8 +597,8 @@ spack install intel-oneapi-itac  # ITAC
 !!! tips "mpirun 参数设置提醒"
 
     1. 在使用 `mpirun` 启动 MPI + OpenMP 程序时，如果 OpenMP 的线程全部运行在了一个核心上，请添加 `-map-by NUMA` 参数
-    1. 如果要使用想在 Slurm 的任务中使用 Intel MPI, 请在 `run.sh` 中加入 
-    
+    1. 如果要使用想在 Slurm 的任务中使用 Intel MPI, 请在 `run.sh` 中加入
+
     ```bash
     export I_MPI_PMI_LIBRARY=/slurm/libpmi2.so.0.0.0
     ```
@@ -633,7 +628,7 @@ spack install intel-oneapi-itac  # ITAC
 
 我们会根据同学们所进行的尝试以及完成程度进行给分，同时我们还会**复测**同学们提交的代码:
 
- - 代码在测试时将测试 4 组固定的输入，其中三组输入公开，相对应的矩阵 $\mathbf{A}$ 规模分别为 $2001\times 2001$、$4001\times 4001$、$6001\times 6001$，最后一组输入不公布，用于检验算法实现的正确性。
+- 代码在测试时将测试 4 组固定的输入，其中三组输入公开，相对应的矩阵 $\mathbf{A}$ 规模分别为 $2001\times 2001$、$4001\times 4001$、$6001\times 6001$，最后一组输入不公布，用于检验算法实现的正确性。
 - 我们将检查代码的合法性（包括是否替换为了其他算法、是否调用了数学库、是否修改了禁止修改的部分等），重新编译，并检查程序是否能够正确运行
 
 因此建议同学们在提交前确认自己的代码在加载好环境后，能够顺利编译运行。推荐使用 git 进行版本管理，以便编写报告时可以快速找到历史优化的代码。
@@ -641,9 +636,9 @@ spack install intel-oneapi-itac  # ITAC
 !!! danger "可修改的部分"
 
     本次实验不再限制仅修改单文件，可以根据自己的需要，增加新的文件，或者修改别的文件。
-    
+
     但请注意，在优化过程中，**严禁修改计时区**:
-    
+
     - 对于 `src/main.cpp` 的修改，请仅限于添加 MPI Init 和 Finalize 的代码
     - `src/judger.cpp`, `include/judger.h` 不可以修改
     - **其他部分都可以进行修改**
@@ -658,7 +653,7 @@ spack install intel-oneapi-itac  # ITAC
 !!! info "环境使用方法"
 
     实验环境的使用方法请阅读:
-    
+
     - [软件环境 - HPC101 (2025)](https://hpc101.zjusct.io/guide/env/): 包含如何使用 spack 安装与加载环境
     - [提交作业 - HPC101 (2025)](https://hpc101.zjusct.io/guide/job/): 包含如何使用 Slurm 提交 MPI 多机任务
 
@@ -681,7 +676,7 @@ spack install intel-oneapi-itac  # ITAC
 
 我们提供 `BiCGSTAB Solver` 代码的串行版本作为[基准代码](https://github.com/ZJUSCT/HPC101/tree/main/src/lab4)。
 
-数据文件在集群的 `/river/hpc101/2025/lab4/data` 中，你可以在代码的根目录下，通过 
+数据文件在集群的 `/river/hpc101/2025/lab4/data` 中，你可以在代码的根目录下，通过
 
 ```bash
 ln -s /river/hpc101/2025/lab4/data data
@@ -761,7 +756,7 @@ Lab 4 实验在 SLURM 集群上进行，提供了以下两个计算分区供使�
     1. 请确认自己的计算程序运行在计算节点上，如 M602-M604. 不建议在登录节点 `sct101` 上运行计算程序
     1. 请检查 `CMakeLists.txt` 中是否添加了启用 OpenMP 的选项，如果你有些忘记了，请查看 [MPI 调优](#mpi-调优) 所列的表格
     1. 请检查 `run.sh` 中 SBATCH 参数的设置是否正确，可以参考 [实验环境](#实验环境) 中的提示，可以使用 `srun` 添加相同参数运行一个测试程序 (请自己实现，可以让每个线程输出自己的 `tid`) 来确认
-    1. 如果尝试了绑核参数，可以使用 `mpirun` 相关的参数，在程序运行前输出绑核策略，来确认绑核是否有效地将 OpenMP 的线程绑定在指定的核心上 
+    1. 如果尝试了绑核参数，可以使用 `mpirun` 相关的参数，在程序运行前输出绑核策略，来确认绑核是否有效地将 OpenMP 的线程绑定在指定的核心上
 
 ???+ success "Q: 在本地安装的 VTune Profiler 会闪退，怎么办？"
 
@@ -774,7 +769,7 @@ Lab 4 实验在 SLURM 集群上进行，提供了以下两个计算分区供使�
 ???+ success "Q: 为什么我的程序 sbatch 就能运行，在 OJ 上就运行不了 / 出错？"
 
     请阅读 [OJ 使用说明](#oj-使用说明)，了解测评流程，还有 OJ 环境与计算节点的差异，你可以按照以下思路来排查:
-    
+
     1. 确定自己上传到 OJ sftp 的代码和本地是一致的，没有传错，可以使用 [OJ 使用说明](#oj-使用说明) 中给出的脚本来上传
     1. OJ 只能访问集群公共 spack 内的环境，无法加载自行安装的，位于家目录下的 spack，请确保自己使用的编译器和 OJ 提交的版本一样
     1. 编译参数选择也需要注意，如果优化选项开得比较猛，会出现架构不同导致的程序行为不同。
@@ -792,32 +787,32 @@ Lab 4 实验在 SLURM 集群上进行，提供了以下两个计算分区供使�
 ??? example inline end "Fortran Meme 太多了!"
 
     === "🚨"
-    
+
         甲：我们穿越成功了！
-    
+
         乙：但现在是哪一年？
-    
+
         甲：问问那边的路人。
-    
+
         甲：现在增长趋势最快的编程语言是什么？
-    
+
         路人：Fortran 和 COBOL.
-    
+
         甲：1970 年
-    
+
         ![fortran-cobol](image/meme/fortran-cobol.webp)
-    
+
     === "🤓"
-    
+
         在古籍馆借到了 FOTRAN 教材:
-    
+
         ![fortran-tan](image/meme/fortran-tan.webp)
-    
+
         (不要真的去学这本书，拜托了orz)
-        
+
     === "💀👋😀"
-    
-    	![fortran-native](image/meme/fortran-native.webp)
+
+     ![fortran-native](image/meme/fortran-native.webp)
 
 Fortran 是世界上第一个被正式采用并流传至今的高级编程语言，它因较为容易学习而被大量用于科学计算领域的代码编写。在其[官方主页](https://fortran-lang.org/index)上，Fortran 被定义为“**高性能并行编程语言**”。可以说，在科学计算领域，Fortran 是一门非常重要的编程语言。Fortran 最突出的特点就是数组下标默认从 1 开始，符合研究者的习惯，这一点与 C/C++ 不同。
 
@@ -857,7 +852,7 @@ Bonus 部分完成即有加分 (完成 Bonus 部分实验要求，且能够通�
 
     - 一方面，Fortran 是比较古老的编程语言，语料较少，使用 AI 辅助可能会导致完成 Bonus 更加困难
     - 另一方面，Fortran 从语言设计上就是贴近科学计算和公式表示的，当你掌握基本的语法后，转写代码会相对容易
-    
+
     如果你提交的代码充斥着 AI 生成的痕迹，将不能获得 Bonus 代码实现部分的加分。
 
 ## OJ 使用说明
@@ -867,14 +862,14 @@ Bonus 部分完成即有加分 (完成 Bonus 部分实验要求，且能够通�
     **请注意，OJ 上的得分仅供性能参考，不会直接折算进 Lab 得分，也不会按照加速比排行榜次序来评分。**
 
     我们更注重优化的思路和过程分析，因此 OJ 测评得分与实验得分并无直接关系。请不要过度追求 OJ 得分进行优化，也不要因为较高的 OJ 得分而忽视了实验报告的撰写，希望同学们能够理解。
-    
+
     即使加速比不是很理想，但优化思路明确，代码完成程度高，一样可以得到实验的高分。同理，即使 OJ 都拿了满分，但报告很简略，没有提及关键思路，也不会获得很理想的分数。
 
 请阅读 [使用在线测评](https://hpc101.zjusct.io/guide/oj/) 来熟悉 OJ 的操作方法。
 
 上传文件时，请使用 `scp` 或者 `sftp` 命令，将你的仓库文件夹上传到 OJ 的 `lab4` 文件夹内，保持文件夹结构不变：
 
-```
+```text
 .   <--- OJ 的 lab4 文件夹, <用户名>+oj@clusters.zju.edu.cn:lab4
 ├── CMakeLists.txt
 ├── run.sh
@@ -925,13 +920,13 @@ scp CMakeLists.txt $user+oj@clusters.zju.edu.cn:lab4/CMakeLists.txt
     | 2001 | 20s | 3s | 对数 |
     | 4001 | 100s | 15s | 对数 |
     | 6001 | 500s | 75s | 对数 |
-    
+
     以第一组数据为例，直观感受对数计算方式：
-    
+
     ![对数计算函数图像](image/log-score.webp)
 
 ???+ success "OJ 上如何加载编译与运行环境"
-    
+
     在 OJ 测评时，**只能访问集群 spack**, 因此如果你使用 spack 提供的编译器，需要在 `compile.sh` 和 `run.sh` 中使用:
 
     ```bash

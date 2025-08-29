@@ -1,0 +1,12 @@
+{
+    "[markdown]": {
+        "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+    },
+    "markdownlint.config": {
+        "MD046": false, // mkdocs material admonition
+        "MD007": { "indent": 4 }, // mkdocs material list
+        "MD033": false, // inline HTML
+        "MD010": { "ignore_code_languages": ["makefile"] }, // Makefile
+        "MD041": false // file header
+    }
+}
