@@ -1,42 +1,68 @@
 # https://squidfunk.github.io/mkdocs-material/publishing-your-site/
 name: ci
 on:
-  push:
-    branches:
-      - master
-      - main
-  workflow_dispatch:
-  
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+    workflow_dispatch:
+
 permissions:
-  contents: write
+    contents: write
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: sed mkdocs.yaml
-        run: |
-          sed -i 's/enabled: false/enabled: true/' mkdocs.yml
-      - name: Configure Git Credentials
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-      - uses: actions/cache@v4
-        with:
-          key: mkdocs-material-${{ env.cache_id }}
-          path: .cache
-          restore-keys: |
-            mkdocs-material-
-      - run: pip install -r requirements.txt
-      - run: mkslides build slides/ -d site-slides
-      - run: mv site-slides/index.html docs/slides/index.md
-      - run: mkdocs build
-      - run: mv site-slides/* site/slides/
-      - run: rm -rf site/slides/assets/reveal-js/.git
-      - run: mkdocs gh-deploy --dirty --force --no-history
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: 3.x
+            - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+            - uses: actions/cache@v4
+              with:
+                  key: mkdocs-material-${{ env.cache_id }}
+                  path: .cache
+                  restore-keys: |
+                      mkdocs-material-
+            - run: pip install -r requirements.txt
+            - run: mkslides build slides/ -d site-slides
+            - run: mv site-slides/index.html docs/slides/index.md
+            - run: mkdocs build
+
+    deploy:
+        # only deploy on main repo
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'ZJUSCT/HPC101'
+        needs: build
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+            - name: enable git-committers
+              run: |
+                  sed -i 's/enabled: false/enabled: true/' mkdocs.yml
+            - name: Configure Git Credentials
+              run: |
+                  git config user.name github-actions[bot]
+                  git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: 3.x
+            - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+            - uses: actions/cache@v4
+              with:
+                  key: mkdocs-material-${{ env.cache_id }}
+                  path: .cache
+                  restore-keys: |
+                      mkdocs-material-
+            - run: pip install -r requirements.txt
+            - run: mkslides build slides/ -d site-slides
+            - run: mv site-slides/index.html docs/slides/index.md
+            - run: mkdocs build
+            - run: mv site-slides/* site/slides/
+            - run: rm -rf site/slides/assets/reveal-js/.git
+            - run: mkdocs gh-deploy --dirty --force --no-history

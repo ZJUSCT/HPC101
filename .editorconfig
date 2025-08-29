@@ -9,7 +9,7 @@ indent_size = 4
 indent_style = space
 trim_trailing_whitespace = true
 
-[*.yaml]
+[*.yaml, *.yml]
 indent_size = 2
 
 [*.md]

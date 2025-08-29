@@ -111,33 +111,7 @@ HPC 101 可以用来申请替代计算机学院非计科专业的短学期课程
 | Lab 5    | 林熙, 茅晋源, 尤傲     | ~2025-08-11 | ~2025-08-25 |
 | 大作业   | 蒋翼泽, 李厚融, 杨星宇 | 2025-07-13  | 2025-08-31  |
 
-::gantt:: month-format="%b"
-
-- title: HPC 101 实验安排
-    activities:
-    - title: Lab 1
-        start: 2025-06-25
-        end: 2025-07-03
-    - title: Lab 2
-        start: 2025-07-01
-        end: 2025-07-22
-    - title: Lab 2.5
-        start: 2025-07-07
-        end: 2025-08-25
-    - title: Lab 3
-        start: 2025-07-16
-        end: 2025-08-06
-    - title: Lab 4
-        start: 2025-07-30
-        end: 2025-08-13
-    - title: Lab 5
-        start: 2025-08-11
-        end: 2025-08-25
-    - title: 大作业
-        start: 2025-07-13
-        end: 2025-08-31
-
-::/gantt::
+[gantt month-format="%b"(docs/index.assets/lab_gantt.yaml)]
 
 ### FAQ
 

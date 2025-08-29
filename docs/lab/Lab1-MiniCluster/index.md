@@ -511,8 +511,8 @@ zlib 是 OpenMPI 的可选依赖，用于改善数据传输性能，可在构建
     - 前往在线文档，查看[构建和安装部分](https://docs.open-mpi.org/en/v5.0.x/installing-open-mpi/quickstart.html)，按文档指示构建并安装 OpenMPI。
     - 验证安装是否成功。提示：运行 `ompi_info -all`。
 - 构建 BLAS，CBLAS：
-    - 下载指定版本 BLAS 源码: [blas-3.12.0.tgz](./assets/blas-3.12.0.tgz), 并完成构建。
-    - 下载指定版本 CBLAS 源码: [CBLAS.tgz](./assets/CBLAS.tgz)。相应修改 `Makefile.in` 后完成构建。`我们希望你能解决所有报错。`
+    - 下载指定版本 BLAS 源码: `src/lab1/blas-3.12.0.tgz`, 并完成构建。
+    - 下载指定版本 CBLAS 源码: `src/lab1/CBLAS.tgz`。相应修改 `Makefile.in` 后完成构建。`我们希望你能解决所有报错。`
     - 如果没有错误，两个目录中都会生成一个 `.a` 文件，这是待会要用到的静态链接库。
 
 <figure markdown="span">
