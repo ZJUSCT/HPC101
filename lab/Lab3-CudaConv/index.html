@@ -1,0 +1,2123 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab3-CudaConv/">
+      
+      
+        <link rel="prev" href="../Lab2.5-RISC-V/">
+      
+      
+        <link rel="next" href="../Lab4-Solver-Challenge/">
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>Lab 3: CUDA 卷积 - HPC101 (2025)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#实验三cuda-卷积" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101 (2025)" class="md-header__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101 (2025)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Lab 3: CUDA 卷积
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo" aria-label="切换至浅色模式" type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="zjusct" data-md-color-primary="indigo" data-md-color-accent="indigo" aria-label="切换至深色模式" type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo" aria-label="根据系统模式切换主题" type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../slides/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  课程幻灯片
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101 (2025)" class="md-nav__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    HPC101 (2025)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1">
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程信息
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            课程信息
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    欢迎来到 HPC 101 超算短学期
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_2">
+        
+          
+          <label class="md-nav__link" for="__nav_1_2" id="__nav_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    使用集群
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            使用集群
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/env/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    软件环境
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    登陆节点
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    提交作业
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    使用在线测评
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    集群概况
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程实验
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            课程实验
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 0: Linux 快速入门
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 1: 简单集群搭建
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 2: 向量化计算
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2.5-RISC-V/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 2.5: 向量化进阶 (RISC-V)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Lab 3: CUDA 卷积
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 3: CUDA 卷积
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验目的
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验基础数学知识" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验基础：数学知识
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验基础：数学知识">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#张量tensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      张量（Tensor）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#卷积convolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      卷积（Convolution）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="卷积（Convolution）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#一维离散卷积" class="md-nav__link">
+    <span class="md-ellipsis">
+      一维离散卷积
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#二维离散卷积" class="md-nav__link">
+    <span class="md-ellipsis">
+      二维离散卷积
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验基础gpu-总览" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验基础：GPU 总览
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验基础：GPU 总览">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#streaming-multiprocessor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Streaming Multiprocessor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#warp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Warp
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shared Memory
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bank" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bank
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#基础任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      基础任务
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="基础任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#任务描述" class="md-nav__link">
+    <span class="md-ellipsis">
+      任务描述
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#基准代码" class="md-nav__link">
+    <span class="md-ellipsis">
+      基准代码
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-memory_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shared Memory
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#im2col" class="md-nav__link">
+    <span class="md-ellipsis">
+      Im2Col
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tiling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#double-buffering" class="md-nav__link">
+    <span class="md-ellipsis">
+      Double Buffering
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bank-conflict" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bank Conflict
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cooperative-fetching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cooperative Fetching
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#进阶任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      进阶任务
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="进阶任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dp4a" class="md-nav__link">
+    <span class="md-ellipsis">
+      DP4A
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tensor-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tensor Core
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cutlass--cute" class="md-nav__link">
+    <span class="md-ellipsis">
+      CUTLASS / CuTe
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cudnn" class="md-nav__link">
+    <span class="md-ellipsis">
+      cuDNN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openai-triton--tilelang--cutedsl" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAI Triton / TileLang / CuteDSL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务与要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务与要求
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务与要求">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#自动化测试" class="md-nav__link">
+    <span class="md-ellipsis">
+      自动化测试
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#使用-nsight-compute-进行-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      使用 Nsight Compute 进行 Profile
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#注意事项" class="md-nav__link">
+    <span class="md-ellipsis">
+      注意事项
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考文献
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab4-Solver-Challenge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 4: Solver Challenge
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab5-TinyLLM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 5: TinyLLM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Final-Project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Final Project - 大作业
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../slides/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    课程幻灯片
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验目的
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验基础数学知识" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验基础：数学知识
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验基础：数学知识">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#张量tensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      张量（Tensor）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#卷积convolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      卷积（Convolution）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="卷积（Convolution）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#一维离散卷积" class="md-nav__link">
+    <span class="md-ellipsis">
+      一维离散卷积
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#二维离散卷积" class="md-nav__link">
+    <span class="md-ellipsis">
+      二维离散卷积
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验基础gpu-总览" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验基础：GPU 总览
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验基础：GPU 总览">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#streaming-multiprocessor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Streaming Multiprocessor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#warp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Warp
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shared Memory
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bank" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bank
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#基础任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      基础任务
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="基础任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#任务描述" class="md-nav__link">
+    <span class="md-ellipsis">
+      任务描述
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#基准代码" class="md-nav__link">
+    <span class="md-ellipsis">
+      基准代码
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-memory_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shared Memory
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#im2col" class="md-nav__link">
+    <span class="md-ellipsis">
+      Im2Col
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tiling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#double-buffering" class="md-nav__link">
+    <span class="md-ellipsis">
+      Double Buffering
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bank-conflict" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bank Conflict
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cooperative-fetching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cooperative Fetching
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#进阶任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      进阶任务
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="进阶任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dp4a" class="md-nav__link">
+    <span class="md-ellipsis">
+      DP4A
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tensor-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tensor Core
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cutlass--cute" class="md-nav__link">
+    <span class="md-ellipsis">
+      CUTLASS / CuTe
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cudnn" class="md-nav__link">
+    <span class="md-ellipsis">
+      cuDNN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openai-triton--tilelang--cutedsl" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAI Triton / TileLang / CuteDSL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务与要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务与要求
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务与要求">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#自动化测试" class="md-nav__link">
+    <span class="md-ellipsis">
+      自动化测试
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#使用-nsight-compute-进行-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      使用 Nsight Compute 进行 Profile
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#注意事项" class="md-nav__link">
+    <span class="md-ellipsis">
+      注意事项
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考文献
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab3-CudaConv/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
+    </a>
+  
+  
+
+
+<h1 id="实验三cuda-卷积">实验三：CUDA 卷积<a class="headerlink" href="#实验三cuda-卷积" title="Permanent link">¶</a></h1>
+<div class="admonition info">
+<p class="admonition-title">实验信息</p>
+<p>负责助教：陈楷骐, 郝星星, 任朱明</p>
+</div>
+<h2 id="实验目的">实验目的<a class="headerlink" href="#实验目的" title="Permanent link">¶</a></h2>
+<p>卷积（<a href="https://en.wikipedia.org/wiki/Convolution">Convolution</a>）是一种基本的数学运算，想必大家在微积分，概率论与数理统计等数学基础课程中都一定程度上接触过。作为一种基本的数学计算，其在图像处理，机器学习等领域都有重要应用。</p>
+<p>本次实验需要你使用 CUDA 完成一个 GPU 上的二维离散卷积。</p>
+<p>你可以自由选择使用 CUDA Runtime API 或者 CUDA Driver API 进行编程，但不能调用高性能计算的 Library 代替你自己实现卷积。本实验推荐采用 CUDA Runtime API, 使用更加简单方便，相较 Driver 几乎不损失性能。</p>
+<center><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/API.webp" data-desc-position="bottom"><img src="image/API.webp" alt="API" style="zoom:60%;"></a></center>
+
+<!-- ## 实验环境
+
+### 警告
+
+由于登录节点（H248）配置很低，禁止在上面使用 vscode-remote 等大量消耗资源的程序
+
+### 编译器加载
+
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>. /opt/spack/share/spack/setup-env.sh
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>spack load cuda@11.5.0 # 当然，你也可以选择别的 cuda 版本
+</span></code></pre></div>
+
+### 运行
+
+实验环境与 Lab 4 一致，请使用 GPU 这个 Partition, 为防止看到的 GPU 数量不正常，请使用下列命令申请节点：
+
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>srun<span class="w"> </span>-p<span class="w"> </span>GPU<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>--gres<span class="o">=</span>gpu:1<span class="w"> </span>--cpus-per-task<span class="o">=</span><span class="m">16</span><span class="w"> </span>--pty<span class="w"> </span>bash
+</span></code></pre></div>
+
+### Profile
+
+* Nsight Compute 在 /opt/NVIDIA-Nsight-Compute-2022.2 下
+* Nsight System 在 `spack load cudnn` 后直接使用 `nsys` 即可 -->
+
+<h2 id="实验基础数学知识">实验基础：数学知识<a class="headerlink" href="#实验基础数学知识" title="Permanent link">¶</a></h2>
+<p>该部分简要介绍和实验相关的基础数学知识，为方便理解，不保证数学上的严谨性。</p>
+<h3 id="张量tensor">张量（Tensor）<a class="headerlink" href="#张量tensor" title="Permanent link">¶</a></h3>
+<p>张量概念是矢量概念的推广，矢量是一阶张量。张量是一个可用来表示在一些矢量，标量和其他张量之间的线性关系的多线性函数。</p>
+<p>同构意义下，第零阶张量（r = 0）为标量（Scalar）, 第一阶张量（r = 1）为向量（Vector）, 第二阶张量（r = 2）则为矩阵（Matrix）。</p>
+<p>实验中的卷积运算本实验涉及两个四维张量的运算。</p>
+<h3 id="卷积convolution">卷积（Convolution）<a class="headerlink" href="#卷积convolution" title="Permanent link">¶</a></h3>
+<p>本实验只涉及离散运算，连续形式的卷积不做介绍，感兴趣的同学可以自行了解。</p>
+<h4 id="一维离散卷积">一维离散卷积<a class="headerlink" href="#一维离散卷积" title="Permanent link">¶</a></h4>
+<p>定义 <span class="arithmatex">\(\left(f*g\right)\left(n\right)\)</span> 为函数  <span class="arithmatex">\(f\)</span> 与  <span class="arithmatex">\(g\)</span> 的卷积</p>
+<div class="arithmatex">\[
+\left(f*g\right)\left(n\right)=\sum_{t=-\infty}^{+\infty}f\left(t\right)g\left(n-t\right)
+\]</div>
+<p>函数 <span class="arithmatex">\(f\)</span> 和 <span class="arithmatex">\(g\)</span> 定义域可以不是所有整数，修改上式中 <span class="arithmatex">\(t\)</span> 的遍历范围可得到新的定义；另一种方式是定义超出定义域的函数值视为 0, 可得到相同的结果。</p>
+<p>需要注意的是，两个函数的卷积结果仍是函数。</p>
+<p>可以形象地理解为沿着不断移动的 <span class="arithmatex">\(x+y=n\)</span> 直线，将两个函数卷成一个新的函数，每条直线对应新函数的一组对应关系。</p>
+<h4 id="二维离散卷积">二维离散卷积<a class="headerlink" href="#二维离散卷积" title="Permanent link">¶</a></h4>
+<p>二维离散卷积可以视为一维离散卷积的推广。</p>
+<div class="arithmatex">\[
+\left(f*g\right)\left(n,m\right)=\sum_{i=-\infty}^{+\infty}\sum_{j=-\infty}^{+\infty}f\left(i,j\right)g\left(n-i,m-j\right)
+\]</div>
+<p>我们在实验中的定义卷积与数学上的定义存在差别，我们认为其在广义上属于二维离散卷积。</p>
+<p>简化起见，考虑两个方阵 <span class="arithmatex">\(f\)</span> 和 <span class="arithmatex">\(g\)</span>, <span class="arithmatex">\(f\)</span> 的大小为 <span class="arithmatex">\(a*a\)</span>, <span class="arithmatex">\(g\)</span> 的大小为 <span class="arithmatex">\(b*b\)</span>, 我们将 <span class="arithmatex">\(g\)</span> 称为核（kernel）函数，且要求 <span class="arithmatex">\(b\)</span> 为奇数。<span class="arithmatex">\(f\)</span> 行列下标均从 0 开始，
+<span class="arithmatex">\(g\)</span> 的行列下标则从 <span class="arithmatex">\(-\lfloor b/2\rfloor\)</span> 到 <span class="arithmatex">\(+\lfloor b/2\rfloor\)</span>（包括 0）, 此时卷积的结果可以定义为：</p>
+<div class="arithmatex">\[
+\left(f*g\right)\left(n,m\right)=\sum_{i=-\lfloor b/2\rfloor}^{+\lfloor b/2\rfloor}\sum_{j=-\lfloor b/2\rfloor}^{+\lfloor b/2\rfloor}f\left(n+i,m+j\right)g\left(i,j\right)
+\]</div>
+<p>若 <span class="arithmatex">\(f\)</span> 的下标范围超出定义范围，本实验的方式是填充一个默认值（0）以解决问题，卷积结果与 <span class="arithmatex">\(f\)</span> 大小相同。注意这里求和的时候下标之差是一个定值，和卷积的定义有所不同。这种定义在计算机视觉里非常常见，有时人们将这里的卷积核称为滤波器（Filter）, 卷积运算称为滤波（Filtering）。</p>
+<p>一些算子库（如 CUTLASS）将下标之和为定值的操作称为卷积（Convolution）, 而将下标之差为定值的操作称为互相关（Cross-Correlation）。本实验中卷积定义为这种下标之差为定值的运算。</p>
+<h2 id="实验基础gpu-总览">实验基础：GPU 总览<a class="headerlink" href="#实验基础gpu-总览" title="Permanent link">¶</a></h2>
+<div class="admonition tips">
+<p class="admonition-title">参考内容</p>
+<p>以下内容以 <a href="https://jonathan-hui.medium.com/ai-chips-a100-gpu-with-nvidia-ampere-architecture-3034ed685e6e">AI Chips: A100 GPU with Nvidia Ampere architecture</a> 为参考, 如果有不清楚的地方可以参考原文章, 自行搜索或者向我们询问。</p>
+<p>集群上使用的是 NVIDIA V100 GPU, 是 A100 的前一代产品, 架构有相似之处, 下面的内容仅以 A100 为例。V100 的相关参数可以在 <a href="https://images.nvidia.cn/content/volta-architecture/pdf/volta-architecture-whitepaper.pdf">NVIDIA V100 ARCHITECTURE</a> 中找到。</p>
+</div>
+<p>类比计算机层次存储结构，我们对 GPU 结构，尤其是存储方面进行一定的了解。进行以 Nvidia Ampere 架构为例，完整的 GA100 核心如下所示（A100 并不是完整的 GA100 核心）：</p>
+<div align="center">
+<a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/GA100.webp" data-desc-position="bottom"><img src="image/GA100.webp" alt="GA 100" style="zoom:50%;"></a>
+</div>
+
+<p>它包含：</p>
+<ul>
+<li>8 GPC and 16 SM/GPC and 128 SMs per full GPU</li>
+<li>6 HBM2 stacks and 12 512-bit Memory Controllers</li>
+</ul>
+<p>下面将回顾一些可能对完成本次 Lab 比较有帮助的一些内容。</p>
+<h3 id="streaming-multiprocessor">Streaming Multiprocessor<a class="headerlink" href="#streaming-multiprocessor" title="Permanent link">¶</a></h3>
+<p>每一个 Streaming Multiprocessor（下简称 SM）, 包含有：</p>
+<ul>
+<li>4 processing block per SM, 1 Warp scheduler per processing block</li>
+<li>64 INT32 CUDA Cores/SM, 64 FP32 CUDA Cores/SM, 32 FP64 CUDA Cores/SM</li>
+<li>192 KB of combined shared memory and L1 data cache</li>
+<li>4 Tensor Cores/SM</li>
+</ul>
+<div align="center">
+  <a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/SM.webp" data-desc-position="bottom"><img src="image/SM.webp" alt="SM" style="zoom:20%;"></a>
+</div>
+
+<h3 id="warp">Warp<a class="headerlink" href="#warp" title="Permanent link">¶</a></h3>
+<p>一个 block 在一个 SM 上执行，并在执行时进一步被细分为 warp。每个 warp 一次可以处理 32 threads。为了提高利用率，<strong>推荐你按照 warp 进行块的划分</strong>。下图为一个 block 包含 256 threads（即 8 warps）时执行的示意图：</p>
+<div align="center">
+  <a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/warp_example.webp" data-desc-position="bottom"><img src="image/warp_example.webp" alt="warp example" style="zoom:50%;"></a>
+</div>
+
+<h3 id="shared-memory">Shared Memory<a class="headerlink" href="#shared-memory" title="Permanent link">¶</a></h3>
+<p>上面提到过一个 SM 包含 192KB 的 L1 Data Cache / Shared Memory。这些内存相对于 Global Memory（与 GPU 的关系可以被类比于 CPU 和 RAM）来说相对而言更快，访问延迟更低，能为一个 block 内的所有线程共用且可以被编程人员安排存储的内容。如果能够合理利用 Shared Memory 从而减少对延迟更高，速度更慢的 Global Memory 的访问，那么也可以提高程序的执行效率。需要额外注意的是，<strong>Shared Memory 大小是有限的</strong>, 需要进行合理的取舍与安排。</p>
+<div align="center">
+  <a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/GPU_Memory.webp" data-desc-position="bottom"><img src="image/GPU_Memory.webp" alt="GPU Memory" style="zoom:70%;"></a>
+</div>
+
+<h3 id="bank">Bank<a class="headerlink" href="#bank" title="Permanent link">¶</a></h3>
+<p>Bank 的概念在不同种类的存储器中都有涉及，其是为了解决存储器并行访问的问题而提出的。以一个具有 4 个 bank 的存储器为例，我们往常在编程时认为逻辑上认为连续的内存在 4 个 bank 中的物理存储方式如下图所示：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Bank 0    Bank 1    Bank 2    Bank 3
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>MEM[0]    MEM[1]    MEM[2]    MEM[3]
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>MEM[4]    MEM[5]    MEM[6]    MEM[7]
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>MEM[8]    MEM[9]    MEM[10]   MEM[11]
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>...       ...       ...       ...
+</span></code></pre></div>
+<p>于是在同一时间我们访问诸如 <code>MEM[0], MEM[9], MEM[6], MEM[3]</code> 的存储空间就不会产生冲突，大大提高了程序的效率；否则，最差的情况下，若连续的访存序列均位于同一 bank, 则效率等于串行的 4 次存储访问。</p>
+<p>需要注意的是，Shared Memory 的 bank 进行过针对性的优化，多个线程访问同一 bank 的同一位置可以通过同时向所有线程广播数据进行解决，同样不会产生 bank conflict 问题。</p>
+<h2 id="基础任务">基础任务<a class="headerlink" href="#基础任务" title="Permanent link">¶</a></h2>
+<h3 id="任务描述">任务描述<a class="headerlink" href="#任务描述" title="Permanent link">¶</a></h3>
+<p>在实际的卷积计算中，一次会进行多批（batch）的处理，比如一次处理多张图片（<span class="arithmatex">\(H\times W\)</span>大小）。以及同一个坐标具有多通道（channel）值，比如图片里的 R,G,B 三通道。<code>batch_size</code> 和 <code>in_channel</code>, <code>out_channel</code>定义于代码的开头。</p>
+<p><code>in_channel</code>即为输入的通道数，Filter(多通道的卷积核) 的<code>in_channel</code>需要和输入保持一致。每个 Filter 与输入产生一个二维的输出。<code>out_channel</code>即为输出的通道数，其值实际上就是 Filter 的数量，<code>out_channel</code>个 Filter 与输入进行卷积运算，产生<code>out_channel</code>个通道的结果。</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/conv.webp" data-desc-position="bottom"><img alt="conv" src="image/conv.webp"></a></p>
+<p>图片上经过卷积计算，输出的尺寸变小了，而我们的实验中是为输入加上了值为 0 的 padding, 所以输入和输出的二维尺寸是一致的。</p>
+<p>代码中的注释和变量名遵循以下习惯：</p>
+<ul>
+<li>输入输出张量的尺寸：<code>size</code>, <code>H</code>, <code>W</code></li>
+<li>输入，输出张量的批（batch）的大小：<code>batch_size</code>, <code>N</code></li>
+<li>输入张量的通道数：<code>in_channel</code>, <code>C</code></li>
+<li>输出张量的通道数：<code>out_channel</code>, <code>K</code></li>
+<li>卷积核的尺寸：<code>kernel</code>, <code>R</code>, <code>S</code></li>
+</ul>
+<p>我们看到，卷积运算中涉及的三个张量都是四维的，我们规定它们的形状分别为：</p>
+<ul>
+<li>Input (A): <code>N x H x W x C</code></li>
+<li>Kernel (W): <code>K x R x S x C</code></li>
+<li>Output (B): <code>N x H x W x K</code></li>
+</ul>
+<p>在上述二维矩阵的二维离散卷积的数学表达式基础上，我们添加批和通道两个维度，得到本次实验最终二维卷积的表达式如下：</p>
+<div class="arithmatex">\[
+\begin{align*}
+\left(f*g\right)\left(n,x,y,k\right)&amp;=\sum_{r=0}^{R-1}\sum_{s=0}^{S-1}\sum_{c=0}^{C-1}f\left(n,p(x, r),q(y, s),c\right)g\left(k,r,s,c\right) \\
+p(x, r) &amp;= x - \lfloor R/2\rfloor + r \\
+q(y, s) &amp;= y - \lfloor S/2\rfloor + s \\
+\end{align*}
+\]</div>
+<p>二维卷积计算的 CPU 版本已在 <code>conv.cu</code> 中的<code>conv2d_cpu_kernel</code>给出，用以验证正确性。即通过批，输入通道，输出通道，卷积核高，卷积核宽的五层循环轮流计算结果矩阵中每个位置的值。其中做了 padding 的 0 填充等处理。</p>
+<h3 id="基准代码">基准代码<a class="headerlink" href="#基准代码" title="Permanent link">¶</a></h3>
+<p>基准代码为程序中的<code>conv2d_cuda_kernel</code>核函数，是未经优化的五层循环嵌套 GPU 实现，你可以在此基础上进行改进，亦或者重新自己实现。</p>
+<div class="language-c++ highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-3-10">10</a></span>
+<span class="normal"><a href="#__codelineno-3-11">11</a></span>
+<span class="normal"><a href="#__codelineno-3-12">12</a></span>
+<span class="normal"><a href="#__codelineno-3-13">13</a></span>
+<span class="normal"><a href="#__codelineno-3-14">14</a></span>
+<span class="normal"><a href="#__codelineno-3-15">15</a></span>
+<span class="normal"><a href="#__codelineno-3-16">16</a></span>
+<span class="normal"><a href="#__codelineno-3-17">17</a></span>
+<span class="normal"><a href="#__codelineno-3-18">18</a></span>
+<span class="normal"><a href="#__codelineno-3-19">19</a></span>
+<span class="normal"><a href="#__codelineno-3-20">20</a></span>
+<span class="normal"><a href="#__codelineno-3-21">21</a></span>
+<span class="normal"><a href="#__codelineno-3-22">22</a></span>
+<span class="normal"><a href="#__codelineno-3-23">23</a></span>
+<span class="normal"><a href="#__codelineno-3-24">24</a></span>
+<span class="normal"><a href="#__codelineno-3-25">25</a></span>
+<span class="normal"><a href="#__codelineno-3-26">26</a></span>
+<span class="normal"><a href="#__codelineno-3-27">27</a></span>
+<span class="normal"><a href="#__codelineno-3-28">28</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">conv2d_cuda_kernel</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int8_t</span><span class="w"> </span><span class="o">*</span><span class="n">__restrict__</span><span class="w"> </span><span class="n">a</span><span class="p">,</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">                                   </span><span class="k">const</span><span class="w"> </span><span class="kt">int8_t</span><span class="w"> </span><span class="o">*</span><span class="n">__restrict__</span><span class="w"> </span><span class="n">w</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">                                   </span><span class="kt">int8_t</span><span class="w"> </span><span class="o">*</span><span class="n">__restrict__</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">blockDim</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">      </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">K</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">C</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="w">          </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="w">          </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">R</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">S</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="w">              </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">size</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15"></a><span class="w">                </span><span class="n">result</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">))</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="w">                        </span><span class="o">*</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">w</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">));</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17"></a><span class="w">              </span><span class="p">}</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18"></a><span class="w">              </span><span class="n">y</span><span class="o">++</span><span class="p">;</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20"></a><span class="w">            </span><span class="n">x</span><span class="o">++</span><span class="p">;</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="w">            </span><span class="n">y</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">S</span><span class="p">;</span>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22"></a><span class="w">          </span><span class="p">}</span>
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24"></a><span class="w">        </span><span class="n">b</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int8_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-27"><a id="__codelineno-3-27" name="__codelineno-3-27"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-28"><a id="__codelineno-3-28" name="__codelineno-3-28"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></tbody></table></div>
+<p>理论上你只需要修改 <code>src/lab3/conv.cu</code> 中的 <code>conv2d_cuda_kernel</code> 函数的 <code>int8</code> 实现和 <code>float16</code> 实现，以及相应的获得 kernel 启动参数配置的函数。自动评测时只需要提交 <code>src/lab3/conv.cu</code>。</p>
+<p>这里拆分成两种类型单独实验主要是为了后面的进阶任务，V100 上的 Tensor Core 只支持 <code>float16</code> 类型，而 <code>int8</code> 类型的卷积可以使用 DP4A 指令加速。</p>
+<p>如果你需要修改其他函数，请联系助教。</p>
+<div class="admonition warning">
+<p class="admonition-title">注意</p>
+<p>由于正确性验证中用到了 OpenMP, 你可能需要设置环境变量：
+</p><div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">4</span>
+</span></code></pre></div><p></p>
+<p>这里需要先将输入转为 <code>int32</code> 类型或者 <code>float32</code> 类型, 然后再进行乘加运算, 最后再将结果转为 <code>int8</code> 或者 <code>float16</code> 类型。并且输入都是较小的整数, 这样做可以保证结合律, 减少正确性方面的问题。</p>
+</div>
+<h3 id="shared-memory_1">Shared Memory<a class="headerlink" href="#shared-memory_1" title="Permanent link">¶</a></h3>
+<p>正如课上所讲，GPU 中有一块共享内存被同一线程块中的线程共享，在存储层级中，Shared Memory 与 L1 Cache 同级，部分 GPU 架构中还可以手动分配 L1 Cache 与 Shared Memory 的大小；利用 Shared Memory 将线程块的密集访存加速能够获得极低的访存延迟且大大节省内存带宽。</p>
+<center><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/shared_memory.webp" data-desc-position="bottom"><img src="image/shared_memory.webp" alt="shared_memory" style="zoom:70%;"></a></center>
+
+<h3 id="im2col">Im2Col<a class="headerlink" href="#im2col" title="Permanent link">¶</a></h3>
+<center><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/im2col.webp" data-desc-position="bottom"><img src="image/im2col.webp" alt="im2col" style="zoom:100%;"></a></center>
+
+<p>上述的卷积任务其实可以转换为矩阵乘法任务，这就是 Im2Col。如图，对于一个 <span class="arithmatex">\((N, H, W, C)\)</span> 的输入矩阵和 <span class="arithmatex">\((K, R, S, C)\)</span> 的卷积核矩阵，我们可以将输入矩阵转换为一个 <span class="arithmatex">\((N \times H \times W, R \times S \times C)\)</span> 的矩阵（图里没有考虑 padding）, 卷积核矩阵转换为一个 <span class="arithmatex">\((R \times S \times C, K)\)</span> 的矩阵。这样我们就可以将卷积操作转换为矩阵乘法操作。</p>
+<p>但这里我们不需要先将输入矩阵转换成 Im2Col 的形式，这样做效率比较低。我们只需要借用这个转换的思路，从矩阵乘法的角度来理解卷积。</p>
+<h3 id="tiling">Tiling<a class="headerlink" href="#tiling" title="Permanent link">¶</a></h3>
+<p>Baseline 代码效率并不高，原因是它需要两次对 Global Memory 的访存才能进行一次乘加运算（MAC）。考虑到 GPU 的算力于带宽的比例远大于此，这样会导致计算资源的浪费。所以减少对 Global Memory 的访存是提高性能的一个关键点。于是有了 Tiling 技术。</p>
+<div align="center">
+  <a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/tiling.webp" data-desc-position="bottom"><img src="image/tiling.webp" alt="tiling" style="zoom:100%;"></a>
+</div>
+
+<p>Tiling 的本质类似于分块矩阵计算，我们此时将结果矩阵 <span class="arithmatex">\(C\)</span> 分块，每个块的大小为 <span class="arithmatex">\(T_M \times T_N\)</span>。对于每一个块，我们需要计算 <span class="arithmatex">\(T_M \times K\)</span> 和 <span class="arithmatex">\(K \times T_N\)</span> 的矩阵的乘积，我们进一步对 <span class="arithmatex">\(K\)</span> 进行分块，并对 <span class="arithmatex">\(K\)</span> 这一维的分块遍历，于是每个 Threadblock 需要计算 <span class="arithmatex">\(\frac{K}{T_K}\)</span> 个 <span class="arithmatex">\(T_M \times T_K\)</span> 和 <span class="arithmatex">\(T_K \times T_N\)</span> 的矩阵乘积的累加。这个时候，我们每次计算时先将 <span class="arithmatex">\(A\)</span> 和 <span class="arithmatex">\(B\)</span> 的 Tile 读入 Shared Memory, 然后进行计算。此时总的访存量为</p>
+<div class="arithmatex">\[
+\frac{K}{T_K} \times (T_M \times T_K + T_K \times T_M) \times \frac{M}{T_M} \times \frac{N}{T_N}
+\]</div>
+<div class="arithmatex">\[
+ = MNK (\frac 1 {T_M} + \frac 1 {T_N})
+\]</div>
+<p>进一步的，我们可以继续对一个 Threadblock 内部继续分块，以降低对 Shared Memory 的访存量。</p>
+<div class="admonition tip">
+<p class="admonition-title">思考</p>
+<p>然而和大部分地方的资料讲的不太一样的地方是, 实际上由于 L1 和 L2 Cache 的存在, Baseline 的访存量没有那么差, 但访存和计算操作交替执行造成的数据依赖使得指令级并行度（ILP）很差, 严重影响性能, 而 Tiling 技术将访存和计算操作分离, 提高了 ILP, 从而提高了性能。</p>
+</div>
+<h3 id="double-buffering">Double Buffering<a class="headerlink" href="#double-buffering" title="Permanent link">¶</a></h3>
+<p>如上面所说，我们可以将计算和访存操作分离，这样可以提高 ILP。但是在实际的计算中，我们可以进一步提高性能。我们可以使用 Double Buffering 技术，即在计算一个 Tile 的同时，我们可以同时读取下一个 Tile 的数据。这样可以进一步提高性能。</p>
+<h3 id="bank-conflict">Bank Conflict<a class="headerlink" href="#bank-conflict" title="Permanent link">¶</a></h3>
+<center><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/swizzle.webp" data-desc-position="bottom"><img src="image/swizzle.webp" alt="im2col" style="zoom:60%;"></a></center>
+
+<p>你可以通过 Padding 或者 Swizzling 的方式来避免 Bank Conflict。Padding 是通过在共享内存数组中添加额外的元素来改变内存访问模式，而 Swizzling 则是对每个线程访问的内存地址进行置换。这两种方式都可以避免 Bank Conflict, 从而提高性能。</p>
+<h3 id="cooperative-fetching">Cooperative Fetching<a class="headerlink" href="#cooperative-fetching" title="Permanent link">¶</a></h3>
+<p>为了减少单个线程的内存访问量，可以让每个线程块中的线程合作访问有共同依赖的部分；共享内存是有限的，将访存重叠度高的线程安排在单个线程块中，从全局内存中加载访问更密集的数据到共享内存，都可以提升程序效率。</p>
+<h2 id="进阶任务">进阶任务<a class="headerlink" href="#进阶任务" title="Permanent link">¶</a></h2>
+<p>如果你完成了基础任务并且精力充沛，可以尝试下面的任务。</p>
+<h3 id="dp4a">DP4A<a class="headerlink" href="#dp4a" title="Permanent link">¶</a></h3>
+<p>DP4A 指令是一个特殊的指令，它可以在一个周期内完成 4 个整数的乘加运算，其计算结果为一个整数。该指令可以在 CUDA 中通过内嵌 PTX 汇编或者 <code>__dp4a</code> 函数调用。</p>
+<p>你可以尝试在 <code>conv_int8</code> 的实现里使用 DP4A 来加速计算。</p>
+<h3 id="tensor-core">Tensor Core<a class="headerlink" href="#tensor-core" title="Permanent link">¶</a></h3>
+<p>V100 上有名为 Tensor Core 的硬件，它能够进一步加速卷积的计算，你可以使用内嵌 PTX 汇编或者 CUDA 的 C++ 扩展 <code>nvcuda::wmma</code> 的方式
+来显式地调用 Tensor Core 来进行计算。</p>
+<p>Tensor Core 能在一个周期内完成一个小矩阵乘法，因而提高计算效率，但是 Tensor Core 对作矩阵乘法的两个矩阵的形状有要求（例如 16x16x16）, 你需要合理地对矩阵进行切分和对 Warp 和 Block 中的线程进行分配来最大化 Tensor Core 的计算性能。</p>
+<p>这两种指令都支持使用更高精度的类型做累加计算，然后再将结果写回到低精度的类型中。V100 之后的 GPU 才开始支持整数类型的 Tensor Core, 并且 <code>ldmatrix</code> 指令在 <code>SM75</code>（比如 2080Ti）才开始支持，编写时需要注意。</p>
+<h3 id="cutlass--cute">CUTLASS / CuTe<a class="headerlink" href="#cutlass--cute" title="Permanent link">¶</a></h3>
+<p>如果你精力充沛，我们鼓励你使用 <a href="https://github.com/NVIDIA/cutlass/">CUTLASS</a> 以及 CUTLASS 里的底层 Tensor 接口 CuTe 来实现本实验。</p>
+<p>不幸的是，CUTLASS 几乎没有什么文档，只有一些 example 和 tutorial, 你大概率需要自己去阅读源码来了解如何使用 CUTLASS。</p>
+<p>考虑到 OJ 只允许提交 <code>conv.cu</code> 里的 <code>__global__</code> Kernel, 你也许无法直接调用 CUTLASS 的 device 级别和 kernel 级别的 API。你可以考虑通过 CUTLASS 的 <code>threadblock</code> 级别的 API 或者直接使用 CuTe 来实现。</p>
+<p>不过你仍然可以探索一下 device 级别和 kernel 级别的 API。</p>
+<p><code>conv_int8</code> 的参考实现原本也是用 CUTLASS 实现的，可以自动调用 DP4A 指令，然而助教并没有调出来能够通过编译的版本。</p>
+<p><code>conv_half</code> 的参考实现的模板参数是随便选的，需要调整这些参数才能得到更高的性能。</p>
+<p>你可以尝试解决 <code>conv_int8</code> 的 bug, 并对模板参数进行调优获得更高的性能，体现在报告里即可。</p>
+<h3 id="cudnn">cuDNN<a class="headerlink" href="#cudnn" title="Permanent link">¶</a></h3>
+<p>NVIDIA 的 cuDNN 库提供了高性能的卷积实现，你可以考虑测试一下这些实现的性能，体现在报告里即可。</p>
+<h3 id="openai-triton--tilelang--cutedsl">OpenAI Triton / TileLang / CuteDSL<a class="headerlink" href="#openai-triton--tilelang--cutedsl" title="Permanent link">¶</a></h3>
+<p>如果你对这些比较新的 GPU 编程工具感兴趣，也可以尝试用这些工具来实现卷积并测试性能。体现在报告里即可。</p>
+<div class="admonition danger">
+<p class="admonition-title">你还是得自己写一个 CUDA C Kernel</p>
+<p>无论你尝试了什么东西, 最终还是要自己写一个 CUDA C Kernel, 这部分的性能会作为实验成绩的主要部分。</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">我能不能用 Winograd?</p>
+<p>当然可以, 请左转<a href="../Final-Project/">大作业</a>。不过本实验评测时会使用较大的卷积核, 只有一个 F(2x2, 3x3) 的 Winograd 是不够用的, 不推荐你在本实验里花太多时间在 Winograd 上。</p>
+</div>
+<h2 id="实验任务与要求">实验任务与要求<a class="headerlink" href="#实验任务与要求" title="Permanent link">¶</a></h2>
+<ol>
+<li>优化 conv2d 的性能</li>
+<li>测试实现的正确性和性能</li>
+<li>提交代码 <code>conv.cu</code> 和简要的思路</li>
+<li>使用 Nsight Compute 对你的 kernel 进行 Profile, 并指出你的 kernel 的访存大小，Compute 和 Memory 利用率</li>
+<li>报告中需要提交 OJ 运行结果的截图</li>
+<li>进阶任务部分需要体现在报告里，即使是不成功的性能优化尝试也可以</li>
+</ol>
+<h3 id="自动化测试">自动化测试<a class="headerlink" href="#自动化测试" title="Permanent link">¶</a></h3>
+<div class="admonition info">
+<p class="admonition-title">OJ 说明</p>
+<p>同学们除了自己在集群上手动测试加速比之外, 还可以使用 OJ 提交优化代码（和同学们一起打榜 ac01）</p>
+<p>OJ 使用方法请阅读: <a href="../../guide/oj/">使用在线测评</a></p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">这里没必要卷</p>
+<p>OJ 测评仅作为正确性, 加速效果的参考, 并且提高大家对程序不断优化的积极性。</p>
+<p><strong>OJ 得分并不直接参与实验成绩的计算</strong>, 主要看大家的优化思路以及代码完成情况, 体现在实验报告中。</p>
+<p>即使加速比不是很理想, 但优化思路明确, 代码完成程度高, 一样可以得到实验的高分。同理, 即使 OJ 都拿了满分, 但报告很简略, 没有提及关键思路, 也不会获得很理想的分数。</p>
+</div>
+<p>使用 scp 等将 <code>src/conv.cpp</code> 上传到 OJ 的 lab3 文件夹，然后就可以进行提交。</p>
+<p>举例：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># 方法一：</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>sftp<span class="w"> </span>&lt;username&gt;+oj@clusters.zju.edu.cn
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># sftp 交互式 shell:</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>&gt;<span class="w"> </span>mkdir<span class="w"> </span>lab3
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>&gt;<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>lab3
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>&gt;<span class="w"> </span><span class="nb">exit</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>scp<span class="w"> </span>./src/conv.cu<span class="w">  </span>&lt;username&gt;+oj@clusters.zju.edu.cn:lab3/
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="c1"># 方法二：</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>scp<span class="w"> </span>./src/conv.cu<span class="w">  </span>&lt;username&gt;+oj@clusters.zju.edu.cn:lab3/conv.cu
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="c1"># 提交</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>ssh<span class="w"> </span>&lt;username&gt;+oj@clusters.zju.edu.cn<span class="w"> </span>submit<span class="w"> </span>lab3
+</span></code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">OJ 评标</p>
+<p>OJ 采用对数曲线进行给分，这意味着只要比 baseline 快，就可以很快获得一定的分数。同时也允许在标准满分的基础上进一步优化的同学获得更高的分数，分数上限为 105 分。</p>
+<p>下面是不同优化的得分曲线:</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/lab3_score.webp" data-desc-position="bottom"><img alt="Score" src="image/lab3_score.webp"></a></p>
+<p>横轴为毫秒数, 纵轴为得分。<code>conv_int8</code> 和 <code>conv_half</code> 使用同一曲线, 总得分是两个任务分数的<strong>最大值</strong>。也就是说, 你只需要优化其中一个任务。</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">优化提示</p>
+<p><code>conv_half</code> 在使用 Tensor Core 时可以较为容易的拿到满分。如果你不打算使用 Tensor Core, 可以只考虑优化 <code>conv_int8</code> 任务, 并强烈推荐你使用 DP4A 指令。</p>
+</div>
+<h3 id="使用-nsight-compute-进行-profile">使用 Nsight Compute 进行 Profile<a class="headerlink" href="#使用-nsight-compute-进行-profile" title="Permanent link">¶</a></h3>
+<p>系统里已经预置了完整的 cuda toolkit, 位于默认目录 <code>/usr/local/cuda/</code> 下，包含了 Nsight Compute 等工具。</p>
+<p>你可以使用 Nsight Compute 来 Profile 你的 kernel, 查看你的 kernel 的访存大小，Compute 和 Memory 利用率，并获得进一步优化的方向。</p>
+<p>例如：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">TMPDIR</span><span class="o">=</span>~/tmp
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="nv">$TMPDIR</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>srun<span class="w"> </span>-p<span class="w"> </span>V100<span class="w"> </span>--gpus<span class="w"> </span><span class="m">1</span><span class="w"> </span>/usr/local/cuda/bin/ncu<span class="w"> </span>./conv_int8
+</span></code></pre></div>
+<h3 id="注意事项">注意事项<a class="headerlink" href="#注意事项" title="Permanent link">¶</a></h3>
+<ol>
+<li>请独立完成本次实验。你可以使用 LLM 工具，网络上的相关优化代码也十分多，但理解并自己实现是本次实验的目的。</li>
+<li>攻击平台、恶意浪费节点资源等干扰他人的行为，以作弊论处。</li>
+<li>任何有疑惑的问题请联系群内助教。</li>
+<li>我们鼓励你用 <code>cutlass</code> 中的 <code>cute</code> 库来帮助实现，但请不要直接调用 <code>cutlass</code> 或者 <code>cublas</code> 的 GEMM 实现。</li>
+<li>如果 Profile 不出来或者运行太慢的话，可以尝试减小矩阵大小，并在报告中注明。</li>
+</ol>
+<h2 id="参考文献">参考文献<a class="headerlink" href="#参考文献" title="Permanent link">¶</a></h2>
+<ol>
+<li><code>nvcuda::wmma</code> CUDA C++ Extension <a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#wmma">NVIDIA CUDA C Programming Guide</a></li>
+<li>Parallel Thread Execution <a href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html">NVIDIA PTX ISA</a></li>
+<li><a href="https://images.nvidia.cn/content/volta-architecture/pdf/volta-architecture-whitepaper.pdf">https://images.nvidia.cn/content/volta-architecture/pdf/volta-architecture-whitepaper.pdf</a></li>
+<li><a href="https://github.com/NVIDIA/cutlass/blob/main/media/docs/cpp/implicit_gemm_convolution.md">https://github.com/NVIDIA/cutlass/blob/main/media/docs/cpp/implicit_gemm_convolution.md</a></li>
+<li><a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#maximize-instruction-throughput">CUDA Programming Guide</a></li>
+<li><a href="https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/">CUDA Best Practices Guide</a></li>
+</ol>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 29, 2025 14:27:16 UTC">August 29, 2025</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"></path></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 15, 2025 14:15:11 UTC">July 15, 2025</span>
+  </span>
+
+    
+    
+    
+      
+  <span class="md-source-file__fact">
+    
+      
+  <span class="md-icon" title="Contributors">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"></path></svg>
+  </span>
+  <span>GitHub</span>
+
+    
+    <nav>
+      
+        <a href="https://github.com/bowling233" class="md-author" title="@bowling233">
+          
+          <img src="https://avatars.githubusercontent.com/u/35755846?v=4&amp;size=72" alt="bowling233">
+        </a>
+      
+        <a href="https://github.com/web-flow" class="md-author" title="@web-flow">
+          
+          <img src="https://avatars.githubusercontent.com/u/19864447?v=4&amp;size=72" alt="web-flow">
+        </a>
+      
+        <a href="https://github.com/mrhaoxx" class="md-author" title="@mrhaoxx">
+          
+          <img src="https://avatars.githubusercontent.com/u/22582237?v=4&amp;size=72" alt="mrhaoxx">
+        </a>
+      
+        <a href="https://github.com/chiakicage" class="md-author" title="@chiakicage">
+          
+          <img src="https://avatars.githubusercontent.com/u/51401253?v=4&amp;size=72" alt="chiakicage">
+        </a>
+      
+      
+      
+    </nav>
+  </span>
+
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+          
+          <a href="../Lab2.5-RISC-V/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lab 2.5: 向量化进阶 (RISC-V)">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Lab 2.5: 向量化进阶 (RISC-V)
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../Lab4-Solver-Challenge/" class="md-footer__link md-footer__link--next" aria-label="Next: Lab 4: Solver Challenge">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Lab 4: Solver Challenge
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "content.code.select", "content.code.annotate", "navigation.footer", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.tracking", "navigation.path", "navigation.top", "toc.follow", "content.action.edit", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>

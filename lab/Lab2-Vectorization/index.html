@@ -1,0 +1,2049 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab2-Vectorization/">
+      
+      
+        <link rel="prev" href="../Lab1-MiniCluster/">
+      
+      
+        <link rel="next" href="../Lab2.5-RISC-V/">
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>Lab 2: 向量化计算 - HPC101 (2025)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#实验二向量化计算" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101 (2025)" class="md-header__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101 (2025)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Lab 2: 向量化计算
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo" aria-label="切换至浅色模式" type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="zjusct" data-md-color-primary="indigo" data-md-color-accent="indigo" aria-label="切换至深色模式" type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo" aria-label="根据系统模式切换主题" type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../slides/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  课程幻灯片
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101 (2025)" class="md-nav__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    HPC101 (2025)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1">
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程信息
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            课程信息
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    欢迎来到 HPC 101 超算短学期
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_2">
+        
+          
+          <label class="md-nav__link" for="__nav_1_2" id="__nav_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    使用集群
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            使用集群
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/env/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    软件环境
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    登陆节点
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    提交作业
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    使用在线测评
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    集群概况
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程实验
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            课程实验
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 0: Linux 快速入门
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 1: 简单集群搭建
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Lab 2: 向量化计算
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 2: 向量化计算
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验目的
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解numpy-中的向量化计算" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解：Numpy 中的向量化计算
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：Numpy 中的向量化计算">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#工具介绍" class="md-nav__link">
+    <span class="md-ellipsis">
+      工具介绍
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#双线性插值算法简述" class="md-nav__link">
+    <span class="md-ellipsis">
+      双线性插值算法简述
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="双线性插值算法简述">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#形式化定义" class="md-nav__link">
+    <span class="md-ellipsis">
+      形式化定义
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nhwc-数据格式" class="md-nav__link">
+    <span class="md-ellipsis">
+      NHWC 数据格式
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#基准代码" class="md-nav__link">
+    <span class="md-ellipsis">
+      基准代码
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy-向量化实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      Numpy 向量化实现
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#推荐阅读材料" class="md-nav__link">
+    <span class="md-ellipsis">
+      推荐阅读材料
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解x86-64-simd-优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解：x86-64 SIMD 优化
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：x86-64 SIMD 优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#avx-向量指令扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      AVX 向量指令扩展
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#avx-512" class="md-nav__link">
+    <span class="md-ellipsis">
+      AVX-512
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amx-高级矩阵扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      AMX 高级矩阵扩展
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AMX 高级矩阵扩展">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#硬件结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      硬件结构
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tile-config-配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tile Config 配置
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amx-矩阵乘法详解" class="md-nav__link">
+    <span class="md-ellipsis">
+      AMX 矩阵乘法详解
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务一使用-avx-指令集实现整数矩阵乘法" class="md-nav__link">
+    <span class="md-ellipsis">
+      任务一：使用 AVX 指令集实现整数矩阵乘法
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务一：使用 AVX 指令集实现整数矩阵乘法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#背景与任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      背景与任务
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#基准代码讲解" class="md-nav__link">
+    <span class="md-ellipsis">
+      基准代码讲解
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bonus-使用-amx-指令集" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bonus: 使用 AMX 指令集
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#思考题" class="md-nav__link">
+    <span class="md-ellipsis">
+      思考题
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务与要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务与要求
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#自动化测试" class="md-nav__link">
+    <span class="md-ellipsis">
+      自动化测试
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2.5-RISC-V/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 2.5: 向量化进阶 (RISC-V)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab3-CudaConv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 3: CUDA 卷积
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab4-Solver-Challenge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 4: Solver Challenge
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab5-TinyLLM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 5: TinyLLM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Final-Project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Final Project - 大作业
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../slides/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    课程幻灯片
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验目的
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解numpy-中的向量化计算" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解：Numpy 中的向量化计算
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：Numpy 中的向量化计算">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#工具介绍" class="md-nav__link">
+    <span class="md-ellipsis">
+      工具介绍
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#双线性插值算法简述" class="md-nav__link">
+    <span class="md-ellipsis">
+      双线性插值算法简述
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="双线性插值算法简述">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#形式化定义" class="md-nav__link">
+    <span class="md-ellipsis">
+      形式化定义
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nhwc-数据格式" class="md-nav__link">
+    <span class="md-ellipsis">
+      NHWC 数据格式
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#基准代码" class="md-nav__link">
+    <span class="md-ellipsis">
+      基准代码
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numpy-向量化实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      Numpy 向量化实现
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#推荐阅读材料" class="md-nav__link">
+    <span class="md-ellipsis">
+      推荐阅读材料
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解x86-64-simd-优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解：x86-64 SIMD 优化
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：x86-64 SIMD 优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#avx-向量指令扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      AVX 向量指令扩展
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#avx-512" class="md-nav__link">
+    <span class="md-ellipsis">
+      AVX-512
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amx-高级矩阵扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      AMX 高级矩阵扩展
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AMX 高级矩阵扩展">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#硬件结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      硬件结构
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tile-config-配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tile Config 配置
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amx-矩阵乘法详解" class="md-nav__link">
+    <span class="md-ellipsis">
+      AMX 矩阵乘法详解
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务一使用-avx-指令集实现整数矩阵乘法" class="md-nav__link">
+    <span class="md-ellipsis">
+      任务一：使用 AVX 指令集实现整数矩阵乘法
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务一：使用 AVX 指令集实现整数矩阵乘法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#背景与任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      背景与任务
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#基准代码讲解" class="md-nav__link">
+    <span class="md-ellipsis">
+      基准代码讲解
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bonus-使用-amx-指令集" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bonus: 使用 AMX 指令集
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#思考题" class="md-nav__link">
+    <span class="md-ellipsis">
+      思考题
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务与要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务与要求
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#自动化测试" class="md-nav__link">
+    <span class="md-ellipsis">
+      自动化测试
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab2-Vectorization/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
+    </a>
+  
+  
+
+
+<h1 id="实验二向量化计算">实验二：向量化计算<a class="headerlink" href="#实验二向量化计算" title="Permanent link">¶</a></h1>
+<div class="admonition tip">
+<p class="admonition-title">QC PASS</p>
+<p>本实验流程已经通过检查，请放心食用。</p>
+<p>负责助教：陈宏哲, 刘烨, 洪奕迅</p>
+</div>
+<h2 id="实验目的">实验目的<a class="headerlink" href="#实验目的" title="Permanent link">¶</a></h2>
+<p>本次实验目的是让大家对「向量化并行计算」进行更加深入的了解，以 Numpy 的向量化计算为基础，进一步学习 CPU 中专为向量化计算设计的 SIMD 指令扩展，如 AVX, AMX 扩展。</p>
+<p>实验文档主要分为三大部分，他们分别的作用是：</p>
+<ul>
+<li>Numpy 中的向量化计算：供大家结合课上所学，熟悉 Numpy 的向量化编程模式，需要大家在阅读后完成对应的思考题</li>
+<li>x86-64 SIMD 优化：介绍当前科学计算、深度学习等领域主要使用的 AVX-512 和 AMX 指令集，需要大家学习并完成手写向量化 Intrinsic 优化矩阵乘法的代码任务</li>
+</ul>
+<h2 id="知识讲解numpy-中的向量化计算">知识讲解：Numpy 中的向量化计算<a class="headerlink" href="#知识讲解numpy-中的向量化计算" title="Permanent link">¶</a></h2>
+<h3 id="工具介绍">工具介绍<a class="headerlink" href="#工具介绍" title="Permanent link">¶</a></h3>
+<p><a href="https://numpy.org/">NumPy</a> 是 Python 中科学计算的基础包。它是一个 Python 库，提供多维数组对象，各种派生对象（如掩码数组和矩阵），以及用于数组快速操作的各种 API，有包括数学、逻辑、形状操作、排序、选择、输入输出、离散傅立叶变换、基本线性代数，基本统计运算和随机模拟等等。</p>
+<p>Numpy 代码一般采用向量化（矢量化）描述，这使得代码中没有任何显式的循环，索引等，这样的代码有以下好处：</p>
+<ul>
+<li>向量化代码更简洁，更易于阅读</li>
+<li>更少的代码行通常意味着更少的错误</li>
+<li>代码更接近于标准的数学符号</li>
+</ul>
+<p>另外，向量化的代码能够规避掉 Python 中缓慢的迭代循环，被底层的实现更好的调度，如接入 BLAS 矩阵运算库，从而实现更高的性能。</p>
+<p>双线性插值是计算机视觉图像处理中的常用算法，它在计算机图形学中也可以用于材质贴图的重采样。</p>
+<p>下面我们将给出一个使用 Numpy 来优化 Python 代码的例子，例子实现了一个支持批量处理的向量化的双线性插值，来让大家熟悉 NumPy 的向量化编程模式。</p>
+<h3 id="双线性插值算法简述">双线性插值算法简述<a class="headerlink" href="#双线性插值算法简述" title="Permanent link">¶</a></h3>
+<p>概括来说就是先在 <span class="arithmatex">\(x\)</span> 轴上进行一次插值，再在 <span class="arithmatex">\(y\)</span> 轴上进行一次插值。</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/bilinear2.webp" data-desc-position="bottom"><img alt="bilinear2" src="image/bilinear2.webp"></a></p>
+<p>以在灰度图上进行插值为例，我们已知外围的四个点 <span class="arithmatex">\((14, 20), (15, 20), (14, 21), (15, 21)\)</span> 灰度值分别为 91, 210, 162 和 95，然后希望通过插值得到 <span class="arithmatex">\((14.5, 20.2)\)</span> 处的灰度值。</p>
+<p>接下来我们先在 <span class="arithmatex">\(x\)</span> 方向上通过线性插值计算出 <span class="arithmatex">\((14.5, 20), (14.5, 21)\)</span> 两个点的灰度值 150.5, 128.5，然后再使用这两个值在 <span class="arithmatex">\(y\)</span> 方向上再次进行线性插值，得到 <span class="arithmatex">\((14.5, 20.2)\)</span> 坐标处的灰度值 146.1。</p>
+<p>注意这里是一个单通道的例子，对于实际的情况，我们往往有很多个通道，如彩色图片拥有 RGB 三个通道，一些图片可能还有 <span class="arithmatex">\(\alpha\)</span> 透明度通道，或是深度通道。<strong>对于多通道的情况，我们需要对每个通道进行分别插值。</strong></p>
+<h4 id="形式化定义">形式化定义<a class="headerlink" href="#形式化定义" title="Permanent link">¶</a></h4>
+<blockquote>
+<p>形式化定义摘自<a href="https://en.wikipedia.org/wiki/Bilinear_interpolation">维基百科</a></p>
+</blockquote>
+<p>假如我们想得到未知函数 <span class="arithmatex">\(f\)</span> 在点 <span class="arithmatex">\({\displaystyle P=\left(x,y\right)}\)</span> 的值，假设我们已知函数 <span class="arithmatex">\(f\)</span> 在 <span class="arithmatex">\({\displaystyle Q_{11}=\left(x_{1},y_{1}\right)}\)</span>, <span class="arithmatex">\({\displaystyle Q_{12}=\left(x_{1},y_{2}\right)}\)</span>, <span class="arithmatex">\({\displaystyle Q_{21}=\left(x_{2},y_{1}\right)}\)</span> 及 <span class="arithmatex">\({Q_{22}=\left(x_{2},y_{2}\right)}\)</span> 四个点的值。</p>
+<div class="admonition note">
+<p class="admonition-title">双线性插值</p>
+<p></p><center><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/bilinear.webp" data-desc-position="bottom"><img alt="bilinear" src="image/bilinear.webp" width="50%"></a></center><p></p>
+</div>
+<p>首先在 <span class="arithmatex">\(x\)</span> 方向进行线性插值，得到</p>
+<div class="arithmatex">\[
+{\displaystyle {\begin{aligned}f(x,y_{1})&amp;\approx {\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{11})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{21}),\\\\
+f(x,y_{2})&amp;\approx {\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{12})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{22}).\end{aligned}}}
+\]</div>
+<p>然后在 <span class="arithmatex">\(y\)</span> 方向进行线性插值，得到</p>
+<div class="arithmatex">\[
+{\displaystyle {\begin{aligned}f(x,y)&amp;\approx &amp;&amp;{\frac {y_{2}-y}{y_{2}-y_{1}}}f(x,y_{1})+{\frac {y-y_{1}}{y_{2}-y_{1}}}f(x,y_{2})\\\\
+&amp;=&amp;&amp;{\frac {y_{2}-y}{y_{2}-y_{1}}}\left({\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{11})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{21})\right)\\\\
+&amp;&amp;&amp;+{\frac {y-y_{1}}{y_{2}-y_{1}}}\left({\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{12})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{22})\right)\\\\
+&amp;=&amp;&amp;{\frac {1}{(x_{2}-x_{1})(y_{2}-y_{1})}}{\big (}f(Q_{11})(x_{2}-x)(y_{2}-y)+f(Q_{21})(x-x_{1})(y_{2}-y)\\\\
+&amp;&amp;&amp;+f(Q_{12})(x_{2}-x)(y-y_{1})+f(Q_{22})(x-x_{1})(y-y_{1}){\big )}\\\\
+&amp;=&amp;&amp;{\frac {1}{(x_{2}-x_{1})(y_{2}-y_{1})}}{\begin{bmatrix}x_{2}-x&amp;x-x_{1}\end{bmatrix}}{\begin{bmatrix}f(Q_{11})&amp;f(Q_{12})\\\\
+f(Q_{21})&amp;f(Q_{22})\end{bmatrix}}{\begin{bmatrix}y_{2}-y\\\\ y-y_{1}\end{bmatrix}}.\end{aligned}}}
+\]</div>
+<p>注意此处如果先在 <span class="arithmatex">\(y\)</span> 方向插值、再在 <span class="arithmatex">\(x\)</span> 方向插值，其结果与按照上述顺序双线性插值的结果是一样的。</p>
+<h4 id="nhwc-数据格式">NHWC 数据格式<a class="headerlink" href="#nhwc-数据格式" title="Permanent link">¶</a></h4>
+<p>真实情况下我们处理的数据都是以 batch 为单位的，按批进行处理的。以双线性插值为例，我们往往会一次性送入 <span class="arithmatex">\(N\)</span> 张大小为 <span class="arithmatex">\(H \times W\)</span> 的图片，每个像素上有 <span class="arithmatex">\(C\)</span> 个通道，然后一次性返回这 <span class="arithmatex">\(N\)</span> 张图片处理好的结果。此时我们一次性传入的数据，就是直接按顺序堆叠在一起的 NHWC 格式的数组，它将 batch 作为了第一个维度，而后三个维度分别是单张图片的高度、宽度、通道数。你可以将这一数据格式理解为 c 语言中的高维数组 <code>image[N][H][W][C]</code>，而因为 c 的数组和 NumPy 的 <code>ndarray</code> 一样都是在内存里连续排放的，所以对于 <code>image[x1][x2][x3][x4]</code>，其实就是 <code>image[x1 * H * W * C + x2 * W * C + x3 * C + x4]</code> 处的内存。</p>
+<p>另一个常见的数据格式是 NCHW，也就是单张图片内通道在前，不过这里我们没有选用。</p>
+<p>数据格式更多是对数据的存放顺序进行约定，通过 <code>np.transpose</code> 可以方便地将不同维度进行调换。</p>
+<h3 id="基准代码">基准代码<a class="headerlink" href="#基准代码" title="Permanent link">¶</a></h3>
+<p>下面给出直接使用 <code>for</code> 循环迭代计算的双线性插值版本：</p>
+<div class="language-python highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-0-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-0-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span>
+<span class="normal"><a href="#__codelineno-0-11">11</a></span>
+<span class="normal"><a href="#__codelineno-0-12">12</a></span>
+<span class="normal"><a href="#__codelineno-0-13">13</a></span>
+<span class="normal"><a href="#__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#__codelineno-0-15">15</a></span>
+<span class="normal"><a href="#__codelineno-0-16">16</a></span>
+<span class="normal"><a href="#__codelineno-0-17">17</a></span>
+<span class="normal"><a href="#__codelineno-0-18">18</a></span>
+<span class="normal"><a href="#__codelineno-0-19">19</a></span>
+<span class="normal"><a href="#__codelineno-0-20">20</a></span>
+<span class="normal"><a href="#__codelineno-0-21">21</a></span>
+<span class="normal"><a href="#__codelineno-0-22">22</a></span>
+<span class="normal"><a href="#__codelineno-0-23">23</a></span>
+<span class="normal"><a href="#__codelineno-0-24">24</a></span>
+<span class="normal"><a href="#__codelineno-0-25">25</a></span>
+<span class="normal"><a href="#__codelineno-0-26">26</a></span>
+<span class="normal"><a href="#__codelineno-0-27">27</a></span>
+<span class="normal"><a href="#__codelineno-0-28">28</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">bilinear_interp_baseline</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">    </span><span class="sd">"""</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="sd">    This is the baseline implementation of bilinear interpolation without vectorization.</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="sd">    - a is a ND array with shape [N, H1, W1, C], dtype = int64</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="sd">    - b is a ND array with shape [N, H2, W2, 2], dtype = float64</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="sd">    - return a ND array with shape [N, H2, W2, C], dtype = int64</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="sd">    """</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8"></a>    <span class="c1"># Get axis size from ndarray shape</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9"></a>    <span class="n">N</span><span class="p">,</span> <span class="n">H1</span><span class="p">,</span> <span class="n">W1</span><span class="p">,</span> <span class="n">C</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10"></a>    <span class="n">N1</span><span class="p">,</span> <span class="n">H2</span><span class="p">,</span> <span class="n">W2</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">shape</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11"></a>    <span class="k">assert</span> <span class="n">N</span> <span class="o">==</span> <span class="n">N1</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12"></a>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13"></a>    <span class="c1"># Do iteration</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14"></a>    <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">H2</span><span class="p">,</span> <span class="n">W2</span><span class="p">,</span> <span class="n">C</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">int64</span><span class="p">)</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15"></a>    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">H2</span><span class="p">):</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17"></a>            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">W2</span><span class="p">):</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18"></a>                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19"></a>                <span class="n">x_idx</span><span class="p">,</span> <span class="n">y_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a>                <span class="n">_x</span><span class="p">,</span> <span class="n">_y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">x_idx</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="n">y_idx</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a>                <span class="c1"># For simplicity, we assume:</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a>                <span class="c1"># - all x are in [0, H1 - 1)</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a>                <span class="c1"># - all y are in [0, W1 - 1)</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a>                <span class="n">res</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="n">x_idx</span><span class="p">,</span> <span class="n">y_idx</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">_x</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">_y</span><span class="p">)</span> <span class="o">+</span> \
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>                               <span class="n">a</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="n">x_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y_idx</span><span class="p">]</span> <span class="o">*</span> <span class="n">_x</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">_y</span><span class="p">)</span> <span class="o">+</span> \
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a>                               <span class="n">a</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="n">x_idx</span><span class="p">,</span> <span class="n">y_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">_x</span><span class="p">)</span> <span class="o">*</span> <span class="n">_y</span> <span class="o">+</span> \
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a>                               <span class="n">a</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="n">x_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">_x</span> <span class="o">*</span> <span class="n">_y</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a>    <span class="k">return</span> <span class="n">res</span>
+</span></code></pre></div></td></tr></tbody></table></div>
+<h3 id="numpy-向量化实现">Numpy 向量化实现<a class="headerlink" href="#numpy-向量化实现" title="Permanent link">¶</a></h3>
+<p>通过花式索引和 Numpy 向量化，把 Baseline 的三层循环全部替换。</p>
+<div class="language-python highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-1-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-1-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-1-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-1-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-1-10">10</a></span>
+<span class="normal"><a href="#__codelineno-1-11">11</a></span>
+<span class="normal"><a href="#__codelineno-1-12">12</a></span>
+<span class="normal"><a href="#__codelineno-1-13">13</a></span>
+<span class="normal"><a href="#__codelineno-1-14">14</a></span>
+<span class="normal"><a href="#__codelineno-1-15">15</a></span>
+<span class="normal"><a href="#__codelineno-1-16">16</a></span>
+<span class="normal"><a href="#__codelineno-1-17">17</a></span>
+<span class="normal"><a href="#__codelineno-1-18">18</a></span>
+<span class="normal"><a href="#__codelineno-1-19">19</a></span>
+<span class="normal"><a href="#__codelineno-1-20">20</a></span>
+<span class="normal"><a href="#__codelineno-1-21">21</a></span>
+<span class="normal"><a href="#__codelineno-1-22">22</a></span>
+<span class="normal"><a href="#__codelineno-1-23">23</a></span>
+<span class="normal"><a href="#__codelineno-1-24">24</a></span>
+<span class="normal"><a href="#__codelineno-1-25">25</a></span>
+<span class="normal"><a href="#__codelineno-1-26">26</a></span>
+<span class="normal"><a href="#__codelineno-1-27">27</a></span>
+<span class="normal"><a href="#__codelineno-1-28">28</a></span>
+<span class="normal"><a href="#__codelineno-1-29">29</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">int64</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">bilinear_interp_vectorized</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">    </span><span class="sd">"""</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="sd">    This is the vectorized implementation of bilinear interpolation.</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="sd">    - a is a ND array with shape [N, H1, W1, C], dtype = int64</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="sd">    - b is a ND array with shape [N, H2, W2, 2], dtype = float64</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="sd">    - return a ND array with shape [N, H2, W2, C], dtype = int64</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="sd">    """</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11"></a>    <span class="n">N</span><span class="p">,</span> <span class="n">H1</span><span class="p">,</span> <span class="n">W1</span><span class="p">,</span> <span class="n">C</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12"></a>    <span class="n">N1</span><span class="p">,</span> <span class="n">H2</span><span class="p">,</span> <span class="n">W2</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">shape</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13"></a>    <span class="k">assert</span> <span class="n">N</span> <span class="o">==</span> <span class="n">N1</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14"></a>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15"></a>    <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">H2</span><span class="p">,</span><span class="n">W2</span><span class="p">,</span><span class="n">C</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">int64</span><span class="p">)</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16"></a>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17"></a>    <span class="n">x</span> <span class="o">=</span> <span class="n">b</span><span class="p">[:,:,:,</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18"></a>    <span class="n">y</span> <span class="o">=</span> <span class="n">b</span><span class="p">[:,:,:,</span><span class="mi">1</span><span class="p">]</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19"></a>    <span class="n">x_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">int64</span><span class="p">)</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20"></a>    <span class="n">y_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">int64</span><span class="p">)</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21"></a>    <span class="n">x_mul</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">x_idx</span><span class="p">)[:,:,:,</span><span class="kc">None</span><span class="p">]</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22"></a>    <span class="n">y_mul</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">y_idx</span><span class="p">)[:,:,:,</span><span class="kc">None</span><span class="p">]</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23"></a>    <span class="n">n_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)[:,</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24"></a>    <span class="n">res</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">n_idx</span><span class="p">,</span> <span class="n">x_idx</span><span class="p">,</span> <span class="n">y_idx</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x_mul</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y_mul</span><span class="p">)</span> <span class="o">+</span> \
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25"></a>             <span class="n">a</span><span class="p">[</span><span class="n">n_idx</span><span class="p">,</span> <span class="n">x_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y_idx</span><span class="p">]</span> <span class="o">*</span> <span class="n">x_mul</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y_mul</span><span class="p">)</span> <span class="o">+</span> \
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26"></a>             <span class="n">a</span><span class="p">[</span><span class="n">n_idx</span><span class="p">,</span> <span class="n">x_idx</span><span class="p">,</span> <span class="n">y_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x_mul</span><span class="p">)</span> <span class="o">*</span> <span class="n">y_mul</span> <span class="o">+</span> \
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27"></a>             <span class="n">a</span><span class="p">[</span><span class="n">n_idx</span><span class="p">,</span> <span class="n">x_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x_mul</span> <span class="o">*</span> <span class="n">y_mul</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28"></a>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29"></a>    <span class="k">return</span> <span class="n">res</span>
+</span></code></pre></div></td></tr></tbody></table></div>
+<h3 id="推荐阅读材料">推荐阅读材料<a class="headerlink" href="#推荐阅读材料" title="Permanent link">¶</a></h3>
+<ul>
+<li>关于双线性插值：<a href="https://en.wikipedia.org/wiki/Bilinear_interpolation">https://en.wikipedia.org/wiki/Bilinear_interpolation</a></li>
+<li>NumPy 文档：<a href="https://numpy.org/doc/stable/">https://numpy.org/doc/stable/</a></li>
+<li>一篇不错的入门教程：<a href="https://medium.com/better-programming/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d">https://medium.com/better-programming/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d</a></li>
+<li>一篇稍微硬核一点的教程：<a href="https://www.labri.fr/perso/nrougier/from-python-to-numpy/">https://www.labri.fr/perso/nrougier/from-python-to-numpy/</a></li>
+<li>更多练习：<a href="https://github.com/rougier/numpy-100">https://github.com/rougier/numpy-100</a></li>
+</ul>
+<h2 id="知识讲解x86-64-simd-优化">知识讲解：x86-64 SIMD 优化<a class="headerlink" href="#知识讲解x86-64-simd-优化" title="Permanent link">¶</a></h2>
+<h3 id="avx-向量指令扩展">AVX 向量指令扩展<a class="headerlink" href="#avx-向量指令扩展" title="Permanent link">¶</a></h3>
+<p>现代处理器一般都支持向量化指令，x86 架构下 Intel 和 AMD 两家的处理器都提供了诸如 SSE，AVX 等 SIMD 指令集，一条指令可以同时操作多个数据进行运算，大大提高了现代处理器的数据吞吐量。</p>
+<p>现代编译器在高优化等级下，具有自动向量化的功能，对于结构清晰，循环边界清晰的程序，编译器的自动向量化已经可以达到很优秀的程度了。然而，编译器的优化始终是保守的，很多情况下编译器无法完成使用 SIMD 指令进行向量化的工作，为了追求性能，高性能计算领域经常需要手写 SIMD 代码进行代码优化。</p>
+<p>显然直接手写汇编指令过于困难，在 C 语言环境下，Intel 提供了一整套关于 SIMD 指令的函数封装接口和指令相关行为的参照手册，可以在实验文档的参考资料中找到。</p>
+<p>使用这些函数 API 需要 include 对应的头文件，不同 SIMD 指令集需要的头文件不同，具体需要参考 Intel 相关文档。</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;smmintrin.h&gt;</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;emmintrin.h&gt;</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;immintrin.h&gt;</span>
+</span></code></pre></div>
+<p>另外深入到这个级别的优化已经开始需要考虑具体处理器的体系结构细节了，如某个架构下某条指令的实现延时和吞吐量是多少，处理器提供了多少向量寄存器，访存的对齐等等。这种时候编译器具体产生的汇编代码能比 C 语言代码提供更多的信息，你能了解到自己使用了多少寄存器，编译器是否生成了预期外的代码等等。</p>
+<h3 id="avx-512">AVX-512<a class="headerlink" href="#avx-512" title="Permanent link">¶</a></h3>
+<p><a href="https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html">AVX-512</a> (Advanced Vector Extensions 512-bit) 是 x86 架构中目前的 SIMD 指令集，通过 512 位宽寄存器和增强指令集为高性能计算提供突破性加速。在矩阵乘法等线性代数运算中，能发挥巨大作用：</p>
+<ul>
+<li><strong>并行计算优势</strong>：AVX 的 512 位寄存器能单周期处理 16 个 32 位浮点数（FP32），相比标量运算提升 16 倍吞吐量</li>
+<li><strong>内存访问优化</strong>：<code>vmovaps</code> 等指令支持对齐内存加载，减少数据搬运开销</li>
+<li><strong>融合运算能力</strong>：<code>vfmadd</code> 等融合乘加指令在单周期完成乘法和累加操作</li>
+</ul>
+<p>可以来看一下 SIMD 指令集的演进：</p>
+<table>
+<thead>
+<tr>
+<th>指令集</th>
+<th>推出年份</th>
+<th>寄存器宽度</th>
+<th>寄存器数量</th>
+<th>峰值吞吐增益（FP32）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MMX</td>
+<td>1996</td>
+<td>64-bit</td>
+<td>8</td>
+<td>2x (INT8)</td>
+</tr>
+<tr>
+<td>SSE</td>
+<td>1999</td>
+<td>128-bit</td>
+<td>8</td>
+<td>4x (FP32)</td>
+</tr>
+<tr>
+<td>AVX/AVX2</td>
+<td>2011/2013</td>
+<td>256-bit</td>
+<td>16</td>
+<td>8x (FP32)</td>
+</tr>
+<tr>
+<td>AVX-512</td>
+<td>2016</td>
+<td>512-bit</td>
+<td>32</td>
+<td>16x (FP32)</td>
+</tr>
+<tr>
+<td>AMX</td>
+<td>2021</td>
+<td>1024-bit</td>
+<td>8 (TILE)</td>
+<td>专用矩阵加速</td>
+</tr>
+</tbody>
+</table>
+<p>AVX-512 VNNI (Vector Neural Network Instructions) 专为卷积神经网络设计，提供了整数与低精度浮点数的运算加速指令。在本次实验中，我们对 8-bit 相乘、32-bit 累加的操作，除了使用传统的数据类型转换指令，还可以借助 AVX-512 VNNI 指令直接一步到位，减少操作次数。</p>
+<h3 id="amx-高级矩阵扩展">AMX 高级矩阵扩展<a class="headerlink" href="#amx-高级矩阵扩展" title="Permanent link">¶</a></h3>
+<p>AMX 是 Intel 推出的一种高级矩阵扩展，它能操纵 1024 Byte 的寄存器（称为 1 个 Tile）进行乘加运算。根据实际操作，它比 AVX-512 在运算速度上有着巨大的提升。显然，根据位宽，它的吞吐量比 AVX-512 大了 16 倍，但是它需要 16 个时钟周期才能结束一次运算，那么它究竟快在哪里呢？答案是访存提升了，使用 AMX 能够更大程度的复用寄存器，这样就省去了大量的 load 和 store 开销；不仅如此它的运算单元独立于其他运算，所以可以异步处理，将延迟隐藏在其他的任务中。不过 AMX 的运算只能以 8 位和 16 位为单位，运算单元的精度较低，所以广泛地应用于大语言模型、深度学习等领域。</p>
+<h4 id="硬件结构">硬件结构<a class="headerlink" href="#硬件结构" title="Permanent link">¶</a></h4>
+<p>AMX 的硬件结构由两大部分组成：Tile 和 Accelerator。</p>
+<ul>
+<li>Tile 是存储数据的 tmm 寄存器，每个 1024 Byte (1KB) 大小，目前共有 8 个（不过从官方文档的更新来看，最新的芯片应该支持 16 个 Tile 了）</li>
+<li>Accelerator 是对这些数据进行的运算，目前只有一个 TMUL，用来实现 <span class="arithmatex">\(C[M][N] += A[M][K] * B[K][N]\)</span>。</li>
+</ul>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/amx_structure.webp" data-desc-position="bottom"><img alt="AMX_STRUCTURE" src="image/amx_structure.webp"></a></p>
+<h4 id="tile-config-配置">Tile Config 配置<a class="headerlink" href="#tile-config-配置" title="Permanent link">¶</a></h4>
+<p>AMX 运算由 Tile Config (TILECFG) 来控制，它的格式如下：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>format of memory payload. each field is a byte.
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>0: palette_id
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>1: startRow (8b)
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>2-15: reserved (must be zero)
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>16-17: tile0.colsb -- bytes_per_row
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>18-19: tile1.colsb
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>20-21: tile2.colsb
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>...
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>46-47: tile15.colsb
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>48: tile0.rows
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>49: tile1.rows
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>50: tile2.rows
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>...
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>63: tile15.rows
+</span></code></pre></div>
+<h4 id="amx-矩阵乘法详解">AMX 矩阵乘法详解<a class="headerlink" href="#amx-矩阵乘法详解" title="Permanent link">¶</a></h4>
+<p>AMX 的 TMUL 复用了 16 个 AVX VNNI 计算单元，在 1 Cycle 进行 16 次 AVX-512 VNNI 运算，16 Cycle 得出 Tile 乘积。</p>
+<p>这里给出 TMUL 计算的图示：</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/amx_vnni.webp" data-desc-position="bottom"><img alt="VNNI" src="image/amx_vnni.webp"></a></p>
+<p>这里的 <span class="arithmatex">\(A_{ij}\)</span> 和 <span class="arithmatex">\(B_{ij}\)</span> 是 32-bit 的，这点很重要，后面实际进行计算的单位是 16-bit 或者 8-bit，我们以 16-bit 作为例子，则需要 2 个元素和作为一个单元参与计算。把这 2 个元素代入上面的图示，你会发现这个 AVX VNNI 计算单元实际上和普通的矩阵乘法的行乘列是不一样的：普通矩阵乘法的 B 矩阵应该是 (K <em>2)</em> N 这个形状的，而 TMUL 所使用的 B 矩阵的形状是 K <em>(N</em> 2)。所以为了使用 AMX 的乘加运算，我们需要对 B 矩阵进行重排（reshape）。</p>
+<p>我们先从图的角度来理解一下这个重排（里面每一个方块表示一个 16 -bit 的元素）：</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/reshape.webp" data-desc-position="bottom"><img alt="reshape" src="image/reshape.webp"></a></p>
+<p>聪明的你一定发现了，这其实就是把 B 矩阵以 32-bit 为单位进行转置。这部分代码因为对新手比较不友好所以我在 <code>reshape.cpp</code> 里直接给出了两种实现方法，你可以挑选其中一种进行阅读，之后在报告中回答相应问题。</p>
+<p>在进行了重排之后，就可以使用 AMX 指令进行矩阵运算了，这一部分的代码就像填空题一样，在课上我们讲过了一个非常公式的方法，你需要在这里进行使用。因此，这里就给出一个比较简单的流程（如果你不熟悉的话，请去官方文档那里看伪代码）：</p>
+<ol>
+<li>确定 A，B，C 矩阵以及他们的形状和类型（这一步应当发生在重排之前）</li>
+<li>根据形状配置 TILECFG（实验已经进行了 16 个元素的对齐，确保能够铺满）</li>
+<li>使用 <code>__tile_loadd</code> 把 A，B 矩阵 load 到 Tile，同时使用 <code>__tile_zero</code> 初始化 C 矩阵对应的 Tile。</li>
+<li>根据 A，B 矩阵的类型选择对应的运算指令进行计算，结果累加到结果 Tile 里。</li>
+<li>使用 <code>__tile_stored</code> 把结果存入 C 矩阵。</li>
+</ol>
+<p>提供的代码 tile.h 中提供了 <code>init_tile_config</code> 函数来对 Tile 进行操纵。</p>
+<h2 id="任务一使用-avx-指令集实现整数矩阵乘法">任务一：使用 AVX 指令集实现整数矩阵乘法<a class="headerlink" href="#任务一使用-avx-指令集实现整数矩阵乘法" title="Permanent link">¶</a></h2>
+<h3 id="背景与任务">背景与任务<a class="headerlink" href="#背景与任务" title="Permanent link">¶</a></h3>
+<p>矩阵乘法是 Attention 机制的核心操作，在现代的深度学习模型，尤其是 LLM 中，矩阵乘法占据了计算量的绝大部分。为了加速 LLM 推理，学界提出了各种优化方法，而「量化」就是其中之一。通过量化，虽然牺牲模型权重的精度，但能提高内存带宽的利用效率，减少权重的内存占用。与科学计算领域的矩阵乘法不同，本次实验，我们考虑低精度 8-bit 整数的矩阵乘法。</p>
+<p>任务一要求使用 AVX-512 Intrinsic 实现一个基础矩阵乘法，也就是 <code>C = A * B</code> 的形式，其中 A 的形状是 <code>M * (K * 4)</code>，B 的形状是 <code>N * (K * 4)</code>.</p>
+<p>里面的元素都是 8-bit 的值，然后通过点积得到的 C 矩阵的形状是 <code>M * N</code>，其中的元素是 32-bit 的值。在本次实验里，我们为了让内存访问更加的友好，可以认为对 B 矩阵预先做了转置操作，因此最终的矩阵乘法变成了行乘行的形式，在理解基准代码时需要注意。</p>
+<p><strong>本次实验任务的代码框架在文档仓库的 <code>src/lab2/vector/</code> 目录下。</strong></p>
+<div class="admonition danger">
+<p class="admonition-title">修改范围限制</p>
+<p><strong>只允许</strong>在 <code>start</code> 和 <code>end</code> 围出来的区域里添加代码。根据是否选择做 bonus（AMX 的矩阵乘法）选择对应的代码区域进行填写。</p>
+</div>
+<h3 id="基准代码讲解">基准代码讲解<a class="headerlink" href="#基准代码讲解" title="Permanent link">¶</a></h3>
+<p>Baseline 用了 3 重 <code>for</code> 循环来暴力计算矩阵乘，这也是最常见的写法，其中传进来的参数就是我们上面定义的形状中的 M，N，K。</p>
+<p>同学们的任务是使用 AVX-512 Intrinsic 编写和 <code>naive_gemm</code> 功能相同的矩阵乘法，并实现一定的加速。</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
+<span class="normal"><a href="#__codelineno-4-2">2</a></span>
+<span class="normal"><a href="#__codelineno-4-3">3</a></span>
+<span class="normal"><a href="#__codelineno-4-4">4</a></span>
+<span class="normal"><a href="#__codelineno-4-5">5</a></span>
+<span class="normal"><a href="#__codelineno-4-6">6</a></span>
+<span class="normal"><a href="#__codelineno-4-7">7</a></span>
+<span class="normal"><a href="#__codelineno-4-8">8</a></span>
+<span class="normal"><a href="#__codelineno-4-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">naive_gemm</span><span class="p">(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">int8_t</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="n">kk</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">                </span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">kk</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">j</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">kk</span><span class="p">];</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></tbody></table></div>
+<div class="admonition tip">
+<p class="admonition-title">优化提示</p>
+<p>在优化的代码中，我们首先使用 reshape 函数对 B 矩阵数据进行了 32-bit 级别的转置，转置之后的乘法操作可以参考下面的代码进行理解，在此基础上进行向量优化:</p>
+<div class="language-cpp highlight"><table class="highlighttable"><tbody><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-5-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-5-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-5-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-5-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-5-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-5-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-5-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-5-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-5-10">10</a></span>
+<span class="normal"><a href="#__codelineno-5-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="c1">// start</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">M</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">K</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">                </span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">K</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">B_reshape</span><span class="p">[</span><span class="n">k</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n</span><span class="p">];</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10"></a><span class="p">}</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11"></a><span class="c1">// end</span>
+</span></code></pre></div></td></tr></tbody></table></div>
+</div>
+<h2 id="bonus-使用-amx-指令集">Bonus: 使用 AMX 指令集<a class="headerlink" href="#bonus-使用-amx-指令集" title="Permanent link">¶</a></h2>
+<p>请学习 <a href="#amx-矩阵乘法详解">AMX 矩阵乘法详解</a> 部分，使用 AMX 指令扩展中的 tile 操作，替换上面的 AVX 优化代码。</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>仅 M700 和 M701 节点支持 AMX 指令集，请确保在这些型号的设备上运行相关代码。</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">优化提示</p>
+<p>对于 AMX 的具体操作，可以参考课上提供的代码示例。
+</p><div class="textbox" title="你知道得太多了">
+    <span class="overlay-text">在某种程度上，可以直接套用示例代码，毕竟 AMX 操作长得都一样 (x</span>
+    <div class="overlay"></div>
+</div>
+<style>
+.textbox {
+    position: relative;
+    display: inline-block;
+    color: black;
+    cursor: default;
+}
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    transition: opacity 0.1s ease;
+    pointer-events: none;
+}
+.textbox:hover .overlay {
+    opacity: 0;
+}
+</style><p></p>
+</div>
+<h2 id="思考题">思考题<a class="headerlink" href="#思考题" title="Permanent link">¶</a></h2>
+<ol>
+<li>在本地环境安装 Python 和 <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a> 或 <a href="https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html">MicroMamba</a> 等环境管理工具，在激活环境后，使用 <code>python main.py</code> 运行提供的双线性插值向量化版本的例子，这个代码可以在仓库下载，在报告里回答以下问题（该问代码于文件 vectorized.py）：<ul>
+<li>代码第 21 行 - 第 23 行中的 None 起到什么作用？可以删掉吗，请说明理由？</li>
+<li>代码第 24 行中 <code>a[n_idx, x_idx, y_idx]</code> 的 shape 是什么？这些 idx 在这里是怎么作用的？</li>
+<li>代码第 24 行中的向量乘法中这三个向量的维度相同吗？如果不同的话，是怎么广播的？</li>
+</ul>
+</li>
+<li>品味 <code>reshape.cpp</code> 的的任意一个矩阵转置算法，把函数里面出现的每一个指令的功能说明（用文字的形式，说明指令的输入输出参数含义以及指令含义），指令的寻找需要参考 <a href="https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html">Intel® Intrinsics Guide</a>，把结果体现在报告里。</li>
+</ol>
+<h2 id="实验任务与要求">实验任务与要求<a class="headerlink" href="#实验任务与要求" title="Permanent link">¶</a></h2>
+<ol>
+<li>完善 main.cpp，完成里面 AVX-512 方法的编写</li>
+<li>Bonus: 使用 AMX 实现</li>
+<li>学在浙大的文件提交<ol>
+<li>代码</li>
+<li>简单实验报告，包含<ol>
+<li>思路</li>
+<li>正确性、加速比和运行时间</li>
+<li>OJ 运行结果 (可选)</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="自动化测试">自动化测试<a class="headerlink" href="#自动化测试" title="Permanent link">¶</a></h2>
+<div class="admonition info">
+<p class="admonition-title">OJ 说明</p>
+<p>同学们除了自己在集群上手动测试加速比之外，还可以使用 OJ 提交优化代码 (和同学们一起打榜 ac01)</p>
+<p>OJ 使用方法请阅读: <a href="../../guide/oj/">使用在线测评</a></p>
+</div>
+<p>使用 scp 等将 <code>main.cpp, reshape.cpp, config.yaml</code> 上传到 OJ 的 lab2 文件夹，然后就可以进行提交。</p>
+<p>注意，<code>tile.h</code> 不允许更改，在 OJ 测评时会被覆盖成原版文件，如果你修改了 <code>tile.h</code> 进行了优化，请把优化的过程体现在实验报告中。</p>
+<p>举例：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>scp<span class="w"> </span>./src/reshape.cpp<span class="w">  </span>&lt;username&gt;+oj@clusters.zju.edu.cn:lab2/src/reshape.cpp
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>scp<span class="w"> </span>./main.cpp<span class="w">  </span>&lt;username&gt;+oj@clusters.zju.edu.cn:lab2/main.cpp
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>scp<span class="w"> </span>./config.yaml<span class="w">  </span>&lt;username&gt;+oj@clusters.zju.edu.cn:lab2/config.yaml
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>ssh<span class="w"> </span>&lt;username&gt;+oj@clusters.zju.edu.cn<span class="w"> </span>submit<span class="w"> </span>lab2
+</span></code></pre></div>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 23, 2025 01:23:30 UTC">July 23, 2025</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"></path></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 1, 2025 06:48:28 UTC">July 1, 2025</span>
+  </span>
+
+    
+    
+    
+      
+  <span class="md-source-file__fact">
+    
+      
+  <span class="md-icon" title="Contributors">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"></path></svg>
+  </span>
+  <span>GitHub</span>
+
+    
+    <nav>
+      
+        <a href="https://github.com/bowling233" class="md-author" title="@bowling233">
+          
+          <img src="https://avatars.githubusercontent.com/u/35755846?v=4&amp;size=72" alt="bowling233">
+        </a>
+      
+        <a href="https://github.com/5dbwat4" class="md-author" title="@5dbwat4">
+          
+          <img src="https://avatars.githubusercontent.com/u/94700906?v=4&amp;size=72" alt="5dbwat4">
+        </a>
+      
+        <a href="https://github.com/web-flow" class="md-author" title="@web-flow">
+          
+          <img src="https://avatars.githubusercontent.com/u/19864447?v=4&amp;size=72" alt="web-flow">
+        </a>
+      
+        <a href="https://github.com/kenqia" class="md-author" title="@kenqia">
+          
+          <img src="https://avatars.githubusercontent.com/u/194827551?v=4&amp;size=72" alt="kenqia">
+        </a>
+      
+      
+      
+        
+          <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab2-Vectorization/index.md" class="md-author md-author--more">
+            +4
+          </a>
+        
+      
+    </nav>
+  </span>
+
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+          
+          <a href="../Lab1-MiniCluster/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lab 1: 简单集群搭建">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Lab 1: 简单集群搭建
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../Lab2.5-RISC-V/" class="md-footer__link md-footer__link--next" aria-label="Next: Lab 2.5: 向量化进阶 (RISC-V)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Lab 2.5: 向量化进阶 (RISC-V)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "content.code.select", "content.code.annotate", "navigation.footer", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.tracking", "navigation.path", "navigation.top", "toc.follow", "content.action.edit", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>

@@ -1,0 +1,2596 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab4-Solver-Challenge/">
+      
+      
+        <link rel="prev" href="../Lab3-CudaConv/">
+      
+      
+        <link rel="next" href="../Lab5-TinyLLM/">
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>Lab 4: Solver Challenge - HPC101 (2025)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#实验四solver-challenge" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101 (2025)" class="md-header__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101 (2025)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Lab 4: Solver Challenge
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo" aria-label="切换至浅色模式" type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="zjusct" data-md-color-primary="indigo" data-md-color-accent="indigo" aria-label="切换至深色模式" type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo" aria-label="根据系统模式切换主题" type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../slides/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  课程幻灯片
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101 (2025)" class="md-nav__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    HPC101 (2025)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1">
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程信息
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            课程信息
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    欢迎来到 HPC 101 超算短学期
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_2">
+        
+          
+          <label class="md-nav__link" for="__nav_1_2" id="__nav_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    使用集群
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            使用集群
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/env/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    软件环境
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    登陆节点
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    提交作业
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    使用在线测评
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    集群概况
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程实验
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            课程实验
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 0: Linux 快速入门
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 1: 简单集群搭建
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 2: 向量化计算
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2.5-RISC-V/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 2.5: 向量化进阶 (RISC-V)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab3-CudaConv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 3: CUDA 卷积
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Lab 4: Solver Challenge
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 4: Solver Challenge
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验简介
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验简介">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#背景介绍" class="md-nav__link">
+    <span class="md-ellipsis">
+      背景介绍
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解-bicgstab" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解: BiCGSTAB
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解: BiCGSTAB">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#算法原理" class="md-nav__link">
+    <span class="md-ellipsis">
+      算法原理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#预条件处理" class="md-nav__link">
+    <span class="md-ellipsis">
+      预条件处理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#算法流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      算法流程
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解-优化思路" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解: 优化思路
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解: 优化思路">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#profile-性能分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      Profile 性能分析
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Profile 性能分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vtune-profiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      VTune Profiler
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itac" class="md-nav__link">
+    <span class="md-ellipsis">
+      ITAC
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#编译优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      编译优化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#访存优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      访存优化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simd-数据级并行" class="md-nav__link">
+    <span class="md-ellipsis">
+      SIMD 数据级并行
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openmp-线程级并行" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenMP 线程级并行
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mpi-进程级并行" class="md-nav__link">
+    <span class="md-ellipsis">
+      MPI 进程级并行
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MPI 进程级并行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mpi-编程" class="md-nav__link">
+    <span class="md-ellipsis">
+      MPI 编程
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mpi-调优" class="md-nav__link">
+    <span class="md-ellipsis">
+      MPI 调优
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务和要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务和要求
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务和要求">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验环境" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验环境
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验要求
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#常见问题" class="md-nav__link">
+    <span class="md-ellipsis">
+      常见问题
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bonus-任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bonus 任务
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oj-使用说明" class="md-nav__link">
+    <span class="md-ellipsis">
+      OJ 使用说明
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#推荐阅读资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      推荐阅读资料
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="推荐阅读资料">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#profiler-的使用" class="md-nav__link">
+    <span class="md-ellipsis">
+      Profiler 的使用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fortran-代码编写" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fortran 代码编写
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab5-TinyLLM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 5: TinyLLM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Final-Project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Final Project - 大作业
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../slides/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    课程幻灯片
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验简介
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验简介">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#背景介绍" class="md-nav__link">
+    <span class="md-ellipsis">
+      背景介绍
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解-bicgstab" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解: BiCGSTAB
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解: BiCGSTAB">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#算法原理" class="md-nav__link">
+    <span class="md-ellipsis">
+      算法原理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#预条件处理" class="md-nav__link">
+    <span class="md-ellipsis">
+      预条件处理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#算法流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      算法流程
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解-优化思路" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解: 优化思路
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解: 优化思路">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#profile-性能分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      Profile 性能分析
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Profile 性能分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vtune-profiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      VTune Profiler
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#itac" class="md-nav__link">
+    <span class="md-ellipsis">
+      ITAC
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#编译优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      编译优化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#访存优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      访存优化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simd-数据级并行" class="md-nav__link">
+    <span class="md-ellipsis">
+      SIMD 数据级并行
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openmp-线程级并行" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenMP 线程级并行
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mpi-进程级并行" class="md-nav__link">
+    <span class="md-ellipsis">
+      MPI 进程级并行
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MPI 进程级并行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mpi-编程" class="md-nav__link">
+    <span class="md-ellipsis">
+      MPI 编程
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mpi-调优" class="md-nav__link">
+    <span class="md-ellipsis">
+      MPI 调优
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务和要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务和要求
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务和要求">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验环境" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验环境
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验要求
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#常见问题" class="md-nav__link">
+    <span class="md-ellipsis">
+      常见问题
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bonus-任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bonus 任务
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oj-使用说明" class="md-nav__link">
+    <span class="md-ellipsis">
+      OJ 使用说明
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#推荐阅读资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      推荐阅读资料
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="推荐阅读资料">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#profiler-的使用" class="md-nav__link">
+    <span class="md-ellipsis">
+      Profiler 的使用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fortran-代码编写" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fortran 代码编写
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab4-Solver-Challenge/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
+    </a>
+  
+  
+
+
+<h1 id="实验四solver-challenge">实验四：Solver Challenge<a class="headerlink" href="#实验四solver-challenge" title="Permanent link">¶</a></h1>
+<div class="admonition info">
+<p class="admonition-title">实验信息</p>
+<p>负责助教：李晨潇 (<a href="https://github.com/YooLc">@YooLc</a>), 黄钰(<a href="https://github.com/514InParadox">@514InParadox</a>), 周俊康(<a href="https://github.com/lxazjk">@cryin</a>)</p>
+</div>
+<h2 id="实验简介">实验简介<a class="headerlink" href="#实验简介" title="Permanent link">¶</a></h2>
+<h3 id="背景介绍">背景介绍<a class="headerlink" href="#背景介绍" title="Permanent link">¶</a></h3>
+<p>在科学计算领域，求解线性方程组是非常重要的课题。使用计算机来求解线性方程组，主要有如下的两种思路：</p>
+<ul>
+<li>
+<p><strong>直接法</strong>：直接法通过一步一步地消去未知数，最终得到方程组的精确解。</p>
+<p>我们在「线性代数」课程中学习过的<strong>高斯消元法</strong>，以及「数值分析」课程中会介绍的 <strong>LU 分解法</strong>，均属于直接法。虽然直接法能够给出精确解，但在处理较大的矩阵时，既会消耗大量的内存和算力，还难以并行化。</p>
+</li>
+<li>
+<p><strong>迭代法</strong>：与直接法不同的是，迭代法试图从一个初始解开始，通过不断迭代解的估计值，来逐步逼近方程组的解。</p>
+<p>「数值分析」课程会介绍比较基础的 <strong>Gauss-Seidel 迭代法</strong>和 <strong>Jacobi 迭代法</strong>。与直接法相比，迭代法在处理大规模稀疏矩阵时更为高效。它的计算量通常较小，且容易并行化。迭代法的解不是精确的，但它通常能够在较短时间内找到一个足够接近的近似解，这使得它在科学计算中非常实用，尤其是在需要快速处理大规模问题时。</p>
+</li>
+</ul>
+<p>在结构力学、复杂流动、生物医疗、集成电路等领域的实际应用中，经常需要<strong>求解大规模的稀疏线性方程组</strong>。在这些应用场景中，迭代法可能是更为合适的求解方法。</p>
+<div class="admonition info">
+<p class="admonition-title">矩阵的稀疏性</p>
+<p>稀疏矩阵（Sparse Matrix）是指矩阵中大部分元素为零的矩阵，如下图所示 (有颜色的部分表示非零元素)：</p>
+<p></p><div align="center">
+  <a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/sparse-matrix-serena.webp" data-desc-position="bottom"><img src="image/sparse-matrix-serena.webp" alt="Sparse Matrix Example" style="zoom:20%;"></a>
+  <a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/sparse-netz-4504.webp" data-desc-position="bottom"><img src="image/sparse-netz-4504.webp" alt="Sparse Matrix Example" style="zoom:20%;"></a>
+</div><p></p>
+<p>在科学计算领域中，许多问题的求解涉及稀疏的线性方程组，其系数矩阵为稀疏矩阵。<a href="https://sparse.tamu.edu/">SuiteSparse Matrix Collection</a> 收集了将近 3000 个来自各个领域的稀疏线性方程组数据，你可以点击查看每个矩阵所属的学术类别。</p>
+</div>
+<p>本次实验中，我们将会对一种求解线性方程组的迭代算法进行优化，它的名字是 <strong>BiCGSTAB</strong>.</p>
+<p><a href="https://en.wikipedia.org/wiki/Biconjugate_gradient_stabilized_method"><strong>BiCGSTAB</strong></a> (<strong>Biconjugate Gradient Stabilized Method</strong>, 稳定双共轭梯度法) 是一种迭代求解非对称线性系统的方法。它是 <a href="https://en.wikipedia.org/wiki/Biconjugate_gradient_method"><strong>BiCG</strong></a> (<strong>Biconjugate Gradient Method</strong>, 双共轭梯度法) 的变种，有着更快速平缓的收敛表现。在接下来的「知识讲解」部分我们会对该算法进行更详细的介绍。</p>
+<p>在本次实验中，我们会提供串行且未作任何优化的 BiCGSTAB 算法的实现，而各位同学将会利用包括 <strong>OpenMP 线程级并行和 MPI 进程级并行</strong>在内的优化技术，加速该算法的求解过程，挑战机器运算性能的极限。这也是除了大作业之外，同学们遇到的第一个需要进行多机并行优化的实验。</p>
+<details class="- info">
+<summary>本次实验中对问题的简化</summary>
+<p>出于实验难度的考量，我们对上面的场景进行了一定的简化，采用<strong>稠密的</strong>、<strong>随机生成的</strong>矩阵数据，来方便大家进行优化。</p>
+<ul>
+<li>
+<p>稀疏与稠密:</p>
+<p>稀疏矩阵中大部分的元素为 0 元素，因此如果依旧按照常规矩阵的存储方式来存储，会浪费大量的内存空间。因此在编程实现中，稀疏矩阵往往采用 CSR (Compressed Sparse Row) 格式来存储，其存储结构如下图所示：</p>
+<p></p><div align="center">
+<a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/csr.webp" data-desc-position="bottom"><img src="image/csr.webp" alt="Hunter, K., Spracklen, L., &amp; Ahmad, S. (2022). Two sparsities are better than one: unlocking the performance benefits of sparse–sparse networks. Neuromorphic Computing and Engineering, 2(3), 034004." style="zoom:60%;"></a>
+<a href="https://arxiv.org/abs/2112.13896">图源</a>
+</div><p></p>
+<p>这样一来，算法中最核心的 GEMV (矩阵乘向量) 会转化成 SpMV (稀疏矩阵乘向量)，如果直接采用 CSR 格式，对访存不是特别友好。如果想要优化访存，需要考虑重新设计数据排列方式，而这不是本次实验主要考察的内容。</p>
+</li>
+<li>
+<p>真实数据与随机数据:</p>
+<p><code>BiCGSTAB</code> 算法通常用于求解大规模的稀疏矩阵，但由于求解大规模稀疏矩阵涉及到矩阵的结构分析、性质分析等问题，这一点可以通过刚刚结束的 <a href="https://www.solver-conference.cn/solverchallenge25/index.html">SolverChallenge 25</a> (第五届线性解法器算法与性能优化竞赛) 赛题来感受。如果使用本次实验中比较简单的预条件处理和原始的 BiCGSTAB 算法，在真实矩阵数据上可能会出现无法收敛、数值不稳定等情况。</p>
+<p>为了减少大家优化过程中遇到的与数值计算相关的困难，本次实验将选择随机生成的、性质较好的矩阵数据进行求解，可以顺利地使用 BiCGSTAB 算法进行求解。</p>
+</li>
+</ul>
+</details>
+<h2 id="知识讲解-bicgstab">知识讲解: BiCGSTAB<a class="headerlink" href="#知识讲解-bicgstab" title="Permanent link">¶</a></h2>
+<h3 id="算法原理">算法原理<a class="headerlink" href="#算法原理" title="Permanent link">¶</a></h3>
+<div class="admonition danger">
+<p class="admonition-title">前方高能预警</p>
+<p>对于我们这样非专业背景的同学，BiCGSTAB 算法的原理可能非常难以理解💥。但是，请坐和放宽 😇，在不理解原理的情况下，我们完全可以通过分析代码来找到可以优化的地方。不过，简单了解算法的原理，会对你调试在优化时出现的数值运算的错误 (<strong>比如残差不下降，或出现了 <code>NaN</code></strong>) 有所帮助。</p>
+<p>为感兴趣的同学，我们准备了下面的算法推导，帮助你更好地理解 BiCGSTAB 算法的原理。<strong>原理为选读内容，对完成实验影响不大</strong>。</p>
+<details class="info" open="open">
+<summary>说明</summary>
+<p>推导部分由助教 <a href="https://github.com/514InParadox">@514InParadox</a> 完成。</p>
+<p>此处提供的相关数学内容可能不够专业。如果你发现其中不合理的地方，欢迎联系助教。</p>
+<p>本内容参考了<a href="https://github.com/wangheyu/Optimization/blob/master/lecture_notes/Conjugate_Gradient_Methods.md">王何宇老师的课件</a>，进一步的严格证明请阅读这份资料。</p>
+</details>
+</div>
+<details class="-">
+<summary>CG</summary>
+<p>如何通过迭代的方式求解线性方程组呢？我们可以把它看作一个优化问题，假设我们要求解 <span class="arithmatex">\(\mathbf{x}\)</span>，使得:</p>
+<div class="arithmatex">\[
+\mathbf{Ax}=\mathbf{b}
+\]</div>
+<p>对于向量 <span class="arithmatex">\(\mathbf{x}\)</span>，其中已知 <span class="arithmatex">\(n\times n\)</span> 矩阵 <span class="arithmatex">\(\mathbf{A}\)</span> 是对称（即 <span class="arithmatex">\(\mathbf{A}^T=\mathbf{A}\)</span>），正定（即 <span class="arithmatex">\(\mathbf{x}^T\mathbf{Ax}&gt;0\)</span>，对于所有非零向量 <span class="arithmatex">\(\mathbf{x}\in \mathbf{R}^n\)</span>），且为实数，而且 <span class="arithmatex">\(\mathbf{b}\)</span> 已知。首先尝试转化，这个问题等价于优化问题：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\min \phi(\mathbf{x}) &amp;\overset{\mathrm{def}}=\frac12 \mathbf{x}^T\mathbf{Ax}-\mathbf{b}^T\mathbf{x} \\
+\frac{\mathrm{d} \phi}{\mathrm{d}\mathbf{x}}&amp;=\mathbf{Ax}-\mathbf{b}
+\end{aligned}
+\]</div>
+<p>也就是说，<span class="arithmatex">\(\phi\)</span> 函数的极值点对应的 <span class="arithmatex">\(\mathbf{x}\)</span> 就是原方程的解。对于优化问题，我们就可以引入一类很强力的方法：迭代法。我们耳熟能详的<strong>梯度下降法</strong>便是迭代法大家族中的一员。在迭代法的语境下，我们记 <span class="arithmatex">\(\mathbf{x}_k\)</span> 为第 <span class="arithmatex">\(k\)</span> 次迭代得到的解 <span class="arithmatex">\(\mathbf{x}\)</span>，<span class="arithmatex">\(\mathbf{r}_k=\mathbf{A}\mathbf{x}_k - \mathbf{b}\)</span> 为残差。</p>
+<p>对于 <span class="arithmatex">\(\mathbf{A}\)</span> 的对称正定良好性质，存在更加优异的算法。让我们引入向量组共轭的概念：向量组 <span class="arithmatex">\(\{\mathbf{p}_0, \mathbf{p}_1, \cdots, \mathbf{p}_{n-1}\}\)</span> 被称为是关于 <span class="arithmatex">\(n\)</span> 阶对称正定矩阵 <span class="arithmatex">\(\mathbf{A}\)</span> 共轭的，若</p>
+<div class="arithmatex">\[
+\mathbf{p}_i^T\mathbf{A}\mathbf{p}_j = 0, \forall i \neq j.
+\]</div>
+<p>我们有共轭向量组是线性无关向量组，故至多包含 <span class="arithmatex">\(n\)</span> 个向量。当我们有共轭向量组后，依次沿各个向量对 <span class="arithmatex">\(\phi\)</span> 的最小值做精确探索：</p>
+<div class="arithmatex">\[
+\begin{align}
+\mathbf{x}_{k+1} &amp;= \mathbf{x}_k+\alpha_k\mathbf{p}_k \\
+\alpha_k &amp;= -\frac{\mathbf{r}_k^T\mathbf{p}_k}{\mathbf{p}_k^T\mathbf{A}\mathbf{p}_k}
+\end{align}
+\]</div>
+<p>则不论初值如何取，第 <span class="arithmatex">\(n\)</span> 步的结果 <span class="arithmatex">\(\mathbf{x}_n\)</span> 就是全局最优解 <span class="arithmatex">\(\mathbf{x}^*\)</span>。这便是 <strong>共轭方向法(Conjugate Direction Methods, CD)</strong>。</p>
+<p>但是，一般来说我们不会再最开始就求出矩阵 <span class="arithmatex">\(\mathbf{A}\)</span> 的一个共轭向量组。而这便引入了 CG 算法。其关键是在已知 <span class="arithmatex">\(\mathbf{p}_0, \mathbf{p}_1, \cdots, \mathbf{p}_{k - 1}\)</span> 的基础上构建 <span class="arithmatex">\(\mathbf{p}_k\)</span>。并且，我们只需要利用 <span class="arithmatex">\(\mathbf{p}_{k - 1}\)</span> 和 <span class="arithmatex">\(\mathbf{r}_k\)</span> 就够了。更早的方向并不需要用到，因为 <span class="arithmatex">\(\mathbf{r}_k\)</span> 的性质，<span class="arithmatex">\(\mathbf{p}_k\)</span> 会自然和它们共轭，令</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\mathbf{p}_k &amp;= -\mathbf{r}_k + \beta_k \mathbf{p}_{k - 1} \\
+\beta &amp;= \frac{\mathbf{r}_k^T\mathbf{A}\mathbf{p}_{k - 1}}{\mathbf{p}_{k - 1}^T\mathbf{A}\mathbf{p}_{k - 1}}
+\end{aligned}
+\]</div>
+<p>这样，我们在前式中两边同左乘 <span class="arithmatex">\(\mathbf{p}_{k - 1}^T\mathbf{A}\)</span>，有</p>
+<div class="arithmatex">\[
+\mathbf{p}_{k - 1}^T\mathbf{A}\mathbf{p}_k = -\mathbf{p}_{k - 1}^T\mathbf{A}\mathbf{r}_k + \beta \mathbf{p}_{k - 1}^T\mathbf{A}\mathbf{p}_{k - 1} = 0
+\]</div>
+<p>注意到我们已经构建出了一组共轭向量，所以理论上讲 CG 在 <span class="arithmatex">\(n\)</span> 步内就能计算出精确解。</p>
+</details>
+<details class="-">
+<summary>BiCG &amp; BiCGSTAB</summary>
+<p>但是 CG 算法的局限在于其严重依赖于 <span class="arithmatex">\(\mathbf{A}\)</span> 的对称正定性。为了解决 CG 算法无法处理非对称矩阵的问题，引入了 BiCG 算法：<a href="https://en.wikipedia.org/wiki/Biconjugate_gradient_method">Biconjugate gradient method - Wikipedia</a>，也可以参考这篇博客：<a href="https://w-jin.github.io/tech/bicg/">双共轭梯度法 | wjin</a></p>
+<p>其核心思路是通过引入 <span class="arithmatex">\(\mathbf{A}^T\)</span> 来恢复一种新的对称关系。同时考虑两个方程：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\mathbf{A}\mathbf{x} &amp;= \mathbf{b} \\
+\mathbf{A}^T\mathbf{\tilde{x}} &amp;= \mathbf{\tilde{b}}
+\end{aligned}
+\]</div>
+<p>这引入了残差的双正交性和方向的双共轭性：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\mathbf{\tilde{r}}^T_i \mathbf{r}_j &amp;= 0, \forall i \neq j \\
+\mathbf{\tilde{p}}^T_i \mathbf{A} \mathbf{p}_j &amp;= 0, \forall i \neq j
+\end{aligned}
+\]</div>
+<p>同样对 <span class="arithmatex">\(\alpha_k, \beta_k\)</span> 进行计算以保证性质：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\mathbf{x}_{k+1} &amp;= \mathbf{x}_k+\alpha_k\mathbf{p}_k \\
+\mathbf{r}_{k+1} &amp;= \mathbf{r}_k - \alpha_k\mathbf{A}\mathbf{p}_k \\
+\tilde{\mathbf{r}}_{k+1} &amp;= \tilde{\mathbf{r}}_k - \alpha_k\mathbf{A}^T\tilde{\mathbf{p}}_k \\
+\mathbf{p}_{k+1} &amp;= \mathbf{r}_{k+1} + \beta_k\mathbf{p}_k \\
+\tilde{\mathbf{p}}_{k+1} &amp;= \tilde{\mathbf{r}}_{k+1} + \beta_k\tilde{\mathbf{p}}_k \\
+\alpha_k &amp;= \frac{\tilde{\mathbf{r}}_k^T\mathbf{r}_k}{\tilde{\mathbf{p}}_k^T\mathbf{A}\mathbf{p}_k} \\ \beta_k &amp;= \frac{\tilde{\mathbf{r}}_{k+1}^T \mathbf{r}_{k+1}}{\tilde{\mathbf{r}}_k^T \mathbf{r}_k}
+\end{aligned}
+\]</div>
+<p>但是，BiCG 算法虽然成功地将共轭梯度思想推广到了非对称矩阵，其收敛过程中可能会发生剧烈的震荡，这有时会导致难以接受的后果。BiCGSTAB 的出现就是为了解决这个问题。需要注意的是，BiCGSTAB 更多是一个偏向工程的算法，数学上能证明其有限终止性，但算法本身并不完全遵循 BiCG 算法的数学原理。</p>
+<p>例如，其在 BiCG 的算法基础上，直接用初始的影子残差计算 <span class="arithmatex">\(\alpha_k =\frac{\tilde{\mathbf{r}}_0^T\mathbf{r}_k}{\tilde{\mathbf{r}}_0^T\mathbf{A}\mathbf{p}_k}\)</span>。</p>
+<p>BiCGSTAB 在基本保留 BiCG 步骤的情况下，继续处理 BiCG 中某一次迭代结束得到的 <span class="arithmatex">\(\mathbf{x}'_{k+1} = \mathbf{x_k} + \alpha \mathbf{p_k}\)</span> 和 <span class="arithmatex">\(\mathbf{r}'_{k+1} = \mathbf{r}_k - \alpha \mathbf{A} \mathbf{p}_k\)</span>。</p>
+<p>把计算出来的残差 <span class="arithmatex">\(\mathbf{r}'_{k+1}\)</span> 看作一个新下降方向，并在 <span class="arithmatex">\(\mathbf{A} \mathbf{r}_{k+1}'\)</span> 的方向对其再进行修正。这个修正是一个简单的最小二乘问题：</p>
+<div class="arithmatex">\[
+\min_{\omega_k} \Vert \mathbf{r}'_{k+1} - \omega_k \mathbf{A} \mathbf{r}'_{k+1} \Vert \]</div>
+<div class="arithmatex">\[
+\omega_k = \frac {(\mathbf{A} \mathbf{r}'_{k+1})^T \mathbf{r}'_{k+1}} {(\mathbf{A} \mathbf{r}'_{k+1})^T(\mathbf{A} \mathbf{r}'_{k+1})}
+\]</div>
+<p>最终，用 <span class="arithmatex">\(\omega_k\)</span> 完成最终更新：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\mathbf{x}_{k+1} &amp;= (\mathbf{x}_k+\alpha_k\mathbf{p}_k) + \omega_k \mathbf{r}'_{k+1} \\
+\mathbf{r}_{k+1} &amp;= \mathbf{r}'_{k+1} - \omega_k \mathbf{A} \mathbf{r}'_{k+1}
+\end{aligned}
+\]</div>
+</details>
+<h3 id="预条件处理">预条件处理<a class="headerlink" href="#预条件处理" title="Permanent link">¶</a></h3>
+<p>研究完迭代法之后，我们还需要关注矩阵本身的特性。事实上，对于某些矩阵而言，其在真实场景中求解的难度过大，以至于无法达到一个收敛的结果。这也是我们选择让大家求解随机生成的矩阵的原因，因为真实矩阵<strong>往往非常难解</strong>。</p>
+<p>但是，通过预条件子技术，我们可以人为地调整矩阵的易解程度。基本思想是：迭代算法的收敛速度一般可以由系数矩阵 <span class="arithmatex">\(\mathbf{A}\)</span> 的<a href="https://en.wikipedia.org/wiki/Condition_number"><strong>条件数</strong></a> <span class="arithmatex">\(\kappa (\mathbf{A})\)</span> 来评估：</p>
+<ul>
+<li><span class="arithmatex">\(\kappa (\mathbf{A})\)</span> 越大，收敛越慢，同时计算误差的影响也就越大</li>
+<li>如果 <span class="arithmatex">\(\kappa (\mathbf{A})\)</span> 很大，通常使用预条件处理（precondition）将原始系统 <span class="arithmatex">\(\mathbf{Ax-b=0}\)</span> 替换为 <span class="arithmatex">\(\mathbf{M^{-1}(Ax-b)=0}\)</span>，使得 <span class="arithmatex">\(\kappa (\mathbf{M^{-1}A})\)</span> 小于 <span class="arithmatex">\(\kappa (\mathbf{A})\)</span></li>
+</ul>
+<p>其中的 <span class="arithmatex">\(\mathbf{M}\)</span> 被称为预条件子 (preconditioner)。预条件处理能够加速迭代算法的收敛速度，在应对实际的科学计算问题时，我们往往需要应用预条件子来保证迭代算法的快速求解。</p>
+<p>需要注意的是，预条件子的选取也是一门技术活。常见的 <span class="arithmatex">\(\mathbf{M}\)</span> 选取至少有两种：对角线预处理和不完备的 Cholesky 预处理，<strong>本实验选择 Jacobi 对角线预处理</strong>，即 <span class="arithmatex">\(\mathbf{M}\)</span> 矩阵为原始系数矩阵 <span class="arithmatex">\(\mathbf{A}\)</span> 的对角线矩阵。在知名的开源有限元软件 FEAPpv 中，就是采用的这种方法进行预处理。此外，现代的预条件子有代数多重网格实现、区域分解法等，这些生产级别的条件子通常都非常复杂。</p>
+<h3 id="算法流程">算法流程<a class="headerlink" href="#算法流程" title="Permanent link">¶</a></h3>
+<p>之前介绍的 <strong>CG</strong> 算法要求待求矩阵必须为对称正定矩阵，而 <strong>BiCG</strong> 算法则通过构造双共轭的搜索方向和基于双共轭的残差修正，从而支持对非对称线性系统的求解。<strong>BiCGSTAB</strong> 算法在 <strong>BiCG</strong> 的基础上，又加强了其在求解过程中的数值稳定性，使其收敛更加迅速平缓。</p>
+<p>在本实验中，我们要优化的是 <strong>带预条件处理的 BiCGSTAB 算法</strong>，其<a href="https://en.wikipedia.org/wiki/Biconjugate_gradient_stabilized_method#Preconditioned_BiCGSTAB">算法流程</a>如下：</p>
+<ol>
+<li><span class="arithmatex">\(r_0 = b - \mathbf{A}x_0\)</span></li>
+<li>Choose an arbitrary vector <span class="arithmatex">\(\hat{r_0}\)</span> such that <span class="arithmatex">\((\hat{r_0}, r_0)\ne 0\)</span>, eg. <span class="arithmatex">\(\hat{r_0} = r_0\)</span></li>
+<li><span class="arithmatex">\(\rho_0 = (\hat{r}_0, r_0)\)</span></li>
+<li><span class="arithmatex">\(p_0 = r_0\)</span></li>
+<li>For <span class="arithmatex">\(i = 1, 2, 3, \ldots\)</span><ol>
+<li><span class="arithmatex">\(y = \mathbf{M^{-1}} p_{i-1}\)</span></li>
+<li><span class="arithmatex">\(v = \mathbf{A}{y}\)</span></li>
+<li><span class="arithmatex">\(\alpha = \rho_{i-1} / (\hat{r}_0, v)\)</span></li>
+<li><span class="arithmatex">\(h = x_{i-1} + \alpha y\)</span></li>
+<li><span class="arithmatex">\(s = r_{i-1} - \alpha v\)</span></li>
+<li>If <span class="arithmatex">\(s\)</span> is within the accuracy tolerance then <span class="arithmatex">\(x_{i-1} = h\)</span> and quit.</li>
+<li><span class="arithmatex">\(z = \mathbf{M^{-1}} s\)</span></li>
+<li><span class="arithmatex">\(t = \mathbf{A}z\)</span></li>
+<li><span class="arithmatex">\(\omega = (t, s) / (t, t)\)</span></li>
+<li><span class="arithmatex">\(x_i = h + \omega z\)</span></li>
+<li><span class="arithmatex">\(r_i = s - \omega t\)</span></li>
+<li>If <span class="arithmatex">\(r_i\)</span> is within the accuracy tolerance then quit.</li>
+<li><span class="arithmatex">\(\rho_i = (\hat{r}_0, r_i)\)</span></li>
+<li><span class="arithmatex">\(\beta = (\rho_i / \rho_{i-1}) (\alpha / \omega)\)</span></li>
+<li><span class="arithmatex">\(p_i = r_i + \beta (p_{i-1} - \omega v)\)</span></li>
+</ol>
+</li>
+</ol>
+<p>在算法流程中，可以观察到大量的向量与矩阵运算，这给我们提供了充足的优化的空间。</p>
+<h2 id="知识讲解-优化思路">知识讲解: 优化思路<a class="headerlink" href="#知识讲解-优化思路" title="Permanent link">¶</a></h2>
+<div class="admonition abstract">
+<p class="admonition-title">导言</p>
+<p>为了帮助同学们更好地掌握并行优化的技巧，我们将在下面提供相关优化思路作为参考。我们按照章节，按照顺序由浅入深地介绍了找出一段程序性能瓶颈并持续优化的基本流程，相信如果能够走完一遍，你能够收获很多实战经验。</p>
+<p><strong>这部分文档会比较长，请做好心理准备</strong>。推荐在进行某种特定优化时，再对照着相应章节进行阅读。在每一章节的开头处，我们用 <strong>Subtask</strong> 讲述了同学们在阅读完该章节内容后，可以进行的尝试、以及建议在报告中描述的内容，除了标记为 <strong>必做</strong> 的章节，其他章节可以自行选择是否进行尝试。</p>
+<p>在本实验中，你可以对下面的优化思路一一进行尝试，也可以自己尝试创新性的优化策略。请在报告里详细描述你对优化策略所做的尝试，哪怕结果不是很理想。</p>
+</div>
+<h3 id="profile-性能分析">Profile 性能分析<a class="headerlink" href="#profile-性能分析" title="Permanent link">¶</a></h3>
+<details class="success" open="open">
+<summary>Subtask: Profile 任务 (必做)</summary>
+<p>你需要在下面两个时间进行 Profile:</p>
+<ul>
+<li><strong>开始优化程序之前</strong>，请使用 Intel VTune Profiler 分析你的程序，并在报告中展示:<ul>
+<li>耗时最长的函数</li>
+<li>程序运行的 Flame Graph</li>
+</ul>
+</li>
+<li><strong>使用 MPI 优化程序之后</strong>，请使用 Intel VTune Profiler 或者 ITAC 分析你的程序，并在报告中展示:<ul>
+<li>耗时最多的三个 MPI 函数 (请区分 MPI 与 OpenMP)</li>
+<li>程序在 MPI 上消耗的总时间</li>
+</ul>
+</li>
+</ul>
+<p>除此之外，Profiler 还会提供更多其他的信息。我们鼓励同学们探索 Profiler 给出的数据和图表，并尝试进行简单的分析，以指导进一步的优化。</p>
+</details>
+<div class="admonition danger">
+<p class="admonition-title">Profile 很重要</p>
+<p>拿到一段陌生的程序，不知从何入手？Profile 是一个很好的起点。</p>
+<p>Profiler 能够提供与程序性能相关的的重要信息，包括运行时间统计、程序热点、MPI通信开销、通信复杂均衡、访存开销等一系列可能对程序优化有帮助的信息，现代的 Profiler 还能够直接提供优化的建议。比如在 <a href="https://b23.tv/BV1eT421k7Be/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.813 4.653h.854q2.266.08 3.773 1.574Q23.946 7.72 24 9.987v7.36q-.054 2.266-1.56 3.773c-1.506 1.507-2.262 1.524-3.773 1.56H5.333q-2.266-.054-3.773-1.56C.053 19.614.036 18.858 0 17.347v-7.36q.054-2.267 1.56-3.76t3.773-1.574h.774l-1.174-1.12a1.23 1.23 0 0 1-.373-.906q0-.534.373-.907l.027-.027q.4-.373.92-.373t.92.373L9.653 4.44q.107.106.187.213h4.267a.8.8 0 0 1 .16-.213l2.853-2.747q.4-.373.92-.373c.347 0 .662.151.929.4s.391.551.391.907q0 .532-.373.906zM5.333 7.24q-1.12.027-1.88.773-.76.748-.786 1.894v7.52q.026 1.146.786 1.893t1.88.773h13.334q1.12-.026 1.88-.773t.786-1.893v-7.52q-.026-1.147-.786-1.894t-1.88-.773zM8 11.107q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q0-.56.386-.947.387-.386.947-.386m8 0q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q.025-.586.4-.96.373-.373.933-.373"></path></svg></span> 极客湾Geekerwan: 绝区零性能分析与优化指南：如何流畅玩？</a> 中，VTune Profiler 分析出了当时绝区零的内存访存瓶颈，为玩家的硬件选择和游戏性能的优化提供了重要的参考。</p>
+<p>我们<strong>强烈建议</strong>同学们在优化的过程中使用 Profiler 来帮助你更好地理解程序的性能瓶颈，对症下药，更好地进行优化。</p>
+</div>
+<p>Intel OneAPI 是 Intel 提供的 HPC 工具链，涵盖了从编译、调试、性能分析的完整流程的工具。Intel OneAPI 中的性能分析工具主要有 VTune Profiler, ITAC (Intel Trace Analyzer and Collector) 和 APS (Application Performance Snapshot)。下图展示了 Intel OneAPI 中不同层级 (跨界点、单机、单核) 的性能分析工具与他们的职责:</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/intel-profiler.webp" data-desc-position="bottom"><img alt="Intel Profilers" src="image/intel-profiler.webp"></a></p>
+<p>你可以使用如下的 spack 指令安装这些工具:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>spack<span class="w"> </span>install<span class="w"> </span>intel-oneapi-vtune<span class="w"> </span><span class="c1"># VTune &amp; APS</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>spack<span class="w"> </span>install<span class="w"> </span>intel-oneapi-itac<span class="w">  </span><span class="c1"># ITAC</span>
+</span></code></pre></div>
+<h4 id="vtune-profiler">VTune Profiler<a class="headerlink" href="#vtune-profiler" title="Permanent link">¶</a></h4>
+<p>在集群上，你可以通过 <code>spack load</code> 加载 VTune。通过附加不同的参数，往往可以得到程序运行不同方面的信息。你可以将集群上的 VTune 分析报告下载到本地，使用本地的 VTune 图形界面打开，查看分析结果，也可以使用集群提供的 X11 转发功能，启动集群上的 VTune 图形界面。这里对使用 VTune Profiler 分析程序进行简单的说明，更详细的使用方法请阅读文档最后的参考资料。</p>
+<p>我们通常会使用 VTune Profiler 的 <code>hotspots</code> (热点) 和 <code>uarch-exploration</code> (微架构探究) 两种模式来分别分析程序热点与并行状况、硬件使用情况与硬件瓶颈。</p>
+<details class="info" open="open">
+<summary>Hotspot 模式</summary>
+<p>对于程序的热点分析，在课程中同学们已经学会了使用 Perf 来分析程序的热点，VTune Profiler 的 hotspot 模式与 Perf 的功能类似，能够提供程序的热点信息，包括函数调用、循环、访存等。
+但是，对于多线程并行的应用程序来说，我们很多时候需要知道线程间的并行模式与并行状况，这种时候尤其需要使用 VTune Profiler 的 Hotspot 模式来分析程序。</p>
+<p>你可以使用如下的指令来进行分析：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>vtune<span class="w"> </span>-collect<span class="w"> </span>hotspots<span class="w"> </span>-result-dir<span class="w"> </span>r000hs<span class="w"> </span>./your_program
+</span></code></pre></div>
+<p>在采样结束后，可以把结果下载到本地，也可以在集群上，使用 X11 Forwarding 功能直接查看分析结果 (不推荐后者，因为比较卡且不方便)。</p>
+<p>首先我们看到的是 Summary，显示了程序运行的总时间、程序热点函数、CPU使用率等关键信息：</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/vtune_hotspot_summary.webp" data-desc-position="bottom"><img alt="Summary" src="image/vtune_hotspot_summary.webp"></a></p>
+<p>而在 Top-down Tree 等地方，我们可以更加详细地看到每个函数的性能信息，Flame Graph 则让我们更直观地看到程序的热点与调用关系。此时你可以分析出程序耗费时间最长的函数是哪一个，以及其对应的代码的位置 (需编译时添加 <code>-g</code> 选项)。</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/vtune_flame.webp" data-desc-position="bottom"><img alt="Flame Graph" src="image/vtune_flame.webp"></a></p>
+<p>同时还能看见 Threads 的工作情况，可以用来分析并行程序中的并行状况：</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/vtune_threads.webp" data-desc-position="bottom"><img alt="Thread" src="image/vtune_threads.webp"></a></p>
+<p>如果线程间存在大量的空闲，则提示可能需要优化并行的方式。</p>
+</details>
+<details class="info" open="open">
+<summary>Uarch Exploration 模式</summary>
+<p>Intel 提出了一种基于微架构视角的性能分析方法，称为 TMAM (Top-down Microarchitecture Analysis Method)。这种<a href="https://www.intel.cn/content/www/cn/zh/docs/vtune-profiler/cookbook/2023-0/top-down-microarchitecture-analysis-method.html">自顶向下的微架构分析方法</a>能够帮助用户从微架构的角度分析程序的性能瓶颈，从而更有效地进行性能优化。对于给定的计算平台而言，HPC优化的理想是最大化计算单元的利用率。所以通常情况下，我们希望计算单元能充分被使用，而不是在其他部件（如访存部件）的等待中浪费。</p>
+<p>你可以使用如下的指令来进行分析：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>vtune<span class="w"> </span>-collect<span class="w"> </span>uarch-exploration<span class="w"> </span>-result-dir<span class="w"> </span>r000ue<span class="w"> </span>./your_program
+</span></code></pre></div>
+<p>然后采用同样的方法查看分析结果：</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/vtune_uarch_summary.webp" data-desc-position="bottom"><img alt="Summary" src="image/vtune_uarch_summary.webp"></a></p>
+<p>在 Summary 中，我们可以看到程序运行的<strong>总时间</strong>、<strong>CPU使用率</strong>、<strong>访存带宽</strong>、<strong>访存延迟</strong>等关键信息。对于这个 demo 程序，我们可以看到访存带宽和访存延迟都达到了瓶颈，这就是程序性能瓶颈的重要来源。
+同样的，在 Bottom-up 中，我们可以仔细分析到每个函数对微架构的使用情况，从而进行针对性的优化：
+<a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/vtune_uarch_bottom.webp" data-desc-position="bottom"><img alt="Bottom-up" src="image/vtune_uarch_bottom.webp"></a></p>
+</details>
+<h4 id="itac">ITAC<a class="headerlink" href="#itac" title="Permanent link">¶</a></h4>
+<details class="quote" open="open">
+<summary>有关 Intel Trace Analyzer and Collector 停止支持的问题</summary>
+<p>根据 <a href="https://www.intel.cn/content/www/cn/zh/developer/tools/oneapi/trace-analyzer.html">Intel Trace Analyzer and Collector</a> 的说明，这款性能分析工具已于 2025 年停止支持。其已不再被包含在 Intel HPC Toolkit 中，并且功能将逐渐转移至 VTune Profiler。</p>
+<p>但是目前，VTune Profiler 还没有支持 MPI 程序进程间通信的详细分析。在软件功能迁移的过渡阶段，如果同学们希望对 MPI 程序进行深入的分析，需要单独安装 Intel Trace Analyzer and Collector。但是目前 Intel 已经关闭了 ITAC 的官方下载渠道，所以同学们可以选择:</p>
+<ol>
+<li>在本地 Linux 机器使用 spack 安装 ITAC，并且运行 ITAC 的 GUI 界面</li>
+<li>配置 X11 转发，使用集群上利用 spack 安装的 ITAC</li>
+</ol>
+</details>
+<p>你可以通过 <code>spack load intel-oneapi-itac</code> 加载 ITAC。当然这里同样建议同学们把 ITAC 安装到本地，在本地查看集群的分析结果。</p>
+<details class="info" open="open">
+<summary>ITAC 使用方法</summary>
+<p>对于 MPI 应用，通信开销的影响变得尤为重要，ITAC 提供了 MPI 程序通信开销的详细分析，能够帮助用户理解 MPI 程序的通信模式，从而进行优化。</p>
+<p>如果你希望使用 ITAC 来分析你的程序，你可以使用 Intel MPI 的 <code>mpirun</code> 的 <code>-trace</code> 选项:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>spack<span class="w"> </span>load<span class="w"> </span>intel-oneapi-mpi
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">4</span><span class="w"> </span>-trace<span class="w"> </span>your_program
+</span></code></pre></div>
+<p>采样结束后，你可以使用 ITAC 来查看分析结果：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># 启动 Trace Analyzer GUI (需 x11 forwarding)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>traceanalyzer<span class="w"> </span>your_trace.stf
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1"># 或者命令行分析</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>traceanalyzer<span class="w"> </span>--cli<span class="w"> </span>your_trace.stf
+</span></code></pre></div>
+<p>在 GUI 中，你可以直观地看到 MPI 函数的耗时与首要的 MPI 函数：</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/itac_summary.webp" data-desc-position="bottom"><img alt="itac" src="image/itac_summary.webp"></a></p>
+<p>同时，对于 MPI 程序可能出现的进程间 workload 不均衡问题，ITAC 也提供了详细的统计信息：</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/itac_work.webp" data-desc-position="bottom"><img alt="itac_workload" src="image/itac_work.webp"></a></p>
+<p>对于 MPI进程的 Timeline，可以在 Charts 选项中选择 Event Timeline，然后就可以查看 MPI 函数的调用时间线了：</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/itac_timeline.webp" data-desc-position="bottom"><img alt="itac_timeline" src="image/itac_timeline.webp"></a></p>
+</details>
+<h3 id="编译优化">编译优化<a class="headerlink" href="#编译优化" title="Permanent link">¶</a></h3>
+<details class="success" open="open">
+<summary>Subtask: 编译优化</summary>
+<p>你可以在优化过程中的任意一个时间点进行这方面的尝试，推荐你进行以下的探索:</p>
+<ul>
+<li>对比 <code>g++</code> 和 <code>icpx</code> 编译器编译出来的程序的运行时间</li>
+<li>对比不添加额外选项，与添加了指导优化的编译选项后，对比:<ul>
+<li>程序的运行时间</li>
+<li>程序迭代次数</li>
+<li>最终结果的误差</li>
+</ul>
+</li>
+</ul>
+<p>同学们还可以根据本章节的内容，进行其他方向的探索和分析，并包含在报告中。</p>
+</details>
+<div class="admonition tip">
+<p class="admonition-title">让编译器替你负重前行</p>
+<p>编译器优化是最简单的优化方式之一。如果程序的代码比较规范的话，你可以在<strong>完全不修改任何代码</strong>的情况下，通过尝试不同的编译器、调整编译器的优化等级、添加编译器优化选项等方式，<strong>轻松实现程序性能的提升</strong>。</p>
+<p>本次实验中，我们的基准程序没有开启任何优化参数，期待同学们自行探索编译器优化带来的性能提升。</p>
+</div>
+<p>编译优化包括两方面:</p>
+<ul>
+<li>你既可以尝试使用不同的编译器优化选项，比如 <code>-O2</code>、<code>-O3</code>、<code>-Ofast</code> 等，来提高程序的性能。优化等级更高时，编译器会采取更加激进的优化策略，实现程序的加速。<ul>
+<li>同学们还可以自行查询 <code>-march</code>, <code>-mtune</code> 等编译选项的使用方法，来调整编译器对具体 CPU 微架构的优化。</li>
+<li>在使用 <code>-ffast-math</code> 之类的编译选项时，请留意程序数值运算的精度问题。</li>
+</ul>
+</li>
+<li>你还可以使用不同的编译器，比如 <code>g++</code>、<code>icpx</code>、<code>clang++</code> 等，来比较不同编译器的优化效果。同一个编译器的不同版本，优化效果也可能会有所不同，推荐使用最新版本进行尝试。<ul>
+<li>如果集群提供的编译器版本不满足你的需求，你可以使用 <code>spack</code> 安装新版本的编译器。</li>
+</ul>
+</li>
+</ul>
+<p>在进行编译优化的过程中，我们推荐使用 <a href="https://godbolt.org/">Compiler Explorer</a> 来直观地从汇编语言的角度，快速观察不同编译器、不同编译选项对代码的优化是否有效，比如:</p>
+<ul>
+<li>是否使用了 <code>ymm</code> / <code>zmm</code> 系列的向量化寄存器 (对应 AVX / AVX512 指令集扩展)</li>
+<li>是否进行了循环展开，是否进行了分支预测的优化等等 (<code>icpx</code> 会标记分支推测的跳转概率)</li>
+</ul>
+<details class="info" open="open">
+<summary>Godbolt 使用方法</summary>
+<p>比如，把 <code>gemv()</code> 函数放到 Godbolt 中观察，使用 <code>x86-64 clang 20.1.0</code> 编译器，开启 <code>-O3 -ffast-math</code> 优化选项时，编译器生成了左侧的汇编代码:</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/godbolt-before.webp" data-desc-position="bottom"><img alt="Godbolt Before No avx512" src="image/godbolt-before.webp"></a></p>
+<p>发现编译器默认只使用了 128 位向量化指令，对应 <code>xmm</code> 寄存器。而我们加入 <code>-mavx512f</code> 优化选项后，编译器生成了如下的汇编代码:</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/godbolt.webp" data-desc-position="bottom"><img alt="Godbolt" src="image/godbolt.webp"></a></p>
+<p>可以观察到编译器使用了 <code>vfmadd213pd</code> 等指令，操作了 AVX512 的 <code>zmm</code> 寄存器，实现了更进一步的向量化运算。</p>
+<p>当你使用手写向量化 Intrinsic，以及其他优化时，也可以使用 Godbolt 来和编译器自动优化对比，明确性能提升 / 下降的原因。</p>
+</details>
+<h3 id="访存优化">访存优化<a class="headerlink" href="#访存优化" title="Permanent link">¶</a></h3>
+<details class="success" open="open">
+<summary>Subtask: 访存优化</summary>
+<p>如果你尝试进行访存优化，请在实验报告中描述你的思路，并给出 Intel VTune Profiler 中 Memory Bound 数值的前后对比，进行简要分析。</p>
+</details>
+<p>程序局部性 (Locality) 指的是应用程序在访问内存的时候，倾向于访问内存中较为靠近的值。</p>
+<p>一般来说，程序的局部性分为两种形式，一种是时间局部性，另一种是空间局部性。时间局部性指的是，程序在运行时，最近刚刚被引用过的一个内存位置容易再次被引用，比如在调取一个函数的时候，前不久才调取过的本地参数容易再度被调取使用。空间局部性指的是，最近引用过的内存位置以及其周边的内存位置容易再次被使用。空间局部性比较常见于循环中，比如在一个数列中，如果第 3 个元素在上一个循环中使用，则本次循环中极有可能会使用第 4 个元素。</p>
+<p>在计算机的硬件实现中有大量基于局部性的优化技术，比如缓存 (Cache)、预取 (Prefetch) 等。这对应了 Profiler 提供的 <strong>Memory Bound 中的 L1 / L2 / L3 Bound</strong> 等指标。</p>
+<p>如果你通过 Profiler 观察到这些指标不是很理想，就可以考虑通过加强程序的局部性来提高程序的性能。你可以在互联网上找到大量的对 GEMV 等操作进行访存优化的资料。反之，如果 Profiler 提示 Memory Bound 并非最主要瓶颈，则应优先考虑其他优化方式。</p>
+<div align="center">
+    <a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/vtune-mem-bound.webp" data-desc-position="bottom"><img src="image/vtune-mem-bound.webp" alt="Memory Bound" style="zoom:50%;"></a>
+    <p>常见的 Memory Bound 情况 <a href="https://mahdytech.com/vtune-cache-miss">(by Ahmed Mahdy)</a></p>
+</div>
+
+<h3 id="simd-数据级并行">SIMD 数据级并行<a class="headerlink" href="#simd-数据级并行" title="Permanent link">¶</a></h3>
+<details class="success" open="open">
+<summary>Subtask: 数据级并行</summary>
+<p>推荐通过手写 AVX Intrinsic 的方式完成 SIMD 的优化，除了运行时间降低以外，推荐使用下面两种方法<strong>之一</strong>分析 SIMD 优化的有效性:</p>
+<ol>
+<li>对比手写 AVX Intrinsic 和编译器自主优化时，使用 Godbolt 生成的汇编代码<ul>
+<li>可以从指令条数、Latency、Throughput 等方面进行分析</li>
+</ul>
+</li>
+<li>对比手写 AVX Intrinsic 前后 VTune Profiler 有关指标的变化</li>
+</ol>
+</details>
+<details class="- abstract">
+<summary>并行的层级</summary>
+<p>在计算机体系结构的视角下，并行可以分为<strong>指令级并行</strong> (ILP, Instruction-Level Parallelism)、<strong>数据级并行</strong> (DLP, Data-Level Parallelism)和<strong>线程级并行</strong> (TLP, Thread-Level Parallelism)。</p>
+<p></p><div align="center">
+    <a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/parallelism.webp" data-desc-position="bottom"><img src="image/parallelism.webp" alt="并行的层级" style="zoom:50%;"></a>
+</div><p></p>
+<ul>
+<li>
+<p><strong>ILP</strong> 主要发生在单个处理器核心内部，它依赖于核心的硬件机制（如多发射、超标量执行、乱序执行、分支预测）来同时执行多条指令。</p>
+<p>现代处理器一般都会使用流水线技术来同时执行多条指令的不同阶段，从而实现指令间的并行。传统流水线因为需要解决流水线中的各种冲突，不可避免的会在流水线中带来空泡，而由于现代处理器里其实还包含指令的乱序发射，出现空泡的几率已经大大降低，所以在编程时不太需要考虑这方面的问题。</p>
+<p></p><div align="center">
+    <a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/pipeline.webp" data-desc-position="bottom"><img src="image/pipeline.webp" alt="ILP" style="zoom:50%;"></a>
+</div><p></p>
+</li>
+<li>
+<p><strong>DLP</strong> 的核心思想是单指令流操作多数据流 (SIMD)。它可以在单个核心上通过向量化指令集（如 SSE, AVX, NEON）实现，也可以在专门的并行硬件（如 GPU）上大规模实现。其关键特征是对大量数据元素应用相同的操作。</p>
+<p></p><div align="center">
+    <a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/SIMD2.svg" data-desc-position="bottom"><img src="image/SIMD2.svg" alt="SIMD" style="zoom:50%;"></a>
+</div><p></p>
+</li>
+<li>
+<p><strong>TLP</strong> 发生在多个独立的控制流（线程） 层面。这些线程可以：</p>
+<ul>
+<li>在单个多核处理器的多个核心上并发执行（此时涉及核心间通信和缓存一致性协议）</li>
+<li>在多个处理器（如多路服务器）上并发执行（此时可能涉及NUMA架构及其访问延迟问题）</li>
+</ul>
+</li>
+</ul>
+</details>
+<p>对于单个运行中的线程 (对应单个 CPU 核心)，<strong>数据级并行</strong>可以提高程序的并行度和吞吐量。</p>
+<p><code>SIMD</code> 是一种数据并行技术，它通过提供支持向量运算的指令，同时对一组数据执行相同的计算，从而实现空间上的并行，进而提高程序的并行度和吞吐量。当程序中出现大量完全一致的运算需要对一批数据进行处理时，你可以考虑使用 <code>SIMD</code> 对其进行并行。</p>
+<div align="center">
+    <a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/simd.webp" data-desc-position="bottom"><img src="image/simd.webp" alt="SIMD" style="zoom:70%;"></a>
+</div>
+
+<p><code>BiCGSTAB</code>算法中有大量的矩阵和向量操作，比如<strong>矩阵与向量相乘、向量点乘、向量加法</strong>等，这些运算都很适合使用<code>SIMD</code>进行加速。一般而言，使用编译器的自动向量化就能够获得很可观的加速。不同编译器对于向量化有不同的开关，请同学们自行查阅编译器的文档或网络资料进行尝试。</p>
+<p>如果编译器的自动向量化效果不佳，你还可以考虑使用 AVX / AVX512 的 Intrinsic 来进行手写向量化优化。如果你已经遗忘了该如何手写向量化，请回顾 <a href="https://hpc101.zjusct.io/lab/Lab2-Vectorization/">Lab 2: 向量化计算 - HPC101 (2025)</a> 的内容。</p>
+<details class="info" open="open">
+<summary>查询 Intrinsic 的具体信息并进行分析</summary>
+<p>在选取具体 Intrinsic 的过程中，你需要使用 <a href="https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html">Intel Intrinsics Guide</a> 来查询不同指令的性能和使用方法。你可以在右侧勾选所需指令的种类来找到相应的 Intrinsic 操作。</p>
+<p>你还可以点击某条 Intrinsic 的名称，来查看该 Intrinsic 的详细信息。对于 CPU 执行指令的流水线来说，你最需要关注的是 <strong>Latency</strong> (延迟) 和 <strong>Throughput</strong> (吞吐量) 两个指标。除了内存访存指令之外，其他指令基本上都会给出这两个指标。</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/avx512.webp" data-desc-position="bottom"><img alt="AVX 512 Intrinsic" src="image/avx512.webp"></a></p>
+<p>M602-M604 的 CPU 为 Intel(R) Xeon(R) Gold 5320 CPU @ 2.20GHz，为第三代志强可扩展处理器，其微架构代号为 Icelake. 从上面可以看出，对于一条 512 位双精度乘加 (<code>_mm512_fmadd_pd</code>) 指令，其首条指令的结果需要等待 4 个时钟周期，随后每个周期可以完成 2 条乘加指令 (CPI = 0.5)。</p>
+<p>以上两个指标可以辅助你<strong>分析 CPU 流水线停顿的原因和 CPI 的瓶颈</strong>，尤其是配合 VTune Profiler 的 Uarch Exploration 分析时。</p>
+</details>
+<h3 id="openmp-线程级并行">OpenMP 线程级并行<a class="headerlink" href="#openmp-线程级并行" title="Permanent link">¶</a></h3>
+<details class="success" open="open">
+<summary>Subtask: 线程级并行 (必做)</summary>
+<p>在使用 OpenMP 线程级并行时，请在报告中记录使用的<strong>线程数</strong>以及<strong>加速比</strong>，思考: <strong>加速比能随着线程数的增加而线性增长吗？</strong> 你可以使用 Profiler 的结果来进行简要的分析。</p>
+<p>同学们还可以探索 (选做):</p>
+<ul>
+<li>
+<p>调度方式和调度粒度对并行效果的影响</p>
+<p>比如，从访存连续性的角度考虑，一个线程执行 <code>for</code> 循环的连续数次迭代可能会比跳跃执行同样次数的迭代要更高效，这与我们在课程中提到的“伪共享”问题是一致的。
+可以使用 OpenMP 的 <code>schedule</code> 子句和 <code>size</code> 参数来调整调度方式和调度粒度，也可以手动分配任务。</p>
+</li>
+<li>
+<p>OpenMP 和向量化 Intrinsic 的粒度之间的权衡</p>
+</li>
+</ul>
+</details>
+<p>在单机 / 单个 NUMA 节点上，我们往往使用<strong>线程级并行</strong>来进行并行化。</p>
+<p><code>OpenMP</code> 是一种简单易用的多线程并行编程模型，你可以通过在代码中插入 <code>#pragma omp parallel for</code> 来实现简单的并行化。更详细的使用方法请参考 <code>OpenMP</code> 的<a href="https://github.com/ZJUSCT/HPC101/tree/main/beamer/pdf/day8_am.pdf">短学期课程内容</a>和 <code>OpenMP</code> 的<a href="https://www.openmp.org/wp-content/uploads/OpenMP-RefGuide-6.0-OMP60SC24-web.pdf">官方文档</a>。</p>
+<p>在本实验中，你可以考虑对矩阵向量乘法、向量点乘、向量加法等运算进行并行化，这通常能够获得非常好的加速效果。但<strong>需要注意</strong>的是，为了保证计算的正确性，你需要仔细分析计算中可能出现的数据访问冲突，合理使用 <code>reduction</code> 等关键字保证并行化的代码是<strong>线程安全</strong>的。</p>
+<details class="quote" open="open">
+<summary>悄悄告诉你</summary>
+<p>其实，只需要给所有向量操作的 for 循环都加上 <code>#pragma omp parallel for</code>，就可以获得非常可观的加速效果哦</p>
+</details>
+<h3 id="mpi-进程级并行">MPI 进程级并行<a class="headerlink" href="#mpi-进程级并行" title="Permanent link">¶</a></h3>
+<details class="success" open="open">
+<summary>Subtask: 进程级并行 (必做)</summary>
+<p>你需要完成程序的 MPI 多进程并行化，并且能在至少 2 台机器上同时运行，并得到正确的结果。之后，还可以探索 <a href="#mpi-调优">MPI 调优</a> 中介绍的方法。在完成后请不要忘记 <a href="#profile-性能分析">Subtask: Profile 任务</a>。</p>
+</details>
+<p>由于计算机硬件的限制，我们不可能在单节点上无限制地增加计算资源。因此，想要扩展计算规模，就需要必然涉及<strong>多节点</strong>的计算。而这时 <code>MPI</code> 就派上用场了。</p>
+<h4 id="mpi-编程">MPI 编程<a class="headerlink" href="#mpi-编程" title="Permanent link">¶</a></h4>
+<p>在课程中我们提到，<code>MPI</code> 是一种<strong>非共享内存</strong>的进程级并行编程模型，因此在使用 <code>MPI</code> 进行并行化时，你需要<strong>手动进行进程间的通信</strong>来实现数据在进程间的传输。</p>
+<p>你可以通过在代码中插入 <code>MPI_Send</code> 和 <code>MPI_Recv</code> 等函数来实现进程间的通信，也可以通过 <code>MPI</code> 提供的一系列通信函数来实现更高级的通信操作。更详细的使用方法请参考 <code>MPI</code> 的<a href="https://github.com/ZJUSCT/HPC101/tree/main/beamer/pdf/day8_am.pdf">短学期课程内容</a>。</p>
+<div class="admonition info">
+<p class="admonition-title">MPI 函数功能速查</p>
+<p>强烈推荐在 <a href="https://rookiehpc.org/mpi/docs/index.html">Rookie HPC MPI Documentation</a> 中快速查询 MPI 函数的具体功能。对于每个 MPI 函数，该文档都有详细的功能介绍，并附带示例代码。</p>
+</div>
+<p>在本次实验的实现过程中，你主要需要明确下面这三个问题，并进行合理实现:</p>
+<ul>
+<li>
+<p><strong>任务划分</strong>: 分析计算任务的特征，将大的计算任务拆分成多个互不依赖的子任务，并分配给不同的进程进行计算。</p>
+<p>比如，对于 GEMV (矩阵乘向量) 计算，你可以通过矩阵分块的形式进行任务划分，如下图:</p>
+<p></p><div align="center">
+    <a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/block.webp" data-desc-position="bottom"><img src="image/block.webp" alt="MPI 任务划分" style="zoom:40%;"></a>
+</div><p></p>
+</li>
+<li>
+<p><strong>数据分发与结果收集</strong>: 在并行计算开始前，需要把数据分发给每个进程。同理，完成计算后，需要将结果收集起来。为了完成这个任务，你需要了解两种通信方式，并进行合理选择:</p>
+<ul>
+<li><strong>集合通信</strong> (Collective Communication) ，如 <code>MPI_Bcast</code>、<code>MPI_Scatter</code>、<code>MPI_Gather</code>.</li>
+<li><strong>点对点通信</strong> (Point-to-Point Communication) ，如 <code>MPI_Send</code>、<code>MPI_Recv</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>并行计算</strong>: 你需要分析 BiCGSTAB 算法的迭代过程中，哪些部分可以充分并行计算，哪些部分必须串行计算。</p>
+<p>你可以将进程分成 Master 和 Worker 两类，可以并行的部分由全部进程并行计算，由 Master 进程负责数据分发和结果收集，而串行部分，则由 Master 进程独立完成。</p>
+</li>
+</ul>
+<p>需要注意的是，与 <code>OpenMP</code> 相比，<code>MPI</code> 的创建进程的开销和进程间通信开销往往较大。因此在使用 <code>MPI</code> 进行并行化时，你需要在并行化带来的加速效果和进程间通信的额外开销之间进行权衡。你可以通过调整进程数量、合理安排通信的时间和通信量等方式来优化 <code>MPI</code> 的并行效果。</p>
+<div class="admonition danger">
+<p class="admonition-title">常见错误</p>
+<p>在往年的实验中，有同学使用了 MPI，但是程序并没有任何加速效果。这是因为这位同学只是调用了 MPI_Init 和 MPI_Finalize 等函数，并没有进行<strong>任务划分、并行计算、数据通信</strong>等操作，导致实际上是每个进程独立地完成了全部的计算。请注意使用 MPI 时，上面的操作都需要通过手动编程实现。</p>
+</div>
+<h4 id="mpi-调优">MPI 调优<a class="headerlink" href="#mpi-调优" title="Permanent link">¶</a></h4>
+<p>为了提高 MPI 程序通信和运算效率，同学们可以进一步尝试:</p>
+<p><strong>异步通信</strong>: 你可以使用异步通信，尽量在计算的同时传输后续需要的数据，提高通信的效率。</p>
+<details class="- info">
+<summary>使用 ITAC / VTune 分析 MPI 通信</summary>
+<p>如果使用 ITAC 对程序进行 Profile 分析，可以观察到程序运算 (蓝色) 和 MPI 通信 (红色) 占用的时间。VTune 也类似，但没有 ITAC 这么详细。</p>
+<p>下图中第一个结果使用同步通信，而后面两个使用了 <code>Isend</code> / <code>Irecv</code> 的异步通信，可以观察到通信产生的空泡 (红色部分) 占比降低。</p>
+<p></p><div align="center">
+    <a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/async-comm.webp" data-desc-position="bottom"><img src="image/async-comm.webp" alt="Asynchronous Communication" style="zoom:50%;"></a>
+</div><p></p>
+</details>
+<p><strong>编译优化</strong>: 在编译 MPI 程序时，你可以使用 <code>mpicc -cc=gcc</code> 这样的选项来指定编译器。</p>
+<p>在使用 Intel oneAPI 中的 Profiler 时，推荐使用 Intel oneAPI 提供的 <code>mpiicx</code> 编译器。搭配使用 OpenMP 的时候，请参考下表：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>C</th>
+<th>C++</th>
+<th>Fortran</th>
+<th>加载 OpenMP 的选项</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GCC</td>
+<td><code>mpicc</code></td>
+<td><code>mpicxx</code></td>
+<td><code>mpifc</code></td>
+<td><code>-fopenmp</code></td>
+</tr>
+<tr>
+<td>LLVM</td>
+<td><code>mpicc -cc=clang</code></td>
+<td><code>mpicxx -cc=clang</code></td>
+<td><code>mpifc</code></td>
+<td><code>-fopenmp</code></td>
+</tr>
+<tr>
+<td>Intel oneAPI</td>
+<td><code>mpiicx</code></td>
+<td><code>mpiicpx</code></td>
+<td><code>mpiifx</code></td>
+<td><code>-qopenmp</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info inline end">
+<p class="admonition-title">阅读材料</p>
+<p>如果你对 MPI 通信和高性能网络感兴趣，可以阅读 <a href="https://docs.zjusct.io/optimization/parallel/cpu/mpi/#mpi-%E9%AB%98%E7%BA%A7%E8%AF%9D%E9%A2%98">MPI 通信算法调优 - ZJUSCT Open Docs</a> 中的相关内容，不过这已经超出了本次实验的考察范围。</p>
+</div>
+<p><strong>MPI 实现选择</strong>: 你也可以探究不同 <code>MPI</code> 实现对性能的影响，如 <code>Intel MPI</code>、<code>OpenMPI</code> 等。比如 Intel MPI 可以自动利用集群节点之间的 Infiniband 通信，在带宽和延迟上都要优于以太网互联。</p>
+<p><strong>MPI 绑核设置</strong>: 你可以通过绑核设置，将进程绑定在指定的 CPU 核心上，以提高程序的 CPU 亲和性。OpenMPI 和 Intel MPI 都支持绑核设置，但是具体参数不同。推荐阅读 <a href="https://hpc-wiki.info/hpc/Binding/Pinning">Binding/Pinning HPC Wiki</a> 来了解具体的绑核方式。</p>
+<div class="admonition tips">
+<p class="admonition-title">mpirun 参数设置提醒</p>
+<ol>
+<li>在使用 <code>mpirun</code> 启动 MPI + OpenMP 程序时，如果 OpenMP 的线程全部运行在了一个核心上，请添加 <code>-map-by NUMA</code> 参数</li>
+<li>如果要使用想在 Slurm 的任务中使用 Intel MPI, 请在 <code>run.sh</code> 中加入</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">I_MPI_PMI_LIBRARY</span><span class="o">=</span>/slurm/libpmi2.so.0.0.0
+</span></code></pre></div>
+</div>
+<h2 id="实验任务和要求">实验任务和要求<a class="headerlink" href="#实验任务和要求" title="Permanent link">¶</a></h2>
+<h3 id="实验任务">实验任务<a class="headerlink" href="#实验任务" title="Permanent link">¶</a></h3>
+<p>在 <a href="#知识讲解-优化思路">知识讲解: 优化思路</a> 中，每个章节都给出了一个子任务，同学们<strong>必须完成</strong>以下三个任务:</p>
+<ul>
+<li><a href="#profile-性能分析">Subtask: Profile 任务</a></li>
+<li><a href="#openmp-线程级并行">Subtask: OpenMP 线程级并行</a></li>
+<li><a href="#mpi-进程级并行">Subtask: MPI 进程级并行</a></li>
+</ul>
+<p>同时，还需要完成以下任务中的<strong>至少一个</strong>:</p>
+<ul>
+<li><a href="#编译优化">Subtask: 编译优化</a></li>
+<li><a href="#访存优化">Subtask: 访存优化</a></li>
+<li><a href="#simd-数据级并行">Subtask: SIMD 数据级并行</a></li>
+<li>其他方法进行的优化</li>
+</ul>
+<p>请在实验报告中详细描述实验过程及结果，包括但不限于以下内容：</p>
+<ol>
+<li>Profile 结果和分析</li>
+<li>优化思路和实现 (OpenMP, MPI 的使用...)</li>
+<li>每一步优化后的性能提升情况</li>
+</ol>
+<p>我们会根据同学们所进行的尝试以及完成程度进行给分，同时我们还会<strong>复测</strong>同学们提交的代码:</p>
+<ul>
+<li>代码在测试时将测试 4 组固定的输入，其中三组输入公开，相对应的矩阵 <span class="arithmatex">\(\mathbf{A}\)</span> 规模分别为 <span class="arithmatex">\(2001\times 2001\)</span>、<span class="arithmatex">\(4001\times 4001\)</span>、<span class="arithmatex">\(6001\times 6001\)</span>，最后一组输入不公布，用于检验算法实现的正确性。</li>
+<li>我们将检查代码的合法性（包括是否替换为了其他算法、是否调用了数学库、是否修改了禁止修改的部分等），重新编译，并检查程序是否能够正确运行</li>
+</ul>
+<p>因此建议同学们在提交前确认自己的代码在加载好环境后，能够顺利编译运行。推荐使用 git 进行版本管理，以便编写报告时可以快速找到历史优化的代码。</p>
+<div class="admonition danger">
+<p class="admonition-title">可修改的部分</p>
+<p>本次实验不再限制仅修改单文件，可以根据自己的需要，增加新的文件，或者修改别的文件。</p>
+<p>但请注意，在优化过程中，<strong>严禁修改计时区</strong>:</p>
+<ul>
+<li>对于 <code>src/main.cpp</code> 的修改，请仅限于添加 MPI Init 和 Finalize 的代码</li>
+<li><code>src/judger.cpp</code>, <code>include/judger.h</code> 不可以修改</li>
+<li><strong>其他部分都可以进行修改</strong></li>
+</ul>
+<p>如果希望提交到 OJ 测评，请注意:</p>
+<ul>
+<li><code>src/judger.cpp</code>, <code>include/judger.h</code> 在 OJ 测评时会被替换，因此修改并不会生效。</li>
+<li>如果有新增文件并希望可以被 OJ 测评，请将新文件放在 <code>src</code> 或 <code>include</code> 文件夹中。OJ 会使用的文件为：<code>src</code> 文件夹，<code>include</code> 文件夹，<code>CMakeLists.txt</code>, <code>run.sh</code>, <code>compile.sh</code>，其他的文件不会生效。</li>
+</ul>
+</div>
+<h3 id="实验环境">实验环境<a class="headerlink" href="#实验环境" title="Permanent link">¶</a></h3>
+<div class="admonition info">
+<p class="admonition-title">环境使用方法</p>
+<p>实验环境的使用方法请阅读:</p>
+<ul>
+<li><a href="https://hpc101.zjusct.io/guide/env/">软件环境 - HPC101 (2025)</a>: 包含如何使用 spack 安装与加载环境</li>
+<li><a href="https://hpc101.zjusct.io/guide/job/">提交作业 - HPC101 (2025)</a>: 包含如何使用 Slurm 提交 MPI 多机任务</li>
+</ul>
+<p><strong>请注意 Slurm 中申请的线程数包含了超线程，并不对应物理核心数。</strong></p>
+<p>为了防止 sbatch 参数设置错误导致程序最终只分配到了一个 CPU 物理核心，<strong>请务必参考 <a href="https://slurm.schedmd.com/sbatch.html">Slurm 官方文档</a></strong>，其中:</p>
+<ul>
+<li><code>--ntasks-per-node</code> 对应每个节点上的进程数</li>
+<li><code>--cpus-per-task</code> 对应每个进程的线程数</li>
+</ul>
+<p>你可以使用 <code>bash -c "hostname &amp;&amp; taskset -cp \$\$"</code> 检测是否申请到正确的核心，比如:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>M600:~$<span class="w"> </span>srun<span class="w"> </span>-p<span class="w"> </span>solver1<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>-c<span class="w"> </span><span class="m">10</span><span class="w"> </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">"hostname &amp;&amp; taskset -cp \$\$"</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>M602
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>pid<span class="w"> </span><span class="m">273240</span><span class="err">'</span>s<span class="w"> </span>current<span class="w"> </span>affinity<span class="w"> </span>list:<span class="w"> </span><span class="m">0</span>-4,52-56
+</span></code></pre></div>
+<p>也可以添加到 sbatch 脚本中。</p>
+</div>
+<p>我们提供 <code>BiCGSTAB Solver</code> 代码的串行版本作为<a href="https://github.com/ZJUSCT/HPC101/tree/main/src/lab4">基准代码</a>。</p>
+<p>数据文件在集群的 <code>/river/hpc101/2025/lab4/data</code> 中，你可以在代码的根目录下，通过</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>ln<span class="w"> </span>-s<span class="w"> </span>/river/hpc101/2025/lab4/data<span class="w"> </span>data
+</span></code></pre></div>
+<p>来引用它们。如果直接复制数据的话，请注意<strong>不要向 OJ 或者学在浙大提交数据文件</strong>。</p>
+<p>Lab 4 实验在 SLURM 集群上进行，提供了以下两个计算分区供使用：</p>
+<ul>
+<li>
+<p>solver1 分区：</p>
+<ul>
+<li>
+<p>单次任务限制： 最多可申请 1 个计算节点。</p>
+</li>
+<li>
+<p>最长运行时间： 15 分钟。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>solver2 分区：</p>
+<ul>
+<li>
+<p>单次任务限制： 最多可申请 3 个计算节点。</p>
+</li>
+<li>
+<p>最长运行时间： 2 分钟。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>所有计算节点配置相同，每个节点提供：</p>
+<ul>
+<li>
+<p>物理核心： 52 个 (2 × Intel(R) Xeon(R) Gold 5320 CPU @ 2.20GHz)</p>
+</li>
+<li>
+<p>内存： 503 GiB</p>
+</li>
+</ul>
+<p>注意： 每个分区最多同时运行一个任务。</p>
+<p>如果你希望更多的时间用于调试，可以<strong>在 <code>solver1</code> 分区申请单个节点</strong>，<strong>时限为 15 分钟</strong>。</p>
+<p>你可以使用上述条件范围内的任意节点数和核心数的组合完成本次实验，请在提交的 SBATCH 脚本中调整对应参数，并在最终报告中加以说明。</p>
+<div class="admonition info">
+<p class="admonition-title">分区时间限制</p>
+<p>在临近实验截止日期时，提交的同学会越来越多，我们会根据情况调整 solver1 / solver2 分区任务时间上限，请合理安排进度。基准程序可能无法在 15 分钟内完成大数据的计算，因此在优化前期请使用<strong>单机、小样例</strong>进行测试。</p>
+<p>为了避免 Slurm 队列拥挤，<strong>强烈建议</strong>同学们在使用 Slurm 时:</p>
+<ul>
+<li>使用 <code>sbatch</code> 提交长时间的任务</li>
+<li>使用 <code>srun</code> 来运行短时间任务</li>
+<li>尽量不要使用 <code>salloc</code> 来独占某个节点，如果必须要使用，请在使用结束后<strong>检查任务是否释放节点资源</strong></li>
+</ul>
+</div>
+<h3 id="实验要求">实验要求<a class="headerlink" href="#实验要求" title="Permanent link">¶</a></h3>
+<div class="admonition danger">
+<p class="admonition-title">注意事项</p>
+<ol>
+<li>严禁抄袭。我们会对提交的代码进行严格查重，一旦发现，按 0 分处理。</li>
+<li>禁止恶意浪费节点资源、恶意攻击 OJ 和集群等干扰他人的行为。</li>
+<li>禁止使用其他的算法来代替 <code>BiCGSTAB</code> 算法完成方程求解；我们考察的是并行化，而非对算法本身的改造。在代码测试时会着重检查这一点。<ul>
+<li>尝试实现 Pipeline BiCGSTAB 算法除外</li>
+</ul>
+</li>
+<li>禁止调用库函数完成计算过程，包括但不限于调用矩阵乘法库函数、调用线性方程组求解库函数等。</li>
+<li>如对题目有疑惑或认为说明文档/基准代码有缺漏，请联系助教。</li>
+</ol>
+</div>
+<p>请将「实验报告 pdf」和「代码压缩包 (.zip 格式)」提交到学在浙大:</p>
+<ul>
+<li>实验报告 <code>学号-姓名-solver.pdf</code></li>
+<li>实验代码压缩包 <code>学号-姓名-solver.zip</code>，具体内容要求如下:<ul>
+<li>请将优化任务的源代码文件放在 <code>code</code> 文件夹内，文件夹内存放：<ul>
+<li>源代码文件夹 <code>src</code> : 为了节省空间，<strong>请不要提交输入数据文件</strong>。</li>
+<li><code>CMakeLists.txt</code>: 为了让大家熟悉 CMake 的使用，我们要求使用 CMake 来构建代码。基准代码中已经提供了 CMakeLists.txt，你可以根据需要进行修改。</li>
+<li><code>run.sh</code>: 请在 <code>run.sh</code> 中编写 Slurm 的 SBATCH 脚本，并正确指定你所用的节点数和核心数，如果你需要设置环境变量，也可以在这里设置。</li>
+<li><code>compile.sh</code> 以及其他你需要上传的文件。</li>
+</ul>
+</li>
+<li>请将 Profile 任务的文件放在 <code>profile</code> 文件夹内　(如果有需要上传的)</li>
+</ul>
+</li>
+</ul>
+<h3 id="常见问题">常见问题<a class="headerlink" href="#常见问题" title="Permanent link">¶</a></h3>
+<details class="danger" open="open">
+<summary>Q: 关于 main.cpp 我可以修改哪些部分？</summary>
+<p><strong>对于 src/main.cpp 的修改，请仅限于添加 MPI Init 和 Finalize 的代码</strong></p>
+<p>不可以在计时区外添加其他 MPI 函数，如 <code>MPI_Bcast</code>, <code>MPI_Send</code> 等等，这些数据通信和计算一样，都需要在 bicgstab 函数中完成。</p>
+</details>
+<details class="success" open="open">
+<summary>Q: 使用 OpenMP 后，我的程序变慢了许多 / 没有什么作用，该怎么做？</summary>
+<p>请<strong>务必</strong>使用 <code>btop</code> 等工具查看程序运行时 CPU 的实时占用率以及核心数，确认程序真的跑在了多个核心上，如果没有，可以按照这些步骤来排查:</p>
+<ol>
+<li>请确认自己的计算程序运行在计算节点上，如 M602-M604. 不建议在登录节点 <code>sct101</code> 上运行计算程序</li>
+<li>请检查 <code>CMakeLists.txt</code> 中是否添加了启用 OpenMP 的选项，如果你有些忘记了，请查看 <a href="#mpi-调优">MPI 调优</a> 所列的表格</li>
+<li>请检查 <code>run.sh</code> 中 SBATCH 参数的设置是否正确，可以参考 <a href="#实验环境">实验环境</a> 中的提示，可以使用 <code>srun</code> 添加相同参数运行一个测试程序 (请自己实现，可以让每个线程输出自己的 <code>tid</code>) 来确认</li>
+<li>如果尝试了绑核参数，可以使用 <code>mpirun</code> 相关的参数，在程序运行前输出绑核策略，来确认绑核是否有效地将 OpenMP 的线程绑定在指定的核心上</li>
+</ol>
+</details>
+<details class="success" open="open">
+<summary>Q: 在本地安装的 VTune Profiler 会闪退，怎么办？</summary>
+<p>请确认 VTune Profiler 安装路径不包含非英文字符</p>
+</details>
+<details class="success" open="open">
+<summary>Q: VTune Profiler 使用 Uarch Exploration 模式进行性能分析时，会报错</summary>
+<p>请在使用 Uarch Exploration 模式时，使用 SLURM 申请该节点的全部核心，可以添加 <code>--cpus-per-task=104</code> 参数</p>
+</details>
+<details class="success" open="open">
+<summary>Q: 为什么我的程序 sbatch 就能运行，在 OJ 上就运行不了 / 出错？</summary>
+<p>请阅读 <a href="#oj-使用说明">OJ 使用说明</a>，了解测评流程，还有 OJ 环境与计算节点的差异，你可以按照以下思路来排查:</p>
+<ol>
+<li>确定自己上传到 OJ sftp 的代码和本地是一致的，没有传错，可以使用 <a href="#oj-使用说明">OJ 使用说明</a> 中给出的脚本来上传</li>
+<li>OJ 只能访问集群公共 spack 内的环境，无法加载自行安装的，位于家目录下的 spack，请确保自己使用的编译器和 OJ 提交的版本一样</li>
+<li>编译参数选择也需要注意，如果优化选项开得比较猛，会出现架构不同导致的程序行为不同。</li>
+</ol>
+</details>
+<details class="success" open="open">
+<summary>Q: 实验文档太长了，我都要做哪些任务，可不可以简单讲一下?</summary>
+<p>TLDR: 只需要完成 OpenMP + MPI 优化、Profiler 使用和任意一个其他优化这三个任务，并在实验报告中记录自己的尝试过程就可以。</p>
+<p>如果你还有时间和余力，欢迎尝试更多的优化方法和 Bonus 任务。你也可以通过完成 Bonus 任务，来减免要求的三个任务中的一个，但请注意 Bonus 也需要花费精力来完成，直接使用 AI 生成的代码将不会被接受。</p>
+</details>
+<h2 id="bonus-任务">Bonus 任务<a class="headerlink" href="#bonus-任务" title="Permanent link">¶</a></h2>
+<p>本部分<strong>选做</strong>, 感兴趣的同学可以尝试完成。</p>
+<details class="example inline end">
+<summary>Fortran Meme 太多了!</summary>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><input id="__tabbed_1_3" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">🚨</label><label for="__tabbed_1_2">🤓</label><label for="__tabbed_1_3">💀👋😀</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>甲：我们穿越成功了！</p>
+<p>乙：但现在是哪一年？</p>
+<p>甲：问问那边的路人。</p>
+<p>甲：现在增长趋势最快的编程语言是什么？</p>
+<p>路人：Fortran 和 COBOL.</p>
+<p>甲：1970 年</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/meme/fortran-cobol.webp" data-desc-position="bottom"><img alt="fortran-cobol" src="image/meme/fortran-cobol.webp"></a></p>
+</div>
+<div class="tabbed-block">
+<p>在古籍馆借到了 FOTRAN 教材:</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/meme/fortran-tan.webp" data-desc-position="bottom"><img alt="fortran-tan" src="image/meme/fortran-tan.webp"></a></p>
+<p>(不要真的去学这本书，拜托了orz)</p>
+</div>
+<div class="tabbed-block"></div>
+</div>
+</div>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/meme/fortran-native.webp" data-desc-position="bottom"><img alt="fortran-native" src="image/meme/fortran-native.webp"></a></p>
+</details>
+<p>Fortran 是世界上第一个被正式采用并流传至今的高级编程语言，它因较为容易学习而被大量用于科学计算领域的代码编写。在其<a href="https://fortran-lang.org/index">官方主页</a>上，Fortran 被定义为“<strong>高性能并行编程语言</strong>”。可以说，在科学计算领域，Fortran 是一门非常重要的编程语言。Fortran 最突出的特点就是数组下标默认从 1 开始，符合研究者的习惯，这一点与 C/C++ 不同。</p>
+<p>Fortran 的编译器往往会随 C/C++ 的编译器一同安装，且其编译流程和 C/C++ 类似，故其能和 C/C++ 程序进行混合编译，最终链接成一个程序。我们一般接触到的 Fortran 代码至少是 Fortran 90 标准（这也是其后缀名 <code>.f90</code> 的由来），而最新的标准是 Fortran 2023，甚至已经有了<a href="https://fpm.fortran-lang.org/">包管理器</a>和 <a href="https://http-client.fortran-lang.org/">http 包</a>。</p>
+<p>在本部分，你需要使用 Fortran 完成 <code>BiCGSTAB</code> 算法的实现，并使其能够被基准代码中的 C 语言代码调用。你可以在 <a href="#fortran-代码编写">Fortran 代码编写</a> 部分找到一些学习资料。</p>
+<p>我们在 CMakeLists.txt 中给出了混合编译 C 和 Fortran 代码时需要用到的配置，所以可以直接在 <code>src</code> 文件夹内创建 <code>solver.f90</code> 文件，然后编写 Fortran 代码。根据 CMakeLists.txt 中的配置，会自动编译生成 <code>bicgstab-fortran</code> 程序。</p>
+<p>同时你也可以尝试在 Fortran 上尝试你的一系列优化策略，并比较两个版本的性能差异。</p>
+<p>Bonus 部分完成即有加分 (完成 Bonus 部分实验要求，且能够通过编译与测试)，我们将根据完成质量提供 10 分以内的加分(与 Lab 4 权重相同)，不过实验最高得分为 100 分。</p>
+<div class="admonition tip">
+<p class="admonition-title">模板代码</p>
+<p>你可以参考下面的模板代码，并根据需要进行修改:</p>
+<div class="language-fortran highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">function </span><span class="n">bicgstab</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">tol</span><span class="p">,</span><span class="w"> </span><span class="n">maxit</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">iter</span><span class="p">)</span><span class="w"> </span><span class="k">bind</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s2">"bicgstab"</span><span class="p">)</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">iso_c_binding</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="nb">    </span><span class="k">implicit none</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="c">! Add parameter binding here, eg:</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="kt">integer</span><span class="p">(</span><span class="kt">c_int</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">N</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="c">! Add local variables here, eg:</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="kt">integer</span><span class="p">(</span><span class="kt">c_int</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="c">! Start your implementation here</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">    </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="k">end function </span><span class="n">bicgstab</span>
+</span></code></pre></div>
+</div>
+<div class="admonition info">
+<p class="admonition-title">关于 AI 使用的要求</p>
+<p>对于 Fortran 部分，请不要直接提交 AI 生成的代码:</p>
+<ul>
+<li>一方面，Fortran 是比较古老的编程语言，语料较少，使用 AI 辅助可能会导致完成 Bonus 更加困难</li>
+<li>另一方面，Fortran 从语言设计上就是贴近科学计算和公式表示的，当你掌握基本的语法后，转写代码会相对容易</li>
+</ul>
+<p>如果你提交的代码充斥着 AI 生成的痕迹，将不能获得 Bonus 代码实现部分的加分。</p>
+</div>
+<h2 id="oj-使用说明">OJ 使用说明<a class="headerlink" href="#oj-使用说明" title="Permanent link">¶</a></h2>
+<div class="admonition danger">
+<p class="admonition-title">这里没必要卷 😭</p>
+<p><strong>请注意，OJ 上的得分仅供性能参考，不会直接折算进 Lab 得分，也不会按照加速比排行榜次序来评分。</strong></p>
+<p>我们更注重优化的思路和过程分析，因此 OJ 测评得分与实验得分并无直接关系。请不要过度追求 OJ 得分进行优化，也不要因为较高的 OJ 得分而忽视了实验报告的撰写，希望同学们能够理解。</p>
+<p>即使加速比不是很理想，但优化思路明确，代码完成程度高，一样可以得到实验的高分。同理，即使 OJ 都拿了满分，但报告很简略，没有提及关键思路，也不会获得很理想的分数。</p>
+</div>
+<p>请阅读 <a href="https://hpc101.zjusct.io/guide/oj/">使用在线测评</a> 来熟悉 OJ 的操作方法。</p>
+<p>上传文件时，请使用 <code>scp</code> 或者 <code>sftp</code> 命令，将你的仓库文件夹上传到 OJ 的 <code>lab4</code> 文件夹内，保持文件夹结构不变：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>.   &lt;--- OJ 的 lab4 文件夹, &lt;用户名&gt;+oj@clusters.zju.edu.cn:lab4
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>├── CMakeLists.txt
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>├── run.sh
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>├── compile.sh
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>├── include
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>│&nbsp;&nbsp; └── judger.h
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>└── src
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    ├── bicgstab
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    │   └── solver.c
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    ├── judger.cpp
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    └── main.cpp
+</span></code></pre></div>
+<p>请注意不要上传数据文件，上传成功后，可以使用 <code>ssh &lt;用户名&gt;+oj@clusters.zju.edu.cn submit lab4</code> 提交测评。</p>
+<p>可以使用下面的脚本来上传代码:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="ch">#!/usr/bin/env bash</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nv">user</span><span class="o">=</span><span class="k">$(</span>whoami<span class="k">)</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>scp<span class="w"> </span>-r<span class="w"> </span>src<span class="w"> </span><span class="nv">$user</span>+oj@clusters.zju.edu.cn:lab4/
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>scp<span class="w"> </span>-r<span class="w"> </span>include<span class="w"> </span><span class="nv">$user</span>+oj@clusters.zju.edu.cn:lab4/
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>scp<span class="w"> </span>compile.sh<span class="w"> </span><span class="nv">$user</span>+oj@clusters.zju.edu.cn:lab4/compile.sh
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>scp<span class="w"> </span>run.sh<span class="w"> </span><span class="nv">$user</span>+oj@clusters.zju.edu.cn:lab4/run.sh
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>scp<span class="w"> </span>CMakeLists.txt<span class="w"> </span><span class="nv">$user</span>+oj@clusters.zju.edu.cn:lab4/CMakeLists.txt
+</span></code></pre></div>
+<p>由于实验需要提交多个文件和文件夹，请务必注意上传到 OJ 的文件是否满足要求，如果需要操作文件结构，例如不小心上传错误文件，可以使用 <code>sftp</code> 交互式操作。</p>
+<details class="info">
+<summary>OJ 的测评流程</summary>
+<p>为了方便大家排查错误，公布 OJ 测评的工作流如下:</p>
+<ol>
+<li>替换 <code>src/judge.cpp</code> 为用于测评系统的代码</li>
+<li>使用 <code>compile.sh</code> 编译代码，你可以在 <code>compile.sh</code> 中加载编译环境。</li>
+<li>使用 <code>sbatch run.sh /river/hpc101/2025/lab4/data/case_&lt;数据规模&gt;.bin</code> 命令提交任务到集群。
+    如果针对数据规模有不同的线程/进程规划策略，请在 <code>run.sh</code> 中进行相应的修改，通过 <code>$1</code> 代表脚本的第一个参数。</li>
+<li>根据各组数据运行结果，首先检查输出是否正确，然后根据运行时间计算得分。</li>
+</ol>
+<p>OJ 对每一组数据采用对数曲线进行给分，这意味着只要比 baseline 快，就可以很快获得一定的分数。同时也允许在标准满分的基础上进一步优化的同学获得更高的分数，分数上限为 105 分。最终得分为全部三组数据的平均值。</p>
+<p>分数计算的参考运行时间如下：</p>
+<table>
+<thead>
+<tr>
+<th>数据</th>
+<th>得分时间</th>
+<th>满分时间</th>
+<th>计算方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2001</td>
+<td>20s</td>
+<td>3s</td>
+<td>对数</td>
+</tr>
+<tr>
+<td>4001</td>
+<td>100s</td>
+<td>15s</td>
+<td>对数</td>
+</tr>
+<tr>
+<td>6001</td>
+<td>500s</td>
+<td>75s</td>
+<td>对数</td>
+</tr>
+</tbody>
+</table>
+<p>以第一组数据为例，直观感受对数计算方式：</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/log-score.webp" data-desc-position="bottom"><img alt="对数计算函数图像" src="image/log-score.webp"></a></p>
+</details>
+<details class="success" open="open">
+<summary>OJ 上如何加载编译与运行环境</summary>
+<p>在 OJ 测评时，<strong>只能访问集群 spack</strong>, 因此如果你使用 spack 提供的编译器，需要在 <code>compile.sh</code> 和 <code>run.sh</code> 中使用:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">source</span><span class="w"> </span>/pxe/opt/spack/share/spack/setup-env.sh
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="c1"># 加载你需要的环境，如:</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>spack<span class="w"> </span>load<span class="w"> </span>intel-oneapi-mpi<span class="w"> </span>intel-oneapi-compilers
+</span></code></pre></div>
+<p>同时，需要注意 OJ 编译使用的机器与计算节点架构不同，使用 <code>-march=native</code> 或者 <code>-xHost</code> 时，AVX512 将不可用。因此，你可以在 <code>CMakeLists.txt</code> 中根据需要选择下面的编译选项:</p>
+<ul>
+<li><code>-march=icelake-server</code>: M600-M604 节点的架构 <a href="https://en.wikipedia.org/wiki/Ice_Lake_(microprocessor)#Ice_Lake-SP_(Xeon_Scalable)">Icelake</a></li>
+<li><code>-march=sapphirerapids</code>: M700-M701 节点的架构 <a href="https://en.wikipedia.org/wiki/Sapphire_Rapids">Sapphire Rapids</a> (如果你想尝试在 M7 运行的话)</li>
+</ul>
+</details>
+<h2 id="推荐阅读资料">推荐阅读资料<a class="headerlink" href="#推荐阅读资料" title="Permanent link">¶</a></h2>
+<h3 id="profiler-的使用">Profiler 的使用<a class="headerlink" href="#profiler-的使用" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>VTune, 一般用这个：<a href="https://www.intel.com/content/www/us/en/docs/vtune-profiler/get-started-guide/2025-4/overview.html">Get Started with Intel® VTune™ Profiler</a></p>
+</li>
+<li>
+<p>ITAC, MPI 程序就用它：<a href="https://www.intel.com/content/www/us/en/docs/trace-analyzer-collector/get-started-guide/2021-10/overview.html">Get Started with Intel® Trace Analyzer and Collector</a></p>
+</li>
+<li>
+<p>APS: <a href="https://www.intel.com/content/www/us/en/docs/vtune-profiler/get-started-application-snapshot/2021-3/overview.html">Get Started with Application Performance Snapshot for Linux* OS</a></p>
+</li>
+</ul>
+<h3 id="fortran-代码编写">Fortran 代码编写<a class="headerlink" href="#fortran-代码编写" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>官网教程，请重点了解 Fortran 中函数传参的细节，以及与 C 程序混合编译的部分：<a href="https://fortran-lang.org/learn/quickstart">Quickstart tutorial - Fortran Programming Language (fortran-lang.org)</a>, <a href="https://fortran-lang.org/en/learn/quickstart/organising_code/">Organising code structure</a>, <a href="https://fortran-lang.org/en/learn/intrinsics/cfi/">Procedures for binding to C interfaces</a></p>
+</li>
+<li>
+<p><a href="https://ourcodingclub.github.io/tutorials/fortran-intro/">Introduction to Fortran (ourcodingclub.github.io)</a></p>
+</li>
+</ul>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 29, 2025 14:27:16 UTC">August 29, 2025</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"></path></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 7, 2025 16:39:17 UTC">May 7, 2025</span>
+  </span>
+
+    
+    
+    
+      
+  <span class="md-source-file__fact">
+    
+      
+  <span class="md-icon" title="Contributors">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"></path></svg>
+  </span>
+  <span>GitHub</span>
+
+    
+    <nav>
+      
+        <a href="https://github.com/bowling233" class="md-author" title="@bowling233">
+          
+          <img src="https://avatars.githubusercontent.com/u/35755846?v=4&amp;size=72" alt="bowling233">
+        </a>
+      
+        <a href="https://github.com/web-flow" class="md-author" title="@web-flow">
+          
+          <img src="https://avatars.githubusercontent.com/u/19864447?v=4&amp;size=72" alt="web-flow">
+        </a>
+      
+        <a href="https://github.com/yegroup001" class="md-author" title="@yegroup001">
+          
+          <img src="https://avatars.githubusercontent.com/u/139317128?v=4&amp;size=72" alt="yegroup001">
+        </a>
+      
+        <a href="https://github.com/YooLc" class="md-author" title="@YooLc">
+          
+          <img src="https://avatars.githubusercontent.com/u/52441312?v=4&amp;size=72" alt="YooLc">
+        </a>
+      
+      
+      
+        
+          <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab4-Solver-Challenge/index.md" class="md-author md-author--more">
+            +1
+          </a>
+        
+      
+    </nav>
+  </span>
+
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+          
+          <a href="../Lab3-CudaConv/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lab 3: CUDA 卷积">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Lab 3: CUDA 卷积
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../Lab5-TinyLLM/" class="md-footer__link md-footer__link--next" aria-label="Next: Lab 5: TinyLLM">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Lab 5: TinyLLM
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "content.code.select", "content.code.annotate", "navigation.footer", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.tracking", "navigation.path", "navigation.top", "toc.follow", "content.action.edit", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>

@@ -1,0 +1,2035 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab5-TinyLLM/">
+      
+      
+        <link rel="prev" href="../Lab4-Solver-Challenge/">
+      
+      
+        <link rel="next" href="../Final-Project/">
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>Lab 5: TinyLLM - HPC101 (2025)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#实验五-tinyllm" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101 (2025)" class="md-header__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101 (2025)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Lab 5: TinyLLM
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo" aria-label="切换至浅色模式" type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="zjusct" data-md-color-primary="indigo" data-md-color-accent="indigo" aria-label="切换至深色模式" type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo" aria-label="根据系统模式切换主题" type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../slides/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  课程幻灯片
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101 (2025)" class="md-nav__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="../../assets/zjusct.svg" alt="logo">
+
+    </a>
+    HPC101 (2025)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1">
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程信息
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            课程信息
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    欢迎来到 HPC 101 超算短学期
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_2">
+        
+          
+          <label class="md-nav__link" for="__nav_1_2" id="__nav_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    使用集群
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            使用集群
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/env/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    软件环境
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    登陆节点
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    提交作业
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    使用在线测评
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    集群概况
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程实验
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            课程实验
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 0: Linux 快速入门
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 1: 简单集群搭建
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 2: 向量化计算
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2.5-RISC-V/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 2.5: 向量化进阶 (RISC-V)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab3-CudaConv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 3: CUDA 卷积
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab4-Solver-Challenge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 4: Solver Challenge
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Lab 5: TinyLLM
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 5: TinyLLM
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验简介
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解qwen3-model-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解：Qwen3 Model Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：Qwen3 Model Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#qwen3-模型架构概述" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qwen3 模型架构概述
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#self-attention-layer-详解" class="md-nav__link">
+    <span class="md-ellipsis">
+      Self Attention Layer 详解
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Self Attention Layer 详解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#注意力机制原理" class="md-nav__link">
+    <span class="md-ellipsis">
+      注意力机制原理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#多头注意力-multi-head-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      多头注意力 (Multi-Head Attention)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#自注意力层-self-attention-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      自注意力层 (Self-Attention Layer)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#分组查询注意力-grouped-query-attention-gqa" class="md-nav__link">
+    <span class="md-ellipsis">
+      分组查询注意力 (Grouped Query Attention, GQA)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rope位置编码" class="md-nav__link">
+    <span class="md-ellipsis">
+      RoPE位置编码
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rmsnorm" class="md-nav__link">
+    <span class="md-ellipsis">
+      RMSNorm
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qk-normalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q/K Normalization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qwen-3-self-attention-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qwen 3 Self Attention Layer
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#feed-forward-network-ffn详解" class="md-nav__link">
+    <span class="md-ellipsis">
+      Feed Forward Network (FFN)详解
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Feed Forward Network (FFN)详解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#swiglu激活函数" class="md-nav__link">
+    <span class="md-ellipsis">
+      SwiGLU激活函数
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ffn-结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      FFN 结构
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qwen-3-ffn-结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qwen 3 FFN 结构
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decoder-layer-概览" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decoder Layer 概览
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#思考题" class="md-nav__link">
+    <span class="md-ellipsis">
+      思考题
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验指导和提示" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验指导和提示
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验指导和提示">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#实验框架介绍" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验框架介绍
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#开发环境设置" class="md-nav__link">
+    <span class="md-ellipsis">
+      开发环境设置
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#提交作业" class="md-nav__link">
+    <span class="md-ellipsis">
+      提交作业
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务和要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务和要求
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务和要求">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验要求
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料与阅读材料" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考资料与阅读材料
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="参考资料与阅读材料">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考文献
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#推荐阅读材料" class="md-nav__link">
+    <span class="md-ellipsis">
+      推荐阅读材料
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Final-Project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Final Project - 大作业
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../slides/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    课程幻灯片
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验简介
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解qwen3-model-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      知识讲解：Qwen3 Model Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：Qwen3 Model Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#qwen3-模型架构概述" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qwen3 模型架构概述
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#self-attention-layer-详解" class="md-nav__link">
+    <span class="md-ellipsis">
+      Self Attention Layer 详解
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Self Attention Layer 详解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#注意力机制原理" class="md-nav__link">
+    <span class="md-ellipsis">
+      注意力机制原理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#多头注意力-multi-head-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      多头注意力 (Multi-Head Attention)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#自注意力层-self-attention-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      自注意力层 (Self-Attention Layer)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#分组查询注意力-grouped-query-attention-gqa" class="md-nav__link">
+    <span class="md-ellipsis">
+      分组查询注意力 (Grouped Query Attention, GQA)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rope位置编码" class="md-nav__link">
+    <span class="md-ellipsis">
+      RoPE位置编码
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rmsnorm" class="md-nav__link">
+    <span class="md-ellipsis">
+      RMSNorm
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qk-normalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q/K Normalization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qwen-3-self-attention-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qwen 3 Self Attention Layer
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#feed-forward-network-ffn详解" class="md-nav__link">
+    <span class="md-ellipsis">
+      Feed Forward Network (FFN)详解
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Feed Forward Network (FFN)详解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#swiglu激活函数" class="md-nav__link">
+    <span class="md-ellipsis">
+      SwiGLU激活函数
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ffn-结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      FFN 结构
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qwen-3-ffn-结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qwen 3 FFN 结构
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decoder-layer-概览" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decoder Layer 概览
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#思考题" class="md-nav__link">
+    <span class="md-ellipsis">
+      思考题
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验指导和提示" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验指导和提示
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验指导和提示">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#实验框架介绍" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验框架介绍
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#开发环境设置" class="md-nav__link">
+    <span class="md-ellipsis">
+      开发环境设置
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#提交作业" class="md-nav__link">
+    <span class="md-ellipsis">
+      提交作业
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务和要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务和要求
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务和要求">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验任务
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      实验要求
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料与阅读材料" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考资料与阅读材料
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="参考资料与阅读材料">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#参考文献" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考文献
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#推荐阅读材料" class="md-nav__link">
+    <span class="md-ellipsis">
+      推荐阅读材料
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab5-TinyLLM/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
+    </a>
+  
+  
+
+
+<h1 id="实验五-tinyllm">实验五: TinyLLM<a class="headerlink" href="#实验五-tinyllm" title="Permanent link">¶</a></h1>
+<div class="admonition info">
+<p class="admonition-title">实验信息</p>
+<p>负责助教：林熙 (<a href="https://github.com/Erix025">@Erix025</a>), 茅晋源(<a href="https://github.com/skeletalknight">@skeletalknight</a>), 尤傲(<a href="https://github.com/You-Ao">@You-Ao</a>)</p>
+</div>
+<h2 id="实验简介">实验简介<a class="headerlink" href="#实验简介" title="Permanent link">¶</a></h2>
+<p>本实验通过从零实现 Qwen3-8B 模型中的关键组件来掌握深度学习的核心概念。你将亲手实现 Self Attention 和 Feed Forward Network (FFN)，最终构建一个完整的语言模型，并在此基础上进行文本生成。</p>
+<p>在本实验中，你将学习并实践以下内容：</p>
+<ul>
+<li>深入理解 Transformer 架构中的 Self Attention</li>
+<li>掌握前馈神经网络 (FFN) 和 SwiGLU 激活函数的实现</li>
+<li>了解分组查询注意力 (Grouped Query Attention, GQA) 优化方法</li>
+<li>在实践中理解 LLM 的推理过程</li>
+</ul>
+<h2 id="知识讲解qwen3-model-architecture">知识讲解：Qwen3 Model Architecture<a class="headerlink" href="#知识讲解qwen3-model-architecture" title="Permanent link">¶</a></h2>
+<h3 id="qwen3-模型架构概述">Qwen3 模型架构概述<a class="headerlink" href="#qwen3-模型架构概述" title="Permanent link">¶</a></h3>
+<p><a href="https://qwenlm.github.io/blog/qwen3/">Qwen3</a> 采用标准的 Transformer Decoder 架构，其推理过程如下：</p>
+<ol>
+<li>Tokenization：将输入文本转换为 token 序列，每一个 token 对应一个整数 ID。这一部分由 Tokenizer 完成。</li>
+<li>Embedding：将 token ID 转换为高维向量表示。这一部分由 Embedding 层完成。</li>
+<li>
+<p>Decoder Layers: 将输入向量依次通过多个解码器层，每层包含以下组件：</p>
+<ul>
+<li>Multi-Head Attention (MHA)：计算输入 token 之间的注意力分数。</li>
+<li>Feed Forward Network (FFN)：对每个 token 的表示进行非线性变换。</li>
+<li>Layer Normalization：对每层的输出进行归一化处理。</li>
+</ul>
+</li>
+<li>
+<p>Output Layer：将最后一层的输出通过线性变换和 softmax 层转换为 token ID 的概率分布。</p>
+</li>
+<li>Text Generation：根据概率分布生成下一个 token，并将 token 放入 token 序列中。重复步骤 2-4 直到生成结束标志。</li>
+</ol>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/qwen3_arch.png" data-desc-position="bottom"><img alt="Qwen3 模型架构示意图" src="image/qwen3_arch.png" style="display:block; margin:auto;" width="200"></a></p>
+<p>Qwen 3 在标准 Decoder-Only 架构的基础上，采用了以下优化：</p>
+<ul>
+<li><strong>分组查询注意力 (Grouped Query Attention, GQA)</strong>：通过共享 Key/Value 头来减少计算量。</li>
+<li><strong>RoPE (Rotary Position Embedding)</strong>：使用旋转位置编码来增强模型对序列位置的感知。</li>
+<li><strong>Q/K Normalization</strong>：在计算注意力分数之前，对 Query 和 Key 进行归一化处理。</li>
+<li><strong>RMSNorm</strong>：使用 RMSNorm 替代 LayerNorm 进行归一化处理。</li>
+<li><strong>SwiGLU 激活函数</strong>：使用 SwiGLU 作为前馈网络的激活函数，增强模型的表达能力。</li>
+</ul>
+<p>在本次实验中我们使用的是 Qwen3-8B 模型，其关键参数如下：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+<th>参数含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>num_hidden_layers</code></td>
+<td>36</td>
+<td>Decoder Layer 数量</td>
+</tr>
+<tr>
+<td><code>hidden_size</code></td>
+<td>4096</td>
+<td>每层的隐藏层维度</td>
+</tr>
+<tr>
+<td><code>num_attention_heads</code></td>
+<td>32</td>
+<td>注意力头数量</td>
+</tr>
+<tr>
+<td><code>num_key_value_heads</code></td>
+<td>8</td>
+<td>Key/Value 头数量 (用于 GQA)</td>
+</tr>
+<tr>
+<td><code>intermediate_size</code></td>
+<td>12288</td>
+<td>前馈网络中间层维度</td>
+</tr>
+<tr>
+<td><code>vocab_size</code></td>
+<td>151936</td>
+<td>词汇表大小</td>
+</tr>
+</tbody>
+</table>
+<p>其他更详细的参数可以参考权重目录下的 <code>config.json</code> 文件。</p>
+<div class="admonition warning">
+<p class="admonition-title">注意</p>
+<p>请不要直接参考 modules/config.py 中配置类的默认值，模型的实际参数值可能会有所不同。请以 <code>config.json</code> 文件中的参数为准。</p>
+</div>
+<p>为了更好地理解 Qwen3 模型的核心组件，我们将重点讲解 Multi-Head Attention 和 Feed Forward Network 的实现细节。</p>
+<h3 id="self-attention-layer-详解">Self Attention Layer 详解<a class="headerlink" href="#self-attention-layer-详解" title="Permanent link">¶</a></h3>
+<h4 id="注意力机制原理">注意力机制原理<a class="headerlink" href="#注意力机制原理" title="Permanent link">¶</a></h4>
+<p>注意力机制的核心思想是让模型在处理每个位置的token时，能够关注到序列中的所有相关位置。数学公式如下：</p>
+<div class="arithmatex">\[
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T + \text{mask}}{\sqrt{d_k}}\right)V
+\]</div>
+<p>其中：</p>
+<ul>
+<li>Q (Query)：查询矩阵，形状为 [batch_size, seq_len, d_model]</li>
+<li>K (Key)：键矩阵，形状为 [batch_size, seq_len, d_model]</li>
+<li>V (Value)：值矩阵，形状为 [batch_size, seq_len, d_model]</li>
+<li>mask：掩码矩阵，形状为 [batch_size, seq_len, seq_len]</li>
+<li><span class="arithmatex">\(d_k\)</span>：Key的维度，用于缩放</li>
+<li>batch_size：一个 batch 的大小</li>
+<li>seq_len：序列长度</li>
+<li>d_model：模型的隐藏层维度</li>
+</ul>
+<p>在我们的实验中，由于 LLM 是依赖前面的 token 来预测下一个 token 的过程，因此我们需要使用 Causal Mask（因果掩码）来确保模型只能看到当前 token 之前的 token。Causal Mask 的常见实现方式是将上三角部分设置为负无穷大，这样在 softmax 计算时，这些位置的注意力分数会被归一化为 0。</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/causal_mask.png" data-desc-position="bottom"><img alt="Causal Mask 示例" src="image/causal_mask.png"></a></p>
+<h4 id="多头注意力-multi-head-attention">多头注意力 (Multi-Head Attention)<a class="headerlink" href="#多头注意力-multi-head-attention" title="Permanent link">¶</a></h4>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/mha.png" data-desc-position="bottom"><img alt="Multi-Head Attention" src="image/mha.png"></a></p>
+<p>多头注意力是在标准注意力机制的基础上，将注意力分成多个头来并行计算，以捕捉不同的表示子空间。其计算公式为：</p>
+<div class="arithmatex">\[
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h)W^O
+\]</div>
+<p>其中每个头的计算为：</p>
+<div class="arithmatex">\[
+\text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)
+\]</div>
+<h4 id="自注意力层-self-attention-layer">自注意力层 (Self-Attention Layer)<a class="headerlink" href="#自注意力层-self-attention-layer" title="Permanent link">¶</a></h4>
+<p>在自注意力层中，Query、Key和Value都是来自同一输入序列。其实现步骤如下：</p>
+<ol>
+<li><strong>QKV投影</strong>：将输入 <code>hidden_states</code> 通过三个线性层 <code>q_proj</code>, <code>k_proj</code>, <code>v_proj</code> 投影为 <code>Q</code>, <code>K</code>, <code>V</code> 三个矩阵。</li>
+<li><strong>形状变换</strong>：将 Q, K, V 张量重塑为多头格式 <code>[batch, num_heads, seq_len, head_dim]</code>。其中 <code>head_dim * num_heads = d_model</code>。</li>
+<li><strong>进行注意力计算</strong>：计算注意力分数，并应用 mask 和 softmax 函数。</li>
+<li><strong>输出投影</strong>：将注意力输出重塑为 <code>[batch, seq_len, d_model]</code>，并通过输出投影层 <code>o_proj</code>。</li>
+</ol>
+<h4 id="分组查询注意力-grouped-query-attention-gqa">分组查询注意力 (Grouped Query Attention, GQA)<a class="headerlink" href="#分组查询注意力-grouped-query-attention-gqa" title="Permanent link">¶</a></h4>
+<p><a href="https://arxiv.org/abs/2305.13245">GQA</a> 是一种用于减少 Key Value 数量和 Attention 计算量的优化方法。在 MHA 中，一个 Query Head 对应一个 Key/Value Head，但在 GQA 中，多个 Query Heads 可以共享同一个 Key/Value Head，这样可以显著减少 KV 的数量。</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/gqa.png" data-desc-position="bottom"><img alt="GQA 示意图" src="image/gqa.png"></a></p>
+<p>在 Qwen3-8B 中，<code>num_heads=32</code>，<code>num_key_value_heads=8</code>，因此每 4 个 Query Heads 共享 1 个 Key/Value Head。在实际实现中，Key/Value 投影时会将输入维度从 <code>d_model</code> 降低到 <code>num_key_value_heads * head_dim</code> (而不是 <code>num_heads * head_dim</code>)。</p>
+<p>在进行注意力计算时，Query Heads 的数量仍然是 <code>num_heads</code>，而 Key/Value Heads 的数量是 <code>num_key_value_heads</code>。因此我们需要通过重复 Key/Value Heads 来匹配 Query Heads 的数量。</p>
+<h4 id="rope位置编码">RoPE位置编码<a class="headerlink" href="#rope位置编码" title="Permanent link">¶</a></h4>
+<p>RoPE（Rotary Position Embedding）是一种位置编码方法，通过将位置编码与 Query 和 Key 的向量相乘来增强模型对序列位置的感知。其核心思想是将位置编码嵌入到注意力计算中，而不是简单地添加到输入向量中。</p>
+<p>RoPE 的计算公式为：</p>
+<div class="arithmatex">\[
+\text{RoPE}(x, pos) = x \cdot \cos(pos) + \text{rot}(x) \cdot \sin(pos)
+\]</div>
+<p>其中 <code>rot(x)</code> 是对 <code>x</code> 进行旋转操作，<code>pos</code> 是位置编码。</p>
+<p>在 Qwen3 中，在进行注意力计算之前，我们会对 Query 和 Key 应用 RoPE 位置编码。具体实现中，使用 <code>apply_rotary_pos_emb</code> 函数来将位置编码应用到 Query 和 Key 上。</p>
+<h4 id="rmsnorm">RMSNorm<a class="headerlink" href="#rmsnorm" title="Permanent link">¶</a></h4>
+<p>Qwen 3 使用 RMSNorm（Root Mean Square Normalization）来替代传统的 LayerNorm。RMSNorm 的计算公式为：</p>
+<div class="arithmatex">\[
+\text{RMSNorm}(x) = \frac{x}{\sqrt{\text{mean}(x^2) + \epsilon}} \cdot \gamma
+\]</div>
+<p>其中 <span class="arithmatex">\(\epsilon\)</span> 是一个小常数，用于防止除零错误，<span class="arithmatex">\(\gamma\)</span> 是可学习的缩放参数。</p>
+<h4 id="qk-normalization">Q/K Normalization<a class="headerlink" href="#qk-normalization" title="Permanent link">¶</a></h4>
+<p>Qwen 3 引入了 Q/K Normalization，即在计算注意力分数之前，对 Query 和 Key 进行归一化处理。这有助于提高模型的稳定性和收敛速度。</p>
+<p>注意这里的 Q/K Normalization 和 LayerNorm 有所不同，它是在 head 维度上进行归一化，而不是在序列维度上。具体实现中，我们会对 Q 和 K 应用 RMSNorm 进行归一化处理。</p>
+<h4 id="qwen-3-self-attention-layer">Qwen 3 Self Attention Layer<a class="headerlink" href="#qwen-3-self-attention-layer" title="Permanent link">¶</a></h4>
+<p>在加入了上述优化后，Qwen 3 的 Self Attention Layer 结构如下：</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/attention.png" data-desc-position="bottom"><img alt="Qwen 3 Self Attention Layer 架构示意图" src="image/attention.png" style="display:block; margin:auto;" width="400"></a></p>
+<ol>
+<li>首先输入 <code>hidden_states</code> 分别通过 <code>q_proj</code>, <code>k_proj</code>, <code>v_proj</code> 进行线性投影，得到 Q, K, V。</li>
+<li>对 Q, K, V 进行形状变换，重塑为多头格式。</li>
+<li>对 Q 和 K 应用 RMSNorm 进行归一化处理。</li>
+<li>对 Q 和 K 应用 RoPE 位置编码。</li>
+<li>根据 GQA 机制对 K 和 V 进行复制，以匹配 Q 的头数。</li>
+<li>
+<p>进行注意力计算：</p>
+<ul>
+<li>计算注意力分数 (<span class="arithmatex">\(QK^T\)</span>)、应用 scale (<span class="arithmatex">\(\frac{1}{\sqrt{d_k}}\)</span>)，mask 和 softmax。</li>
+<li>计算注意力输出 (softmax结果乘以 V)。</li>
+</ul>
+</li>
+<li>
+<p>将注意力输出通过输出投影层 <code>o_proj</code>，得到最终的输出。</p>
+</li>
+</ol>
+<h3 id="feed-forward-network-ffn详解">Feed Forward Network (FFN)详解<a class="headerlink" href="#feed-forward-network-ffn详解" title="Permanent link">¶</a></h3>
+<h4 id="swiglu激活函数">SwiGLU激活函数<a class="headerlink" href="#swiglu激活函数" title="Permanent link">¶</a></h4>
+<p>在理论课上我们介绍过 Sigmoid, Tanh 和 ReLU 等常见激活函数。而在 Qwen 3 使用了 SwiGLU 激活函数，它结合了 SiLU 和 GLU 的优点，能够更好地捕捉非线性关系。</p>
+<p><strong>SiLU (Sigmoid Linear Unit)</strong> 是 Sigmoid 和 ReLU 的改进版，其公式为：</p>
+<div class="arithmatex">\[\text{SiLU}(x) = x \cdot \text{Sigmoid}(x)\]</div>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/silu.png" data-desc-position="bottom"><img alt="SiLU 函数图像" src="image/silu.png" style="display:block; margin:auto;" width="500"></a></p>
+<p><strong>GLU (Gated Linear Unit)</strong> 是一个门控机制，他的核心思想是通过一个范围在 [0, 1] 的门控函数来控制信息的流动。GLU 的公式为：</p>
+<div class="arithmatex">\[\text{GLU}(x) = \sigma(W_g x) \odot (W_x x)\]</div>
+<p>其中 <span class="arithmatex">\(\sigma\)</span> 是范围为 [0,1] 的激活函数，<span class="arithmatex">\(W_g\)</span> 和 <span class="arithmatex">\(W_x\)</span> 是可学习的权重矩阵，<span class="arithmatex">\(\odot\)</span> 表示逐元素乘法。</p>
+<p><strong>SwiGLU</strong> 是 <span class="arithmatex">\(\sigma = \text{SiLU}\)</span> 的 GLU 变体，其公式为：</p>
+<div class="arithmatex">\[\text{SwiGLU}(x) = \text{SiLU}(W_g x) \odot (W_x x)\]</div>
+<h4 id="ffn-结构">FFN 结构<a class="headerlink" href="#ffn-结构" title="Permanent link">¶</a></h4>
+<p>标准的前馈神经网络 (FFN) 由两个线性层和一个激活函数组成，可以表示为：</p>
+<div class="arithmatex">\[
+\text{FFN}(x) = W_2 \cdot \sigma(W_1 \cdot x + b_1) + b_2
+\]</div>
+<p>其中 <span class="arithmatex">\(W_1\)</span> 和 <span class="arithmatex">\(W_2\)</span> 是可学习的权重矩阵，<span class="arithmatex">\(b_1\)</span> 和 <span class="arithmatex">\(b_2\)</span> 是偏置项，<span class="arithmatex">\(\sigma\)</span> 是激活函数。</p>
+<h4 id="qwen-3-ffn-结构">Qwen 3 FFN 结构<a class="headerlink" href="#qwen-3-ffn-结构" title="Permanent link">¶</a></h4>
+<p>在 Qwen 3 中，FFN 采用 SwiGLU 作为激活函数，并使用 <code>intermediate_size</code> 作为中间层的维度。</p>
+<p>包含三个线性层：</p>
+<ol>
+<li><strong>门控投影 (Gate Projection)</strong>：计算门控值，形状为 <code>[batch, seq_len, intermediate_size]</code>。</li>
+<li><strong>上投影 (Up Projection)</strong>：计算上投影值，形状为 <code>[batch, seq_len, intermediate_size]</code>。</li>
+<li><strong>下投影 (Down Projection)</strong>：将结果投影回原维度，形状为 <code>[batch, seq_len, hidden_size]</code>。</li>
+</ol>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="image/ffn.png" data-desc-position="bottom"><img alt="Qwen 3 FFN 架构示意图" src="image/ffn.png" style="display:block; margin:auto;" width="300"></a></p>
+<h3 id="decoder-layer-概览">Decoder Layer 概览<a class="headerlink" href="#decoder-layer-概览" title="Permanent link">¶</a></h3>
+<p>Qwen 3 的 Decoder Layer 主要有 Self Attention Layer 和 Feed Forward Network 两个核心组件构成，同时还包括使用 RMSNorm 进行归一化处理，并在每个组件之后进行残差链接。</p>
+<p>这一部分的具体实现已在实验框架中给出，此处省略架构详解。请同学们参考 <code>modules/layer.py</code> 中的实现结合理解，并完成思考题。</p>
+<h2 id="思考题">思考题<a class="headerlink" href="#思考题" title="Permanent link">¶</a></h2>
+<ol>
+<li>
+<p><strong>请阅读并理解实验框架代码，描述 Qwen3 Decoder Layer 的结构和前向过程，并画图说明。</strong></p>
+<p>画图时请标注或用文字另外说明各个组件的输入输出形状。注意表明 Residual Connection 和 Normalization 的位置。</p>
+</li>
+<li>
+<p><strong>请尝试计算 Qwen3 模型的参数量和理论显存占用，并查看实际运行时的显存占用情况。他们是否一致？若不一致请进行分析。</strong></p>
+<details class="note">
+<summary>如何计算参数量和显存占用？</summary>
+<p>参数量，即 model 的总参数数量。在 Transformer 模型中，参数量通常来自于以下几个部分：</p>
+<ul>
+<li>Embedding 层的参数量：<code>vocab_size * hidden_size</code></li>
+<li>每个 Decoder Layer 的参数量：包括 Self Attention 和 FFN 的参数量</li>
+<li>最终输出层的参数量：<code>hidden_size * vocab_size</code></li>
+</ul>
+<p>在每个 Decoder Layer 中，所有的 Linear 层和 RMSNorm 层都会对最终的参数量有所贡献。</p>
+<p>你可以利用 PyTorch 的 <code>model.parameters()</code> 方法来得到模型的所有参数，由此来验证你的计算。</p>
+<p>而模型参数的显存占用则是由参数量和数据类型决定的。在本实验中使用的数据类型是 <code>bfloat16</code>，每个参数占用 2 字节，由此可以计算出模型的总显存占用。</p>
+<p>你可以使用 <code>nvidia-smi</code> 等命令查看当前的显存占用。实际显存占用可能与你计算的理论值有所不同，请你自行查找原因并在实验报告中进行分析。</p>
+</details>
+</li>
+</ol>
+<h2 id="实验指导和提示">实验指导和提示<a class="headerlink" href="#实验指导和提示" title="Permanent link">¶</a></h2>
+<h3 id="实验框架介绍">实验框架介绍<a class="headerlink" href="#实验框架介绍" title="Permanent link">¶</a></h3>
+<p>实验框架的目录结构如下：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>.
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── main.py             # 简单推理脚本
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── modules
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   ├── attention.py    # TODO: 完成 Qwen3Attention 的实现
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ├── config.py       # Qwen3 模型配置类
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   ├── __init__.py
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   ├── layer.py        # Qwen3 Decoder Layer 的实现
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── mlp.py          # TODO: 完成 Qwen3FFN 的实现
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   ├── model.py        # Qwen3 模型的实现
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   └── rope.py         # RoPE 位置编码的实现
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>├── README.md
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>├── simple_test.py      # 单元测试脚本
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>└── utils
+</span></code></pre></div>
+<p>你需要完成 <code>modules/attention.py</code> 中的 <code>Qwen3Attention</code> 类和 <code>modules/mlp.py</code> 中的 <code>Qwen3FFN</code> 类的实现。</p>
+<p>我们提供了一个简单的推理脚本 <code>main.py</code>，你可以通过运行该脚本来测试你的模型是否能够输出正常的人类可读文本。</p>
+<p>我们也提供了测试用例，你需要确保你的实现能够通过测试。你可以使用以下命令来运行测试：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>simple_test.py
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">欢迎大家探索不同的输入</p>
+<p>欢迎同学们通过修改 <code>main.py</code> 中的生成配置来探索不同的生成效果，包括但不限于：</p>
+<ol>
+<li>修改 <code>max_new_tokens</code> 参数来生成不同长度的文本。</li>
+<li>修改 <code>temperature</code>, <code>top_p</code> 和 <code>top_k</code> 等参数来控制生成文本的随机性和多样性。</li>
+<li>尝试不同的输入文本，观察模型的生成效果。</li>
+<li>
+<p>目前模型是一个预测下一个 token 的基座模型，若要实现类似 ChatBot 的对话功能，你可以尝试使用 Qwen3 的 chat template 来构建对话上下文。</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># prepare the model input</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">prompt</span> <span class="o">=</span> <span class="s2">"Give me a short introduction to large language model."</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="n">prompt</span><span class="p">}</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">]</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">text</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">apply_chat_template</span><span class="p">(</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">messages</span><span class="p">,</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">tokenize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">add_generation_prompt</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">enable_thinking</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># Switches between thinking and non-thinking modes. Default is True.</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">)</span>
+</span></code></pre></div>
+</li>
+<li>
+<p>Qwen3 模型是一个混合思考模型，模型可以自己判断何时需要进行深度思考。同时你可以在 prompt 的末尾使用 <code>&lt;think&gt;</code> 来提示模型进行深度思考，使用 <code>&lt;/think&gt;</code> 来提示模型不要进行深度思考。（上述代码中 <code>enable_thinking</code> 就是通过这种方式控制思考的）</p>
+</li>
+</ol>
+<p>你可以将自己的尝试和结果分享在实验报告中。</p>
+</div>
+<h3 id="开发环境设置">开发环境设置<a class="headerlink" href="#开发环境设置" title="Permanent link">¶</a></h3>
+<p>本次实验使用 <a href="https://docs.astral.sh/uv/">UV</a> 进行环境管理。UV 是一个现代化的 Python 环境管理工具，支持多种 Python 版本和依赖包管理。</p>
+<p>首先，你需要安装 UV。参考 UV 文档中的 <a href="https://docs.astral.sh/uv/getting-started/installation/">安装手册</a> 使用以下命令来安装 UV：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</span></code></pre></div>
+<p>本次实验提供了一个预配置的 UV 环境，你可以通过以下命令来加载环境:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">source</span><span class="w"> </span>/river/hpc101/2025/lab5/env/bin/activate
+</span></code></pre></div>
+<p>加载后直接使用 <code>python main.py</code> 命令即可运行实验代码。</p>
+<h3 id="提交作业">提交作业<a class="headerlink" href="#提交作业" title="Permanent link">¶</a></h3>
+<p>本实验需要在 GPU 平台上运行，你可以参考 <a href="https://hpc101.zjusct.io/guide/job/#%E6%8F%90%E4%BA%A4gpu%E4%BB%BB%E5%8A%A1">提交作业 - 提交 GPU 任务</a> 来申请 GPU 资源并提交你的任务。</p>
+<p>需要注意的是，你需要确保在运行前加载 UV 环境。你可以在 SBATCH 提交脚本中执行加载环境的命令，或者在使用 <code>srun</code> 命令前确保已经加载了 UV 环境。</p>
+<h2 id="实验任务和要求">实验任务和要求<a class="headerlink" href="#实验任务和要求" title="Permanent link">¶</a></h2>
+<h3 id="实验任务">实验任务<a class="headerlink" href="#实验任务" title="Permanent link">¶</a></h3>
+<ol>
+<li>根据 <a href="#知识讲解qwen3-model-architecture">知识讲解</a> 中的内容，完成 <code>modules/attention.py</code> 中的 Qwen3Attention 类的实现和 <code>modules/mlp.py</code> 中的 Qwen3FFN 类的实现。</li>
+<li>完成 <a href="#思考题">思考题</a> （在实验报告中体现）</li>
+<li>完成实验报告，内容包括：<ul>
+<li>你的实现思路和对这两个模块前向过程的理解</li>
+<li>单元测试通过的截图和模型生成效果的截图</li>
+<li>思考题的答案和分析</li>
+<li>（可选）实验感想和改进建议</li>
+</ul>
+</li>
+<li>在学在浙大中提交你的实验报告和两个模块的代码实现。</li>
+</ol>
+<h3 id="实验要求">实验要求<a class="headerlink" href="#实验要求" title="Permanent link">¶</a></h3>
+<ol>
+<li>实现的模型能够正常进行前向推理，并生成正常的文本。</li>
+<li>不得直接调用 Pytorch 中现成的 Attention、FFN、Transformer 等模块，只可使用实验框架中的模块和函数以及 Pytorch 的基础 Tensor 操作。</li>
+<li>不得直接调用 torch.nn.functional 中的现成注意力函数。</li>
+</ol>
+<h2 id="参考资料与阅读材料">参考资料与阅读材料<a class="headerlink" href="#参考资料与阅读材料" title="Permanent link">¶</a></h2>
+<h3 id="参考文献">参考文献<a class="headerlink" href="#参考文献" title="Permanent link">¶</a></h3>
+<ul>
+<li>Qwen 3 官方博客: <a href="https://qwenlm.github.io/blog/qwen3/">Qwen3: Think Deeper, Act Faster</a></li>
+<li>Attention is All You Need: <a href="https://arxiv.org/abs/1706.03762">Vaswani et al., 2017</a></li>
+<li>GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints: <a href="http://arxiv.org/abs/2305.13245">Ainslie et al., 2023</a></li>
+<li>RoFormer: Enhanced Transformer with Rotary Position Embedding <a href="https://arxiv.org/abs/2104.09864">Su et al., 2021</a></li>
+<li>LLaMA: Open and Efficient Foundation Language Models <a href="https://arxiv.org/abs/2302.13971">Touvron et al., 2023</a></li>
+</ul>
+<h3 id="推荐阅读材料">推荐阅读材料<a class="headerlink" href="#推荐阅读材料" title="Permanent link">¶</a></h3>
+<ul>
+<li><a href="https://docs.astral.sh/uv/">UV 文档</a>: 本实验只使用 UV 进行环境管理，并没有完全发挥 UV 在项目管理上的强大功能，感兴趣的同学可以在后续的学习中深入了解 UV 的更多功能。</li>
+<li>PyTorch 文档: <a href="https://docs.pytorch.org/tutorials/beginner/basics/intro.html">Getting Started with PyTorch</a> 这一篇文档可以帮你回顾我们在理论课上学过的 PyTorch 构建模型流程。而 <a href="https://docs.pytorch.org/docs/2.6/tensors.html">torch.Tensor API</a> 则是 PyTorch 的核心 API 文档，包含了所有 Tensor 操作的详细说明，可以帮助你理解如何使用 Tensor 计算来完成本实验。</li>
+<li><a href="https://www.youtube.com/watch?v=0VLAoVGf_74"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814M9.545 15.568V8.432L15.818 12z"></path></svg></span> How DeepSeek Rewrote the Transformer</a>: 感兴趣的同学可以观看这个视频来理解 MHA, MQA, GQA 以及 DeepSeek 提出的 MLA（Multi-Layer Attention）等注意力机制的区别。</li>
+</ul>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 29, 2025 14:27:16 UTC">August 29, 2025</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"></path></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 12, 2025 16:05:13 UTC">August 12, 2025</span>
+  </span>
+
+    
+    
+    
+      
+  <span class="md-source-file__fact">
+    
+      
+  <span class="md-icon" title="Contributors">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"></path></svg>
+  </span>
+  <span>GitHub</span>
+
+    
+    <nav>
+      
+        <a href="https://github.com/bowling233" class="md-author" title="@bowling233">
+          
+          <img src="https://avatars.githubusercontent.com/u/35755846?v=4&amp;size=72" alt="bowling233">
+        </a>
+      
+        <a href="https://github.com/web-flow" class="md-author" title="@web-flow">
+          
+          <img src="https://avatars.githubusercontent.com/u/19864447?v=4&amp;size=72" alt="web-flow">
+        </a>
+      
+        <a href="https://github.com/inuEbisu" class="md-author" title="@inuEbisu">
+          
+          <img src="https://avatars.githubusercontent.com/u/47022619?v=4&amp;size=72" alt="inuEbisu">
+        </a>
+      
+        <a href="https://github.com/Erix025" class="md-author" title="@Erix025">
+          
+          <img src="https://avatars.githubusercontent.com/u/47277371?v=4&amp;size=72" alt="Erix025">
+        </a>
+      
+      
+      
+    </nav>
+  </span>
+
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+          
+          <a href="../Lab4-Solver-Challenge/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lab 4: Solver Challenge">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Lab 4: Solver Challenge
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../Final-Project/" class="md-footer__link md-footer__link--next" aria-label="Next: Final Project - 大作业">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Final Project - 大作业
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "content.code.select", "content.code.annotate", "navigation.footer", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.tracking", "navigation.path", "navigation.top", "toc.follow", "content.action.edit", "search.suggest", "search.highlight", "search.share"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>

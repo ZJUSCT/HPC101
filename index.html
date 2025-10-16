@@ -1,0 +1,1975 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/">
+      
+      
+      
+        <link rel="next" href="guide/env/">
+      
+      
+      <link rel="icon" href="assets/zjusct-hpc101.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>欢迎来到 HPC 101 超算短学期 - HPC101 (2025)</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  <link href="assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#欢迎来到-hpc-101-超算短学期" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="HPC101 (2025)" class="md-header__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="assets/zjusct.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101 (2025)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              欢迎来到 HPC 101 超算短学期
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo" aria-label="切换至浅色模式" type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="zjusct" data-md-color-primary="indigo" data-md-color-accent="indigo" aria-label="切换至深色模式" type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo" aria-label="根据系统模式切换主题" type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="." class="md-tabs__link">
+          
+  
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="lab/Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="slides/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  课程幻灯片
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="HPC101 (2025)" class="md-nav__button md-logo" aria-label="HPC101 (2025)" data-md-component="logo">
+      
+  <img src="assets/zjusct.svg" alt="logo">
+
+    </a>
+    HPC101 (2025)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程信息
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            课程信息
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    欢迎来到 HPC 101 超算短学期
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    欢迎来到 HPC 101 超算短学期
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#课程信息" class="md-nav__link">
+    <span class="md-ellipsis">
+      课程信息
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="课程信息">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#选课报名" class="md-nav__link">
+    <span class="md-ellipsis">
+      选课报名
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#课程安排" class="md-nav__link">
+    <span class="md-ellipsis">
+      课程安排
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#faq" class="md-nav__link">
+    <span class="md-ellipsis">
+      FAQ
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#导言hello-hpc-world" class="md-nav__link">
+    <span class="md-ellipsis">
+      导言：Hello HPC World
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="导言：Hello HPC World">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hpc-是什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      HPC 是什么？
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#在这个短学期课程中你会学到什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      在这个短学期课程中，你会学到什么？
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#修读建议" class="md-nav__link">
+    <span class="md-ellipsis">
+      修读建议
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#资源推荐" class="md-nav__link">
+    <span class="md-ellipsis">
+      资源推荐
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#使用与贡献" class="md-nav__link">
+    <span class="md-ellipsis">
+      使用与贡献
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="使用与贡献">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#代码格式化" class="md-nav__link">
+    <span class="md-ellipsis">
+      代码格式化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#课程幻灯片" class="md-nav__link">
+    <span class="md-ellipsis">
+      课程幻灯片
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#合并-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      合并 PR
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#历史" class="md-nav__link">
+    <span class="md-ellipsis">
+      历史
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_2">
+        
+          
+          <label class="md-nav__link" for="__nav_1_2" id="__nav_1_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    使用集群
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            使用集群
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guide/env/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    软件环境
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    登陆节点
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    提交作业
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    使用在线测评
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    集群概况
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2">
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    课程实验
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            课程实验
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="lab/Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 0: Linux 快速入门
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="lab/Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 1: 简单集群搭建
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="lab/Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 2: 向量化计算
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="lab/Lab2.5-RISC-V/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 2.5: 向量化进阶 (RISC-V)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="lab/Lab3-CudaConv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 3: CUDA 卷积
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="lab/Lab4-Solver-Challenge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 4: Solver Challenge
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="lab/Lab5-TinyLLM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lab 5: TinyLLM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="lab/Final-Project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Final Project - 大作业
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="slides/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    课程幻灯片
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#课程信息" class="md-nav__link">
+    <span class="md-ellipsis">
+      课程信息
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="课程信息">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#选课报名" class="md-nav__link">
+    <span class="md-ellipsis">
+      选课报名
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#课程安排" class="md-nav__link">
+    <span class="md-ellipsis">
+      课程安排
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#faq" class="md-nav__link">
+    <span class="md-ellipsis">
+      FAQ
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#导言hello-hpc-world" class="md-nav__link">
+    <span class="md-ellipsis">
+      导言：Hello HPC World
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="导言：Hello HPC World">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hpc-是什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      HPC 是什么？
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#在这个短学期课程中你会学到什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      在这个短学期课程中，你会学到什么？
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#修读建议" class="md-nav__link">
+    <span class="md-ellipsis">
+      修读建议
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#资源推荐" class="md-nav__link">
+    <span class="md-ellipsis">
+      资源推荐
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#使用与贡献" class="md-nav__link">
+    <span class="md-ellipsis">
+      使用与贡献
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="使用与贡献">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#代码格式化" class="md-nav__link">
+    <span class="md-ellipsis">
+      代码格式化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#课程幻灯片" class="md-nav__link">
+    <span class="md-ellipsis">
+      课程幻灯片
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#合并-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      合并 PR
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#历史" class="md-nav__link">
+    <span class="md-ellipsis">
+      历史
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
+    </a>
+  
+  
+
+
+<h1 id="欢迎来到-hpc-101-超算短学期">欢迎来到 HPC 101 超算短学期<a class="headerlink" href="#欢迎来到-hpc-101-超算短学期" title="Permanent link">¶</a></h1>
+<h2 id="课程信息">课程信息<a class="headerlink" href="#课程信息" title="Permanent link">¶</a></h2>
+<p>HPC 101 是浙江大学超算队开设的一门短学期课程，旨在帮助同学走进 Linux 和 HPC (高性能计算) 的世界，了解 HPC 领域的基本概念、超算的体系结构、编程技术等。</p>
+<p>课程的正式名称是“课程综合实践 Ⅰ”，课程代码为 CS1030M，学分为 2.5 学分。</p>
+<p>HPC 101 可以用来申请替代计算机学院非计科专业的短学期课程。</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>因为本年度课程人数激增，因此有一些 Tips 给同学们：</p>
+<ol>
+<li>硬件资源有限，在假期里请不要松懈学习。两周的课程结束后是持续两个月的各个 Lab，请合理分配时间，不要当 DDL 战神，否则结果就是在 DDL 前对着集群上无尽的任务队列抱头痛哭。</li>
+<li>我们非常提倡同学们积极交流，可以直接在课程群内与大家交流各种问题（询问或帮助解答），只要不直接把自己的做法开源就行。也可以私戳负责对应 Lab 的助教，在课后如果有疑问也可以抓着老师和助教解决。我们的课时仅能够帮同学们引进门，接下来两个月的 Lab 极其考验同学们的自学能力。</li>
+<li>合理使用 AI 提高效率，不依赖和盲从 AI。HPC 是比较硬核的领域，语料库很难覆盖到，因此 AI 可能不太帮得上你。你也应当为它提供相关的专业的文档作为 Prompt。</li>
+<li>请养成认真阅读文档的习惯。在这段时间里，我们发现不少同学的问题在文档中都有解答。在 HPC101 这门课，实验文档由助教测试过，也从历年与同学们的交流中补充了很多 Tips。我们的文档质量和阅读舒适程度应该是校内课程顶尖的。所以也请同学们用心阅读。如果你发现文档有问题，可以直接提出/在 GitHub 开 Issue/提 Pr。</li>
+<li>在提交文件的时候，尽管我们没有明确要求文件名格式，但还是希望同学们养成整理好文件名的习惯，这对于未来联系导师、投递实习简历都是有益的。我们在整理众多叫 “个人简历(1)(2).docx” 的文件时，也很难避免出现一些纰漏。但倘若改成 <code>324010xxxx_xxx_个人简历.pdf</code>，就非常清晰明确。</li>
+<li>因为人数过多，我们会对代码进行适当查重。如果你独立完成，那么你肯定会有疑难和心得体会，这些可能作为我们反作弊的参考依据。我们希望看到同学们排版整洁、逻辑清晰的报告～</li>
+</ol>
+</div>
+<h3 id="选课报名">选课报名<a class="headerlink" href="#选课报名" title="Permanent link">¶</a></h3>
+<!--
+!!! quote inline end "欢迎扫码进入 2025 HPC101 课程交流群了解更多信息"
+
+    ![2025 QQ Group](index.assets/2025_qqgroup.webp)
+-->
+
+<div class="admonition warning">
+<p class="admonition-title">本课程不设置在选课系统中，有意的同学务必提前报名</p>
+<p>本课程将在二轮选课后通过教学科直接将名单导入选课系统，不可以在选课系统中直接选课。</p>
+<p>有意选本课程的同学请不要在一轮二轮选课时选择其他 “课程综合实践Ⅰ” 课程，以免系统中出现冲突。</p>
+<p>被筛选的的同学仍可以参与其他课程的补选，我们会和教学科一起帮助你选课，不必担心没有课上。</p>
+</div>
+<div class="admonition bug">
+<p class="admonition-title">选课报名已经截止</p>
+</div>
+<p>请填写这份钉钉问卷：<a href="">HPC101 2026 报名表</a>，务必仔细阅读问卷填写说明，确保填写的信息准确无误。问卷内容包括：</p>
+<ul>
+<li><strong>个人信息</strong>：学号等信息由钉钉自动收集。</li>
+<li><strong>联系方式</strong>：QQ、电话号码等。</li>
+<li><strong>个人简介（填写文本框）</strong>：<ul>
+<li><strong>计科专业同学</strong>：请简要介绍自己的技术栈、编程能力和经验、对 HPC 的了解程度等。</li>
+<li><strong>非计科专业同学</strong>：请简要介绍自己的专业背景、编程能力、对 HPC 的了解程度等。</li>
+</ul>
+</li>
+<li>
+<p><strong>实验报告（PDF 文件）</strong>：</p>
+<ul>
+<li><strong>必须</strong>完成 <a href="lab/Lab0-LinuxCrashCourse/">Lab 0 Linux Crash Course</a> 并提交实验报告。</li>
+<li><strong>建议</strong>完成 <a href="lab/Lab1-MiniCluster/">Lab 1 MiniCluster</a> 并提交实验报告。</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<ul>
+<li>如果实验遇到困难，请及时在课程交流群内提问或私戳助教。</li>
+<li>如果因为时间安排等原因无法全部完成，可以提交部分完成的实验报告。</li>
+</ul>
+</div>
+<p>我们会优先考虑实验完成度高的同学，而且实验本身是作为短学期的一次作业使用的。欢迎大家踊跃报名！</p>
+</li>
+</ul>
+<h3 id="课程安排">课程安排<a class="headerlink" href="#课程安排" title="Permanent link">¶</a></h3>
+<ul>
+<li>上课时间：<ul>
+<li>上午 8:30 开始，下午 14:00 开始，课时均为 3 个小时</li>
+<li>大部分时间只有半天有课，没课的时间不用到教室，课程前 6 小时有群内钉钉助手提醒</li>
+</ul>
+</li>
+<li>上课地点：紫金港校区北 3-310</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>上午（08:30 - 11:30）</th>
+<th>下午（14:00 - 17:00）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6 月 25 日</td>
+<td>超算概述（陈建海老师）</td>
+<td>超算概述（陈建海老师）</td>
+</tr>
+<tr>
+<td>6 月 26 日</td>
+<td>-</td>
+<td>集群软硬件及运维基础（郝星星）</td>
+</tr>
+<tr>
+<td>6 月 27 日</td>
+<td>-</td>
+<td>HPC 中的计算机系统 - 1（李晨潇）</td>
+</tr>
+<tr>
+<td>6 月 28 日</td>
+<td>-</td>
+<td>HPC 中的计算机系统 - 2（何水兵老师/宋浩喆）</td>
+</tr>
+<tr>
+<td>6 月 29 日</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>6 月 30 日</td>
+<td>-</td>
+<td>向量化并行计算基础（陈宏哲）</td>
+</tr>
+<tr>
+<td>7 月 1 日</td>
+<td>Cuda C 编程基础（王则可老师/孙杰）</td>
+<td>Cuda C 编程基础（王则可老师/孙杰）</td>
+</tr>
+<tr>
+<td>7 月 2 日</td>
+<td>OpenMP/MPI 并行计算基础（李晨潇）</td>
+<td>C++ 并行程序设计（朱宝林）</td>
+</tr>
+<tr>
+<td>7 月 3 日</td>
+<td>高性能计算高级话题（王则可老师）</td>
+<td>-</td>
+</tr>
+<tr>
+<td>7 月 4 日</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>7 月 5 日</td>
+<td>-</td>
+<td>性能分析技术基础 Profiling（刘烨）</td>
+</tr>
+<tr>
+<td>7 月 6 日</td>
+<td>机器学习基础（林熙）</td>
+<td>机器学习基础（林熙）</td>
+</tr>
+<tr>
+<td>7 月 7 日</td>
+<td>-</td>
+<td>机器学习高级话题（张寅老师）</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition danger">
+<p class="admonition-title">实验安排</p>
+<p>下面的时间表并不是最终的时间表，<strong>具体情况请以钉钉群内通知和学在浙大为准！</strong></p>
+<p>如果 Lab 发布时间有延迟，截止时间也会对应延后，请大家放心。</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Bonus 分数计算</p>
+<p>每个实验会设置 Bonus 任务，Bonus 分数会添加在该实验的分数中。</p>
+<p>Lab 2.5 (可选做) 是 Lab 2 的延伸，与 Lab 2 本身的 Bonus 不同，Lab 2.5 的分数会添加在全部实验的总分中。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">迟交政策</p>
+<p>在各实验的截止时间后再提交作业，将会在正常评分的基础上，扣除相应分数。具体扣分规则如下：</p>
+<p>按照每天5%的扣分率计算，时间细化到每小时，不足一小时按一小时计算，即每小时扣除0.2083%的分数。</p>
+<p>迟交将会对你的成绩不利，请务必按时提交作业。如果有特殊情况，请提前联系助教，事后再联系的不予认可。</p>
+<p>如果迟交导致的扣分达到100%或不提交，则该实验的作业成绩记为0分。</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>实验名称</th>
+<th>助教</th>
+<th>开始时间</th>
+<th>截止时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lab 1</td>
+<td>郝星星</td>
+<td>2025-06-25</td>
+<td>2025-07-03</td>
+</tr>
+<tr>
+<td>Lab 2</td>
+<td>陈宏哲, 刘烨, 洪奕迅</td>
+<td>2025-07-01</td>
+<td>2025-07-22</td>
+</tr>
+<tr>
+<td>Lab 2.5</td>
+<td>李晨潇, 刘烨, 洪奕迅</td>
+<td>2025-07-07</td>
+<td>2025-08-25</td>
+</tr>
+<tr>
+<td>Lab 3</td>
+<td>陈楷骐, 郝星星, 任朱明</td>
+<td>2025-07-16</td>
+<td>2025-08-06</td>
+</tr>
+<tr>
+<td>Lab 4</td>
+<td>李晨潇, 黄钰, 周俊康</td>
+<td>2025-07-30</td>
+<td>2025-08-13</td>
+</tr>
+<tr>
+<td>Lab 5</td>
+<td>林熙, 茅晋源, 尤傲</td>
+<td>~2025-08-11</td>
+<td>~2025-08-25</td>
+</tr>
+<tr>
+<td>大作业</td>
+<td>蒋翼泽, 李厚融, 杨星宇</td>
+<td>2025-07-13</td>
+<td>2025-08-31</td>
+</tr>
+</tbody>
+</table>
+<div class="nt-plan-root" id="nt-plan-f8151ffc-b218-410f-aa85-beb2c8a178de">
+<div class="nt-plan">
+<div class="nt-plan-inner">
+<div class="nt-plan-periods">
+<div class="years">
+<div class="year year-0 year-2025">2025</div>
+</div>
+<div class="quarters">
+<div class="quarter quarter-2" style="width: 150px;" title="2025 Q2">Q2</div>
+<div class="quarter quarter-3" style="width: 310.0px;" title="2025 Q3">Q3</div>
+</div>
+<div class="months">
+<div class="month month-june" style="width: 150px;">Jun</div>
+<div class="month month-july" style="width: 155.0px;">Jul</div>
+<div class="month month-august" style="width: 155.0px;">Aug</div>
+</div>
+<div class="weeks"><span class="week week-22" style="width: 5.0px; flex: none;" title="W22: 2025-05-26 → 2025-06-01"><span class="week-text">W22</span></span><span class="week week-23" title="W23: 2025-06-02 → 2025-06-08"><span class="week-text">W23</span></span><span class="week week-24" title="W24: 2025-06-09 → 2025-06-15"><span class="week-text">W24</span></span><span class="week week-25" title="W25: 2025-06-16 → 2025-06-22"><span class="week-text">W25</span></span><span class="week week-26" title="W26: 2025-06-23 → 2025-06-29"><span class="week-text">W26</span></span><span class="week week-27" title="W27: 2025-06-30 → 2025-07-06"><span class="week-text">W27</span></span><span class="week week-28" title="W28: 2025-07-07 → 2025-07-13"><span class="week-text">W28</span></span><span class="week week-29" title="W29: 2025-07-14 → 2025-07-20"><span class="week-text">W29</span></span><span class="week week-30" title="W30: 2025-07-21 → 2025-07-27"><span class="week-text">W30</span></span><span class="week week-31" title="W31: 2025-07-28 → 2025-08-03"><span class="week-text">W31</span></span><span class="week week-32" title="W32: 2025-08-04 → 2025-08-10"><span class="week-text">W32</span></span><span class="week week-33" title="W33: 2025-08-11 → 2025-08-17"><span class="week-text">W33</span></span><span class="week week-34" title="W34: 2025-08-18 → 2025-08-24"><span class="week-text">W34</span></span><span class="week week-35" style="width: 35.0px; flex: none;" title="W35: 2025-08-25 → 2025-08-31"><span class="week-text">W35</span></span></div>
+</div>
+<div class="nt-plan-group nt-group-0">
+<div class="nt-plan-group-summary">
+<p>HPC 101 实验安排</p>
+</div>
+<div class="nt-plan-group-activities"><i class="nt-vline" style="left: 150px;"></i><i class="nt-vline" style="left: 305.0px;"></i><i class="nt-vline" style="left: 460.0px;"></i><div class="nt-plan-activity">
+<div class="actions">
+<div class="period" style="left: 120.0px; width: 40.0px;" title="Lab 1 2025-06-25 → 2025-07-02"><span>Lab 1</span></div>
+</div>
+</div>
+<div class="nt-plan-activity">
+<div class="actions">
+<div class="period" style="left: 150.0px; width: 105.0px;" title="Lab 2 2025-07-01 → 2025-07-21"><span>Lab 2</span></div>
+</div>
+</div>
+<div class="nt-plan-activity">
+<div class="actions">
+<div class="period" style="left: 180.0px; width: 245.0px;" title="Lab 2.5 2025-07-07 → 2025-08-24"><span>Lab 2.5</span></div>
+</div>
+</div>
+<div class="nt-plan-activity">
+<div class="actions">
+<div class="period" style="left: 225.0px; width: 105.0px;" title="Lab 3 2025-07-16 → 2025-08-05"><span>Lab 3</span></div>
+</div>
+</div>
+<div class="nt-plan-activity">
+<div class="actions">
+<div class="period" style="left: 295.0px; width: 70.0px;" title="Lab 4 2025-07-30 → 2025-08-12"><span>Lab 4</span></div>
+</div>
+</div>
+<div class="nt-plan-activity">
+<div class="actions">
+<div class="period" style="left: 355.0px; width: 70.0px;" title="Lab 5 2025-08-11 → 2025-08-24"><span>Lab 5</span></div>
+</div>
+</div>
+<div class="nt-plan-activity">
+<div class="actions">
+<div class="period" style="left: 210.0px; width: 245.0px;" title="大作业 2025-07-13 → 2025-08-30"><span>大作业</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<h3 id="faq">FAQ<a class="headerlink" href="#faq" title="Permanent link">¶</a></h3>
+<div class="admonition question">
+<p class="admonition-title">感觉自己编程基础比较弱，适合选这门课吗？</p>
+<p>大一期间，同学们一般都已经修过 <strong>C 语言课程</strong>（如《C 程序设计》和《数据结构基础》），具备一定的 C 语言基础。在超算短学期中，我们将接触的几种并行编程框架（如 <strong>CUDA、MPI 和 OpenMP</strong>）都是基于 C/C++ 语言的。只要你在这些课程的学习情况不是太差，就已经具备了修读本课程的<strong>基础编程能力</strong>。</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">有什么预修要求/我需要做什么准备吗？</p>
+<p>如上所述，只需要有 <strong>C 语言基础</strong>即可。我们理解大家临近期末课业繁重，<strong>Lab 1 的报告仅作为报名时的可选项</strong>。这个 Lab 的目的是让大家提前熟悉 <strong>Linux 系统和集群环境</strong>，了解高性能计算中软件的编译和运行模式，这些内容在短学期课程中都会详细讲解。如果在 Lab 中遇到困难，请善用 <strong>Google、Stack Overflow</strong> 等搜索引擎，学会阅读官方文档（Read The Manual），这些技能会极大提升你的计算机学习能力。如果有余力，推荐阅读 Peter Pacheco 的《<strong>并行程序设计导论</strong>》，其中介绍的 <strong>MPI/OpenMP</strong> 是我们将要学习的重要内容。此外，<strong>Python 编程能力</strong>对修读本课程及其他短学期课程（如 AAA）也非常有帮助，建议加入学习计划。</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">担心自己和“大神”差距很大怎么办？</p>
+<p>不必担心。内容和形式对于大家来说都是<strong>全新的</strong>，几乎没有同学在大一及之前就接触过并行编程。大家基本都处于<strong>同一起跑线</strong>，主要差异在于编程语言的熟练程度，这会影响学习速度，但不会影响最终的学习成果。以往的经验来看，无论是否有 OI 基础，大家都能跟上进度。短学期的时间安排较为宽松（但请不要因此放松），大约<strong>两周高密度学习</strong>，之后有<strong>两个月时间逐步消化并完成各个 Lab</strong>，最后组队完成 Project。这样的安排也与超算竞赛的形式类似：与 CTF、ACM 等短时竞赛不同，<strong>HPC 竞赛通常持续数月甚至半年</strong>，有充足时间自主安排、深入研究、团队合作。我们也鼓励大家在学习过程中<strong>多交流、互相帮助</strong>。</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">课程有名额限制吗？</p>
+<p>教学科没有明确的名额限制，但我们会根据报名情况进行筛选。</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">硕博可以选吗？</p>
+<p>可以，同样由教学科导入系统。</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">其他专业可以选吗？如何替换本专业培养方案的课程？</p>
+<p>可以，一般是算作个性化学分。如果需要替换本专业培养方案的课程，请联系教学科确认。</p>
+<p>替换流程一般为：课程结束后在教务系统上免修申请（拿到学分后随时可申请），一般是学期初审核。</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">可以旁听吗？</p>
+<p>如果你因为时间冲突等原因无法选课，但仍然希望旁听课程内容，可以：</p>
+<ul>
+<li>在智云课堂上旁听该课程。</li>
+<li>通过课程仓库获取课程资料，我们会将实验文档、部分课件和代码等资料同步到本仓库。</li>
+<li>欢迎加入课程交流群，我们会在群内同步课程消息。</li>
+</ul>
+<p>如需申请集群账户以便进行实验和练习，请同样填写报名表，并选择“旁听”选项。由于集群计算资源有限，我们将同样根据报名情况进行筛选。</p>
+<p>我们为旁听同学提供实验环境，但不负责批改旁听同学实验报告。关于 OJ 评测等，与正常选课的同学共享 DDL，Lab 截止后可能无法继续提供环境支持。</p>
+</div>
+<p>如果在做 Lab 过程中遇到问题或有其他疑问，欢迎在交流群内提问或私聊助教，我们会尽力解答。</p>
+<h2 id="导言hello-hpc-world">导言：Hello HPC World<a class="headerlink" href="#导言hello-hpc-world" title="Permanent link">¶</a></h2>
+<p>第一次听到 HPC 这个词，你是不是觉得很陌生？没关系，我第一次听到时也是一头雾水。几乎没有学生在学习这门课程之前了解过 HPC，这是一个相对陌生的领域。在这门课程中，我们会一步步地带你走进 HPC 的世界，带你了解这个领域的基础知识和技术，带你感受到 HPC 的魅力。</p>
+<div class="admonition quote inline end">
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="index.assets/frontier.webp" data-desc-position="bottom"><img alt="Image title" src="index.assets/frontier.webp"></a></p>
+<p>最快的超级计算机 Frontier 每秒能提供 <span class="arithmatex">\(10^{18}\)</span> 次浮点运算，相当于 <span class="arithmatex">\(10^6\)</span> 张 4090 显卡。</p>
+</div>
+<h3 id="hpc-是什么">HPC 是什么？<a class="headerlink" href="#hpc-是什么" title="Permanent link">¶</a></h3>
+<p>HPC 是 High Performance Compute 的缩写，意思是高性能计算，通常是指通过<strong>聚合计算能力</strong>来提供比传统计算机或服务器更强大的计算性能，处理海量多维数据集（大数据），并以极高的速度解决复杂问题。HPC 系统的运行速度通常要比最快的商用台式机、笔记本电脑或服务器系统快一百万倍以上。</p>
+<p>标准计算系统主要使用<strong>串行计算</strong>来解决问题，它将工作负载分成一系列任务，然后在同一处理器上依次执行这些任务。相比之下，HPC 则利用以下技术来提高计算速度：</p>
+<ul>
+<li><strong>大规模并行计算</strong>。并行计算是在多个计算机服务器或处理器上同时运行多个任务。大规模并行计算则是使用数万到数百万个处理器或处理器核心的并行计算。</li>
+<li><strong>计算机集群</strong>（也称为 HPC 集群）。HPC 集群由多个联网的高速计算机服务器组成，并有一个集中式调度器来管理并行计算工作负载。这些计算机被称为节点，可能会使用高性能多核 CPU，如今更有可能使用 GPU（图形处理单元），它们非常适合处理严格的数学计算、机器学习模型和图形密集型任务。单个 HPC 集群可能包括 100,000 个或更多节点。</li>
+<li><strong>高性能组件</strong>：HPC 集群中的所有其他计算资源（网络、内存、存储和文件系统）都是高速、高吞吐量、低延迟组件，可以与节点同步，优化集群的计算能力和性能。</li>
+</ul>
+<p>下图展示了一个典型的 HPC 集群架构：</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="index.assets/hpc-architecture-explained-diagram.webp" data-desc-position="bottom"><img alt="hpc-architecture" src="index.assets/hpc-architecture-explained-diagram.webp"></a></p>
+<p>HPC 提供的超高性能，使得它在很多领域都有着广泛的应用。随着 AI 技术的发展，<strong>HPC 应用也已成为 AI 应用的代名词</strong>，尤其是机器学习和深度学习应用。HPC 应用正在推动以下领域的持续创新：</p>
+<ul>
+<li>科学研究。HPC 在科学研究中的应用包括气候建模、天气预报、宇宙学、地震学、生物学、物理学、化学、材料科学和地球科学。这些学科需要处理大量数据、进行复杂的模拟和建模，以及进行大规模的数据分析。</li>
+<li>医疗保健、基因组学和生命科学。人类基因组测序的首次尝试耗时长达 13 年；而如今，HPC 系统可以在不到一天的时间内完成这项工作。在医疗保健和生命科学领域，HPC 的其他应用还包括药物发现和设计、癌症快速诊断和分子建模。</li>
+<li>金融服务。除了自动交易和欺诈检测，HPC 还支持蒙特卡罗模拟和其他风险分析方法的应用。</li>
+<li>政府和国防。在这一领域，两个日益增长的 HPC 用例是天气预报和气候建模，这两个用例都涉及处理大量的历史气象数据和气候相关数据点每日数百万次的变化。其他政府和国防应用包括能源研究和情报工作。</li>
+<li>能源。能源相关 HPC 应用包括地震数据处理、油藏模拟和建模、地理空间分析、风场模拟和地形测绘。</li>
+</ul>
+<h3 id="在这个短学期课程中你会学到什么">在这个短学期课程中，你会学到什么？<a class="headerlink" href="#在这个短学期课程中你会学到什么" title="Permanent link">¶</a></h3>
+<p>在这门课中，你能够学习到的知识和技能大致如下：</p>
+<div class="grid cards" style="grid-template-columns: 1fr">
+<ul>
+<li>
+<p><img alt="🏗" class="twemoji lg middle" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f3d7.svg" title=":construction_site:"> <strong>前置知识：计算机体系结构</strong></p>
+<hr>
+<p>要学习并行程序设计，首先要理解现有的硬件（如 CPU、GPU 等）是如何工作的、为并行做了哪些优化。并行化的目的之一，是为了最大化利用现有的硬件资源，对大量数据进行快速操作。对于 CPU，我们会了解指令集、存储器层次结构和局部性原理，知道 Cache 一致性问题的原因和解决办法，掌握 SIMD（Single Instruction Multiple Data）并行方法。对于 GPU（以 NVIDIA 为主），我们会了解流处理器（Stream Processor，SP）、CUDA Core（甚至是 Tensor Core）的组织方式，掌握 CUDA 编程的基本方法。上面只提及了最重要的知识，你应该能体会到内容非常之多且陌生，这些内容大概会用 4 天的时间完成讲授。在这门短学期课程中，我们只需要对这些知识有基本的了解即可。一定程度上，对硬件的理解越深入，并行编程技术也会越好，所以这是值得在日后深入学习的模块。</p>
+</li>
+<li>
+<p><img alt="💻" class="twemoji lg middle" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f4bb.svg" title=":computer:"> <strong>核心技术：并行编程技术</strong></p>
+<hr>
+<p>在本课程中，我们将学习三种经典的并行编程技术：OpenMP/MPI 和 CUDA。前者两者主要用于 CPU，后者用于 GPU（当然二者可以结合使用，不过课程中不会涉及）。表面上，学习一些 API 就能写并行程序了，但性能并不会得到很大的提升。基于对现有硬件的理解进行针对性的优化是非常重要的一环。</p>
+<p>在基本的 API 之外，我们还将学习并行算法，深入体会不同算法的特点，以及如何根据硬件特性进行选择。并行编程的难点在于数据的并行化和任务的并行化，这需要对算法有深入的理解。因此你也需要经常阅读经典例程、他人的优化思路和效果，学习并积累经验。对 CUDA 来说，多看例程尤为重要。CUDA 提供了多层次的 API，我们使用的主要是 CUDART（CUDA RunTime API）。它与具体的 CUDA 硬件无关，但你仍然需要考虑数据会如何被存储在具体的硬件上、如何优化存取、运算和线程调度。比如，在 2080Ti 上调优过的程序，在 A100 上的性能表现可能会大打折扣。</p>
+</li>
+<li>
+<p><img alt="🐧" class="twemoji lg middle" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f427.svg" title=":penguin:"> <strong>辅助技术：Linux 相关</strong></p>
+<hr>
+<p>本课程全程使用 Linux 环境。如果你对 Linux 系统有过一定了解和经验，或是曾经用服务器搭建过网站并持续使用等，那么你的实验流程会十分舒适。不过没有基础也不必担心，集群使用 Slurm 和 Lmod 进行管理，配置环境和运行任务都非常方便。我们也会在课程中讲解如何使用这些工具，以及如何在集群上提交任务。如果出现问题，你可以随时询问运维人员，他们会很乐意帮助你解决问题。</p>
+</li>
+<li>
+<p><img alt="🤖" class="twemoji lg middle" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f916.svg" title=":robot:"> <strong>附加技术：科学计算、AI 相关</strong></p>
+<hr>
+<p>在第 2 个 Lab，你会接触科学计算中关键的工具：NumPy。在最后一个 Lab，你将会揭开大模型的面纱，自己编写一个 Transformer，并进行训练和推理。课程会花约 2 天时间讲授 AI 基础。这次实验，或许是你第一次真正理解那些神秘的 AI 究竟是怎么用实际的代码构建起来的。</p>
+</li>
+</ul>
+</div>
+<h3 id="修读建议">修读建议<a class="headerlink" href="#修读建议" title="Permanent link">¶</a></h3>
+<div class="admonition quote inline end">
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="index.assets/comment.webp" data-desc-position="bottom"><img alt="comment" src="index.assets/comment.webp"></a></p>
+</div>
+<p>阅读完上面的介绍，相信你已经初步了解了自己将要学习哪些内容。再回顾一下计算机系的培养方案，你会看见这些内容贯穿了整个计算机专业的学习。因此，有同学在 98 上评论“没有 ICS（计算机系统概论）的话，这门课就是最有用的”，这句话是相当正确的。HPC101 是一门非常有挑战性的课程，知识量大且难，注重实践操作，但也是一门非常有趣的课程。如果你对计算机体系结构、并行编程、AI 等方面有浓厚的兴趣，那么这门课程将会是你的一次深度学习之旅。</p>
+<p>或许在进入计算机专业以来，你已经多次听到「CS 人的基本素养就是自学能力」这样的言论。这句话在 HPC101 中将会得到最好的体现。HPC 领域的知识广阔，我们难以在 14 * 2 个课时里向你讲授所有内容。事实上，这些课时只够上导论，能够让你对相关知识有一个基本的了解就已经达到了目的。因此，你注定要在课后花费一定时间和精力去深入学习，在 Lab 中尝试应用并真正理解。我们会提供一些资源和参考资料，帮助你更好地学习。希望你能够在课程中坚持<strong>自发地学习</strong>，收获满满的知识和技能。我们也非常鼓励你在学习过程中多多提问，多多交流，这样你会学得更快更好。</p>
+<h3 id="资源推荐">资源推荐<a class="headerlink" href="#资源推荐" title="Permanent link">¶</a></h3>
+<ul>
+<li><a href="https://lab.cs.tsinghua.edu.cn/hpc/doc/">thu-cs-lab/HPC-Lab-Docs 清华大学高性能计算导论实验文档</a>：作为国内超算课程建设的标杆，清华大学的 HPC 课程已经开设多年，积累了丰富的经验和资料。</li>
+<li><a href="https://101.lug.ustc.edu.cn/">Linux 101 - USTC</a>：中科大拥有国内高校最大的 Linux User Group，其开设的 Linux 入门课程内容丰富，适合初学者。</li>
+<li><a href="https://book.douban.com/subject/20374756/">《并行程序设计导论》</a>（An Introduction to Parallel Programming）<ul>
+<li>很薄，介绍了 OpenMPI 和 OpenMP（Pthreads 我们不学，也基本不会接触到）。讲解的内容浅显易懂，适合快速入门。</li>
+</ul>
+</li>
+<li>Python 编程三剑客：从上至下，书籍难度逐渐递增。如果你对自己的编程能力不太自信，选择第一本书。如果你编程能力好，但没接触过 Python，可以选择第二本。如果你对 Python 有一定了解，非常推荐你直接从第三本开始做一些简单的项目。<ul>
+<li><a href="https://book.douban.com/subject/36365320/">《Python 编程 : 从入门到实践（第 3 版）》</a>（Python Crash Course）<ul>
+<li>项目推荐：数据可视化、Web 应用程序</li>
+</ul>
+</li>
+<li><a href="https://book.douban.com/subject/35387685/">《Python 编程快速上手：让繁琐工作自动化》</a>（Automate the Boring Stuff with Python, 2nd Edition: Practical Programming for Total Beginners）<ul>
+<li>项目推荐：从 Web 抓取信息，处理 CSV 文件和 JSON 数据，保持时间、计划任务和启动程序</li>
+</ul>
+</li>
+<li><a href="https://book.douban.com/subject/27050630/">《Python 极客项目编程》</a>（Python Playground: Geeky Projects for the Curious Programmer）<ul>
+<li>项目推荐：模拟生命、图片之乐</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="https://www.oreilly.com/library/view/programming-massively-parallel/9780323984638/">《Programming Massively Parallel Processors: A Hands-on Approach, 4th Edition》</a><ul>
+<li>CUDA 编程目前仍在活跃发展中，因此没有合适的中文书籍。要想学习到最新的 CUDA 技术，只能看英文书籍，而且要看最新版，超过 5 年的书籍均可能过时。</li>
+</ul>
+</li>
+</ul>
+<h2 id="使用与贡献">使用与贡献<a class="headerlink" href="#使用与贡献" title="Permanent link">¶</a></h2>
+<p>课程当前版本为 <code>main</code> 分支，历史版本保存于仓库的不同分支中，因此仓库总体体积较大。为了加快速度，你可以在克隆时指定单个分支：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </span>main<span class="w"> </span>--single-branch<span class="w"> </span>git@github.com:ZJUSCT/HPC101.git
+</span></code></pre></div>
+<p>在本地构建并预览文档：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>mkdocs<span class="w"> </span>serve<span class="w"> </span><span class="c1"># 预览课程文档</span>
+</span></code></pre></div>
+<p>仓库布局如下：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>HPC101
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── docs：实验指导文档
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│   └── lab
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>│       └── Final-Project
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>│           ├── image
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│           └── index.md
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>└── src：代码
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    └── lab1
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        ├── blas-3.12.0.tgz
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        └── CBLAS.tgz
+</span></code></pre></div>
+<p>图片请使用 <code>.webp</code> 格式，它能够显著减小图片体积。你可以使用下面的命令批量转换图片格式：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>find<span class="w"> </span>.<span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="se">\(</span><span class="w"> </span>-iname<span class="w"> </span><span class="s2">"*.jpg"</span><span class="w"> </span>-o<span class="w"> </span>-iname<span class="w"> </span><span class="s2">"*.jpeg"</span><span class="w"> </span>-o<span class="w"> </span>-iname<span class="w"> </span><span class="s2">"*.png"</span><span class="w"> </span><span class="se">\)</span><span class="w"> </span>-exec<span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">'cwebp "$1" -o "${1%.*}.webp" &amp;&amp; rm "$1"'</span><span class="w"> </span>_<span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+</span></code></pre></div>
+<p>课程图标使用了两种英文字体，可以在 <a href="https://www.fontspace.com/">FontSpace</a> 上找到：</p>
+<ul>
+<li>Sekath Italic</li>
+<li>Supercharge</li>
+</ul>
+<h3 id="代码格式化">代码格式化<a class="headerlink" href="#代码格式化" title="Permanent link">¶</a></h3>
+<p>MkDocs 对 Markdown 有一些增强要求，例如要求多级列表逐级缩进为 4 个空格等。为了使仓库内的代码符合相关工具的规范，我们使用 Linter 工具和插件进行格式化，仓库内包含相关配置文件护建议文档维护者和贡献者使用：</p>
+<table>
+<thead>
+<tr>
+<th>代码种类</th>
+<th>工具</th>
+<th>配置文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Markdown</td>
+<td>VSCode 插件 <a href="https://marketplace.visualstudio.com/items?itemName=DavidAnson.vscode-markdownlint">markdownlint</a></td>
+<td>`.vscode/settings.json'</td>
+</tr>
+</tbody>
+</table>
+<h3 id="课程幻灯片">课程幻灯片<a class="headerlink" href="#课程幻灯片" title="Permanent link">¶</a></h3>
+<p>目前仓库支持两种幻灯片制作方式：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>├── slides：MkSlides 制作的课程 PPT
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>└── beamer：Latex Beamer 制作的课程 PPT
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    ├── Makefile
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    ├── day3.tex：PPT 主 Tex 文档
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    ├── day3
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    │   ├── img：图片资源
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    │   └── sections：章节文档
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    └── zjusct-beamer：ZJUSCT Beamer 主题
+</span></code></pre></div>
+<ul>
+<li>LaTex Beamer：<ul>
+<li>构建：目标为对应的文件名，例如 <code>make day1.tex</code>。构建后会在 <code>.output</code> 目录下生成 PDF 文件。</li>
+<li>在提交前，请运行 <code>make lint &amp;&amp; make clean</code>。不要把构建完成的 PDF 文件提交到仓库中。</li>
+</ul>
+</li>
+<li><a href="https://github.com/MartenBE/mkslides/">MartenBE/mkslides</a>：<ul>
+<li>构建：由 GitHub Action 自动执行，集成到 MkDocs 网页中展示。</li>
+<li>参考了下列样式：<ul>
+<li><a href="https://github.com/HoGentTIN/cdn/blob/main/styles/reveal-js/slides.css">HoGentTIN/cdn</a></li>
+<li><a href="https://github.com/HoGentTIN/linux-slides/blob/main/hogent.css">HoGentTIN/linux-slides</a></li>
+<li><a href="https://github.com/TonyCrane/slide-template/blob/master/slide/src/custom.css">TonyCrane/slide-template</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="合并-pr">合并 PR<a class="headerlink" href="#合并-pr" title="Permanent link">¶</a></h3>
+<p>请贡献者养成良好的公共仓库 PR 习惯：</p>
+<ul>
+<li><strong>Force Push：</strong>本仓库主分支保护，不允许 Force Push。请在自己的 Fork 中随意进行修改。</li>
+<li><strong>PR 合并：</strong><ul>
+<li><strong>Draft PR：</strong>仍有修改进行，未准备好合并时，请提交 Draft PR（Create Pull Request 右侧下拉框选择）。</li>
+<li><strong>Request Review：</strong>准备合并时，点击 Ready for review，并选择 Reviewer 以提醒他们查看。</li>
+<li><strong>冲突处理：</strong>PR 与主分支发生冲突时，尽可能使用 Rebase 而不是将主分支的变更 Merge 到 PR 中。</li>
+<li>
+<p><strong>合并方式：</strong>请对所有 PR 进行 squash + rebase（不使用 Merge Commit）。主分支中每个 PR 应该对应一个 commit。这样可以让 commit 日志既简单又精确，同时减少不必要的噪音。</p>
+<p>例外情况是包含复杂变更的拉取请求。如果遇到这种情况且提交结构良好，可以接受 rebase + merge（不使用 Merge Commit）的方式。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="历史">历史<a class="headerlink" href="#历史" title="Permanent link">¶</a></h2>
+<p>本节记录 HPC 101 超算短学期课程的历史版本、重要里程碑和一些统计数据。</p>
+<ul>
+<li>
+<p>课程规模：</p>
+<table>
+<thead>
+<tr>
+<th>年份</th>
+<th>课程规模</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2025</td>
+<td>109（本）+ 3（研）+ 7 （旁听）</td>
+</tr>
+<tr>
+<td>2024</td>
+<td>41</td>
+</tr>
+<tr>
+<td>2023</td>
+<td>36</td>
+</tr>
+<tr>
+<td>2022</td>
+<td>29</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Lab 提交时间分布（绘制 Python 脚本位于 <a href="index.assets/statistics/submission.py">index.assets/statistics/submission.py</a>）：</p>
+<table>
+<thead>
+<tr>
+<th>年份</th>
+<th>分布</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2024</td>
+<td><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="index.assets/statistics/2024_submission.webp" data-desc-position="bottom"><img alt="2024_submission" src="index.assets/statistics/2024_submission.webp"></a></td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>报名表提交时间分布：</p>
+<table>
+<thead>
+<tr>
+<th>年份</th>
+<th>分布</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2025</td>
+<td><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="index.assets/statistics/2025_application.webp" data-desc-position="bottom"><img alt="2025_application" src="index.assets/statistics/2025_application.webp"></a></td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 29, 2025 15:06:00 UTC">August 29, 2025</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"></path></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 7, 2025 16:39:17 UTC">May 7, 2025</span>
+  </span>
+
+    
+    
+    
+      
+  <span class="md-source-file__fact">
+    
+      
+  <span class="md-icon" title="Contributors">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"></path></svg>
+  </span>
+  <span>GitHub</span>
+
+    
+    <nav>
+      
+        <a href="https://github.com/bowling233" class="md-author" title="@bowling233">
+          
+          <img src="https://avatars.githubusercontent.com/u/35755846?v=4&amp;size=72" alt="bowling233">
+        </a>
+      
+        <a href="https://github.com/web-flow" class="md-author" title="@web-flow">
+          
+          <img src="https://avatars.githubusercontent.com/u/19864447?v=4&amp;size=72" alt="web-flow">
+        </a>
+      
+        <a href="https://github.com/YooLc" class="md-author" title="@YooLc">
+          
+          <img src="https://avatars.githubusercontent.com/u/52441312?v=4&amp;size=72" alt="YooLc">
+        </a>
+      
+        <a href="https://github.com/mrhaoxx" class="md-author" title="@mrhaoxx">
+          
+          <img src="https://avatars.githubusercontent.com/u/22582237?v=4&amp;size=72" alt="mrhaoxx">
+        </a>
+      
+      
+      
+        
+          <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/index.md" class="md-author md-author--more">
+            +2
+          </a>
+        
+      
+    </nav>
+  </span>
+
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+        
+          
+          <a href="guide/env/" class="md-footer__link md-footer__link--next" aria-label="Next: 软件环境">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                软件环境
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": ".", "features": ["content.code.copy", "content.code.select", "content.code.annotate", "navigation.footer", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.tracking", "navigation.path", "navigation.top", "toc.follow", "content.action.edit", "search.suggest", "search.highlight", "search.share"], "search": "assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="javascripts/tablesort.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>
