@@ -1,0 +1,17 @@
+[project]
+name = "hpc101"
+version = "0.1.0"
+description = "HPC101 course website powered by Zensical"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "zensical",
+    "mkdocs-git-committers-plugin-2",
+    "mkdocs-git-revision-date-localized-plugin",
+    "mkdocs-glightbox",
+    "mkdocs-include-dir-to-nav",
+    "neoteroi-mkdocs",
+    "mkslides",
+]
