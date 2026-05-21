@@ -10,8 +10,6 @@ dev = [
     "zensical",
     "mkdocs-git-committers-plugin-2",
     "mkdocs-git-revision-date-localized-plugin",
-    "mkdocs-glightbox",
-    "mkdocs-include-dir-to-nav",
     "neoteroi-mkdocs",
     "mkslides",
 ]

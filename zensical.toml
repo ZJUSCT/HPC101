@@ -135,6 +135,3 @@ branch = "main"
 # --------------------------------------------------------------------------
 [project.plugins.glightbox]
 [project.plugins.tags]
-
-[project.plugins.include_dir_to_nav]
-recurse = false
