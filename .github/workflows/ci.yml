@@ -60,4 +60,8 @@ jobs:
             - run: uv run zensical build -f zensical.toml
             - run: mv site-slides/* site/slides/
             - run: rm -rf site/slides/assets/reveal-js/.git
-            - run: uv run zensical gh-deploy -f zensical.toml --dirty --force --no-history
+            - uses: peaceiris/actions-gh-pages@v4
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: ./site
+                  force_orphan: true
