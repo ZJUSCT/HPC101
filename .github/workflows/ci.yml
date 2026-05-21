@@ -29,40 +29,13 @@ jobs:
             - run: uv run mkslides build slides/ -d site-slides
             - run: mv site-slides/index.html docs/slides/index.md
             - run: uv run zensical build -f zensical.toml
-
-    deploy:
-        # only deploy on main repo
-        runs-on: ubuntu-latest
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'ZJUSCT/HPC101'
-        needs: build
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
-            - name: enable git-committers
-              run: |
-                  sed -i 's/enabled = false/enabled = true/' zensical.toml
-            - name: Configure Git Credentials
-              run: |
-                  git config user.name github-actions[bot]
-                  git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-            - uses: astral-sh/setup-uv@v6
-            - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-            - uses: actions/cache@v4
-              with:
-                  key: zensical-${{ env.cache_id }}
-                  path: .cache
-                  restore-keys: |
-                      zensical-
-            - run: uv sync
-            - run: uv run mkslides build slides/ -d site-slides
-            - run: mv site-slides/index.html docs/slides/index.md
-            - run: uv run zensical build -f zensical.toml
               env:
                   MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
             - run: mv site-slides/* site/slides/
             - run: rm -rf site/slides/assets/reveal-js/.git
-            - uses: peaceiris/actions-gh-pages@v4
+            - name: Deploy
+              if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'ZJUSCT/HPC101'
+              uses: peaceiris/actions-gh-pages@v4
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   publish_dir: ./site

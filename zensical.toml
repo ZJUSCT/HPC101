@@ -126,17 +126,13 @@ custom_checkbox = true
 [project.markdown_extensions."neoteroi.projects"]
 [project.markdown_extensions."neoteroi.cards"]
 
+[project.markdown_extensions."extensions.git_info"]
+repository = "ZJUSCT/HPC101"
+branch = "main"
+
 # --------------------------------------------------------------------------
 # Plugins
 # --------------------------------------------------------------------------
-[project.plugins.git-revision-date-localized]
-enable_creation_date = true
-
-[project.plugins.git-committers]
-enabled = false
-repository = "zjusct/hpc101"
-branch = "main"
-
 [project.plugins.glightbox]
 [project.plugins.tags]
 
