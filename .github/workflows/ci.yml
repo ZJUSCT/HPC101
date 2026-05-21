@@ -30,6 +30,7 @@ jobs:
             - run: mv site-slides/index.html docs/slides/index.md
             - run: uv run zensical build -f zensical.toml
               env:
+                  PYTHONPATH: .
                   MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
             - run: mv site-slides/* site/slides/
             - run: rm -rf site/slides/assets/reveal-js/.git
