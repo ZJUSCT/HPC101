@@ -1,5 +1,5 @@
 [project]
-site_name = "HPC101 (2025)"
+site_name = "HPC101"
 site_url = "https://hpc101.zjusct.io/"
 repo_url = "https://github.com/ZJUSCT/HPC101"
 repo_name = "ZJUSCT/HPC101"
@@ -11,17 +11,10 @@ copyright = "ZJUSCT"
 nav = [
     { "课程信息" = [
         "index.md",
-        { "使用集群" = "guide" },
     ] },
     { "课程实验" = [
         { "Lab 0: Linux 快速入门" = "lab/Lab0-LinuxCrashCourse/index.md" },
         { "Lab 1: 简单集群搭建" = "lab/Lab1-MiniCluster/index.md" },
-        { "Lab 2: 向量化计算" = "lab/Lab2-Vectorization/index.md" },
-        { "Lab 2.5: 向量化进阶 (RISC-V)" = "lab/Lab2.5-RISC-V/index.md" },
-        { "Lab 3: CUDA 卷积" = "lab/Lab3-CudaConv/index.md" },
-        { "Lab 4: Solver Challenge" = "lab/Lab4-Solver-Challenge/index.md" },
-        { "Lab 5: TinyLLM" = "lab/Lab5-TinyLLM/index.md" },
-        { "Final Project - 大作业" = "lab/Final-Project/index.md" },
     ] },
     { "课程幻灯片" = "slides/index.md" },
 ]
@@ -46,6 +39,7 @@ extra_javascript = [
 # Theme
 # --------------------------------------------------------------------------
 [project.theme]
+custom_dir = "overrides"
 logo = "assets/zjusct.svg"
 favicon = "assets/zjusct-hpc101.svg"
 features = [

@@ -1,1 +1,20 @@
+.md-logo__variant {
+    display: inline-flex;
+    align-items: center;
+}
 
+.md-logo__variant--dark {
+    display: none;
+}
+
+[data-md-color-scheme="slate"] .md-logo__variant--light {
+    display: none;
+}
+
+[data-md-color-scheme="slate"] .md-logo__variant--dark {
+    display: inline-flex;
+}
+
+.md-logo__variant .md-logo__image {
+    display: block;
+}

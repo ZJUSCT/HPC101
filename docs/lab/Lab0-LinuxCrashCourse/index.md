@@ -1,10 +1,8 @@
 # Lab 0: Linux Crash Course
 
-!!! tip "QC PASS"
+!!! warning "仅供参考"
 
-    This lab workflow has passed the quality check. Feel free to proceed.
-
-    Responsible TA: **Xingxing Hao @mrhaoxx**
+    本文档当前版本为2025年课程的实验文档，仅供参考！
 
 !!! tip "To help students get accustomed to reading English documentation, this lab will be conducted entirely in English."
 
