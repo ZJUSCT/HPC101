@@ -9,25 +9,29 @@ injecting their output into page.meta so zensical's template can render it.
 from __future__ import annotations
 
 import logging
-import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from markdown import Extension
 from markdown.preprocessors import Preprocessor
+from zensical.config import get_config
 
 if TYPE_CHECKING:
     from markdown import Markdown
 
 log = logging.getLogger("zensical.extensions.git_info")
 
-DOCS_DIR = os.path.join(os.getcwd(), "docs")
+
+def _docs_dir() -> Path:
+    config = get_config()
+    root_dir = Path(config.get("root_dir") or ".")
+    return root_dir / config.get("docs_dir", "docs")
 
 
 class _MockFile:
     def __init__(self, src_path: str):
         self.src_path = src_path
-        self.abs_src_path = str(Path(DOCS_DIR) / src_path)
+        self.abs_src_path = str(_docs_dir() / src_path)
         self.generated_by = None
         self.locale = None
 
@@ -65,7 +69,7 @@ def _init_plugins(repository: str, branch: str, enable_creation_date: bool):
 
     mock_config = _MockConfig({
         "config_file_path": "zensical.toml",
-        "docs_dir": DOCS_DIR,
+        "docs_dir": str(_docs_dir()),
         "plugins": {},
         "theme": {},
         "extra_javascript": [],
