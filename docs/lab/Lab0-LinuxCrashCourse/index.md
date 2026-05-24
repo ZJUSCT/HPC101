@@ -133,66 +133,9 @@ Linux is a popular choice for developers and system administrators due to its fl
 
     Good job! Now you're a true Linux user. You can go on and finish this lab.
 
-<script src="/javascripts/v86/libv86.js"></script>
-<script>
-"use strict";
-
-// Save references to the original event handler methods
-const originalAddEventListener = window.addEventListener;
-const originalRemoveEventListener = window.removeEventListener;
-
-// Array to store keydown listeners
-const keydownListeners = [];
-
-// Override addEventListener to track keydown listeners
-window.addEventListener = function(type, listener, options) {
-originalAddEventListener.call(window, type, listener, options);
-if (type === 'keydown') {
-    keydownListeners.push({ listener, options });
-}
-};
-
-// Override removeEventListener to update the keydown listeners list
-window.removeEventListener = function(type, listener, options) {
-originalRemoveEventListener.call(window, type, listener, options);
-if (type === 'keydown') {
-    const index = keydownListeners.findIndex(entry =>
-    entry.listener === listener &&
-    (entry.options === options ||
-    (typeof entry.options === 'object' && typeof options === 'object' &&
-        JSON.stringify(entry.options) === JSON.stringify(options))));
-    if (index !== -1) {
-    keydownListeners.splice(index, 1);
-    }
-}
-};
-
-window.onload = function()
-{
-    // Remove key listener from material mkdocs
-    if (keydownListeners.length > 0) {
-        const firstListener = keydownListeners.shift();
-        window.removeEventListener('keydown', firstListener.listener, firstListener.options);
-    }
-
-    var emulator = new V86({
-        wasm_path: "/javascripts/v86/v86.wasm",
-        memory_size: 512 * 1024 * 1024,
-        vga_memory_size: 8 * 1024 * 1024,
-        screen_container: document.getElementById("screen_container"),
-        bios: {
-            url: "/javascripts/v86/seabios.bin",
-        },
-        vga_bios: {
-            url: "/javascripts/v86/vgabios.bin",
-        },
-        bzimage: {
-            url: "/javascripts/v86/buildroot-bzimage68.bin",
-        },
-        autostart: true,
-    });
-};
-</script>
+<!-- v86 initialization is handled by docs/javascripts/v86-init.js so it
+     re-runs across instant navigations. The #screen_container above is
+     the only markup needed here. -->
 
 ### Linux distributions
 

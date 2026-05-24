@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  <script>
+    (function () {
+      try {
+        var saved = (typeof __md_get === "function") ? __md_get("__palette") : null;
+        var scheme;
+        if (saved && saved.color && saved.color.media) {
+          if (saved.color.media === "(prefers-color-scheme)") {
+            scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+          } else {
+            scheme = saved.color.scheme;
+          }
+        } else {
+          scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+        }
+        document.documentElement.setAttribute("data-md-color-scheme", scheme);
+        if (document.body) {
+          document.body.setAttribute("data-md-color-scheme", scheme);
+        } else {
+          new MutationObserver(function (_, obs) {
+            if (document.body) {
+              document.body.setAttribute("data-md-color-scheme", scheme);
+              obs.disconnect();
+            }
+          }).observe(document.documentElement, { childList: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script>
+    // Track keydown listeners added on window so v86 can later remove
+    // Material's global handler that would otherwise capture key presses
+    // intended for the in-browser Linux VM.
+    (function () {
+      window.__v86KeydownListeners = [];
+      var origAdd = window.addEventListener;
+      var origRemove = window.removeEventListener;
+      window.addEventListener = function (type, listener, options) {
+        origAdd.call(this, type, listener, options);
+        if (type === "keydown") {
+          window.__v86KeydownListeners.push({ listener: listener, options: options });
+        }
+      };
+      window.removeEventListener = function (type, listener, options) {
+        origRemove.call(this, type, listener, options);
+        if (type === "keydown") {
+          var i = window.__v86KeydownListeners.findIndex(function (e) {
+            return e.listener === listener;
+          });
+          if (i !== -1) window.__v86KeydownListeners.splice(i, 1);
+        }
+      };
+    })();
+  </script>
+{% endblock %}

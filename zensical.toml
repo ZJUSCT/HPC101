@@ -33,6 +33,8 @@ extra_javascript = [
     "https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js",
     "javascripts/tablesort.js",
     "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js",
+    "javascripts/mermaid-init.js",
+    "javascripts/v86-init.js",
 ]
 
 # --------------------------------------------------------------------------
@@ -49,6 +51,9 @@ features = [
     "content.code.select",
     "navigation.expand",
     "navigation.footer",
+    "navigation.instant",
+    "navigation.instant.prefetch",
+    "navigation.instant.progress",
     "navigation.path",
     "navigation.sections",
     "navigation.tabs",
@@ -62,21 +67,18 @@ features = [
 
 [[project.theme.palette]]
 media = "(prefers-color-scheme)"
-primary = "pink"
 toggle.icon = "lucide/sun-moon"
 toggle.name = "切换至浅色模式"
 
 [[project.theme.palette]]
 media = "(prefers-color-scheme: light)"
 scheme = "default"
-primary = "pink"
 toggle.icon = "lucide/sun"
 toggle.name = "切换至深色模式"
 
 [[project.theme.palette]]
 media = "(prefers-color-scheme: dark)"
 scheme = "slate"
-primary = "pink"
 toggle.icon = "lucide/moon"
 toggle.name = "根据系统模式切换主题"
 
