@@ -766,6 +766,7 @@ Our course provides free access to the DeepSeek API, which is powerful and can b
         If you see any network error during installation, you can install [Node.js](https://nodejs.org/en/download/) and then run the following command to install Claude Code:
 
         ```bash
+        npm config set registry https://registry.npmmirror.com
         npm install -g @anthropic/claude-code
         ```
 
