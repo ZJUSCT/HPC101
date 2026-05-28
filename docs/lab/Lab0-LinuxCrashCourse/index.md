@@ -1,9 +1,5 @@
 # Lab 0: Linux Crash Course
 
-!!! warning "仅供参考"
-
-    本文档当前版本为2025年课程的实验文档，仅供参考！
-
 !!! tip "To help students get accustomed to reading English documentation, this lab will be conducted entirely in English."
 
     In the fields of **Linux** and **HPC**, a significant amount of software and hardware infrastructure is collaboratively developed by people from around the world. **English serves as a crucial medium for communication.** In the future, you will encounter well-known software projects such as **NumPy**, **PyTorch**, **OpenMP**, and **MPI**. While using these tools, you will inevitably need to read their documentation to solve problems, and these documents are often written in English. **To help students get accustomed to reading English documentation, this lab will be conducted entirely in English.**
