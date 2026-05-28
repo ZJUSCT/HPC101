@@ -737,6 +737,12 @@ There are many AI coding agents available today, such as [Claude Code](https://c
 
 Read the official quickstart guide to get an overview: [Quickstart - Claude Code Docs](https://code.claude.com/docs/en/quickstart).
 
+### Get API Key
+
+Claude Code uses the Claude subscription by default, which can be costly and has strict terms of service. As an alternative, you can use other LLM providers compatible with the Anthropic API, such as [GLM](https://bigmodel.cn/) and [DeepSeek](https://www.deepseek.com/).
+
+Our course provides free access to the DeepSeek API, which is powerful and can be used with Claude Code. To get your API key, you can log in to [our New API Platform](https://newapi.s.zjusct.io/) with your [ZJU Git](https://git.zju.edu.cn/) account, and then go to the "Token Management" section to create a new API key.
+
 ### Installation
 
 !!! question "Task 6.1: Install Claude Code"
@@ -781,24 +787,24 @@ Read the official quickstart guide to get an overview: [Quickstart - Claude Code
     
     === "Step 2: Set your LLM provider"
 
-        By default, Claude Code uses the Claude Subscription. If you have that, you can skip this step and log in directly when you run `claude` for the first time.
+        If you have a Claude Subscription, you can skip this step and log in directly when you run `claude` for the first time.
 
-        If you want to use other LLM providers (like [GLM](https://bigmodel.cn/) or [DeepSeek](https://www.deepseek.com/)), you can run the following command to set it up:
+        If you want to use other LLM providers (like [GLM](https://bigmodel.cn/), [DeepSeek](https://www.deepseek.com/) or [our New API Platform](https://newapi.s.zjusct.io/)), you can run the following command to set it up:
 
         In Linux/macOS:
 
         ```bash
-        export ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"   # example for DeepSeek
-        export ANTHROPIC_AUTH_TOKEN="sk-..."                             # your API key for the chosen provider
-        export ANTHROPIC_MODEL="deepseek-v4-pro"                         # specify the model to use
+        export ANTHROPIC_BASE_URL="https://newapi.s.zjusct.io"    # example for our API platform
+        export ANTHROPIC_AUTH_TOKEN="sk-..."                      # your API key for the chosen provider
+        export ANTHROPIC_MODEL="deepseek-v4-pro"                  # specify the model to use
         ```
 
         In Windows PowerShell:
 
         ```powershell
-        $env:ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"   # example for DeepSeek
-        $env:ANTHROPIC_AUTH_TOKEN="sk-..."                             # your API key for the chosen provider
-        $env:ANTHROPIC_MODEL="deepseek-v4-pro"                         # specify the model to use
+        $env:ANTHROPIC_BASE_URL="https://newapi.s.zjusct.io"      # example for our API platform
+        $env:ANTHROPIC_AUTH_TOKEN="sk-..."                        # your API key for the chosen provider
+        $env:ANTHROPIC_MODEL="deepseek-v4-pro"                    # specify the model to use
         ```
 
         Bash and PowerShell behave differently in many ways. In the following sections, we recommend that you use Git Bash if you are on Windows.
