@@ -788,17 +788,17 @@ Read the official quickstart guide to get an overview: [Quickstart - Claude Code
         In Linux/macOS:
 
         ```bash
-        export ANTHROPIC_BASE_URL="https://api.deepseek.com/v1"   # example for DeepSeek
-        export ANTHROPIC_API_KEY="sk-..."                         # your API key for the chosen provider
-        export ANTHROPIC_MODEL="deepseek-v4-pro"                  # specify the model to use
+        export ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"   # example for DeepSeek
+        export ANTHROPIC_AUTH_TOKEN="sk-..."                             # your API key for the chosen provider
+        export ANTHROPIC_MODEL="deepseek-v4-pro"                         # specify the model to use
         ```
 
         In Windows PowerShell:
 
         ```powershell
-        $env:ANTHROPIC_BASE_URL="https://api.deepseek.com/v1"   # example for DeepSeek
-        $env:ANTHROPIC_API_KEY="sk-..."                         # your API key for the chosen provider
-        $env:ANTHROPIC_MODEL="deepseek-v4-pro"                  # specify the model to use
+        $env:ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"   # example for DeepSeek
+        $env:ANTHROPIC_AUTH_TOKEN="sk-..."                             # your API key for the chosen provider
+        $env:ANTHROPIC_MODEL="deepseek-v4-pro"                         # specify the model to use
         ```
 
         Bash and PowerShell behave differently in many ways. In the following sections, we recommend that you use Git Bash if you are on Windows.
