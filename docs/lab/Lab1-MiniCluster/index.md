@@ -470,61 +470,13 @@ MPI 指的是 [Message Passing Interface](http://www.mpi-forum.org/)，是程序
 
 在本 Lab 中，`node01` 将作为 NFS 服务器，导出 `/cluster/shared`；`node02`、`node03`、`node04` 将作为 NFS 客户端，把同一个远程目录挂载到本地的 `/cluster/shared`。这样你只需要把 HPL 可执行文件、`HPL.dat` 和 Slurm 作业脚本放到这个共享目录中，所有节点都能看到同一份内容。
 
+NFS 对初学者最容易出问题的是权限。原因在于 Linux 文件权限最终依赖数字 UID/GID。
 
-NFS 对初学者最容易出问题的是权限。原因在于 Linux 文件权限最终依赖数字 UID/GID —— 下面的框框会详细解释。
+!!! tip "用 NIS 统一用户信息"
 
-!!! note "UID / GID 是什么？为什么对 NFS 很重要"
+    如果你希望更系统地解决这个问题，一个常见思路是配置 **NIS**（Network Information Service）这类统一身份服务，在各节点上创建并维护同一个共享用户信息源，让所有机器上的用户名、UID、GID 保持一致。这样做比在每台机器上手动创建一个同名用户更稳妥，也更接近真实集群环境中的做法。
 
-    Linux 中每个用户和用户组在系统内部都用一个**数字**来标记，而不是用户名这个字符串：
-
-    - **UID**（User ID）：标识一个用户。例如 `user` 的 UID 通常是 `1000`。
-    - **GID**（Group ID）：标识一个用户组。例如 `user` 所在的 `user` 组的 GID 通常也是 `1000`。
-
-    可以用 `id` 命令查看当前用户的 UID 和 GID：
-
-    ```bash
-    id
-    # uid=1000(user) gid=1000(user) groups=1000(user),4(adm),27(sudo)
-    ```
-
-    问题出在 NFS 只认数字，不认名字。假设：
-
-    | | node01 | node02 |
-    |---|---|---|
-    | 用户名 | `student` | `student` |
-    | UID | 1000 | 1001 |
-
-    那么在 node01 上用 `student` 创建的文件，到了 node02 上 NFS 看到的属主是 UID 1000——但 node02 上 UID 1000 可能是另一个用户，或者根本不存在。结果就是你明明在 node02 上也是 `student`，却打不开自己的文件。
-
-    所以实验开始前，务必让所有节点上你的用户名、UID、GID 完全一致：
-
-    ```bash
-    # 在每个节点上执行，对比输出是否相同
-    id
-    ```
-
-    如果不一致，可以重新创建用户或修改 UID/GID。修改方式如下：
-
-    ```bash
-    # 查看当前 UID/GID
-    id
-
-    # 修改用户 UID（以用户名 student、新 UID 1000 为例）
-    sudo usermod -u 1000 student
-    # 修改用户 GID（以组名 student、新 GID 1000 为例）
-    sudo groupmod -g 1000 student
-    # 修正该用户家目录下的文件属主
-    sudo chown -R student:student /home/student
-    ```
-
-    !!! warning "修改 UID/GID 前请仔细核对"
-        不要修改正在使用的账户的 UID/GID，建议先创建一个临时 `root` 会话（`sudo -i`）再操作。如果改错了可能导致无法登录。
-
-    更多参考：`man usermod`、`man groupmod`
-
-!!! note "共享文件系统解决的是文件可见性问题"
-
-    共享文件系统不能替代 MPI，也不能替代 Slurm。MPI 负责并行程序通信，Slurm 负责任务调度和资源分配，共享文件系统负责让各节点访问同一份文件。本 Lab 中这个角色由 NFS 承担。
+    相对地，**手动在每个节点分别创建用户通常并不推荐**：节点一多就很容易漏改、改错，后续修改密码、补充用户组、调整 UID/GID 时也容易出现不一致。对于小规模的集群，你可以手动保证一致。
 
 ### 作业调度系统
 
