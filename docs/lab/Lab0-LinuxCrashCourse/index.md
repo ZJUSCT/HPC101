@@ -30,6 +30,7 @@
     - **Task 2.1**: `nano` screenshot
     - **Task 3.2**: SSH connection screenshot
     - **Task 5.2**: SSH connection screenshot
+    - **Task 6.1**: Claude Code installation and first conversation screenshot
 
     If you already have a **deep understanding of Linux** or are currently using a **Linux system** and are familiar with the content of this lab, you can skip reading the content and directly complete the tasks.
 
@@ -93,6 +94,11 @@
     - Register a ZJU Git account
     - Configure Public Key
     - Clone a Repository
+- AI Agent
+    - What is an AI Coding Agent
+    - Installation
+    - Basic Usage
+    - Skills and MCP
 
 ## Before You Start
 
@@ -160,13 +166,13 @@ In HPC and cloud computing, Debian is a popular choice due to its stability and 
 
         ```text
         Index of /debian-cd/
-        ../
-        12.11.0/                                           17-May-2025 17:55                   -
-        12.11.0-live/                                      17-May-2025 17:55                   -
-        current/                                           17-May-2025 17:55                   -
-        current-live/                                      17-May-2025 17:55                   -
-        project/                                           23-May-2005 16:50                   -
-        ls-lR.gz                                           17-May-2025 20:12               13882
+        Parent directory/
+        13.5.0/                                            2026/05/17 03:43:13
+        13.5.0-live/                                       2026/05/17 03:43:13
+        current/                                           2026/05/17 03:43:13
+        current-live/                                      2026/05/17 03:43:13
+        project/                                           2005/05/24 00:50:12
+        ls-lR.gz                                           2026/05/27 01:12:01
         ```
 
         We need you to download the **textonly** version.
@@ -180,11 +186,11 @@ In HPC and cloud computing, Debian is a popular choice due to its stability and 
 
             You need to download the `arm64` version of Debian, but **not** the `debian-mac-` version under `amd64` directory.
 
-        The download link should look like this: [https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso](https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso).
+        The download link should look like this: [https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-13.5.0-amd64-netinst.iso](https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-13.5.0-amd64-netinst.iso).
 
         **Quick questions:**
 
-        - What is the difference between `debian-12.11.0-amd64-netinst.iso` and the `debian-12.11.0-amd64-DVD-1.iso`?
+        - What is the difference between `debian-13.5.0-amd64-netinst.iso` and the `debian-13.5.0-amd64-DVD-1.iso`?
         - What is the difference between the `amd64` and `arm64` versions?
 
         ??? success "Check your answer"
@@ -198,9 +204,9 @@ In HPC and cloud computing, Debian is a popular choice due to its stability and 
 
         You can use:
 
-        - `sha256sum` on Linux: `sha256sum debian-12.10.0-amd64-netinst.iso`
-        - `certutil` on Windows: `certutil -hashfile debian-12.10.0-amd64-netinst.iso SHA256`
-        - `shasum` on macOS: `shasum -a 256 debian-12.10.0-amd64-netinst.iso`
+        - `sha256sum` on Linux: `sha256sum debian-13.5.0-amd64-netinst.iso`
+        - `certutil` on Windows: `certutil -hashfile debian-13.5.0-amd64-netinst.iso SHA256`
+        - `shasum` on macOS: `shasum -a 256 debian-13.5.0-amd64-netinst.iso`
 
         Show the result of your verification, and compare it with the result in `SHA256SUMS` file under the same directory as the ISO image.
 
@@ -528,7 +534,7 @@ Watch this video to understand network in the virtual machines: [:simple-bilibil
         ```text
         PING 172.16.39.129 (172.16.39.129): 56 data bytes
         64 bytes from 172.16.39.129: icmp_seq=0 ttl=64 time=5.485 ms
-        64 bytes from 172.16.39.129: icmp_seq=1 ttl=64 time=0.695 m
+        64 bytes from 172.16.39.129: icmp_seq=1 ttl=64 time=0.695 ms
         ```
 
 ### SSH
@@ -658,6 +664,364 @@ Git is a distributed version control system that is widely used in software deve
         Show the screenshot of your successful connection.
 
 !!! warning "This public key will be **used to access the clusters** in the future."
+
+### Install Git
+
+!!! question "Task 5.3: Install Git on your virtual machine."
+
+    On Debian-based distributions, you can install Git using the following command:
+
+    ```bash
+    sudo apt update
+    sudo apt install git
+    ```
+
+    On Windows, you can download the Git installer from [Git for Windows](https://git-scm.com/download/win) and follow the installation instructions.
+
+    On macOS, you can install Git using [Homebrew](https://brew.sh/):
+
+    ```bash
+    brew install git
+    ```
+
+    After installing Git, you can check the version of Git to verify the installation:
+
+    ```bash
+    git --version
+    ```
+
+    You should see the version number of Git printed, like:
+
+    ```text
+    git version 2.x.x
+    ```
+
+## AI Agent
+
+In the previous sections, you have been typing commands manually in the terminal: reading documentation, installing packages, editing configuration files, and running programs. This is the traditional workflow that every developer follows.
+
+In recent years, a new kind of tool has emerged: **AI coding agents**. Unlike simple chatbots (such as ChatGPT's web interface) that only generate text responses, AI coding agents can directly interact with your computer. They read and write files, run terminal commands, search the web, and manage version control. They serve as intelligent assistants that understand your codebase and can take real actions on your behalf.
+
+??? info "Why learn AI agents in an HPC course?"
+
+    In Lab 1 and beyond, you will face complex tasks like debugging `Makefile` errors, understanding unfamiliar source code, and configuring multi-node clusters. An AI coding agent can help you:
+
+    - Quickly understand what a 500-line `configure` script does.
+    - Identify why `make` is failing and suggest a fix.
+    - Generate boilerplate configuration files (like `HPL.dat` or `hostfile`).
+    - Explain error messages you encounter during compilation.
+
+    You still need to understand what is happening, but you do not have to figure out everything from scratch.
+
+### Introduction
+
+A traditional chatbot takes your message and returns text. An AI coding agent combines a large language model (LLM) with a set of tools that allow it to interact with the real world:
+
+| Tool | What It Does |
+|------|-------------|
+| Read | Opens and reads any file on your computer |
+| Edit | Makes precise, targeted changes to existing files |
+| Write | Creates brand new files from scratch |
+| Bash | Runs terminal commands (build, test, install, git, etc.) |
+| Web Search | Searches the internet for up-to-date information |
+
+When you give an AI coding agent an instruction like "fix the compilation error in my Makefile," it reads the Makefile, identifies the problem, edits the file, and runs `make` again to verify the fix works. This read-think-act loop is what distinguishes an agent from a chatbot.
+
+```mermaid
+flowchart LR
+    A[You: natural language instruction] --> B[Agent: read files & context]
+    B --> C[Agent: think & plan]
+    C --> D[Agent: take action]
+    D --> E[Agent: observe result]
+    E -->|iterate| B
+    E -->|done| F[Report back to you]
+```
+
+There are many AI coding agents available today, such as [Claude Code](https://code.claude.com/), [Codex CLI](https://github.com/openai/codex), [Gemini CLI](https://github.com/google-gemini/gemini-cli), [GitHub Copilot](https://github.com/features/copilot), [Cursor](https://www.cursor.com/), and [Windsurf](https://windsurf.com/). They share the same core idea but differ in interface, model provider, and specific features. In this lab, we use **Claude Code** as a representative example. It is an agentic AI assistant developed by Anthropic that lives in your terminal.
+
+Read the official quickstart guide to get an overview: [Quickstart - Claude Code Docs](https://code.claude.com/docs/en/quickstart).
+
+### Installation
+
+!!! question "Task 6.1: Install Claude Code"
+
+    === "Step 1: Install"
+
+        Open a terminal on your machine and run the installer for your operating system:
+
+        **macOS / Linux:**
+
+        ```bash
+        curl -fsSL https://claude.ai/install.sh | bash
+        ```
+
+        **Windows (PowerShell):**
+
+        ```powershell
+        irm https://claude.ai/install.ps1 | iex
+        ```
+
+        If you see any network error during installation, you can install [Node.js](https://nodejs.org/en/download/) and then run the following command to install Claude Code:
+
+        ```bash
+        npm install -g @anthropic/claude-code
+        ```
+
+        You will see progress output as it downloads and installs. As long as you do not see any red error messages, things are going well.
+
+        **Close and reopen your terminal**, then run:
+
+        ```bash
+        claude --version
+        ```
+
+        You should see a version number printed, like:
+
+        ```text
+        2.x.x (Claude Code)
+        ```
+
+        If you see that, installation succeeded.
+    
+    === "Step 2: Set your LLM provider"
+
+        By default, Claude Code uses the Claude Subscription. If you have that, you can skip this step and log in directly when you run `claude` for the first time.
+
+        If you want to use other LLM providers (like [GLM](https://bigmodel.cn/) or [DeepSeek](https://www.deepseek.com/)), you can run the following command to set it up:
+
+        In Linux/macOS:
+
+        ```bash
+        export ANTHROPIC_BASE_URL="https://api.deepseek.com/v1"   // example for DeepSeek
+        export ANTHROPIC_API_KEY="sk-..."                         // your API key for the chosen provider
+        export ANTHROPIC_MODEL="deepseek-v4-pro"                  // specify the model to use
+        ```
+
+        In Windows PowerShell:
+
+        ```powershell
+        $env:ANTHROPIC_BASE_URL="https://api.deepseek.com/v1"   # example for DeepSeek
+        $env:ANTHROPIC_API_KEY="sk-..."                         # your API key for the chosen provider
+        $env:ANTHROPIC_MODEL="deepseek-v4-pro"                  # specify the model to use
+        ```
+
+        Bash and PowerShell behave differently in many ways. In the following sections, we recommend that you use Git Bash if you are on Windows.
+
+        You can find more details about configuring LLM providers in the the official documentation: 
+
+        - [Integrate with Claude Code - DeepSeek](https://api-docs.deepseek.com/quick_start/agent_integrations/claude_code)
+        - [Claude Code - 智谱AI开放文档](https://docs.bigmodel.cn/cn/coding-plan/tool/claude)
+
+
+    === "Step 3: First Run"
+
+        Navigate to a project folder (or create one for experimenting):
+
+        ```bash
+        mkdir my-first-claude-project
+        cd my-first-claude-project
+        ```
+
+        Start Claude Code:
+
+        ```bash
+        claude
+        ```
+
+        The first time you run this, it will open a browser window where you authenticate with your Claude account. Follow the prompts, return to your terminal, and you will see:
+
+        ![Claude Code First Run](image/claude_code_firstrun.png)
+
+        That `>` is your prompt. Claude Code is waiting for you to type something.
+
+    === "Step 4: First Conversation"
+
+        Try typing the following prompts one by one and observe what Claude Code does:
+
+        1. Ask about the current directory:
+
+            ```text
+            What files are in this directory?
+            ```
+
+            Claude Code will read the directory and show you the list of files.
+
+        2. Ask it to create a script:
+
+            ```text
+            Create a shell script that prints the hostname, kernel version, CPU info, and memory usage.
+            ```
+
+            Claude Code will show you the file content it wants to create and ask for permission. Select `Yes` and press Enter to approve.
+
+        3. Ask it to run the script:
+
+            ```text
+            Run the script and show me the output.
+            ```
+
+            Again, it will ask for permission before executing the command. Select `Yes` and press Enter to approve.
+
+        Show a screenshot of your conversation with Claude Code, including the created file and its output.
+
+??? example "Example: Claude Code Basic Usage"
+
+    Here are the most common interaction patterns you will use in this course:
+    
+    **Asking questions about code:**
+    
+    ```text
+    > Explain what the configure script does in this project.
+    > What dependencies does this Makefile need?
+    > What does the -O2 flag do in gcc?
+    ```
+    
+    **Editing files:**
+    
+    ```text
+    > Add error handling to the main function in server.c
+    > Change the optimization flag from -O0 to -O2 in the Makefile
+    > Fix the linker path in Make.Linux_PII_FBLAS
+    ```
+    
+    **Running commands:**
+    
+    ```text
+    > Compile this project and show me any errors.
+    > Run the test suite and summarize the results.
+    > Check if OpenMPI is installed correctly.
+    ```
+    
+    **Git workflows:**
+    
+    ```text
+    > Show me what changed since the last commit.
+    > Create a commit with a descriptive message for the current changes.
+    > What does the most recent commit do?
+    ```
+    
+    **Debugging:**
+    
+    ```text
+    > I'm getting "undefined reference to dgemm_" when linking. What's wrong?
+    > The configure script says it can't find mpi.h. How do I fix this?
+    ```
+
+### Slash Commands
+
+During a Claude Code session, type `/` to see a list of available commands. They are the primary interface for controlling Claude Code's behavior. Here are the most useful ones:
+
+| Command | What It Does |
+|---------|-------------|
+| `/help` | Shows help and available commands |
+| `/clear` | Clears conversation history and frees context window space |
+| `/compact` | Compresses conversation into a summary to reclaim context |
+| `/model` | Selects or changes the AI model mid-session |
+| `/effort` | Controls how much effort Claude Code spends on thinking before acting |
+| `/usage` | Shows token usage statistics for the current session |
+| `/init` | Initializes a `CLAUDE.md` project memory file |
+| `/diff` | Shows uncommitted changes in an interactive diff viewer |
+| `/config` | Opens the settings interface |
+| `/permissions` | Views or updates tool permissions |
+| `/doctor` | Diagnoses and verifies your installation |
+
+??? info "Context window and `/compact`"
+
+    Claude Code has a **context window**, which you can think of as a shared whiteboard between you and the agent. Everything you discuss, every file it reads, and every command output goes onto this whiteboard. But the whiteboard has a fixed size. When it gets full, Claude Code may start "forgetting" earlier parts of your conversation.
+
+    Use `/compact` to compress your conversation (keeping the essence but freeing space), or `/clear` to completely wipe it and start fresh.
+
+    In most cases, Claude Code can automatically manage the context without needing a manual `/compact`.
+
+### Extending Agent: Skills and MCP
+
+Claude Code is not limited to its built-in capabilities. It can be extended through **Skills** and **MCP (Model Context Protocol)**.
+
+#### Skills
+
+A **Skill** is a Markdown file that teaches Claude Code how to perform a specific task. When you type `/skill-name` in a session, Claude reads the corresponding skill file and follows the instructions inside.
+
+For example, you might create a skill called `check-system-status` that instructs Claude to check the system resources usage and status. The skill file would look like this:
+
+```text
+~/.claude/skills/check-system-status/SKILL.md
+```
+
+```yaml
+---
+name: check-system-status
+description: Check system resources usage and status
+---
+
+When invoked, do the following:
+1. Run `top -b -n 1` to get a snapshot of current system resource usage.
+2. Run `df -h` to check disk space usage.
+3. Summarize the results in a human-readable format, highlighting any potential issues (e.g., high CPU usage, low disk space).
+```
+
+After creating this file, you can type `/check-system-status` in any Claude Code session and it will execute these steps.
+
+Skills can be stored in two locations:
+
+| Location | Path | Applies To |
+|----------|------|-----------|
+| Personal | `~/.claude/skills/<name>/SKILL.md` | All your projects |
+| Project | `.claude/skills/<name>/SKILL.md` | This project only |
+
+Built-in skills include `/init`, `/review` (code review), `/security-review`, and others.
+
+#### MCP
+
+MCP (Model Context Protocol) is an open standard that allows AI agents to connect to external tools and services in a standardized way. An MCP server is a separate process that exposes a set of tools (APIs) that an AI agent can call. By adding an MCP server to Claude Code, you can give it access to new capabilities without needing to teach it through skills.
+
+??? info "The problem MCP solves"
+
+    Before MCP, every Agent had its own proprietary integration system. If you wanted to connect an AI agent to a database, you had to write a custom integration for that specific agent. If you switched to a different agent, you had to rewrite the integration from scratch.
+
+    MCP defines a standard interface: you write your tool once, and any MCP-compatible Agent can use it. This is similar to how USB solved the proliferation of proprietary connectors for peripherals.
+
+
+**Adding an MCP server:**
+
+```bash
+# Add a local stdio-based server (filesystem access)
+claude mcp add --transport stdio filesystem -- npx -y @anthropic-ai/mcp-filesystem /home/user/projects
+
+# Add a remote HTTP-based server
+claude mcp add --transport http my-server https://mcp.example.com/endpoint
+```
+
+**Managing MCP servers:**
+
+```bash
+claude mcp list            # List all configured servers
+claude mcp remove <name>   # Remove a server
+```
+
+Once an MCP server is added, its tools appear in your Claude Code session automatically. For instance, if you add a database MCP server, Claude Code gains the ability to run SQL queries when you ask questions like "show me all users who registered last week."
+
+??? example "Example: Using GitHub MCP server"
+
+    The official [GitHub MCP Server](https://github.com/github/github-mcp-server) allows Claude Code to interact with GitHub. It supports creating issues, reading pull requests, searching repositories, and more.
+    
+    Here is how to add it (you may need to have [Node.js](https://nodejs.org/en/download) installed for this):
+
+    ```bash
+    claude mcp add --scope user --transport stdio github -- npx -y @modelcontextprotocol/server-github
+    ```
+
+    You will also need to set a GitHub personal access token as an environment variable. If you have a GitHub account, you can click [here](https://github.com/settings/tokens/new?scopes=repo,read:org,read:user,user:email&description=GitHub%20MCP%20Server) to generate a personal access token.
+
+    ```bash
+    export GITHUB_PERSONAL_ACCESS_TOKEN="ghp_..."
+    ```
+
+    After this, Claude Code gains GitHub-related tools. You can then ask things like:
+
+    ```text
+    > Get the latest 5 issues in the repository torvalds/linux with GitHub MCP tools.
+    > Create a new repo called "my-awesome-project" under my GitHub account using GitHub MCP tools.
+    ```
 
 ## References
 
