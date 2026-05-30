@@ -773,7 +773,7 @@ Our course provides free access to the DeepSeek API, which is powerful and can b
 
         ```bash
         npm config set registry https://registry.npmmirror.com
-        npm install -g @anthropic/claude-code
+        npm install -g @anthropic-ai/claude-code
         ```
 
         You will see progress output as it downloads and installs. As long as you do not see any red error messages, things are going well.
