@@ -26,7 +26,7 @@
     - **Task 2.1**: `nano` screenshot
     - **Task 3.2**: SSH connection screenshot
     - **Task 5.2**: SSH connection screenshot
-    - **Task 6.1**: Claude Code installation and first conversation screenshot
+    - **Task 6.1**: Coding agent installation and first conversation screenshot
 
     If you already have a **deep understanding of Linux** or are currently using a **Linux system** and are familiar with the content of this lab, you can skip reading the content and directly complete the tasks.
 
@@ -733,7 +733,7 @@ flowchart LR
     E -->|done| F[Report back to you]
 ```
 
-There are many AI coding agents available today, such as [Claude Code](https://code.claude.com/), [Codex CLI](https://github.com/openai/codex), [Gemini CLI](https://github.com/google-gemini/gemini-cli), [GitHub Copilot](https://github.com/features/copilot), [Cursor](https://www.cursor.com/), and [Windsurf](https://windsurf.com/). They share the same core idea but differ in interface, model provider, and specific features. In this lab, we use **Claude Code** as a representative example. It is an agentic AI assistant developed by Anthropic that lives in your terminal.
+There are many AI coding agents available today, such as [Claude Code](https://code.claude.com/), [Codex CLI](https://github.com/openai/codex), [OpenCode](https://opencode.ai/), [Gemini CLI](https://github.com/google-gemini/gemini-cli), [GitHub Copilot](https://github.com/features/copilot), [Cursor](https://www.cursor.com/), and [Windsurf](https://windsurf.com/). They share the same core idea but differ in interface, model provider, and specific features. In this lab, we use **Claude Code** as a representative example. It is an agentic AI assistant developed by Anthropic that lives in your terminal.
 
 Read the official quickstart guide to get an overview: [Quickstart - Claude Code Docs](https://code.claude.com/docs/en/quickstart).
 
@@ -745,7 +745,13 @@ Our course provides free access to the DeepSeek API, which is powerful and can b
 
 ### Installation
 
-!!! question "Task 6.1: Install Claude Code"
+!!! question "Task 6.1: Install and try a coding agent"
+
+    ??? note "You may use other coding agents"
+
+        Claude Code is used here only as a representative example. You may complete this task with any mainstream coding agent, such as OpenCode, Codex CLI, Gemini CLI, GitHub Copilot, Cursor, Windsurf, or other tools with similar agentic coding capabilities.
+
+        If you choose another coding agent, follow its official installation guide instead of the Claude Code-specific steps below.
 
     === "Step 1: Install"
 
@@ -865,7 +871,7 @@ Our course provides free access to the DeepSeek API, which is powerful and can b
 
             Again, it will ask for permission before executing the command. Select `Yes` and press Enter to approve.
 
-        Show a screenshot of your conversation with Claude Code, including the created file and its output.
+        Show a screenshot of your conversation with the coding agent, including the created file and its output.
 
 ??? example "Example: Claude Code Basic Usage"
 
