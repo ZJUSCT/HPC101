@@ -15,7 +15,7 @@
 
     <figure markdown="span">
     ![never fully trust your agent](image/never_fully_trust_your_agent.webp){ width=75% }
-    <figcaption>Summer Yue（Meta）于2025年初在推特上分享：使用 OpenClaw 时被 Agent 删除了工作邮件<br/><small>来源：<a href="https://x.com/summeryue/status/1879615697733542031">@summeryue on X</a></small></figcaption>
+    <figcaption>Summer Yue（Meta）于2026年初在推特上分享：使用 OpenClaw 时被 Agent 删除了工作邮件<br/><small>来源：<a href="https://x.com/summeryue/status/1879615697733542031">@summeryue on X</a></small></figcaption>
     </figure>
 
     这个实验从编译到部署的每一个步骤，Agent 都可能帮你完成——也都能帮你搞砸。**永远检查它干了什么。**
