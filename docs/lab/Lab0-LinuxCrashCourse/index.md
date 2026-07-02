@@ -1032,6 +1032,62 @@ Once an MCP server is added, its tools appear in your Claude Code session automa
     > Create a new repo called "my-awesome-project" under my GitHub account using GitHub MCP tools.
     ```
 
+### Codex CLI
+
+If you want to use Codex CLI instead of Claude Code, you can read the following part.
+
+#### Installation
+
+Open a terminal on your machine and run the installer for your operating system:
+
+**macOS / Linux:**
+
+```bash
+curl -fsSL https://chatgpt.com/codex/install.sh | sh
+```
+
+**Windows (PowerShell):**
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 | iex"
+```
+
+If you see any network error during installation, you can install [Node.js](https://nodejs.org/en/download/) and then run the following command to install Codex CLI:
+
+```bash
+npm config set registry https://registry.npmmirror.com
+npm install -g @openai/codex
+```
+
+**Close and reopen your terminal**, then run:
+
+```bash
+codex --version
+```
+
+You should see a version number printed, like:
+
+```text
+codex-cli 0.x.x
+```
+
+If you see that, installation succeeded.
+
+#### Configuration
+
+To use our New API Platform, you can edit the configuration file `~/.codex/config.toml` and add the following content:
+
+```toml
+model_provider = "zjusct"
+
+[model_providers.zjusct]
+name = "zjusct"
+base_url = "https://newapi.s.zjusct.io/v1"
+wire_api = "responses"
+experimental_bearer_token = "sk-xxxxxxx"  # your API key
+requires_openai_auth = false
+```
+
 ## References
 
 - [How do you explain an OS Kernel to a 5 year old?](https://medium.com/@anandthanu/how-do-you-explain-an-os-kernel-to-a-5-year-old-92a08755e014)
