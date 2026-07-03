@@ -73,10 +73,10 @@ $$
 
 其中：
 
-- Q (Query)：查询矩阵，形状为 [batch_size, seq_len, d_model]
-- K (Key)：键矩阵，形状为 [batch_size, seq_len, d_model]
-- V (Value)：值矩阵，形状为 [batch_size, seq_len, d_model]
-- mask：掩码矩阵，形状为 [batch_size, seq_len, seq_len]
+- Q (Query)：查询矩阵，形状为 `[batch_size, seq_len, d_model]`
+- K (Key)：键矩阵，形状为 `[batch_size, seq_len, d_model]`
+- V (Value)：值矩阵，形状为 `[batch_size, seq_len, d_model]`
+- mask：掩码矩阵，形状为 `[batch_size, seq_len, seq_len]`
 - $d_k$：Key的维度，用于缩放
 - batch_size：一个 batch 的大小
 - seq_len：序列长度
@@ -181,11 +181,11 @@ $$\text{SiLU}(x) = x \cdot \text{Sigmoid}(x)$$
 
 ![SiLU 函数图像](image/silu.png){ width="500" style="display:block; margin:auto;" }
 
-**GLU (Gated Linear Unit)** 是一个门控机制，他的核心思想是通过一个范围在 [0, 1] 的门控函数来控制信息的流动。GLU 的公式为：
+**GLU (Gated Linear Unit)** 是一个门控机制，他的核心思想是通过一个范围在 `[0, 1]` 的门控函数来控制信息的流动。GLU 的公式为：
 
 $$\text{GLU}(x) = \sigma(W_g x) \odot (W_x x)$$
 
-其中 $\sigma$ 是范围为 [0,1] 的激活函数，$W_g$ 和 $W_x$ 是可学习的权重矩阵，$\odot$ 表示逐元素乘法。
+其中 $\sigma$ 是范围为 `[0,1]` 的激活函数，$W_g$ 和 $W_x$ 是可学习的权重矩阵，$\odot$ 表示逐元素乘法。
 
 **SwiGLU** 是 $\sigma = \text{SiLU}$ 的 GLU 变体，其公式为：
 

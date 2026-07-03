@@ -30,46 +30,6 @@
 
     If you already have a **deep understanding of Linux** or are currently using a **Linux system** and are familiar with the content of this lab, you can skip reading the content and directly complete the tasks.
 
-<!-- !!! tip "如何阅读错误信息并处理错误"
-
-    命令行与图形界面的一大不同就是，在命令的运行过程中会给出很多记录（Log）和错误信息（Error Message）。新手可能都有畏难心理，觉得这些信息很难看懂/看了也没有什么用，但很多时候解决方法已经在错误信息中了。举个例子，下面是运行 `make` 时产生的一些信息，你能指出错误是什么吗？
-
-    ```text linenums="1"
-    make[1]: Leaving directory '/home/test/hpl/hpl-2.3'
-    make -f Make.top build_src arch=Linux_PII_CBLAS
-    make[1]: Entering directory '/home/test/hpl/hpl-2.3'
-    ( cd src/auxil/Linux_PII_CBLAS; make )
-    make[2]: Entering directory '/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS'
-    Makefile:47: Make.inc: No such file or directory
-    make[2]: *** No rule to make target 'Make.inc'.  Stop.
-    make[2]: Leaving directory '/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS'
-    make[1]: *** [Make.top:54: build_src] Error 2
-    make[1]: Leaving directory '/home/test/hpl/hpl-2.3'
-    make: *** [Make.top:54: build] Error 2
-    ```
-
-    ??? success "Check your answer"
-
-        错误是第 6 行的 `Makefile:47: Make.inc: No such file or directory`。这个错误信息的开头是 `Makefile:47`，表示错误发生在 Makefile 的第 47 行。错误原因是 `Make.inc` 文件不存在。
-
-        那么如何解决这个问题呢？**当然是去发生错误的地方看看**。跳转到 `/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS` 这个文件夹，使用 `ls -lah` 命令查看文件夹中的文件，我们得到如下结果：
-
-        ```text
-        total 5.5K
-        drwxr-xr-x 2 test test  4.0K May  6  2024 .
-        drwxr-xr-x 3 test test 11.0K May  6  2024 ..
-        lrwxrwxrwx 1 test test    36 May  6  2024 Make.inc -> /home/test/hpl/hpl/Make.Linux_PII_CBLAS
-        -rw-r--r-- 1 test test  5.0K May  6  2024 Makefile
-        ```
-
-        对比一下现在的位置：`/home/test/hpl/hpl-2.3/`，显然上面路径中是把 `hpl-2.3` 写成了 `hpl`。修改顶层 Makefile 中的路径即可解决问题。
-
-    总结步骤如下：
-
-    1. 阅读提示信息，定位错误位置和原因（如果读不懂，去 Google 或扔给 ChatGPT）。
-    2. 去错误现场，看看发生了什么。
-    3. 根据提示和查阅得到的资料修复错误。 -->
-
 ## Tasks
 
 - Obtain a Linux Virtual Machine
@@ -733,93 +693,69 @@ flowchart LR
     E -->|done| F[Report back to you]
 ```
 
-There are many AI coding agents available today, such as [Claude Code](https://code.claude.com/), [Codex CLI](https://github.com/openai/codex), [OpenCode](https://opencode.ai/), [Gemini CLI](https://github.com/google-gemini/gemini-cli), [GitHub Copilot](https://github.com/features/copilot), [Cursor](https://www.cursor.com/), and [Windsurf](https://windsurf.com/). They share the same core idea but differ in interface, model provider, and specific features. In this lab, we use **Claude Code** as a representative example. It is an agentic AI assistant developed by Anthropic that lives in your terminal.
+There are many AI coding agents available today, such as [OpenCode](https://opencode.ai/), [Codex CLI](https://github.com/openai/codex), [Gemini CLI](https://github.com/google-gemini/gemini-cli), [GitHub Copilot](https://github.com/features/copilot), [Cursor](https://www.cursor.com/), and [Windsurf](https://windsurf.com/). They share the same core idea but differ in interface, model provider, and specific features. In this lab, we use **OpenCode** as a representative example. It is an open-source agentic AI coding agent that runs in your terminal.
 
-Read the official quickstart guide to get an overview: [Quickstart - Claude Code Docs](https://code.claude.com/docs/en/quickstart).
+Read the official getting started guide to get an overview: [Intro - OpenCode Docs](https://opencode.ai/docs/).
 
 ### Get API Key
 
-Claude Code uses the Claude subscription by default, which can be costly and has strict terms of service. As an alternative, you can use other LLM providers compatible with the Anthropic API, such as [GLM](https://bigmodel.cn/) and [DeepSeek](https://www.deepseek.com/).
+Our course provides free access to several LLM APIs (such as GLM and DeepSeek) that you can use with OpenCode. To get your API key, log in to [our New API Platform](https://newapi.s.zjusct.io/) with your [ZJU Git](https://git.zju.edu.cn/) account, and then go to the "Token Management" section to create a new API key.
 
-Our course provides free access to the DeepSeek API, which is powerful and can be used with Claude Code. To get your API key, you can log in to [our New API Platform](https://newapi.s.zjusct.io/) with your [ZJU Git](https://git.zju.edu.cn/) account, and then go to the "Token Management" section to create a new API key.
+Our New API platform supports two types of LLM protocol:
+
+- OpenAI: `https://clusters.zju.edu.cn/newapi/v1`
+- Anthropic: `https://clusters.zju.edu.cn/newapi`
+
+`clusters.zju.edu.cn` can be accessed both in and out of campus network.
 
 ### Installation
 
 !!! question "Task 6.1: Install and try a coding agent"
 
-    ??? note "You may use other coding agents"
+    We'll use [OpenCode](https://github.com/anomalyco/opencode) in this example. You may complete this task with any mainstream coding agent, such as Codex CLI, Gemini CLI, GitHub Copilot, Cursor, Windsurf, or other tools with similar agentic coding capabilities.
 
-        Claude Code is used here only as a representative example. You may complete this task with any mainstream coding agent, such as OpenCode, Codex CLI, Gemini CLI, GitHub Copilot, Cursor, Windsurf, or other tools with similar agentic coding capabilities.
-
-        If you choose another coding agent, follow its official installation guide instead of the Claude Code-specific steps below.
+    If you choose another coding agent, follow its official installation guide instead of the OpenCode-specific steps below.
 
     === "Step 1: Install"
 
-        Open a terminal on your machine and run the installer for your operating system:
-
-        **macOS / Linux:**
+        Follow instructions from [OpenCode | Download](https://opencode.ai/download) to install OpenCode on your computer. When it's done, **close and reopen your terminal**, then run:
 
         ```bash
-        curl -fsSL https://claude.ai/install.sh | bash
+        opencode --version
         ```
 
-        **Windows (PowerShell):**
+        You should see a version number printed.
 
-        ```powershell
-        irm https://claude.ai/install.ps1 | iex
-        ```
-
-        If you see any network error during installation, you can install [Node.js](https://nodejs.org/en/download/) and then run the following command to install Claude Code:
-
-        ```bash
-        npm config set registry https://registry.npmmirror.com
-        npm install -g @anthropic-ai/claude-code
-        ```
-
-        You will see progress output as it downloads and installs. As long as you do not see any red error messages, things are going well.
-
-        **Close and reopen your terminal**, then run:
-
-        ```bash
-        claude --version
-        ```
-
-        You should see a version number printed, like:
-
-        ```text
-        2.x.x (Claude Code)
-        ```
-
-        If you see that, installation succeeded.
-    
     === "Step 2: Set your LLM provider"
 
-        If you have a Claude Subscription, you can skip this step and log in directly when you run `claude` for the first time.
+        Follow instructions from [Providers | OpenCode](https://opencode.ai/docs/providers/) to configure LLM providers for opencode.
 
-        If you want to use other LLM providers (like [GLM](https://bigmodel.cn/), [DeepSeek](https://www.deepseek.com/) or [our New API Platform](https://newapi.s.zjusct.io/)), you can run the following command to set it up:
+        For API Keys fetched from our New API platform, we recommend using OpenAI API. Example:
 
-        In Linux/macOS:
-
-        ```bash
-        export ANTHROPIC_BASE_URL="https://newapi.s.zjusct.io"    # example for our API platform
-        export ANTHROPIC_AUTH_TOKEN="sk-..."                      # your API key for the chosen provider
-        export ANTHROPIC_MODEL="deepseek-v4-pro"                  # specify the model to use
+        ```json
+        {
+            "$schema": "https://opencode.ai/config.json",
+            "model": "zjusct/glm-5.2",
+            "provider": {
+                "zjusct": {
+                    "npm": "@ai-sdk/openai-compatible",
+                    "name": "ZJUSCT New API",
+                    "options": {
+                        "baseURL": "https://clusters.zju.edu.cn/newapi/v1",
+                        "apiKey": "<your-api-key>"
+                    },
+                    "models": {
+                        "glm-5.2": {},
+                    }
+                }
+            }
+        }
         ```
 
-        In Windows PowerShell:
+        You can find more details about configuring LLM providers in the official documentation:
 
-        ```powershell
-        $env:ANTHROPIC_BASE_URL="https://newapi.s.zjusct.io"      # example for our API platform
-        $env:ANTHROPIC_AUTH_TOKEN="sk-..."                        # your API key for the chosen provider
-        $env:ANTHROPIC_MODEL="deepseek-v4-pro"                    # specify the model to use
-        ```
-
-        Bash and PowerShell behave differently in many ways. In the following sections, we recommend that you use Git Bash if you are on Windows.
-
-        You can find more details about configuring LLM providers in the the official documentation: 
-
-        - [Integrate with Claude Code - DeepSeek](https://api-docs.deepseek.com/quick_start/agent_integrations/claude_code)
-        - [Claude Code - 智谱AI开放文档](https://docs.bigmodel.cn/cn/coding-plan/tool/claude)
+        - [OpenCode - 智谱AI开放文档](https://docs.bigmodel.cn/cn/coding-plan/tool/opencode)
+        - [Providers - OpenCode Docs](https://opencode.ai/docs/providers/)
 
 
     === "Step 3: First Run"
@@ -827,25 +763,25 @@ Our course provides free access to the DeepSeek API, which is powerful and can b
         Navigate to a project folder (or create one for experimenting):
 
         ```bash
-        mkdir my-first-claude-project
-        cd my-first-claude-project
+        mkdir my-first-project
+        cd my-first-project
         ```
 
-        Start Claude Code:
+        Start OpenCode:
 
         ```bash
-        claude
+        opencode
         ```
 
-        The first time you run this, it will open a browser window where you authenticate with your Claude account. Follow the prompts, return to your terminal, and you will see:
+        You should see GLM-5.2 selected as the active model.
 
-        ![Claude Code First Run](image/claude_code_firstrun.png)
+        ![OpenCode First Run](https://opencode.ai/docs/_astro/screenshot.CQjBbRyJ_1dLadc.webp)
 
-        That `>` is your prompt. Claude Code is waiting for you to type something.
+        That `>` is your prompt. The agent is waiting for you to type something.
 
     === "Step 4: First Conversation"
 
-        Try typing the following prompts one by one and observe what Claude Code does:
+        Try typing the following prompts one by one and observe what the agent does:
 
         1. Ask about the current directory:
 
@@ -853,7 +789,7 @@ Our course provides free access to the DeepSeek API, which is powerful and can b
             What files are in this directory?
             ```
 
-            Claude Code will read the directory and show you the list of files.
+            The agent will read the directory and show you the list of files.
 
         2. Ask it to create a script:
 
@@ -861,7 +797,7 @@ Our course provides free access to the DeepSeek API, which is powerful and can b
             Create a shell script that prints the hostname, kernel version, CPU info, and memory usage.
             ```
 
-            Claude Code will show you the file content it wants to create and ask for permission. Select `Yes` and press Enter to approve.
+            The agent will show you the file content it wants to create and ask for permission. Select `Yes` and press Enter to approve.
 
         3. Ask it to run the script:
 
@@ -873,44 +809,44 @@ Our course provides free access to the DeepSeek API, which is powerful and can b
 
         Show a screenshot of your conversation with the coding agent, including the created file and its output.
 
-??? example "Example: Claude Code Basic Usage"
+??? example "Example: Agent Basic Usage"
 
     Here are the most common interaction patterns you will use in this course:
-    
+
     **Asking questions about code:**
-    
+
     ```text
     > Explain what the configure script does in this project.
     > What dependencies does this Makefile need?
     > What does the -O2 flag do in gcc?
     ```
-    
+
     **Editing files:**
-    
+
     ```text
     > Add error handling to the main function in server.c
     > Change the optimization flag from -O0 to -O2 in the Makefile
     > Fix the linker path in Make.Linux_PII_FBLAS
     ```
-    
+
     **Running commands:**
-    
+
     ```text
     > Compile this project and show me any errors.
     > Run the test suite and summarize the results.
     > Check if OpenMPI is installed correctly.
     ```
-    
+
     **Git workflows:**
-    
+
     ```text
     > Show me what changed since the last commit.
     > Create a commit with a descriptive message for the current changes.
     > What does the most recent commit do?
     ```
-    
+
     **Debugging:**
-    
+
     ```text
     > I'm getting "undefined reference to dgemm_" when linking. What's wrong?
     > The configure script says it can't find mpi.h. How do I fix this?
@@ -918,42 +854,42 @@ Our course provides free access to the DeepSeek API, which is powerful and can b
 
 ### Slash Commands
 
-During a Claude Code session, type `/` to see a list of available commands. They are the primary interface for controlling Claude Code's behavior. Here are the most useful ones:
+During an OpenCode session, type `/` to see a list of available commands. They are the primary interface for controlling the agent's behavior. Here are the most useful ones:
 
 | Command | What It Does |
 |---------|-------------|
-| `/help` | Shows help and available commands |
-| `/clear` | Clears conversation history and frees context window space |
-| `/compact` | Compresses conversation into a summary to reclaim context |
-| `/model` | Selects or changes the AI model mid-session |
-| `/effort` | Controls how much effort Claude Code spends on thinking before acting |
-| `/usage` | Shows token usage statistics for the current session |
-| `/init` | Initializes a `CLAUDE.md` project memory file |
-| `/diff` | Shows uncommitted changes in an interactive diff viewer |
-| `/config` | Opens the settings interface |
-| `/permissions` | Views or updates tool permissions |
-| `/doctor` | Diagnoses and verifies your installation |
+| `/help` | Shows the help dialog and available commands |
+| `/new` (`/clear`) | Starts a fresh session and frees context window space |
+| `/compact` (`/summarize`) | Compresses the conversation into a summary to reclaim context |
+| `/models` | Lists or switches the AI model mid-session |
+| `/init` | Generates or updates an `AGENTS.md` project memory file |
+| `/undo` / `/redo` | Reverts (or restores) your last message and any file changes |
+| `/sessions` (`/resume`) | Lists and switches between past sessions |
+| `/share` | Creates a shareable link to the current session |
+| `/connect` | Adds and configures an LLM provider |
+
+You can also define your own custom commands by placing Markdown files in `.opencode/commands/` or `~/.config/opencode/commands/`. See [Commands - OpenCode Docs](https://opencode.ai/docs/commands/) for details.
 
 ??? info "Context window and `/compact`"
 
-    Claude Code has a **context window**, which you can think of as a shared whiteboard between you and the agent. Everything you discuss, every file it reads, and every command output goes onto this whiteboard. But the whiteboard has a fixed size. When it gets full, Claude Code may start "forgetting" earlier parts of your conversation.
+    OpenCode has a **context window**, which you can think of as a shared whiteboard between you and the agent. Everything you discuss, every file it reads, and every command output goes onto this whiteboard. But the whiteboard has a fixed size. When it gets full, OpenCode may start "forgetting" earlier parts of your conversation.
 
-    Use `/compact` to compress your conversation (keeping the essence but freeing space), or `/clear` to completely wipe it and start fresh.
+    Use `/compact` to compress your conversation (keeping the essence but freeing space), or `/new` to completely wipe it and start a fresh session.
 
-    In most cases, Claude Code can automatically manage the context without needing a manual `/compact`.
+    In most cases, OpenCode can automatically manage the context without needing a manual `/compact`.
 
 ### Extending Agent: Skills and MCP
 
-Claude Code is not limited to its built-in capabilities. It can be extended through **Skills** and **MCP (Model Context Protocol)**.
+OpenCode is not limited to its built-in capabilities. It can be extended through **Skills** and **MCP (Model Context Protocol)**.
 
 #### Skills
 
-A **Skill** is a Markdown file that teaches Claude Code how to perform a specific task. When you type `/skill-name` in a session, Claude reads the corresponding skill file and follows the instructions inside.
+A **Skill** is a Markdown file that teaches OpenCode how to perform a specific task. When the agent sees that a skill is available (by reading its description), it loads the corresponding skill file on demand and follows the instructions inside.
 
-For example, you might create a skill called `check-system-status` that instructs Claude to check the system resources usage and status. The skill file would look like this:
+For example, you might create a skill called `check-system-status` that instructs the agent to check system resource usage and status. The skill file would look like this:
 
 ```text
-~/.claude/skills/check-system-status/SKILL.md
+~/.config/opencode/skills/check-system-status/SKILL.md
 ```
 
 ```yaml
@@ -968,73 +904,92 @@ When invoked, do the following:
 3. Summarize the results in a human-readable format, highlighting any potential issues (e.g., high CPU usage, low disk space).
 ```
 
-After creating this file, you can type `/check-system-status` in any Claude Code session and it will execute these steps.
+After creating this file, you can ask the agent to "check the system status" in any OpenCode session and it will load the skill and execute these steps.
 
-Skills can be stored in two locations:
+Skills can be stored in several locations:
 
 | Location | Path | Applies To |
 |----------|------|-----------|
-| Personal | `~/.claude/skills/<name>/SKILL.md` | All your projects |
-| Project | `.claude/skills/<name>/SKILL.md` | This project only |
+| Global | `~/.config/opencode/skills/<name>/SKILL.md` | All your projects |
+| Project | `.opencode/skills/<name>/SKILL.md` | This project only |
 
-Built-in skills include `/init`, `/review` (code review), `/security-review`, and others.
+OpenCode also discovers Claude-compatible paths (`.claude/skills/`) and `.agents/skills/`, so skills written for other agents work out of the box.
 
 #### MCP
 
-MCP (Model Context Protocol) is an open standard that allows AI agents to connect to external tools and services in a standardized way. An MCP server is a separate process that exposes a set of tools (APIs) that an AI agent can call. By adding an MCP server to Claude Code, you can give it access to new capabilities without needing to teach it through skills.
+MCP (Model Context Protocol) is an open standard that allows AI agents to connect to external tools and services in a standardized way. An MCP server is a separate process that exposes a set of tools (APIs) that an AI agent can call. By adding an MCP server to OpenCode, you can give it access to new capabilities without needing to teach it through skills.
 
 ??? info "The problem MCP solves"
 
-    Before MCP, every Agent had its own proprietary integration system. If you wanted to connect an AI agent to a database, you had to write a custom integration for that specific agent. If you switched to a different agent, you had to rewrite the integration from scratch.
+    Before MCP, every agent had its own proprietary integration system. If you wanted to connect an AI agent to a database, you had to write a custom integration for that specific agent. If you switched to a different agent, you had to rewrite the integration from scratch.
 
-    MCP defines a standard interface: you write your tool once, and any MCP-compatible Agent can use it. This is similar to how USB solved the proliferation of proprietary connectors for peripherals.
+    MCP defines a standard interface: you write your tool once, and any MCP-compatible agent can use it. This is similar to how USB solved the proliferation of proprietary connectors for peripherals.
 
 
-**Adding an MCP server:**
+**Adding an MCP server** in your `opencode.json` (or `opencode.jsonc`):
 
-```bash
-# Add a local stdio-based server (filesystem access)
-claude mcp add --transport stdio filesystem -- npx -y @anthropic-ai/mcp-filesystem /home/user/projects
-
-# Add a remote HTTP-based server
-claude mcp add --transport http my-server https://mcp.example.com/endpoint
+```json
+{
+    "$schema": "https://opencode.ai/config.json",
+    "mcp": {
+        "filesystem": {
+            "type": "local",
+            "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/home/user/projects"],
+            "enabled": true
+        },
+        "my-remote-server": {
+            "type": "remote",
+            "url": "https://mcp.example.com/endpoint"
+        }
+    }
+}
 ```
 
-**Managing MCP servers:**
+**Managing MCP servers** from the command line:
 
 ```bash
-claude mcp list            # List all configured servers
-claude mcp remove <name>   # Remove a server
+opencode mcp list                # List all configured servers and their auth status
+opencode mcp auth <name>         # Authenticate with a remote server
+opencode mcp logout <name>       # Remove stored credentials
+opencode mcp debug <name>        # Diagnose connection and OAuth issues
 ```
 
-Once an MCP server is added, its tools appear in your Claude Code session automatically. For instance, if you add a database MCP server, Claude Code gains the ability to run SQL queries when you ask questions like "show me all users who registered last week."
+Once an MCP server is added, its tools appear in your OpenCode session automatically. For instance, if you add a database MCP server, OpenCode gains the ability to run SQL queries when you ask questions like "show me all users who registered last week." Refer to a server by name in your prompt (e.g. `use the filesystem tool`) to nudge the agent toward using it.
 
-??? example "Example: Using GitHub MCP server"
+??? example "Example: Using the GitHub MCP server"
 
-    The official [GitHub MCP Server](https://github.com/github/github-mcp-server) allows Claude Code to interact with GitHub. It supports creating issues, reading pull requests, searching repositories, and more.
-    
-    Here is how to add it (you may need to have [Node.js](https://nodejs.org/en/download) installed for this):
+    The official [GitHub MCP Server](https://github.com/github/github-mcp-server) allows OpenCode to interact with GitHub. It supports creating issues, reading pull requests, searching repositories, and more.
 
-    ```bash
-    claude mcp add --scope user --transport stdio github -- npx -y @modelcontextprotocol/server-github
+    Here is how to add it (you may need to have [Node.js](https://nodejs.org/en/download) installed for this). Add it to your `opencode.json`:
+
+    ```json
+    {
+        "$schema": "https://opencode.ai/config.json",
+        "mcp": {
+            "github": {
+                "type": "local",
+                "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+                "enabled": true,
+                "environment": {
+                    "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_..."
+                }
+            }
+        }
+    }
     ```
 
-    You will also need to set a GitHub personal access token as an environment variable. If you have a GitHub account, you can click [here](https://github.com/settings/tokens/new?scopes=repo,read:org,read:user,user:email&description=GitHub%20MCP%20Server) to generate a personal access token.
+    You will need a GitHub personal access token. If you have a GitHub account, you can click [here](https://github.com/settings/tokens/new?scopes=repo,read:org,read:user,user:email&description=GitHub%20MCP%20Server) to generate one.
 
-    ```bash
-    export GITHUB_PERSONAL_ACCESS_TOKEN="ghp_..."
-    ```
-
-    After this, Claude Code gains GitHub-related tools. You can then ask things like:
+    After this, OpenCode gains GitHub-related tools. You can then ask things like:
 
     ```text
-    > Get the latest 5 issues in the repository torvalds/linux with GitHub MCP tools.
+    > Get the latest 5 issues in the repository torvalds/linux using GitHub MCP tools.
     > Create a new repo called "my-awesome-project" under my GitHub account using GitHub MCP tools.
     ```
 
 ### Codex CLI
 
-If you want to use Codex CLI instead of Claude Code, you can read the following part.
+If you want to use Codex CLI instead of OpenCode, you can read the following part.
 
 #### Installation
 
@@ -1082,7 +1037,7 @@ model_provider = "zjusct"
 
 [model_providers.zjusct]
 name = "zjusct"
-base_url = "https://newapi.s.zjusct.io/v1"
+base_url = "https://clusters.zju.edu.cn/newapi/v1"
 wire_api = "responses"
 experimental_bearer_token = "sk-xxxxxxx"  # your API key
 requires_openai_auth = false
