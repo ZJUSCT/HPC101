@@ -12,7 +12,7 @@
     - Anthropic 协议：`https://clusters.zju.edu.cn/newapi`
 - **可用模型**：
     - 每人每日限额 ¥500
-    - `hpc101-openai` 分组的 API Key 可以使用 `gpt-5.5` 模型（10 倍计价）
+    - `hpc101-openai` 分组的 API Key 可以使用 `gpt-5.5` 模型（10 倍计价），该模型**仅能配合 Codex 使用**，其他 Agent 的兼容性不做保证。
     - `hpc101` 分组的 API Key 可以使用 `glm-5.2` 模型（1 倍计价，仅在夜间（20:00-07:00）可用）
     - 额度和倍率后续可能根据使用情况调整。
 
