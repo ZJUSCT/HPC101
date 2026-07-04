@@ -36,3 +36,16 @@
     background-color: var(--md-default-fg-color--lightest);
     color: var(--md-default-fg-color--light);
 }
+
+.md-typeset img.sponsor-logo {
+    display: block;
+    margin: 0 auto;
+    width: 20rem;
+    max-width: 100%;
+    height: 8rem;
+    object-fit: contain;
+    padding: 1rem 1.5rem;
+    background-color: #fff;
+    border-radius: .2rem;
+    box-shadow: var(--md-shadow-z1);
+}

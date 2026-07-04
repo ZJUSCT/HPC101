@@ -10,7 +10,8 @@ copyright = "ZJUSCT"
 
 nav = [
     { "课程信息" = [
-        "index.md",
+        { "欢迎来到 HPC 101 超算短学期" = "index.md" },
+        { "支持单位" = "sponsors.md" },
     ] },
     { "课程实验" = [
         { "Lab 0: Linux 快速入门" = "lab/Lab0-LinuxCrashCourse/index.md" },

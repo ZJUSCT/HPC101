@@ -16,12 +16,22 @@
           scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
         }
         document.documentElement.setAttribute("data-md-color-scheme", scheme);
-        if (document.body) {
+        var attach = function () {
           document.body.setAttribute("data-md-color-scheme", scheme);
+          new MutationObserver(function () {
+            var s = document.body.getAttribute("data-md-color-scheme");
+            if (s) document.documentElement.setAttribute("data-md-color-scheme", s);
+          }).observe(document.body, {
+            attributes: true,
+            attributeFilter: ["data-md-color-scheme"],
+          });
+        };
+        if (document.body) {
+          attach();
         } else {
           new MutationObserver(function (_, obs) {
             if (document.body) {
-              document.body.setAttribute("data-md-color-scheme", scheme);
+              attach();
               obs.disconnect();
             }
           }).observe(document.documentElement, { childList: true });
