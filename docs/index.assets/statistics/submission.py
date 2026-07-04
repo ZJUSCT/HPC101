@@ -1,7 +1,7 @@
 '''
 从学在浙大上下载每个 Lab 的提交情况，其中有提交时间列。将各 Lab 的提交时间汇总到一个 CSV 文件中，表头如下：
-person, Lab1, Lab2, Lab3, Lab4, Lab5
-Lab 的开始时间在程序中定义
+person, Lab1, Lab2, Lab2.5, Lab3, Lab4, Lab5, Final
+Lab 的开始时间在程序中定义（取学在浙大的开放时间；缺失的取文档发布 commit 时间）
 '''
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -10,7 +10,7 @@ import matplotlib.dates as mdates
 # Step 1: Read CSV
 df = pd.read_csv("submissions.csv")
 
-labs = ['Lab1', 'Lab2', 'Lab3', 'Lab4', 'Lab5']
+labs = ['Lab1', 'Lab2', 'Lab2.5', 'Lab3', 'Lab4', 'Lab5', 'Final']
 
 # Convert submission times to datetime
 for lab in labs:
@@ -24,19 +24,23 @@ melted.sort_values(by='SubmissionTime', inplace=True)
 lab_colors = {
     'Lab1': 'tab:blue',
     'Lab2': 'tab:orange',
+    'Lab2.5': 'tab:cyan',
     'Lab3': 'tab:green',
     'Lab4': 'tab:red',
-    'Lab5': 'tab:purple'
+    'Lab5': 'tab:purple',
+    'Final': 'tab:brown'
 }
 melted['Color'] = melted['Lab'].map(lab_colors)
 
 # Step 4: Define Lab start times
 lab_start_times = {
-    'Lab1': pd.Timestamp("2024-07-05 00:00"),
-    'Lab2': pd.Timestamp("2024-07-15 00:00"),
-    'Lab3': pd.Timestamp("2024-08-20 00:00"),
-    'Lab4': pd.Timestamp("2024-08-03 00:00"),
-    'Lab5': pd.Timestamp("2024-07-24 00:00")
+    'Lab1': pd.Timestamp("2025-06-26 21:30"),
+    'Lab2': pd.Timestamp("2025-07-08 16:30"),
+    'Lab2.5': pd.Timestamp("2025-07-08 21:15"),
+    'Lab3': pd.Timestamp("2025-07-25 19:05"),
+    'Lab4': pd.Timestamp("2025-07-30 00:30"),
+    'Lab5': pd.Timestamp("2025-08-13 00:05"),
+    'Final': pd.Timestamp("2025-07-12 22:48")
 }
 
 # Step 5: Plot

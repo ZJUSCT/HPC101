@@ -352,6 +352,7 @@ MkDocs 对 Markdown 有一些增强要求，例如要求多级列表逐级缩进
 
     | 年份 | 课程规模                       |
     | ---- | ------------------------------ |
+    | 2026 | 112 |
     | 2025 | 109（本）+ 3（研）+ 7 （旁听） |
     | 2024 | 41                             |
     | 2023 | 36                             |
@@ -361,10 +362,12 @@ MkDocs 对 Markdown 有一些增强要求，例如要求多级列表逐级缩进
 
     | 年份 | 分布                                                             |
     | ---- | ---------------------------------------------------------------- |
+    | 2025 | ![2025_submission](index.assets/statistics/2025_submission.webp) |
     | 2024 | ![2024_submission](index.assets/statistics/2024_submission.webp) |
 
 - 报名表提交时间分布：
 
     | 年份 | 分布                                                               |
     | ---- | ------------------------------------------------------------------ |
+    | 2026 | ![2026_application](index.assets/statistics/2026_application.webp) |
     | 2025 | ![2025_application](index.assets/statistics/2025_application.webp) |
