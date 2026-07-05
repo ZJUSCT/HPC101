@@ -18,6 +18,8 @@
 
 !!! tip "示例配置"
 
+    注意，示例配置均为 YOLO 模式（为 Agent 开放所有权限），比较危险，你可能需要根据自己的需求对 Agent 的权限进行限制。
+
     === "Codex"
 
         `~/.codex/config.toml`:
@@ -57,6 +59,9 @@
         {
             "$schema": "https://opencode.ai/config.json",
             "model": "zjusct/glm-5.2",
+            "permission": {
+                "external_directory": "allow",
+            },
             "provider": {
                 "zjusct": {
                     "npm": "@ai-sdk/openai-compatible",
