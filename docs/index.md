@@ -22,9 +22,7 @@
 
     === "Codex"
 
-        `~/.codex/config.toml`:
-
-        ```toml
+        ```toml title="~/.codex/config.toml"
         model = gpt-5.5
         model_provider = "zjusct"
         model_reasoning_effort = "medium"
@@ -42,9 +40,9 @@
         wire_api = "responses"
         ```
 
-        `~/.codex/auth.json`:
+        
 
-        ```json
+        ```json title="~/.codex/auth.json"
         {
             "OPENAI_API_KEY": "<your-api-key>"
         }
@@ -53,9 +51,7 @@
     
     === "OpenCode"
 
-        `~/.config/opencode/opencode.jsonc`:
-
-        ```jsonc
+        ```jsonc title="~/.config/opencode/opencode.jsonc"
         {
             "$schema": "https://opencode.ai/config.json",
             "model": "zjusct/glm-5.2",

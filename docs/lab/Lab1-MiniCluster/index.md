@@ -213,7 +213,17 @@ src/angband
 
     链接相关的问题可能出现在链接时（静态链接）、程序运行前和运行中（动态链接）。下面是一些常见的问题。
 
-    [cards(docs/lab/Lab1-MiniCluster/link.json)]
+    ::cards:: yaml
+    - title: 未定义的引用
+      content: 执行链接时最令人头疼的问题。首先应当阅读库的使用说明，接下来搜索缺失的符号可能位于哪些库文件中。
+      image: image/undefined_reference.webp
+    - title: 缺失 `.dll`
+      content: 常用 Windows 的同学多多少少见过这个报错，这也是缺少动态链接库造成的。
+      image: image/lose_dll.webp
+    - title: 缺失 `.so`
+      content: Linux 上的动态库一般通过 `apt` 管理，[搜索相应的包](https://fostips.com/tell-package-name-contains-specific-file-ubuntu-linux-mint/) 并安装即可。
+      image: image/missing_library.webp
+    ::/cards::
 
 如果你的虚拟机之前没有安装过相关软件包，那么你大概率无法成功看到游戏界面，它什么输出都没有就退出了。
 
@@ -895,7 +905,17 @@ node04  计算节点
 
 === "虚拟机 / 物理机"
 
-    [cards(docs/lab/Lab1-MiniCluster/clone.json)]
+    ::cards:: yaml
+    - title: 克隆菜单
+      content: 右键虚拟机->Manage->Clone
+      image: image/clone_vm_1.webp
+    - title: 完全克隆
+      content: Clone Type 两种都行，链接模式磁盘空间占用会小一点
+      image: image/clone_vm_2.webp
+    - title: 生成 MAC 地址
+      content: 右键虚拟机->Settings->Network Adapter->Advanced->Generate
+      image: image/generate_mac.webp
+    ::/cards::
 
     如何搭建集群可以参考 vmware workstation 的例子。建议依次完成下面几件事：先为每个节点设置明确的主机名和的 IP 地址，然后把这些节点地址写入所有节点的主机解析配置中，方便后续免密 ssh 连接。最后，依次确认主机名解析是否正常、SSH 免密登录是否可用，以及各节点上实验用户的 UID / GID 是否一致。
 

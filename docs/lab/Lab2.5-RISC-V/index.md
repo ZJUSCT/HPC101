@@ -521,7 +521,7 @@ void __riscv_smt_vmadotus(vint32m2_t &vd, vuint8m1_t &vs1, vint8m1_t &vs2){
 
     **只允许**修改 `src/optimized.cpp` 文件，不允许修改其他文件。
 
-    OJ 也只会收取 `src/optimized.cpp` 这个文件的输入，如果有什么奇妙方法能 hack 掉 OJ 测评结果，也请在群里反馈 [doge]
+    OJ 也只会收取 `src/optimized.cpp` 这个文件的输入，如果有什么奇妙方法能 hack 掉 OJ 测评结果，也请在群里反馈（doge）。
 
 1. 完善 `src/optimized.cpp` 文件，完成矩阵乘法的实现
 2. 学在浙大的文件提交
