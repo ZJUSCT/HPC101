@@ -16,6 +16,63 @@
     - `hpc101` 分组的 API Key 可以使用 `glm-5.2` 模型（1 倍计价，仅在夜间（20:00-07:00）可用）
     - 额度和倍率后续可能根据使用情况调整。
 
+!!! tip "示例配置"
+
+    === "Codex"
+
+        `~/.codex/config.toml`:
+
+        ```toml
+        model = gpt-5.5
+        model_provider = "zjusct"
+        model_reasoning_effort = "medium"
+        disable_response_storage = true
+
+        approval_policy = "never"
+        sandbox_mode = "danger-full-access"
+
+        [sandbox_workspace_write]
+        network_access = true
+
+        [model_providers.zjusct]
+        name = "zjusct"
+        base_url = https://clusters.zju.edu.cn/newapi/v1
+        wire_api = "responses"
+        ```
+
+        `~/.codex/auth.json`:
+
+        ```json
+        {
+            "OPENAI_API_KEY": "<your-api-key>"
+        }
+        ```
+
+    
+    === "OpenCode"
+
+        `~/.config/opencode/opencode.jsonc`:
+
+        ```jsonc
+        {
+            "$schema": "https://opencode.ai/config.json",
+            "model": "zjusct/glm-5.2",
+            "provider": {
+                "zjusct": {
+                    "npm": "@ai-sdk/openai-compatible",
+                    "name": "ZJUSCT New API",
+                    "options": {
+                        "baseURL": "https://clusters.zju.edu.cn/newapi/v1",
+                        "apiKey": "<your-api-key>"
+                    },
+                    "models": {
+                        "glm-5.2": {},
+                    }
+                }
+            }
+        }
+        ```
+
 !!! warning "网络与 DNS 配置"
 
     课程服务分布在两个域名下，**可达性取决于你所在的网络**：
