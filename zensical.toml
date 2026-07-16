@@ -17,6 +17,7 @@ nav = [
     { "课程实验" = [
         { "Lab 0: Linux 快速入门" = "lab/Lab0-LinuxCrashCourse/index.md" },
         { "Lab 1: 简单集群搭建" = "lab/Lab1-MiniCluster/index.md" },
+        { "Lab 2: MoE 的向量化计算" = "lab/Lab2-Vectorization/index.md"},
     ] },
 ]
 
