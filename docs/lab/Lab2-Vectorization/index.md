@@ -1,392 +1,418 @@
-# 实验二：向量化计算
-
-!!! tip "QC PASS"
-
-    本实验流程已经通过检查，请放心食用。
-
-    负责助教：陈宏哲, 刘烨, 洪奕迅
+# 实验二：MoE 的向量化计算
 
 ## 实验目的
 
-本次实验目的是让大家对「向量化并行计算」进行更加深入的了解，以 Numpy 的向量化计算为基础，进一步学习 CPU 中专为向量化计算设计的 SIMD 指令扩展，如 AVX, AMX 扩展。
+从 Mixtral 到 DeepSeek-V3、Qwen、GLM，**MoE（Mixture of Experts，混合专家）**已经成为大模型的主流架构。本次实验将带你实现并优化一个 DeepSeek-V3 风格的量化 MoE 层前向计算，在这个过程中：
 
-实验文档主要分为三大部分，他们分别的作用是：
+- 理解 MoE 的计算模式：路由、专家分发、加权合并
+- 理解量化推理（W8A8）中整数与浮点混合的计算流水线
+- 掌握向量化优化的通用方法：识别热点、数据重排、提高算术强度
+- Bonus：在 RISC-V 平台上实现 MoE 算子（待更新）
 
-- Numpy 中的向量化计算：供大家结合课上所学，熟悉 Numpy 的向量化编程模式，需要大家在阅读后完成对应的思考题
-- x86-64 SIMD 优化：介绍当前科学计算、深度学习等领域主要使用的 AVX-512 和 AMX 指令集，需要大家学习并完成手写向量化 Intrinsic 优化矩阵乘法的代码任务
+## 知识讲解：MoE 是什么
 
-## 知识讲解：Numpy 中的向量化计算
+### 从稠密 FFN 到稀疏专家
 
-### 工具介绍
+Transformer 中参数量最大的组件是 FFN（前馈网络）。MoE 的想法是：与其让所有 token 共享一个大 FFN，不如准备 $E$ 个“专家”FFN，让每个 token 只经过其中得分最高的 $K$ 个（$K \ll E$）。这样，总参数量可以显著增长，而每个 token 只激活少量专家，从而在一定程度上分离模型容量与激活层的大小，也就是单 token 计算量和其占用的内存；当然，与此同时，路由和分发会带来额外控制开销。
 
-[NumPy](https://numpy.org/) 是 Python 中科学计算的基础包。它是一个 Python 库，提供多维数组对象，各种派生对象（如掩码数组和矩阵），以及用于数组快速操作的各种 API，有包括数学、逻辑、形状操作、排序、选择、输入输出、离散傅立叶变换、基本线性代数，基本统计运算和随机模拟等等。
+本实验采用 [DeepSeek-V3](https://arxiv.org/abs/2412.19437) 的 MoE 架构，它与早期 MoE（如 Mixtral 的 8 专家选 2）相比有几个标志性设计：
 
-Numpy 代码一般采用向量化（矢量化）描述，这使得代码中没有任何显式的循环，索引等，这样的代码有以下好处：
+- **更细粒度的专家**：专家数量更多、单个专家更小（V3 是 256 个路由专家选 8 个）。同样的总参数量下，专家组合的可能性大大增加；
+- **共享专家**：一个所有 token 都必须经过的专家，负责学习通用知识，让路由专家专注于特化知识；
 
-- 向量化代码更简洁，更易于阅读
-- 更少的代码行通常意味着更少的错误
-- 代码更接近于标准的数学符号
+本实验的目标即为在 CPU 上实现 DeepSeek-V3 的 MoE 前向计算，并在保证正确性的前提下尽可能优化其性能。
 
-另外，向量化的代码能够规避掉 Python 中缓慢的迭代循环，被底层的实现更好的调度，如接入 BLAS 矩阵运算库，从而实现更高的性能。
-
-双线性插值是计算机视觉图像处理中的常用算法，它在计算机图形学中也可以用于材质贴图的重采样。
-
-下面我们将给出一个使用 Numpy 来优化 Python 代码的例子，例子实现了一个支持批量处理的向量化的双线性插值，来让大家熟悉 NumPy 的向量化编程模式。
-
-### 双线性插值算法简述
-
-概括来说就是先在 $x$ 轴上进行一次插值，再在 $y$ 轴上进行一次插值。
-
-![bilinear2](image/bilinear2.webp)
-
-以在灰度图上进行插值为例，我们已知外围的四个点 $(14, 20), (15, 20), (14, 21), (15, 21)$ 灰度值分别为 91, 210, 162 和 95，然后希望通过插值得到 $(14.5, 20.2)$ 处的灰度值。
-
-接下来我们先在 $x$ 方向上通过线性插值计算出 $(14.5, 20), (14.5, 21)$ 两个点的灰度值 150.5, 128.5，然后再使用这两个值在 $y$ 方向上再次进行线性插值，得到 $(14.5, 20.2)$ 坐标处的灰度值 146.1。
-
-注意这里是一个单通道的例子，对于实际的情况，我们往往有很多个通道，如彩色图片拥有 RGB 三个通道，一些图片可能还有 $\alpha$ 透明度通道，或是深度通道。**对于多通道的情况，我们需要对每个通道进行分别插值。**
-
-#### 形式化定义
-
-> 形式化定义摘自[维基百科](https://en.wikipedia.org/wiki/Bilinear_interpolation)
-
-假如我们想得到未知函数 $f$ 在点 ${\displaystyle P=\left(x,y\right)}$ 的值，假设我们已知函数 $f$ 在 ${\displaystyle Q_{11}=\left(x_{1},y_{1}\right)}$, ${\displaystyle Q_{12}=\left(x_{1},y_{2}\right)}$, ${\displaystyle Q_{21}=\left(x_{2},y_{1}\right)}$ 及 ${Q_{22}=\left(x_{2},y_{2}\right)}$ 四个点的值。
-
-!!! note "双线性插值"
-
-    <center>![bilinear](image/bilinear.webp){ width=50% }</center>
-
-首先在 $x$ 方向进行线性插值，得到
+我们可以简单的从参数量和前向计算量理解这种设计。一个 SwiGLU 专家包含两个 $D\to H$ 投影和一个 $H\to D$ 投影，因此忽略偏置时的权重数为
 
 $$
-{\displaystyle {\begin{aligned}f(x,y_{1})&\approx {\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{11})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{21}),\\\\
-f(x,y_{2})&\approx {\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{12})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{22}).\end{aligned}}}
+P_{expert}=HD+HD+DH=3DH.
 $$
 
-然后在 $y$ 方向进行线性插值，得到
+代入 $D=256,H=128$，每个专家有
 
 $$
-{\displaystyle {\begin{aligned}f(x,y)&\approx &&{\frac {y_{2}-y}{y_{2}-y_{1}}}f(x,y_{1})+{\frac {y-y_{1}}{y_{2}-y_{1}}}f(x,y_{2})\\\\
-&=&&{\frac {y_{2}-y}{y_{2}-y_{1}}}\left({\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{11})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{21})\right)\\\\
-&&&+{\frac {y-y_{1}}{y_{2}-y_{1}}}\left({\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{12})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{22})\right)\\\\
-&=&&{\frac {1}{(x_{2}-x_{1})(y_{2}-y_{1})}}{\big (}f(Q_{11})(x_{2}-x)(y_{2}-y)+f(Q_{21})(x-x_{1})(y_{2}-y)\\\\
-&&&+f(Q_{12})(x_{2}-x)(y-y_{1})+f(Q_{22})(x-x_{1})(y-y_{1}){\big )}\\\\
-&=&&{\frac {1}{(x_{2}-x_{1})(y_{2}-y_{1})}}{\begin{bmatrix}x_{2}-x&x-x_{1}\end{bmatrix}}{\begin{bmatrix}f(Q_{11})&f(Q_{12})\\\\
-f(Q_{21})&f(Q_{22})\end{bmatrix}}{\begin{bmatrix}y_{2}-y\\\\ y-y_{1}\end{bmatrix}}.\end{aligned}}}
+3\times256\times128=98\,304
 $$
 
-注意此处如果先在 $y$ 方向插值、再在 $x$ 方向插值，其结果与按照上述顺序双线性插值的结果是一样的。
+个权重。17 个专家一共包含 $1\,671\,168$ 个专家权重，但每个 token 只激活 4 个路由专家和 1 个共享专家，对应的专家矩阵乘加数约为
 
-#### NHWC 数据格式
+$$
+(K+1)\times3DH
+=5\times98\,304
+=491\,520\ \text{MACs}
+$$
 
-真实情况下我们处理的数据都是以 batch 为单位的，按批进行处理的。以双线性插值为例，我们往往会一次性送入 $N$ 张大小为 $H \times W$ 的图片，每个像素上有 $C$ 个通道，然后一次性返回这 $N$ 张图片处理好的结果。此时我们一次性传入的数据，就是直接按顺序堆叠在一起的 NHWC 格式的数组，它将 batch 作为了第一个维度，而后三个维度分别是单张图片的高度、宽度、通道数。你可以将这一数据格式理解为 c 语言中的高维数组 `image[N][H][W][C]`，而因为 c 的数组和 NumPy 的 `ndarray` 一样都是在内存里连续排放的，所以对于 `image[x1][x2][x3][x4]`，其实就是 `image[x1 * H * W * C + x2 * W * C + x3 * C + x4]` 处的内存。
+这与相同参数量的单个稠密 SwiGLU FFN 相比，计算量显著降低。若稠密 FFN 具有相同的总参数量，其中间维度需要取为
 
-另一个常见的数据格式是 NCHW，也就是单张图片内通道在前，不过这里我们没有选用。
+$$
+H_{\mathrm{dense}}=17H=2176.
+$$
 
-数据格式更多是对数据的存放顺序进行约定，通过 `np.transpose` 可以方便地将不同维度进行调换。
+此时每个 token 都必须经过全部参数，对应的矩阵乘加数为
 
-### 基准代码
+$$
+3DH_{\mathrm{dense}}
+=17\times3DH
+=1\,671\,168\ \text{MACs}.
+$$
 
-下面给出直接使用 `for` 循环迭代计算的双线性插值版本：
+相比之下，MoE 每个 token 只计算 5 个激活专家，因此其专家计算量仅为稠密 FFN 的
 
-```python linenums="1"
-def bilinear_interp_baseline(a: np.ndarray, b: np.ndarray) -> np.ndarray:
-    """
-    This is the baseline implementation of bilinear interpolation without vectorization.
-    - a is a ND array with shape [N, H1, W1, C], dtype = int64
-    - b is a ND array with shape [N, H2, W2, 2], dtype = float64
-    - return a ND array with shape [N, H2, W2, C], dtype = int64
-    """
-    # Get axis size from ndarray shape
-    N, H1, W1, C = a.shape
-    N1, H2, W2, _ = b.shape
-    assert N == N1
+$$
+\frac{(K+1)3DH}{17\cdot3DH}
+=\frac{5}{17}
+\approx29.4\%.
+$$
 
-    # Do iteration
-    res = np.empty((N, H2, W2, C), dtype=int64)
-    for n in range(N):
-        for i in range(H2):
-            for j in range(W2):
-                x, y = b[n, i, j]
-                x_idx, y_idx = int(np.floor(x)), int(np.floor(y))
-                _x, _y = x - x_idx, y - y_idx
-                # For simplicity, we assume:
-                # - all x are in [0, H1 - 1)
-                # - all y are in [0, W1 - 1)
-                res[n, i, j] = a[n, x_idx, y_idx] * (1 - _x) * (1 - _y) + \
-                               a[n, x_idx + 1, y_idx] * _x * (1 - _y) + \
-                               a[n, x_idx, y_idx + 1] * (1 - _x) * _y + \
-                               a[n, x_idx + 1, y_idx + 1] * _x * _y
-    return res
+也就是说，在总专家参数量相同的情况下，MoE 将每个 token 的专家计算量降低了约 $70.6\%$，理论上约为稠密 FFN 的 $1/3.4$。这体现了 MoE 的核心优势：保留较大的总参数容量，同时只激活其中一小部分参与当前 token 的计算。
+
+### 单层 MoE 的前向流程
+
+```mermaid
+flowchart TD
+    X["token 向量 x（FP32）"]
+
+    X --> R["Router（FP32）<br/>sigmoid 亲和度<br/>带偏置选择 Top-4"]
+    X --> Q["激活量化<br/>FP32 → INT8"]
+
+    R --> I["Top-4 专家编号"]
+    R --> G["归一化路由权重"]
+
+    Q --> SE["共享专家（INT8）<br/>所有 token 都执行"]
+    Q --> RE["路由专家（INT8）<br/>只执行被选中的 4 个"]
+    I --> RE
+
+    SE --> C["加权合并"]
+    RE --> C
+    G --> C
+    X -- "残差" --> C
+
+    C --> Y["输出 y（FP32）"]
 ```
 
-### Numpy 向量化实现
+对每个 token $x_t \in \mathbb{R}^{D}$，先计算路由 logit 和原始亲和度：
 
-通过花式索引和 Numpy 向量化，把 Baseline 的三层循环全部替换。
+$$
+z_{t,e}=r_e^\top x_t,\qquad
+s_{t,e}=\sigma(z_{t,e})=\frac{1}{1+e^{-z_{t,e}}},
+\qquad e=1,\ldots,E.
+$$
 
-```python linenums="1"
-import numpy as np
-from numpy import int64
+再定义被选中的专家集合
 
-def bilinear_interp_vectorized(a: np.ndarray, b: np.ndarray) -> np.ndarray:
-    """
-    This is the vectorized implementation of bilinear interpolation.
-    - a is a ND array with shape [N, H1, W1, C], dtype = int64
-    - b is a ND array with shape [N, H2, W2, 2], dtype = float64
-    - return a ND array with shape [N, H2, W2, C], dtype = int64
-    """
-    N, H1, W1, C = a.shape
-    N1, H2, W2, _ = b.shape
-    assert N == N1
+$$
+\mathcal S_t
+=\operatorname{TopK}_{e\in\{1,\ldots,E\}}
+\bigl(s_{t,e}+b_e\bigr),
+\qquad |\mathcal S_t|=K.
+$$
 
-    res = np.empty((N,H2,W2,C), dtype=int64)
+路由权重只对 $\mathcal S_t$ 中的原始亲和度进行归一化：
 
-    x = b[:,:,:,0]
-    y = b[:,:,:,1]
-    x_idx = np.floor(x).astype(int64)
-    y_idx = np.floor(y).astype(int64)
-    x_mul = (x - x_idx)[:,:,:,None]
-    y_mul = (y - y_idx)[:,:,:,None]
-    n_idx = np.arange(N)[:,None,None]
-    res[:] = a[n_idx, x_idx, y_idx] * (1 - x_mul) * (1 - y_mul) + \
-             a[n_idx, x_idx + 1, y_idx] * x_mul * (1 - y_mul) + \
-             a[n_idx, x_idx, y_idx + 1] * (1 - x_mul) * y_mul + \
-             a[n_idx, x_idx + 1, y_idx + 1] * x_mul * y_mul
+$$
+g_{t,e}=
+\begin{cases}
+\displaystyle
+\frac{s_{t,e}}{\sum_{j\in\mathcal S_t}s_{t,j}},
+& e\in\mathcal S_t,\\[8pt]
+0,&e\notin\mathcal S_t.
+\end{cases}
+$$
 
-    return res
-```
+共享专家和每个被选中的路由专家都是 SwiGLU 结构：
 
-### 推荐阅读材料
+$$
+\operatorname{FFN}_e(x)
+=W_d^{(e)}\left(
+\operatorname{SiLU}\!\left(W_g^{(e)}x\right)
+\odot W_u^{(e)}x
+\right),
+\qquad
+\operatorname{SiLU}(v)=\frac{v}{1+e^{-v}}.
+$$
 
-- 关于双线性插值：[https://en.wikipedia.org/wiki/Bilinear_interpolation](https://en.wikipedia.org/wiki/Bilinear_interpolation)
-- NumPy 文档：[https://numpy.org/doc/stable/](https://numpy.org/doc/stable/)
-- 一篇不错的入门教程：[https://medium.com/better-programming/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d](https://medium.com/better-programming/numpy-illustrated-the-visual-guide-to-numpy-3b1d4976de1d)
-- 一篇稍微硬核一点的教程：[https://www.labri.fr/perso/nrougier/from-python-to-numpy/](https://www.labri.fr/perso/nrougier/from-python-to-numpy/)
-- 更多练习：[https://github.com/rougier/numpy-100](https://github.com/rougier/numpy-100)
+其中 $\odot$ 表示逐元素相乘
 
-## 知识讲解：x86-64 SIMD 优化
+最后合并：
 
-### AVX 向量指令扩展
+$$
+y_t=x_t+\operatorname{FFN}_{shared}(x_t)
++\sum_{e\in\mathcal S_t}g_{t,e}\operatorname{FFN}_e(x_t).
+$$
 
-现代处理器一般都支持向量化指令，x86 架构下 Intel 和 AMD 两家的处理器都提供了诸如 SSE，AVX 等 SIMD 指令集，一条指令可以同时操作多个数据进行运算，大大提高了现代处理器的数据吞吐量。
+### 量化推理：W8A8
 
-现代编译器在高优化等级下，具有自动向量化的功能，对于结构清晰，循环边界清晰的程序，编译器的自动向量化已经可以达到很优秀的程度了。然而，编译器的优化始终是保守的，很多情况下编译器无法完成使用 SIMD 指令进行向量化的工作，为了追求性能，高性能计算领域经常需要手写 SIMD 代码进行代码优化。
+真实的推理引擎很少用 fp32 存储和计算专家权重：int8 量化能把内存占用和带宽需求降到 1/4，同时精度损失在可接受范围内。而现代 SIMD 指令集处理 int8 的吞吐量也远高于 fp32，尤其在 Intel 引入 AMX 矩阵加速单元之后。本实验采用简化的 **W8A8**（权重、激活都量化到 int8）：
 
-显然直接手写汇编指令过于困难，在 C 语言环境下，Intel 提供了一整套关于 SIMD 指令的函数封装接口和指令相关行为的参照手册，可以在实验文档的参考资料中找到。
+$$
+x_q = \mathrm{round}\left(\frac{x}{s_x}\right), \quad s_x = \frac{\max_i |x_i|}{127}
+$$
 
-使用这些函数 API 需要 include 对应的头文件，不同 SIMD 指令集需要的头文件不同，具体需要参考 Intel 相关文档。
+- 激活使用 per-token scale，每个 token 向量单独计算 $s_x$
+- 每个权重矩阵一个 scale
 
-```c
-#include <smmintrin.h>
-#include <emmintrin.h>
-#include <immintrin.h>
-```
+int8 $\times$ int8 的结果在 int32 中累加，随后乘以 scale 反量化回 fp32：
 
-另外深入到这个级别的优化已经开始需要考虑具体处理器的体系结构细节了，如某个架构下某条指令的实现延时和吞吐量是多少，处理器提供了多少向量寄存器，访存的对齐等等。这种时候编译器具体产生的汇编代码能比 C 语言代码提供更多的信息，你能了解到自己使用了多少寄存器，编译器是否生成了预期外的代码等等。
+$$
+W x \approx (W_q x_q) \cdot s_W s_x
+$$
 
-### AVX-512
+#### 举例：一个三维 W8A8 点积
 
-[AVX-512](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html) (Advanced Vector Extensions 512-bit) 是 x86 架构中目前的 SIMD 指令集，通过 512 位宽寄存器和增强指令集为高性能计算提供突破性加速。在矩阵乘法等线性代数运算中，能发挥巨大作用：
+考虑一个输入向量和权重矩阵中的一行：
 
-- **并行计算优势**：AVX 的 512 位寄存器能单周期处理 16 个 32 位浮点数（FP32），相比标量运算提升 16 倍吞吐量
-- **内存访问优化**：`vmovaps` 等指令支持对齐内存加载，减少数据搬运开销
-- **融合运算能力**：`vfmadd` 等融合乘加指令在单周期完成乘法和累加操作
+$$
+x=
+\begin{bmatrix}1.00\\-0.49\\0.25\end{bmatrix},
+\qquad
+w=
+\begin{bmatrix}0.40\\-0.80\\1.20\end{bmatrix}.
+$$
 
-可以来看一下 SIMD 指令集的演进：
+输入的 per-token 缩放因子为 $s_x=1/127$，因此
 
-| 指令集        | 推出年份  | 寄存器宽度   | 寄存器数量   | 峰值吞吐增益（FP32）   |
-|--------------|----------|------------|------------|----------------------|
-| MMX          | 1996     | 64-bit     | 8          | 2x (INT8)            |
-| SSE          | 1999     | 128-bit    | 8          | 4x (FP32)            |
-| AVX/AVX2     | 2011/2013| 256-bit    | 16         | 8x (FP32)            |
-| AVX-512      | 2016     | 512-bit    | 32         | 16x (FP32)           |
-| AMX          | 2021     | 1024-bit   | 8 (TILE)   | 专用矩阵加速         |
+$$
+x_q=\operatorname{round}
+\begin{bmatrix}127\\-62.23\\31.75\end{bmatrix}
+=\begin{bmatrix}127\\-62\\32\end{bmatrix}.
+$$
 
-AVX-512 VNNI (Vector Neural Network Instructions) 专为卷积神经网络设计，提供了整数与低精度浮点数的运算加速指令。在本次实验中，我们对 8-bit 相乘、32-bit 累加的操作，除了使用传统的数据类型转换指令，还可以借助 AVX-512 VNNI 指令直接一步到位，减少操作次数。
+假设这一行权重所在矩阵的最大绝对值也是 $1.20$，则该矩阵的缩放因子为 $s_W=1.20/127$，对应的量化权重为
 
-### AMX 高级矩阵扩展
+$$
+w_q=\operatorname{round}
+\begin{bmatrix}42.33\\-84.67\\127\end{bmatrix}
+=\begin{bmatrix}42\\-85\\127\end{bmatrix}.
+$$
 
-AMX 是 Intel 推出的一种高级矩阵扩展，它能操纵 1024 Byte 的寄存器（称为 1 个 Tile）进行乘加运算。根据实际操作，它比 AVX-512 在运算速度上有着巨大的提升。显然，根据位宽，它的吞吐量比 AVX-512 大了 16 倍，但是它需要 16 个时钟周期才能结束一次运算，那么它究竟快在哪里呢？答案是访存提升了，使用 AMX 能够更大程度的复用寄存器，这样就省去了大量的 load 和 store 开销；不仅如此它的运算单元独立于其他运算，所以可以异步处理，将延迟隐藏在其他的任务中。不过 AMX 的运算只能以 8 位和 16 位为单位，运算单元的精度较低，所以广泛地应用于大语言模型、深度学习等领域。
+整数点积在 INT32 中计算：
 
-#### 硬件结构
+$$
+\begin{aligned}
+a_{int}
+&=w_q^\top x_q\\
+&=42\times127+(-85)\times(-62)+127\times32\\
+&=14\,668.
+\end{aligned}
+$$
 
-AMX 的硬件结构由两大部分组成：Tile 和 Accelerator。
+反量化后得到
 
-- Tile 是存储数据的 tmm 寄存器，每个 1024 Byte (1KB) 大小，目前共有 8 个（不过从官方文档的更新来看，最新的芯片应该支持 16 个 Tile 了）
-- Accelerator 是对这些数据进行的运算，目前只有一个 TMUL，用来实现 $C[M][N] += A[M][K] * B[K][N]$。
+$$
+\hat y=a_{int}s_Ws_x
+=14\,668\times\frac{1.20}{127}\times\frac{1}{127}
+\approx1.09130.
+$$
 
-![AMX_STRUCTURE](image/amx_structure.webp)
+原始 FP32 点积为
 
-#### Tile Config 配置
+$$
+y=w^\top x
+=0.40\times1.00+(-0.80)\times(-0.49)+1.20\times0.25
+=1.092.
+$$
 
-AMX 运算由 Tile Config (TILECFG) 来控制，它的格式如下：
+两者相差约 $6.99\times10^{-4}$。（已足够小）
+
+## 代码框架
+
+**实验代码位于文档仓库的 `src/lab2/` 目录下。**
 
 ```text
-format of memory payload. each field is a byte.
-0: palette_id
-1: startRow (8b)
-2-15: reserved (must be zero)
-16-17: tile0.colsb -- bytes_per_row
-18-19: tile1.colsb
-20-21: tile2.colsb
-...
-46-47: tile15.colsb
-48: tile0.rows
-49: tile1.rows
-50: tile2.rows
-...
-63: tile15.rows
+src/lab2
+├── CMakeLists.txt
+├── main.cpp              # driver（评测时替换为原版）
+├── include
+│   └── moe.h             # 问题规模、权重结构体、接口声明
+├── src                   # 框架代码（评测时替换为原版）
+│   ├── moe_ref.cpp       # 标量参考实现（正确性基准）
+│   └── data.cpp          # 数据初始化与正确性检查
+└── student               # ★ 你的代码（只有这个目录会被收取）
+    └── moe_opt.cpp       # preprocess + moe_forward_optimized
 ```
 
-#### AMX 矩阵乘法详解
+正如真实推理引擎用同一套代码服务不同的 batch 大小与不同尺寸的模型，本实验的 token 数 $N$ 和模型形状——隐藏维 $D = d_{model}$、专家中间维 $H = d_{ff}$、路由专家数 $E$、每个 token 选取的专家数 $K$（Top-$K$）——都由 driver 在计时前填入 `MoEWeights` 的形状字段，`preprocess` 与 `moe_forward_optimized` 从中读取。**因此你的实现不能假设任何一个维度取固定值。**
 
-AMX 的 TMUL 复用了 16 个 AVX VNNI 计算单元，在 1 Cycle 进行 16 次 AVX-512 VNNI 运算，16 Cycle 得出 Tile 乘积。
+`moe.h` 同时给出各维度的上界（便于静态分配缓冲区），并保证 $D$、$H$ 均为 64 的倍数：
 
-这里给出 TMUL 计算的图示：
-
-![VNNI](image/amx_vnni.webp)
-
-这里的 $A_{ij}$ 和 $B_{ij}$ 是 32-bit 的，这点很重要，后面实际进行计算的单位是 16-bit 或者 8-bit，我们以 16-bit 作为例子，则需要 2 个元素和作为一个单元参与计算。把这 2 个元素代入上面的图示，你会发现这个 AVX VNNI 计算单元实际上和普通的矩阵乘法的行乘列是不一样的：普通矩阵乘法的 B 矩阵应该是 (K *2)* N 这个形状的，而 TMUL 所使用的 B 矩阵的形状是 K *(N* 2)。所以为了使用 AMX 的乘加运算，我们需要对 B 矩阵进行重排（reshape）。
-
-我们先从图的角度来理解一下这个重排（里面每一个方块表示一个 16 -bit 的元素）：
-
-![reshape](image/reshape.webp)
-
-聪明的你一定发现了，这其实就是把 B 矩阵以 32-bit 为单位进行转置。这部分代码因为对新手比较不友好所以我在 `reshape.cpp` 里直接给出了两种实现方法，你可以挑选其中一种进行阅读，之后在报告中回答相应问题。
-
-在进行了重排之后，就可以使用 AMX 指令进行矩阵运算了，这一部分的代码就像填空题一样，在课上我们讲过了一个非常公式的方法，你需要在这里进行使用。因此，这里就给出一个比较简单的流程（如果你不熟悉的话，请去官方文档那里看伪代码）：
-
-1. 确定 A，B，C 矩阵以及他们的形状和类型（这一步应当发生在重排之前）
-2. 根据形状配置 TILECFG（实验已经进行了 16 个元素的对齐，确保能够铺满）
-3. 使用 `__tile_loadd` 把 A，B 矩阵 load 到 Tile，同时使用 `__tile_zero` 初始化 C 矩阵对应的 Tile。
-4. 根据 A，B 矩阵的类型选择对应的运算指令进行计算，结果累加到结果 Tile 里。
-5. 使用 `__tile_stored` 把结果存入 C 矩阵。
-
-提供的代码 tile.h 中提供了 `init_tile_config` 函数来对 Tile 进行操纵。
-
-## 任务一：使用 AVX 指令集实现整数矩阵乘法
-
-### 背景与任务
-
-矩阵乘法是 Attention 机制的核心操作，在现代的深度学习模型，尤其是 LLM 中，矩阵乘法占据了计算量的绝大部分。为了加速 LLM 推理，学界提出了各种优化方法，而「量化」就是其中之一。通过量化，虽然牺牲模型权重的精度，但能提高内存带宽的利用效率，减少权重的内存占用。与科学计算领域的矩阵乘法不同，本次实验，我们考虑低精度 8-bit 整数的矩阵乘法。
-
-任务一要求使用 AVX-512 Intrinsic 实现一个基础矩阵乘法，也就是 `C = A * B` 的形式，其中 A 的形状是 `M * (K * 4)`，B 的形状是 `N * (K * 4)`.
-
-里面的元素都是 8-bit 的值，然后通过点积得到的 C 矩阵的形状是 `M * N`，其中的元素是 32-bit 的值。在本次实验里，我们为了让内存访问更加的友好，可以认为对 B 矩阵预先做了转置操作，因此最终的矩阵乘法变成了行乘行的形式，在理解基准代码时需要注意。
-
-**本次实验任务的代码框架在文档仓库的 `src/lab2/vector/` 目录下。**
+| 常量 | 含义 | 上界 |
+| ---- | ---- | ---- |
+| `MAX_NUM_TOKENS`  | token 数 $N$ | 1024 |
+| `MAX_D_MODEL`     | 隐藏维 $D$   | 1024 |
+| `MAX_D_FF`        | 专家中间维 $H$ | 512 |
+| `MAX_NUM_EXPERTS` | 路由专家数 $E$ | 512 |
+| `MAX_TOP_K`       | 选取专家数 $K$ | 4 |
 
 !!! danger "修改范围限制"
 
-    **只允许**在 `start` 和 `end` 围出来的区域里添加代码。根据是否选择做 bonus（AMX 的矩阵乘法）选择对应的代码区域进行填写。
+    **你只能修改 `student/moe_opt.cpp`**。评测时，`student/` 之外的所有文件
+    （driver、头文件、参考实现、CMakeLists）都会被替换为原版——所以就算你在别处改了什么，
+    评测时也不会生效。你可以在自己的文件里自由添加辅助函数、头文件引用、全局缓冲区等，
+    只要实现声明在 `moe.h` 中的接口函数即可。
 
-### 基准代码讲解
+`student/moe_opt.cpp` 需要实现两个函数：
 
-Baseline 用了 3 重 `for` 循环来暴力计算矩阵乘，这也是最常见的写法，其中传进来的参数就是我们上面定义的形状中的 M，N，K。
+```cpp
+// 计时开始前调用一次。你可以在这里对权重做重排/预打包
+void preprocess(MoEWeights& w) {}
 
-同学们的任务是使用 AVX-512 Intrinsic 编写和 `naive_gemm` 功能相同的矩阵乘法，并实现一定的加速。
-
-```cpp linenums="1"
-void naive_gemm(uint8_t* A, int8_t* B, uint32_t* C, int m, int n, int k) {
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            for (int kk = 0; kk < k * 4; kk++) {
-                C[i * n + j] += A[i * k * 4 + kk] * B[j * k * 4 + kk];
-            }
-        }
-    }
+void moe_forward_optimized(const float* x, const MoEWeights& w, float* y,
+                           int num_tokens) {
+    moe_forward_ref(x, w, y, num_tokens);
 }
 ```
 
-!!! tip "优化提示"
+构建与运行：
 
-    在优化的代码中，我们首先使用 reshape 函数对 B 矩阵数据进行了 32-bit 级别的转置，转置之后的乘法操作可以参考下面的代码进行理解，在此基础上进行向量优化:
+```bash
+cd src/lab2
+cmake -B build
+cmake --build build
+./build/lab2 128 256 128 16 4      # N D H E K（S3 场景的形状，见下文）
+./build/lab2 1 1024 512 16 4 2000  # 可选第 6 个参数指定迭代次数
+```
 
-    ```cpp linenums="1"
-    // start
-    for (int i = 0; i < M; i++) {
-        for (int j = 0; j < N; j++) {
-            for (int k = 0; k < K; k++) {
-                for (int n = 0; n < 4; n++) {
-                    C[i * N + j] += A[i * K * 4 + k * 4 + n] * B_reshape[k * N * 4 + j * 4 + n];
-                }
-            }
-        }
-    }
-    // end
-    ```
+!!! note "正确性如何判定"
 
-## Bonus: 使用 AMX 指令集
+    int8 矩阵乘本身是精确的，但它周围的 fp32 环节（SiLU、缩放、求和顺序）在向量化改写后
+    难免有 ulp 级差异——这种差异一旦落在重量化$\mathrm{round}(h / s_h)$ 的舍入边界上，
+    就会让一个 int8 值差 $\pm 1$，再经 down 投影摊到整行输出上。因此 `check_result`
+    不做逐元素比对，而是检查**每个 token 的相对 L2 误差**（$< 2\times10^{-2}$）和**全局相对
+    RMSE**（$< 2\times10^{-3}$）。
 
-请学习 [AMX 矩阵乘法详解](#amx-矩阵乘法详解) 部分，使用 AMX 指令扩展中的 tile 操作，替换上面的 AVX 优化代码。
+## 任务：优化 MoE 前向
 
-!!! warning
-    仅 M700 和 M701 节点支持 AMX 指令集，请确保在这些型号的设备上运行相关代码。
+在 `student/moe_opt.cpp` 中重写整个前向计算，使其在保证正确性的前提下尽可能快。评分依据端到端加速比（`Speedup`）。
 
-!!! tip "优化提示"
+### 评测场景
 
-    对于 AMX 的具体操作，可以参考课上提供的代码示例。
-    <div class="textbox" title="你知道得太多了">
-        <span class="overlay-text">在某种程度上，可以直接套用示例代码，毕竟 AMX 操作长得都一样 (x</span>
-        <div class="overlay"></div>
-    </div>
-    <style>
-    .textbox {
-        position: relative;
-        display: inline-block;
-        color: black;
-        cursor: default;
-    }
-    .overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: black;
-        transition: opacity 0.1s ease;
-        pointer-events: none;
-    }
-    .textbox:hover .overlay {
-        opacity: 0;
-    }
-    </style>
+评测会在四个场景上进行：
+
+| 编号 | $N$ | $D$ | $H$ | $E$ | $K$ |
+| ---- | --- | --- | --- | --- | --- |
+| S1   | 1 | 256 | 128 | 16  | 4 |
+| S2   | 1 | 1024 | 512 | 16 | 4 |
+| S3   | 128 | 256 | 128 | 16 | 4 |
+| S4   | 1024 | 512 | 128 | 512 | 2 |
+
+!!! tip "优化思路提示"
+
+    动手写 SIMD 之前，先想清楚算法层面的问题：
+
+    - Baseline 的访存模式好吗？参考实现逐 token 计算，每个 token 都要完整读一遍它所选专家的
+      全部权重，这显然不是个好主意。
+    - 数据布局：`preprocess` 允许你把权重重排成对向量指令友好的布局。
+    - 编译器在 `-O2` 下已经会做一定程度的自动向量化。看看编译器生成的汇编（`objdump -d` 或
+      [Compiler Explorer](https://godbolt.org/)），确认你的手写优化真的比自动向量化强。
+    - 本实验主线目标平台为 Intel Sapphire Rapids。如果你追求较高的性能，一定要使用 **Intel AMX** 矩阵加速单元。
+
+### 性能优化的好伙伴：Profiler 工具
+
+!!! danger "VTUNE 目前可能无法在容器内运行"
+
+    在我们完成调试后，会进一步更新本文档。
+
+第一次使用 VTune 时，可以先阅读 Intel 官方的
+[Linux 性能分析快速入门](https://www.intel.com/content/www/us/en/docs/vtune-profiler/tutorial-common-bottlenecks-linux/2025-0/overview.html)，
+跟随示例了解一次完整的“采样—定位—分析”流程。
+
+集群不提供图形桌面，可以采用“**集群命令行采样，本地 GUI 分析**”的方式。
+按照集群说明进入计算节点并加载 VTune 环境后，在实验目录中执行例如：
+
+```bash
+vtune -collect hotspots -result-dir vtune-hotspots -- \
+  ./build/lab2 128 256 128 16 4 2000
+```
+
+采样结束后，在本地终端下载**完整的结果目录**（不要只复制其中的 `.vtune` 文件）。为了正常查看
+源码和汇编，建议同时下载采样时使用的可执行文件,示例命令如下：
+
+```bash
+scp -r <username>@<cluster>:<path-to-repo>/lab2/vtune-hotspots .
+scp <username>@<cluster>:<path-to-repo>/lab2/build/lab2 .
+```
+
+随后在本地启动 VTune Profiler GUI，选择 **Open > Result...**，打开结果目录中的 `.vtune` 文件。
+如果源码或汇编视图无法正确显示，请确认本地保留了与采样时一致的源码和可执行文件，并在
+**Binary/Symbol Search** 中补充相应路径。
+
+开始优化时，不必急于逐个尝试各种优化技巧，可以先使用性能采样工具定位瓶颈，再提出并验证优化假设，
+通常会更有效。（除了更快的定位瓶颈之外，一个你做的代码改动不论是正优化还是负优化，有一个可解释的指标会给你在优化过程中较强的正反馈，同时也不会让你陷入对着代码穷举各种优化方式的那种“炼丹”的痛苦。 ~~或许结合ai还会有更加奇妙的火花？~~ 如果你是想认真学习并实践体系结构知识的人这块可以让你学爽，~~可解释性一直都是很美妙的不是吗~~）
+面向intel cpu架构比较合适的优化工具 Intel VTune Profiler 可以大致按下面的顺序使用：（注意以下有很多体系结构的专有名词，在没上过专业课的情况下要理解它们确实会比较痛苦，但是结合ai可以较快的帮你搞懂它们意思，最后构建起一个现代处理器的抽象模型, 这样之后就会顺畅许多）
+
+1. **先找热点。** 使用 **Hotspots**（热点分析：按采样结果找出最耗时的代码）查看 Bottom-up
+   （从最耗时的函数向上追溯调用者）、调用栈和源码视图，确认端到端时间主要花在了哪些阶段。~~(但是其实这个程序你一眼就可以看懂， 你也可以马上定位到瓶颈在哪，所以这一步在这一个lab当中其实不那么重要)~~
+2. **再解释热点。** 可以先把 CPU 流水线粗略分成前端和后端：前端负责取出并解码指令，再把工作交给
+   后端；后端等待操作数就绪，调用执行单元完成计算并提交结果。使用 **Microarchitecture Exploration**
+   （微架构探索：通过硬件计数器分析流水线利用率）时，Top-down 会把流水线中的工作分成四类：
+   **Front-End Bound**（前端受限：取指、解码或供给指令的速度跟不上），**Bad Speculation**
+   （错误推测：分支预测错误等原因使已经执行的工作被丢弃），**Back-End Bound**（后端受限：执行资源
+   忙碌或所需数据尚未到达），以及 **Retiring**（有效退休：指令完成并提交了有效结果，占比高通常是
+   好现象，但不等于已经达到峰值）。可配合 [Intel 官方中文 Top-down 图解](https://www.intel.cn/content/www/cn/zh/docs/vtune-profiler/cookbook/2023-0/top-down-microarchitecture-analysis-method.html) 继续阅读。
+
+   **Back-End Bound** 较高时，可以继续区分 **Core Bound**（核心执行资源受限，例如执行端口争用或
+   较长的数据依赖链）和 **Memory Bound**（内存层次受限，执行单元在等待数据）。内存层次由近到远
+   包括 **L1D**（每个核心最近、容量最小的一级数据缓存）、**L2**（容量更大但稍慢的二级缓存）、
+   **LLC**（Last-Level Cache，通常由多个核心共享的末级缓存；本平台上是 L3）和 **DRAM**
+   （主内存，容量最大但访问延迟显著高于缓存）。这些 Bound 指标表示停顿主要与哪个层级相关，
+   并不自动意味着该层带宽已经打满，具体含义可参看 [VTune Memory Access 指标说明](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-0/memory-access-analysis.html)。
+3. **检查并行效率。** 对多线程实现，结合 **Threading**（线程并行分析）和 **Memory Access**
+   （内存访问分析）观察并行度、串行区、负载不均、spin/wait（忙等或阻塞等待）、同步竞争、伪共享
+   （线程修改同一缓存行中的不同数据，仍引发缓存行来回迁移）、缓存行争用（多个核心争抢同一缓存行
+   的所有权）以及 NUMA（非一致内存访问：访问其他 CPU 节点的内存通常更慢）。
+
+采样时应让被测部分运行时间足够长(目前的程序运行一次的时间很短，但是vtune运行的方式是随机的对运行时程序取快照, 并通过采样的时候运行所在函数来粗略的估计不同函数的运行时间占比, 所以为了能够采准要么让采样频率高一点，要么就运行的次数多一点, 后者相对更加方便一点), 并保持输入、线程数和绑核方式一致。Profiler 用于定位和解释瓶颈，最终性能仍应以实验规定的 driver 计时结果为准。更详细的操作可参考 Intel 官方的 [Hotspots 使用指南](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2025-4/basic-hotspots-analysis.html)，更深入的分析方法与常见案例可查阅 [VTune Performance Analysis Cookbook](https://www.intel.com/content/www/us/en/docs/vtune-profiler/cookbook/2025-4/overview.html)。
+
+!!! tip "优化后期：评估剩余优化空间"
+
+    当主要热点已经稳定后，建议为热点建立一份简要的性能上限分析。首先估算运算量、数据搬运量和算术
+    强度，再借助**Roofline**（屋顶线模型：将程序性能与计算、带宽上限放在同一张图中；参见 [Intel Roofline 简介](https://www.intel.com/content/www/us/en/developer/articles/guide/intel-advisor-roofline.html)），
+    判断当前实现更接近计算上限，还是 L1D、L2、LLC 或 DRAM 中某一级的带宽上限。比较时应保持工作负载、
+    线程数和绑核方式一致。
+
+    分析 CPU 流水线时，可以同时记录**IPC**（Instructions Per Cycle，平均每周期退休的指令数）、
+    Front-End Bound、Core Bound、处理器频率和有效操作吞吐（每秒实际完成的 MAC 或其他目标运算数）。
+    这些指标分别反映指令推进效率、前端供给情况和核心执行资源的利用情况，需要结合热点代码一起解释。
+    对多线程实现，还应绘制线程数与加速比的关系，并检查核心利用率、串行区、同步等待、负载不均、缓存
+    一致性开销、NUMA 访问和全核运行时的频率变化。分析的目标是解释当前性能与硬件上限之间的差距，
+    并据此选择下一步优化对象，而不是单独追求某一项指标。（~~ai或许比我们更擅长做这种迭代优化，但是一下找到应该优化的点的直觉或许是ai所没有的, 优化过程中就可以积累这个直觉~~）
+
+## Bonus 任务：在 RISC-V 上实现 MoE 算子
+
+!!! danger "RISC-V 平台还没准备好😭"
+
+    我们正在尽快搭建 risc-v 平台，完成后会发布具体任务并会群里通知。
 
 ## 思考题
 
-1. 在本地环境安装 Python 和 [uv](https://docs.astral.sh/uv/getting-started/installation/) 或 [MicroMamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html) 等环境管理工具，在激活环境后，使用 `python main.py` 运行提供的双线性插值向量化版本的例子，这个代码可以在仓库下载，在报告里回答以下问题（该问代码于文件 vectorized.py）：
-    - 代码第 21 行 - 第 23 行中的 None 起到什么作用？可以删掉吗，请说明理由？
-    - 代码第 24 行中 `a[n_idx, x_idx, y_idx]` 的 shape 是什么？这些 idx 在这里是怎么作用的？
-    - 代码第 24 行中的向量乘法中这三个向量的维度相同吗？如果不同的话，是怎么广播的？
-2. 品味 `reshape.cpp` 的的任意一个矩阵转置算法，把函数里面出现的每一个指令的功能说明（用文字的形式，说明指令的输入输出参数含义以及指令含义），指令的寻找需要参考 [Intel® Intrinsics Guide](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html)，把结果体现在报告里。
+1. 以场景 S3（$N=128,\ D=256,\ H=128,\ E=16,\ K=4$）为例，估算参考实现一次前向的
+   总访存量（专家权重被读了多少遍？）和总乘加次数，计算算术强度（MACs/byte）。
+   按专家分组之后这两个数字分别变成多少？由此说明这个负载是访存瓶颈还是计算瓶颈，
+   以及分组为什么能加速。
+2. 为什么激活用 per-token scale，而权重每个矩阵一个 scale 就够了？
+   如果让一批 128 个 token 共享同一个激活 scale，会发生什么？
+3. 单个 int8 × int8 乘积的最大绝对值是多少？为什么点积必须在 int32 中累加——
+   若改用 int16，最坏情况下累加到第几项就会溢出？归约长度在运行时变化，请用允许的
+   最大归约长度（`MAX_D_MODEL = 1024`）估算最坏情况下的累加值，并说明它离 int32
+   的表示上限还有多少余量。
 
 ## 实验任务与要求
 
-1. 完善 main.cpp，完成里面 AVX-512 方法的编写
-2. Bonus: 使用 AMX 实现
-3. 学在浙大的文件提交
-    1. 代码
-    2. 简单实验报告，包含
-        1. 思路
-        2. 正确性、加速比和运行时间
-        3. OJ 运行结果 (可选)
+1. 完成 `student/moe_opt.cpp` 中 MoE 前向的优化
 
-## 自动化测试
+!!! danger "提交方式"
 
-!!! info "OJ 说明"
+    我们还在完善课程平台和自动评测系统😭，完成后会更新本文档并本在群内通知。
 
-    同学们除了自己在集群上手动测试加速比之外，还可以使用 OJ 提交优化代码 (和同学们一起打榜 ac01)
+## 参考资料
 
-    OJ 使用方法请阅读: [使用在线测评](../../guide/oj.md)
-
-使用 scp 等将 `main.cpp, reshape.cpp, config.yaml` 上传到 OJ 的 lab2 文件夹，然后就可以进行提交。
-
-注意，`tile.h` 不允许更改，在 OJ 测评时会被覆盖成原版文件，如果你修改了 `tile.h` 进行了优化，请把优化的过程体现在实验报告中。
-
-举例：
-
-```bash
-scp ./src/reshape.cpp  <username>+oj@clusters.zju.edu.cn:lab2/src/reshape.cpp
-scp ./main.cpp  <username>+oj@clusters.zju.edu.cn:lab2/main.cpp
-scp ./config.yaml  <username>+oj@clusters.zju.edu.cn:lab2/config.yaml
-ssh <username>+oj@clusters.zju.edu.cn submit lab2
-```
+- [Mixture of Experts Explained](https://huggingface.co/blog/moe)
+- [DeepSeek-V3 Technical Report](https://arxiv.org/abs/2412.19437)
+- [DeepSeekMoE: Towards Ultimate Expert Specialization](https://arxiv.org/abs/2401.06066)
+- [Auxiliary-Loss-Free Load Balancing](https://arxiv.org/abs/2408.15664)
+- [Optimizing DGEMM on Intel CPUs with AVX512F](https://github.com/yzhaiustc/Optimizing-DGEMM-on-Intel-CPUs-with-AVX512F)
+- [Intel Intrinsics Guide](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html)
+- [Code Sample: Intel Advanced Matrix Extensions (Intel AMX) - Intrinsics Functions](https://www.intel.com/content/www/us/en/developer/articles/code-sample/advanced-matrix-extensions-intrinsics-functions.html)
+- [Intel AMX-TMUL Code Samples](https://github.com/intel/AMX-TMUL-Code-Samples)
+- [Intel 64 and IA-32 Architectures Optimization Reference Manual](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html)
+- [What Every Programmer Should Know About Memory](https://people.freebsd.org/~lstewart/articles/cpumemory.pdf)
