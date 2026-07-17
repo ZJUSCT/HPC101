@@ -231,7 +231,7 @@ src/lab2
     └── moe_opt.cpp       # preprocess + moe_forward_optimized
 ```
 
-正如真实推理引擎用同一套代码服务不同的 batch 大小与不同尺寸的模型，本实验的 token 数 $N$ 和模型形状——隐藏维 $D = d_{model}$、专家中间维 $H = d_{ff}$、路由专家数 $E$、每个 token 选取的专家数 $K$（Top-$K$）——都由 driver 在计时前填入 `MoEWeights` 的形状字段，`preprocess` 与 `moe_forward_optimized` 从中读取。**因此你的实现不能假设任何一个维度取固定值。**
+本实验的 token 数 $N$ 通过 `num_tokens` 参数传入。嵌入维度 $D = d_{model}$、隐藏层维度 $H = d_{ff}$、专家数 $E$ 和每个 token 选取的专家数 $K$（Top-$K$）由 driver 在计时前写入结构体 `MoEWeights`，`preprocess` 与 `moe_forward_optimized` 从中动态读取。
 
 `moe.h` 同时给出各维度的上界（便于静态分配缓冲区），并保证 $D$、$H$ 均为 64 的倍数：
 

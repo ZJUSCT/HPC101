@@ -8,5 +8,6 @@
         "MD033": false, // inline HTML
         "MD010": { "ignore_code_languages": ["makefile"] }, // Makefile
         "MD041": false // file header
-    }
+    },
+    "cmake.sourceDirectory": "/home/placitudo/HPC101/src/lab2"
 }
