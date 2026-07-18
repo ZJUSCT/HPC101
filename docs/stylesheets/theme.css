@@ -59,6 +59,9 @@
     margin: 1.25rem 0;
     overflow-x: auto;
     padding: .2rem .1rem .75rem;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
 }
 
 .md-typeset .amx-tile-flow__panel {
@@ -72,6 +75,7 @@
     border-radius: .4rem;
     background: #fff;
     box-shadow: var(--md-shadow-z1);
+    scroll-snap-align: start;
 }
 
 .md-typeset .amx-tile-flow__panel > .glightbox {
@@ -113,17 +117,4 @@
     color: var(--md-accent-fg-color);
     font-size: 1.5rem;
     line-height: 1;
-}
-
-@media screen and (max-width: 1100px) {
-    .md-typeset .amx-tile-flow {
-        grid-template-columns: minmax(0, 38rem);
-        justify-content: center;
-        overflow-x: visible;
-    }
-
-    .md-typeset .amx-tile-flow__arrow {
-        justify-self: center;
-        transform: rotate(90deg);
-    }
 }
