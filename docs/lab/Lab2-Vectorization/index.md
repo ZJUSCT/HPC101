@@ -1,5 +1,10 @@
 # 实验二：MoE 的向量化计算
 
+
+!!! info "实验信息"
+
+    负责助教：郝星星, 胡哲文
+
 ## 实验目的
 
 从 Mixtral 到 DeepSeek-V3、Qwen、GLM，**MoE（Mixture of Experts，混合专家）**已经成为大模型的主流架构。本次实验将带你实现并优化一个 DeepSeek-V3 风格的量化 MoE 层前向计算，在这个过程中：
