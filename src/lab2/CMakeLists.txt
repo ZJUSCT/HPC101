@@ -21,6 +21,17 @@ target_compile_options(framework PRIVATE -O3 -g)
 # apply and the project still builds.
 add_library(student OBJECT student/moe_opt.cpp)
 target_compile_options(student PRIVATE -O3 -g)
+
+# OpenMP is used only by the optimized student implementation.  Keep the
+# scalar framework unchanged so the baseline remains a single-threaded
+# reference, but link the final executable with the OpenMP runtime.
+find_package(OpenMP QUIET COMPONENTS CXX)
+if(OpenMP_CXX_FOUND)
+  target_link_libraries(student PRIVATE OpenMP::OpenMP_CXX)
+else()
+  message(WARNING "OpenMP CXX support was not found; OpenMP pragmas will be ignored")
+endif()
+
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64|amd64")
   check_cxx_compiler_flag("-march=sapphirerapids" COMPILER_SUPPORTS_SPR)
   if(COMPILER_SUPPORTS_SPR)
@@ -35,3 +46,6 @@ endif()
 
 add_executable(${PROJECT_NAME} $<TARGET_OBJECTS:framework>
                                $<TARGET_OBJECTS:student>)
+if(OpenMP_CXX_FOUND)
+  target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
+endif()

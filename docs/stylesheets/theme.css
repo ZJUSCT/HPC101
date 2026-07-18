@@ -49,3 +49,81 @@
     border-radius: .2rem;
     box-shadow: var(--md-shadow-z1);
 }
+
+/* Lab 2: compose the AMX explanation from focused, readable panels. */
+.md-typeset .amx-tile-flow {
+    display: grid;
+    grid-template-columns: minmax(18rem, 1fr) auto minmax(18rem, 1fr) auto minmax(18rem, 1fr);
+    align-items: center;
+    gap: .6rem;
+    margin: 1.25rem 0;
+    overflow-x: auto;
+    padding: .2rem .1rem .75rem;
+}
+
+.md-typeset .amx-tile-flow__panel {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    border: .05rem solid var(--md-default-fg-color--lightest);
+    border-radius: .4rem;
+    background: #fff;
+    box-shadow: var(--md-shadow-z1);
+}
+
+.md-typeset .amx-tile-flow__panel > .glightbox {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    background: #fff;
+}
+
+.md-typeset .amx-tile-flow__panel img {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0;
+}
+
+.md-typeset .amx-tile-flow__panel figcaption {
+    display: grid;
+    gap: .2rem;
+    padding: .65rem .75rem .75rem;
+    border-top: .05rem solid #e5e7eb;
+    background: #fff;
+    color: #374151;
+    font-size: .72rem;
+    line-height: 1.5;
+}
+
+.md-typeset .amx-tile-flow__panel figcaption strong {
+    color: #111827;
+    font-size: .8rem;
+}
+
+.md-typeset .amx-tile-flow__panel figcaption code {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.md-typeset .amx-tile-flow__arrow {
+    color: var(--md-accent-fg-color);
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+@media screen and (max-width: 1100px) {
+    .md-typeset .amx-tile-flow {
+        grid-template-columns: minmax(0, 38rem);
+        justify-content: center;
+        overflow-x: visible;
+    }
+
+    .md-typeset .amx-tile-flow__arrow {
+        justify-self: center;
+        transform: rotate(90deg);
+    }
+}
