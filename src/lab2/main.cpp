@@ -4,16 +4,25 @@
 
 #include <chrono>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 
 #define N_ITER_WARMUP 10
 
 int main(int argc, char** argv) {
+    // --benchmark (optional, last argument): skip the baseline loop so a
+    // profiler sees almost nothing but the optimized implementation.
+    // Correctness is still checked; no Speedup is reported.
+    bool benchmark = false;
+    if (argc >= 2 && strcmp(argv[argc - 1], "--benchmark") == 0) {
+        benchmark = true;
+        argc--;
+    }
     // Every dimension of the problem is a runtime parameter.
     if (argc != 6 && argc != 7) {
         std::cerr << "usage: " << argv[0]
                   << " <num_tokens> <d_model> <d_ff> <num_experts> <top_k>"
-                  << " [n_iter]" << std::endl;
+                  << " [n_iter] [--benchmark]" << std::endl;
         return 1;
     }
     const int num_tokens = atoi(argv[1]);
@@ -69,28 +78,39 @@ int main(int argc, char** argv) {
         init_tokens(x_pool[r], num_tokens, d_model, 42ull + r);
     }
 
-    // Warm-up (untimed): cold caches, not-yet-boosted CPU.
-    for (int iter = 0; iter < N_ITER_WARMUP; iter++) {
-        moe_forward_ref(x_pool[iter % pool], w, y_ref, num_tokens);
-    }
+    std::chrono::duration<double> duration_ref(0.0);
+    if (!benchmark) {
+        // Warm-up (untimed): cold caches, not-yet-boosted CPU.
+        for (int iter = 0; iter < N_ITER_WARMUP; iter++) {
+            moe_forward_ref(x_pool[iter % pool], w, y_ref, num_tokens);
+        }
 
-    // Reference implementation (baseline)
-    auto start_time = std::chrono::high_resolution_clock::now();
-    for (int iter = 0; iter < n_iter; iter++) {
-        moe_forward_ref(x_pool[iter % pool], w, y_ref, num_tokens);
+        // Reference implementation (baseline)
+        auto start_time = std::chrono::high_resolution_clock::now();
+        for (int iter = 0; iter < n_iter; iter++) {
+            moe_forward_ref(x_pool[iter % pool], w, y_ref, num_tokens);
+        }
+        auto end_time = std::chrono::high_resolution_clock::now();
+        duration_ref = end_time - start_time;
+        std::cout << "Baseline time:  " << duration_ref.count() << " s"
+                  << std::endl;
     }
-    auto end_time = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration_ref = end_time - start_time;
-    std::cout << "Baseline time:  " << duration_ref.count() << " s" << std::endl;
 
     // Optimized implementation (student/moe_opt.cpp)
     preprocess(w);
+    if (benchmark) {
+        // The baseline loop normally doubles as machine warm-up; warm up
+        // here instead.
+        for (int iter = 0; iter < N_ITER_WARMUP; iter++) {
+            moe_forward_optimized(x_pool[iter % pool], w, y, num_tokens);
+        }
+    }
 
-    start_time = std::chrono::high_resolution_clock::now();
+    auto start_time = std::chrono::high_resolution_clock::now();
     for (int iter = 0; iter < n_iter; iter++) {
         moe_forward_optimized(x_pool[iter % pool], w, y, num_tokens);
     }
-    end_time = std::chrono::high_resolution_clock::now();
+    auto end_time = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration_opt = end_time - start_time;
     std::cout << "Optimized time: " << duration_opt.count() << " s" << std::endl;
 
@@ -101,8 +121,10 @@ int main(int argc, char** argv) {
     moe_forward_optimized(x_verify, w, y, num_tokens);
     moe_forward_ref(x_verify, w, y_ref, num_tokens);
     check_result(y, y_ref, num_tokens, d_model);
-    std::cout << "Speedup: " << duration_ref.count() / duration_opt.count()
-              << std::endl;
+    if (!benchmark) {
+        std::cout << "Speedup: " << duration_ref.count() / duration_opt.count()
+                  << std::endl;
+    }
 
     return 0;
 }
