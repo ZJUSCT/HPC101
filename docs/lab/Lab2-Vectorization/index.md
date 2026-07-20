@@ -522,7 +522,11 @@ void moe_forward_optimized(const float* x, const MoEWeights& w, float* y,
 }
 ```
 
-构建与运行：
+!!! warning "preprocess 不要原地修改 `w` 的权重"
+
+    `preprocess` 的正确用法是**读** `w` 中的原始权重，把重排/打包后的结果**写到你自己的缓冲区**
+    （例如全局变量），随后 `moe_forward_optimized` 从新分配的缓冲区中读取。**不要把重排结果写回 `w.w_gate` 等数组、
+    也不要在原地覆盖它们**。
 
 ```bash
 cd src/lab2
