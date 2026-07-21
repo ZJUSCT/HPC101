@@ -9,6 +9,7 @@
 
 #define N_ITER_WARMUP 10
 
+<<<<<<< HEAD
 int main(int argc, char** argv) {
     // --benchmark (optional, last argument): skip the baseline loop so a
     // profiler sees almost nothing but the optimized implementation.
@@ -50,6 +51,25 @@ int main(int argc, char** argv) {
     w.d_ff = d_ff;
     w.num_experts = num_experts;
     w.top_k = top_k;
+=======
+int main() {
+    float* x = new float[NUM_TOKENS * D_MODEL];
+    float* y = new float[NUM_TOKENS * D_MODEL];
+    float* y_ref = new float[NUM_TOKENS * D_MODEL];
+
+    MoEWeights w;
+    w.w_router = new float[NUM_EXPERTS * D_MODEL];
+    w.bias = new float[NUM_EXPERTS];
+    w.w_gate = new int8_t[(size_t)NUM_EXPERTS * D_FF * D_MODEL];
+    w.w_up = new int8_t[(size_t)NUM_EXPERTS * D_FF * D_MODEL];
+    w.w_down = new int8_t[(size_t)NUM_EXPERTS * D_MODEL * D_FF];
+    w.s_gate = new float[NUM_EXPERTS];
+    w.s_up = new float[NUM_EXPERTS];
+    w.s_down = new float[NUM_EXPERTS];
+    w.sh_gate = new int8_t[(size_t)D_FF * D_MODEL];
+    w.sh_up = new int8_t[(size_t)D_FF * D_MODEL];
+    w.sh_down = new int8_t[(size_t)D_MODEL * D_FF];
+>>>>>>> 0e1a6fe (feat(lab2): adopt DeepSeek-V3 MoE architecture and student-file framework)
 
     // Rotate several input batches through the timed loop so a cached
     // result cannot be reused across iterations.
@@ -106,11 +126,35 @@ int main(int argc, char** argv) {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Warm-up (untimed) so the baseline is not penalized for cold caches
+    // or a not-yet-boosted CPU
+    for (int iter = 0; iter < 5; iter++) {
+        moe_forward_ref(x, w, y_ref);
+    }
+
+    // Reference implementation (baseline)
+>>>>>>> 0e1a6fe (feat(lab2): adopt DeepSeek-V3 MoE architecture and student-file framework)
     auto start_time = std::chrono::high_resolution_clock::now();
     for (int iter = 0; iter < n_iter; iter++) {
         moe_forward_optimized(x_pool[iter % pool], w, y, num_tokens);
     }
     auto end_time = std::chrono::high_resolution_clock::now();
+<<<<<<< HEAD
+=======
+    std::chrono::duration<double> duration_ref = end_time - start_time;
+    std::cout << "Baseline time:  " << duration_ref.count() << " s" << std::endl;
+
+    // Optimized implementation (student/moe_opt.cpp)
+    preprocess(w);
+
+    start_time = std::chrono::high_resolution_clock::now();
+    for (int iter = 0; iter < N_ITER; iter++) {
+        moe_forward_optimized(x, w, y);
+    }
+    end_time = std::chrono::high_resolution_clock::now();
+>>>>>>> 0e1a6fe (feat(lab2): adopt DeepSeek-V3 MoE architecture and student-file framework)
     std::chrono::duration<double> duration_opt = end_time - start_time;
     std::cout << "Optimized time: " << duration_opt.count() << " s" << std::endl;
 

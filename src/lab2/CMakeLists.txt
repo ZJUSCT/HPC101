@@ -9,6 +9,7 @@ include(CheckCXXCompilerFlag)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+<<<<<<< HEAD
 # Framework (driver + scalar reference baseline): fixed portable flags.
 # This is the yardstick every submission is measured against — arch-specific
 # flags must never apply here, or the baseline itself would speed up.
@@ -21,6 +22,15 @@ target_compile_options(framework PRIVATE -O3 -g)
 # apply and the project still builds.
 add_library(student OBJECT student/moe_opt.cpp)
 target_compile_options(student PRIVATE -O3 -g)
+=======
+# Student code lives in student/ — everything else is replaced with the
+# original version when grading.
+add_executable(${PROJECT_NAME} main.cpp src/moe_ref.cpp src/data.cpp
+               student/moe_opt.cpp)
+
+add_executable(${PROJECT_NAME}_bonus bonus.cpp src/moe_ref.cpp src/data.cpp
+               src/lora_ref.cpp src/gradcheck.cpp student/lora_opt.cpp)
+>>>>>>> 0e1a6fe (feat(lab2): adopt DeepSeek-V3 MoE architecture and student-file framework)
 
 # OpenMP is used only by the optimized student implementation.  Keep the
 # scalar framework unchanged so the baseline remains a single-threaded

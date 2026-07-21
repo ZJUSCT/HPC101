@@ -9,11 +9,50 @@
 // makes the per-token quantization scale s_x = max|x| / 127 genuinely vary.
 void init_tokens(float* x, int num_tokens, int d_model, uint64_t seed) {
     std::mt19937 gen(seed);
+<<<<<<< HEAD
     std::normal_distribution<float> dist_x(0.0f, 1.0f);
     for (size_t i = 0; i < (size_t)num_tokens * d_model; i++) {
         float v = dist_x(gen);
         x[i] = v < -4.0f ? -4.0f : (v > 4.0f ? 4.0f : v);
+=======
+    std::uniform_real_distribution<float> dist_x(-1.0f, 1.0f);
+    // Small router weights keep the sigmoid affinities away from saturation,
+    // so expert selection is well-separated and reproducible
+    std::uniform_real_distribution<float> dist_router(-0.2f, 0.2f);
+    std::uniform_real_distribution<float> dist_bias(-0.1f, 0.1f);
+    std::uniform_int_distribution<int> dist_i8(-127, 127);
+    std::uniform_real_distribution<float> dist_scale(0.002f, 0.008f);
+
+    for (size_t i = 0; i < (size_t)NUM_TOKENS * D_MODEL; i++) {
+        x[i] = dist_x(gen);
     }
+    for (size_t i = 0; i < (size_t)NUM_EXPERTS * D_MODEL; i++) {
+        w.w_router[i] = dist_router(gen);
+    }
+    for (int e = 0; e < NUM_EXPERTS; e++) {
+        w.bias[e] = dist_bias(gen);
+>>>>>>> 0e1a6fe (feat(lab2): adopt DeepSeek-V3 MoE architecture and student-file framework)
+    }
+    for (size_t i = 0; i < (size_t)NUM_EXPERTS * D_FF * D_MODEL; i++) {
+        w.w_gate[i] = (int8_t)dist_i8(gen);
+        w.w_up[i] = (int8_t)dist_i8(gen);
+    }
+    for (size_t i = 0; i < (size_t)NUM_EXPERTS * D_MODEL * D_FF; i++) {
+        w.w_down[i] = (int8_t)dist_i8(gen);
+    }
+    for (int e = 0; e < NUM_EXPERTS; e++) {
+        w.s_gate[e] = dist_scale(gen);
+        w.s_up[e] = dist_scale(gen);
+        w.s_down[e] = dist_scale(gen);
+    }
+    for (size_t i = 0; i < (size_t)D_FF * D_MODEL; i++) {
+        w.sh_gate[i] = (int8_t)dist_i8(gen);
+        w.sh_up[i] = (int8_t)dist_i8(gen);
+        w.sh_down[i] = (int8_t)dist_i8(gen);
+    }
+    w.sh_s_gate = dist_scale(gen);
+    w.sh_s_up = dist_scale(gen);
+    w.sh_s_down = dist_scale(gen);
 }
 
 void init_data(float* x, MoEWeights& w, int num_tokens, uint64_t seed) {

@@ -1,52 +1,134 @@
-# BICG-Stable 算法
+# Lab4: AMSS-NCKU
 
-## BICGSTAB Algorithm
+Trimmed AMSS-NCKU numerical relativity lab for the single configuration in
+`AMSS_NCKU_Input.py`:
 
-1. $r_0 = b - \mathbf{A}x_0$
-2. Choose an arbitrary vector $\hat{r_0}$ such that $(\hat{r_0}, r_0)\ne 0$, eg. $\hat{r_0} = r_0$
-3. $\rho_0 = (\hat{r}_0, r_0)$
-4. $p_0 = r_0$
-5. For $i = 1, 2, 3, \ldots$
-    1. $y = \mathbf{M^{-1}} p_{i-1}$
-    2. $v = \mathbf{A}{y}$
-    3. $\alpha = \rho_{i-1} / (\hat{r}_0, v)$
-    4. $h = x_{i-1} + \alpha y$
-    5. $s = r_{i-1} - \alpha v$
-    6. If $s$ is within the accuracy tolerance then $x_{i-1} = h$ and quit.
-    7. $z = \mathbf{M^{-1}} s$
-    8. $t = \mathbf{A}z$
-    9. $\omega = (t, s) / (t, t)$
-    10. $x_i = h + \omega z$
-    11. $r_i = s - \omega t$
-    12. If $r_i$ is within the accuracy tolerance then quit.
-    13. $\rho_i = (\hat{r}_0, r_i)$
-    14. $\beta = (\rho_i / \rho_{i-1}) (\alpha / \omega)$
-    15. $p_i = r_i + \beta (p_{i-1} - \omega v)$
+- CPU evolution executable: `ABE`
+- GPU evolution executable: `ABEGPU`
+- Initial data: `Ansorg-TwoPuncture`
+- Evolution equation: vacuum `BSSN`
+- Grid: `Patch`, cell-centered, equatorial symmetry
+- Finite difference: 4th order
 
-## Baseline 代码介绍
+Both CPU and GPU evolution paths are kept. Old verification scripts and
+reference case files have been removed from this directory.
 
-```text
-.
-├── CMakeLists.txt     # CMake 构建文件
-├── compile.sh         # 编译脚本
-├── include            # 头文件目录
-│   └── judger.h       # 评测器头文件
-├── run.sh             # 运行脚本
-└── src                # 源代码目录
-    ├── bicgstab       # BICGSTAB 算法实现
-    │   ├── solver.c   # C 版本
-    │   └── solver.f90 # Fortran 版本 (如果有)
-    ├── judger.cpp     # 评测器实现
-    └── main.cpp       # 主程序
+## Environment
+
+The container is a Debian 13 box with the toolchain preinstalled. Two
+architectures are shipped:
+
+| Architecture | Hardware | Default toolchain | Executables |
+| ------------ | -------- | ----------------- | ----------- |
+| `linux/arm64` | Kunpeng 920B | GNU 14 + OpenMPI 5, `AMSS_ENABLE_GPU=OFF` | `TwoPunctureABE`, `ABE` |
+| `linux/amd64` | x86_64 + NVIDIA V100 | GNU 13 + OpenMPI 5 + CUDA 12.4, `sm_70` | `TwoPunctureABE`, `ABE`, `ABEGPU` |
+
+x86/V100 uses **CUDA 12.4** (Debian 13 package), **not** CUDA 13 — CUDA 13
+dropped `sm_70` support. NVIDIA driver is **not** in the image; the host
+injects it via NVIDIA Container Toolkit.
+
+### Available compilers (advanced comparison)
+
+The image ships several compiler/MPI combos beyond the default. Switch
+via `CXX` / `FC` / `CUDACXX` / `MPI_CXX_COMPILER` env vars before
+`compile.sh`.
+
+- amd64: `icpx`/`ifx` (after `. /etc/profile.d/oneapi.sh`),
+  `clang++`/`flang-19`, MPICH (`mpicxx.mpich` / `mpiexec.mpich`)
+- arm64: `armclang++`/`armflang` (after `module load acfl/24.10.1`),
+  MPICH (`mpicxx.mpich` / `mpiexec.mpich`)
+
+CMake caches compilers, so switch toolchains with a fresh build dir.
+
+### Switching MPI
+
+Default is OpenMPI. To switch to MPICH (advanced comparison only):
+
+```bash
+export MPI_CXX_COMPILER=/usr/bin/mpicxx.mpich
+export MPIEXEC_EXECUTABLE=/usr/bin/mpiexec.mpich
+export AMSS_MPIEXEC=/usr/bin/mpiexec.mpich
+rm -rf $AMSS_BUILD_DIR      # CMake cache is OpenMPI-specific; MUST use a fresh build dir
+./compile.sh
 ```
 
-**严禁修改计时区**，因此对于 `src/main.cpp` 的修改，请仅限于添加 MPI Init 和 Finialize 的代码。还有 `src/judger.cpp`, `include/judger.h` 不可以修改，其他部分都可以进行修改。
+Switching MPI **requires** a fresh `AMSS_BUILD_DIR` — the existing
+`CMakeCache.txt` records the previous MPI's wrapper path and will fail
+at configure time.
 
-如果希望提交到 OJ 测评，请注意：
+### CUDA-aware MPI
 
-- `src/judger.cpp`, `include/judger.h` 在 OJ 测评时会被替换，因此修改并不会生效。
-- 如果有新增文件并希望可以被 OJ 测评，请将新文件放在 `src` 或 `include` 文件夹中。OJ 会使用的文件为：`src` 文件夹，`include` 文件夹，`CMakeLists.txt`, `run.sh`, `compile.sh`，其他的文件不会生效。
+`AMSS_MPI_CUDA_AWARE` defaults to `0`. Debian OpenMPI/MPICH do not
+advertise CUDA-aware support and the current AMSS code path uses
+host-staging. To experiment, pass `-DAMSS_MPI_CUDA_AWARE=1` to
+`compile.sh` and verify your MPI actually supports device buffers.
 
-在使用 OpenMP 的时候，请记得在 `CMakeLists.txt` 中添加 `-fopenmp` 或者 `-qopenmp` 选项哦。
+### V100 driver and `sm_70`
 
-数据文件在 `/river/hpc101/2025/lab4/data` 中，你可以在代码的根目录下，通过 `ln -s /river/hpc101/2025/lab4/data data` 来引用它们。如果直接复制数据的话，请注意不要向 OJ 或者学在浙大提交数据文件。
+x86/V100 nodes must run NVIDIA driver ≥ `525.60.13` (CUDA 12.x minor
+compatibility floor). The image's `nvcc` targets `sm_70`; verify with
+`cuobjdump` if a kernel fails to load on V100.
+
+## Build
+
+```bash
+./compile.sh
+```
+
+This builds:
+
+- `build/ABE`
+- `build/ABEGPU` (only when `AMSS_ENABLE_GPU=ON`, which is the default on
+  the amd64 image and `OFF` on the arm64 image)
+- `build/TwoPunctureABE`
+
+For a faster debug build:
+
+```bash
+./compile.sh -DAMSS_OPT='-O0'
+```
+
+## Run
+
+```bash
+./run.sh
+```
+
+Optional TwoPuncture cache:
+
+```bash
+./run.sh --twop-cache
+```
+
+The run driver writes results under:
+
+```text
+GW250118/AMSS_NCKU_output/
+GW250118/figure/
+```
+
+## Correctness check
+
+```bash
+./check.sh
+```
+
+`check.sh` resolves `RESULT_DIR` against `AMSS_OUTPUT_ROOT` (or the lab
+root if unset), and `GOLDEN_DIR` against the lab root. The shipped
+`golden/` directory is used by default. Pass an explicit `RESULT_DIR` to
+check a non-default run directory. See `python3 scripts/check_result.py --help`
+for details.
+
+## Main Files
+
+- `AMSS_NCKU_Input.py`: the fixed run parameters
+- `AMSS_NCKU_Program.py`: run driver
+- `scripts/setup.py`, `scripts/numerical_grid.py`,
+  `scripts/generate_TwoPuncture_input.py`, `scripts/renew_puncture_parameter.py`:
+  parfile generation
+- `scripts/makefile_and_run.py`: launches `TwoPunctureABE` and the configured
+  `ABE` or `ABEGPU` executable through MPI
+- `scripts/plot_xiaoqu.py`, `scripts/plot_GW_strain_amplitude_xiaoqu.py`:
+  post-run plots
+- `scripts/check_result.py`: validates simulation output against golden results
+- `src/`: source files still needed to compile `ABE`, `ABEGPU`, and `TwoPunctureABE`
