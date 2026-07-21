@@ -1,0 +1,12 @@
+
+#define tetradtype 2
+
+#define Cell
+
+#define ghost_width 3
+
+#define GAUGE 0
+
+#define CPBC_ghost_width  (ghost_width)
+
+#define ABV 0

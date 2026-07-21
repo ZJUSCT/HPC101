@@ -18,7 +18,8 @@ nav = [
         { "Lab 0: Linux 快速入门" = "lab/Lab0-LinuxCrashCourse/index.md" },
         { "Lab 1: 简单集群搭建" = "lab/Lab1-MiniCluster/index.md" },
         { "Lab 2: MoE 的向量化计算" = "lab/Lab2-Vectorization/index.md"},
-        { "Lab 3: GDN Prefill 前向优化" = "lab/Lab3-GDN-Prefill/index.md" }
+        { "Lab 3: GDN Prefill 前向优化" = "lab/Lab3-GDN-Prefill/index.md" },
+        { "Lab 4: AMSS-NCKU 数值相对论程序优化" = "lab/Lab4-AMSS-NCKU/index.md"}
     ] },
 ]
 
