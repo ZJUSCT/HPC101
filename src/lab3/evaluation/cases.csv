@@ -1,0 +1,9 @@
+name,batch_size,seqlen,num_heads_qk,num_heads_v,use_initial_state,purpose,gate_mode
+short_tail_state,1,1025,2,8,true,benchmark,random_decay
+chain_equal,1,8192,4,4,false,benchmark,random_decay
+parallel_equal,1,2048,16,16,false,benchmark,random_decay
+parallel_gva,1,2048,4,16,false,benchmark,mixed
+long_low_gva,1,32768,2,8,false,benchmark,random_decay
+batch_split_gva,4,8192,2,8,false,benchmark,random_decay
+wide_gva_state,1,8192,16,64,true,benchmark,random_decay
+deep_gva_state,1,16384,8,32,true,benchmark,random_decay
