@@ -1,0 +1,8 @@
+build/
+__pycache__/
+*.pyc
+GW150914*/
+twopuncture_cache/
+*.o
+*.log
+.vscode/
