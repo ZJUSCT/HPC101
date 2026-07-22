@@ -354,7 +354,14 @@ FlashQLA 将作为本实验的主要性能基线，同时也会给出 FLA 和 Fl
 
 - 你需要完成的代码文件位于 `student/tilelang_fwd.py`，你能且仅能修改这个文件。
 - 评测代码位于 `evaluation/run.py`，你可以直接运行该文件以执行测试。
-- 为了简化运行流程以便于 profile，可以使用 `python evaluation/run.py --profile` 来只运行一次你的实现。你也可以自己参考 run.py 写一个简单的调用来 profile。
+
+```bash
+# 输出参考开源实现的时间
+python evaluation/run.py --reference-benchmarks
+
+# 测试单一 case
+python evaluation/run.py --case short_tail_state
+```
 
 ## 如何获取计算资源
 
@@ -362,7 +369,6 @@ FlashQLA 将作为本实验的主要性能基线，同时也会给出 FLA 和 Fl
 2. 创建预设为 `x86-5418Y` 的 DevPod。
 3. 在 DevPod 内进行代码开发。
 4. 由于 GPU 资源有限，DevPod 内不提供 GPU，你可以使用 `hpc submit` 提交任务来调试。
-5. Lab 3 的镜像为 `harbor.s.zjusct.io/public/hpc101-lab3:v26.0`
 
 你可以参考下面的命令
 
@@ -375,8 +381,8 @@ cd hpc101/src/lab3
 hpc submit -p lab3 "python evaluation/run.py"
 
 # 使用 ncu/nsys profile 你的程序
-hpc submit -p lab3 "ncu -o <output_name> python evaluation/run.py --profile"
-hpc submit -p lab3 "nsys profile -o <output_name> python evaluation/run.py --profile"
+hpc submit -p lab3 "ncu -o <output_name> python evaluation/run.py"
+hpc submit -p lab3 "nsys profile -o <output_name> python evaluation/run.py"
 ```
 
 更详细的实验平台使用教程请参考文档 [集群使用](https://hpc101.zjusct.io/guide/)
