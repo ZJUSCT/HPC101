@@ -14,6 +14,13 @@ nav = [
         { "报名与选课" = "enroll.md" },
         { "支持单位" = "sponsors.md" },
     ] },
+    { "集群使用" = [
+        { "登录平台" = "guide/index.md" },
+        { "提交计算任务" = "guide/job.md" },
+        { "提交实验报告" = "guide/submit.md" },
+        { "在线测评 OJ" = "guide/oj.md" },
+        { "集群概况" = "guide/overview.md" },
+    ] },
     { "课程实验" = [
         { "Lab 0: Linux 快速入门" = "lab/Lab0-LinuxCrashCourse/index.md" },
         { "Lab 1: 简单集群搭建" = "lab/Lab1-MiniCluster/index.md" },

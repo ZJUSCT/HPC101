@@ -1,40 +1,38 @@
 # 集群概况
 
-目前集群硬件资源如下：
+课程集群是一个跨三种 CPU 架构的异构集群，通过[统一平台](https://platform.s.zjusct.io)使用。面向课程开放的计算资源按**分区**组织：
 
-- M6 集群 共 5 个节点
-    - CPU (M600,M601)：2 x Intel Silver 4314 16Core @ 2.4GHz (32 核心 64 线程)
-    - CPU (M602,M603,M604)：2 x Intel Gold 5320 26Core @ 2.2GHz (52 核心 104 线程)
-    - 内存：DDR4 256 GB 以上
-    - Ethernet：10 Gbps
-    - Infiniband：HDR 200 Gbps
+## 计算分区
 
-- M7 集群 共 2 个节点
-    - CPU：2 x Intel Gold 5418Y 24Core @ 2.0GHz (48 核心 96 线程)
-    - 内存 DDR5-4800
-    - Ethernet：1 Gbps
+###  Intel x86 (Sapphire Rapids)
 
-- RISC-V 集群 ([**进迭时空**](https://www.spacemit.com/)提供) 共 8 个节点
-    - CPU：Spacemit X60 @ 1.6Ghz
-    - 内存：8GB
-    - Ethernet：100Mbps
+- 节点：`m700`、`m701`，共 2 台
+- CPU：2 × Intel Xeon Gold 5418Y 24 核 @ 2.0GHz（每台 48 核 96 线程）
+- 内存：DDR5-4800
+- 支持 AVX-512、Intel AMX 等指令集扩展
+- GPU：`m701` 附带 NVIDIA H800，以 MIG 实例（`1g.10gb`，10GB 显存）形式提供给 GPU 实验使用
 
+### armv8 — 鲲鹏 920
 
-- V100 集群 共 32 个节点，每个节点有 2 个 GPU
-    - GPU：NVIDIA V100 32GB * 2
-    - Ethernet：10Gbps
-    - Infiniband：HDR 200Gbps
+- 节点：`920b-1/2/3`，共 3 台
+- CPU：Kunpeng 920B，每台 256 核（ARMv8，无 SMT）
+- 内存：每台 512 GB
 
-- 鲲鹏 920 集群 共 1 个节点
-    - CPU：Kunpeng 920 128Core @ 2.6GHz
-    - 内存：DDR4 512 GB
-    - Ethernet：10Gbps
+### riscv — RISC-V ([**进迭时空**](https://www.spacemit.com/)提供)
+
+- 节点：`rv00`–`rv03`，共 4 台开发板
+- CPU：SpacemiT K1（X60 核心，RVV 1.0 向量扩展 + IME 矩阵扩展）
+- 内存：每台 8 GB
+
+!!! note
+
+    各分区是否开放、具体的资源与时长限制随实验安排调整，以 `hpc partitions` 和平台页面显示为准。
 
 ## 存储
 
-集群中有两个位置用于存储文件：
+- **家目录 `~`**：位于专用存储节点的 SSD 阵列上，通过网络文件系统挂载到你的所有 DevPod 和计算任务中，路径一致、内容实时同步。这是**唯一的持久共享存储**，代码、数据和实验结果都放这里。不同物理地域的分区有不同的家目录。
+- **容器临时空间**：家目录之外的路径（如 `/tmp`）是每个容器私有的，有较小的容量限额，容器回收后即消失。
 
-- `~`：6.4T SSD 阵列，你的家目录，权限仅个人，每人限额50G
-- `/river`：和家目录同一个阵列，用于共享文件
+!!! warning
 
-这些位置均跨节点挂载，你可以在任意节点访问这些存储池。
+    请勿在集群存放与课程无关的大文件，重要数据及时本地备份。
