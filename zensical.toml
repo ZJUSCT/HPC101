@@ -14,12 +14,20 @@ nav = [
         { "报名与选课" = "enroll.md" },
         { "支持单位" = "sponsors.md" },
     ] },
+    { "集群使用" = [
+        { "登录平台" = "guide/index.md" },
+        { "提交计算任务" = "guide/job.md" },
+        { "提交实验报告" = "guide/submit.md" },
+        { "在线测评 OJ" = "guide/oj.md" },
+        { "集群概况" = "guide/overview.md" },
+    ] },
     { "课程实验" = [
         { "Lab 0: Linux 快速入门" = "lab/Lab0-LinuxCrashCourse/index.md" },
         { "Lab 1: 简单集群搭建" = "lab/Lab1-MiniCluster/index.md" },
         { "Lab 2: MoE 的向量化计算" = "lab/Lab2-Vectorization/index.md"},
         { "Lab 3: GDN Prefill 前向优化" = "lab/Lab3-GDN-Prefill/index.md" },
-        { "Lab 4: AMSS-NCKU 数值相对论程序优化" = "lab/Lab4-AMSS-NCKU/index.md"}
+        { "Lab 4: AMSS-NCKU 数值相对论程序优化" = "lab/Lab4-AMSS-NCKU/index.md"},
+        { "Lab 5: Gemma4 端到端推理优化" = "lab/Lab5-Gemma4/index.md"}
     ] },
 ]
 
