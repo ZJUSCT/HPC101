@@ -348,6 +348,39 @@ FlashQLA 将作为本实验的主要性能基线，同时也会给出 FLA 和 Fl
 参考。性能分根据多个 case 上的综合表现计算，而不是由某一个 case 的最快结果决定。未通过正确性
 检查、运行出错或超时的 case 不计性能分。
 
+## 实验框架
+
+实验框架代码位于 [HPC101 课程仓库](https://github.com/ZJUSCT/HPC101) 的 `src/lab3` 路径下，详细的文件结构请见 `README.md`。
+
+- 你需要完成的代码文件位于 `student/tilelang_fwd.py`，你能且仅能修改这个文件。
+- 评测代码位于 `evaluation/run.py`，你可以直接运行该文件以执行测试。
+- 为了简化运行流程以便于 profile，可以使用 `python evaluation/run.py --profile` 来只运行一次你的实现。你也可以自己参考 run.py 写一个简单的调用来 profile。
+
+## 如何获取计算资源
+
+1. 登陆[实验平台](https://platform.s.zjusct.io)
+2. 创建预设为 `x86-5418Y` 的 DevPod。
+3. 在 DevPod 内进行代码开发。
+4. 由于 GPU 资源有限，DevPod 内不提供 GPU，你可以使用 `hpc submit` 提交任务来调试。
+5. Lab 3 的镜像为 `harbor.s.zjusct.io/public/hpc101-lab3:v26.0`
+
+你可以参考下面的命令
+
+```bash
+# 在 DevPod 中运行
+git clone https://github.com/zjusct/hpc101
+cd hpc101/src/lab3
+
+# 运行
+hpc submit -p lab3 "python evaluation/run.py"
+
+# 使用 ncu/nsys profile 你的程序
+hpc submit -p lab3 "ncu -o <output_name> python evaluation/run.py --profile"
+hpc submit -p lab3 "nsys profile -o <output_name> python evaluation/run.py --profile"
+```
+
+更详细的实验平台使用教程请参考文档 [集群使用](https://hpc101.zjusct.io/guide/)
+
 ## 实现要求
 
 - 使用 TileLang 完成题目指定的 forward 计算，禁止调用其他实现完成被测计算；
