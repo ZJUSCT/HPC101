@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "model": "checkpoints/gemma-4-12b-gptq-w4a16",
+  "linear_backend": "int4_reference",
+  "dataset": "datasets/quality_public.jsonl",
+  "dataset_sha256": "61f9a48a4b7ee0c0bf9cb415cbcf257ee0d18666787b58dc21f25abdfc99290f",
+  "chunk_size": 128,
+  "bucket_lengths": [
+    128,
+    256,
+    512,
+    1024,
+    2048
+  ],
+  "nll_sum": 48162.00042741141,
+  "token_count": 20418,
+  "sequence_count": 62,
+  "mean_nll": 2.3588010788231664,
+  "perplexity": 10.57826134519387,
+  "by_bucket": {
+    "128": {
+      "nll_sum": 12192.005175849205,
+      "token_count": 4064,
+      "sequence_count": 32,
+      "mean_nll": 3.000001273584942,
+      "perplexity": 20.085562503841334
+    },
+    "256": {
+      "nll_sum": 10032.904324379353,
+      "token_count": 4080,
+      "sequence_count": 16,
+      "mean_nll": 2.4590451775439592,
+      "perplexity": 11.693640856936945
+    },
+    "512": {
+      "nll_sum": 9758.05675484649,
+      "token_count": 4088,
+      "sequence_count": 8,
+      "mean_nll": 2.387000184649337,
+      "perplexity": 10.880804531994839
+    },
+    "1024": {
+      "nll_sum": 8015.193084242679,
+      "token_count": 4092,
+      "sequence_count": 4,
+      "mean_nll": 1.9587470880358453,
+      "perplexity": 7.090437803233414
+    },
+    "2048": {
+      "nll_sum": 8163.841088093686,
+      "token_count": 4094,
+      "sequence_count": 2,
+      "mean_nll": 1.9940989467742272,
+      "perplexity": 7.3455812853552285
+    }
+  }
+}
