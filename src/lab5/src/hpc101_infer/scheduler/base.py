@@ -35,7 +35,7 @@ class ScheduledOutput:
     requests: list[ScheduledRequest]
 
     @property
-    def max_seq_len(self) -> int:
+    def batch_max_length(self) -> int:
         return max(scheduled.request.num_computed_tokens for scheduled in self.requests)
 
 

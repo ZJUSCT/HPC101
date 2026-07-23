@@ -84,7 +84,7 @@ class InferenceEngine:
 
     @torch.inference_mode()
     def prefill(
-        self, input_ids: torch.Tensor, max_seq_len: int | None = None
+        self, input_ids: torch.Tensor, batch_max_length: int | None = None
     ) -> PrefillOutput:
         """
         处理完整 prompt，并把每层 K/V 写入一个全新的 cache。
@@ -104,7 +104,7 @@ class InferenceEngine:
             input_ids=input_ids,
             positions=positions,
             sequence_lengths=sequence_lengths,
-            curr_max_seq_len=max_seq_len or query_length,
+            curr_max_seq_len=batch_max_length or query_length,
             mode="prefill",
         )
         with measure_operation(self.device, self.config.synchronize_metrics) as metrics:
@@ -123,7 +123,7 @@ class InferenceEngine:
     def decode_step(
         self,
         token_ids: torch.Tensor,
-        max_seq_len: int,
+        batch_max_length: int,
         active: torch.Tensor | None = None,
     ) -> DecodeOutput:
         """
@@ -153,7 +153,7 @@ class InferenceEngine:
             input_ids=token_ids,
             positions=positions,
             sequence_lengths=next_lengths,
-            curr_max_seq_len=max_seq_len,
+            curr_max_seq_len=batch_max_length,
             mode="decode",
         )
         with measure_operation(self.device, self.config.synchronize_metrics) as metrics:
@@ -232,7 +232,7 @@ class InferenceEngine:
         if prefill_schedule.mode != "prefill":
             raise RuntimeError("scheduler must begin with a prefill schedule")
         prefill_output = self.prefill(
-            input_ids, max_seq_len=prefill_schedule.max_seq_len
+            input_ids, batch_max_length=prefill_schedule.batch_max_length
         )
         logits = prefill_output.logits
 
@@ -272,7 +272,9 @@ class InferenceEngine:
             )
 
             decode = self.decode_step(
-                token_ids, max_seq_len=decode_schedule.max_seq_len, active=active
+                token_ids,
+                batch_max_length=decode_schedule.batch_max_length,
+                active=active,
             )
             logits = decode.logits
 

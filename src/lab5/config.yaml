@@ -1,0 +1,38 @@
+engine:
+  dtype: bfloat16
+  device: cuda
+  max_batch_size: 1
+  scheduler_batch_size: 1
+  max_sequence_length: 2048
+  linear_backend: bf16
+  scheduler_backend: static_batch
+  seed: 42
+  synchronize_metrics: true
+
+quantization:
+  algorithm: gptq
+  version: 1
+  bits: 4
+  group_size: 128
+  symmetric: true
+  scale_dtype: float16
+  packing: uint8_little_nibble
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  calibration:
+    gptq:
+      block_size: 128
+      damp_percent: 0.01
+  propagate_quantized: true
+
+calibration:
+  path: datasets/calibration-256.jsonl
+  limit: 256
+  micro_batch_size: 1
+  max_tokens: 4096
