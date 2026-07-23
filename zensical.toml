@@ -44,8 +44,6 @@ extra_javascript = [
     "https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js",
     "https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js",
     "javascripts/tablesort.js",
-    "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js",
-    "javascripts/mermaid-init.js",
     "javascripts/v86-init.js",
 ]
 

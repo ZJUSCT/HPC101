@@ -1,47 +1,52 @@
-#!/usr/bin/env bash
+#!/bin/bash
+# compile.sh — portable build driver for AMSS-NCKU Lab 4.
+#
+# Toolchain comes from environment (CC/CXX/FC/MPI_CXX_COMPILER/CUDACXX) or
+# PATH (mpicxx/mpifort). AMSS_* vars are forwarded to CMake only when set.
+# Build directory: AMSS_BUILD_DIR (default <lab-root>/build), relative to
+# lab root. Extra args (e.g. -DAMSS_ENABLE_GPU=ON) override at the end.
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BUILD_DIR="${BUILD_DIR:-build}"
-JOBS="${JOBS:-$(nproc)}"
+ROOT_DIR="$(pwd)"
 CMAKE="${CMAKE:-cmake}"
-DEFAULT_MPI_BIN="/home/jjsnam/spack/opt/spack/linux-icelake/openmpi-5.0.9-nd3t2hacw7x7xkmrtqkzr4gxxr54isly/bin"
-DEFAULT_CUDA_NVCC="/usr/local/cuda-13.3/bin/nvcc"
+JOBS="${JOBS:-$(nproc 2>/dev/null || echo 2)}"
 
-cd "$ROOT_DIR"
-
-if ! command -v "$CMAKE" >/dev/null 2>&1; then
-  echo "error: cmake not found on PATH" >&2
-  exit 1
-fi
-
-# if [[ -f "$BUILD_DIR/CMakeCache.txt" ]] &&
-#    { grep -q 'CMAKE_Fortran_COMPILER.*NOTFOUND' "$BUILD_DIR/CMakeCache.txt" ||
-#      grep -q 'CMAKE_CXX_COMPILER:.*=/usr/bin/c++' "$BUILD_DIR/CMakeCache.txt"; }; then
-#   echo "==> Removing stale CMake cache with invalid compiler settings"
-#   rm -f "$BUILD_DIR/CMakeCache.txt"
-#   rm -rf "$BUILD_DIR/CMakeFiles"
-# fi
+# Resolve build directory relative to the lab root.
+BUILD_DIR="${AMSS_BUILD_DIR:-$ROOT_DIR/build}"
+case "$BUILD_DIR" in
+  /*) : ;;
+   *) BUILD_DIR="$ROOT_DIR/$BUILD_DIR" ;;
+esac
 
 cmake_args=()
-if [[ -z "${CXX:-}" && -x "$DEFAULT_MPI_BIN/mpicxx" ]]; then
-  cmake_args+=("-DCMAKE_CXX_COMPILER=$DEFAULT_MPI_BIN/mpicxx")
+# MPI wrapper wins over plain CXX — the wrapper carries the right MPI flags
+# and include paths. Setting both to different values is almost always a
+# mistake, so warn instead of silently letting CXX override the wrapper.
+if [[ -n "${MPI_CXX_COMPILER:-}" && -n "${CXX:-}" && "${MPI_CXX_COMPILER}" != "${CXX}" ]]; then
+  echo "warning: both MPI_CXX_COMPILER ($MPI_CXX_COMPILER) and CXX ($CXX) are set;" >&2
+  echo "         using MPI_CXX_COMPILER for the C++ compiler (MPI wrapper)." >&2
 fi
-if [[ -z "${CC:-}" && -x "$DEFAULT_MPI_BIN/mpicc" ]]; then
-  cmake_args+=("-DCMAKE_C_COMPILER=$DEFAULT_MPI_BIN/mpicc")
+if [[ -n "${MPI_CXX_COMPILER:-}" ]]; then
+  cmake_args+=("-DCMAKE_CXX_COMPILER=$MPI_CXX_COMPILER")
+elif [[ -n "${CXX:-}" ]]; then
+  cmake_args+=("-DCMAKE_CXX_COMPILER=$CXX")
 fi
-if [[ -z "${FC:-}" && -x "$DEFAULT_MPI_BIN/mpifort" ]]; then
-  cmake_args+=("-DCMAKE_Fortran_COMPILER=$DEFAULT_MPI_BIN/mpifort")
-fi
-if [[ -z "${CUDACXX:-}" && -x "$DEFAULT_CUDA_NVCC" ]]; then
-  cmake_args+=("-DCMAKE_CUDA_COMPILER=$DEFAULT_CUDA_NVCC")
-fi
+[[ -n "${FC:-}" ]]                && cmake_args+=("-DCMAKE_Fortran_COMPILER=$FC")
+[[ -n "${CUDACXX:-}" ]]           && cmake_args+=("-DCMAKE_CUDA_COMPILER=$CUDACXX")
+[[ -n "${AMSS_ENABLE_GPU:-}" ]]    && cmake_args+=("-DAMSS_ENABLE_GPU=$AMSS_ENABLE_GPU")
+[[ -n "${AMSS_CUDA_ARCHITECTURES:-}" ]] && cmake_args+=("-DCMAKE_CUDA_ARCHITECTURES=$AMSS_CUDA_ARCHITECTURES")
+[[ -n "${AMSS_ARCH_FLAGS:-}" ]]    && cmake_args+=("-DAMSS_ARCH_FLAGS=$AMSS_ARCH_FLAGS")
+[[ -n "${AMSS_ENABLE_OPENMP:-}" ]] && cmake_args+=("-DAMSS_ENABLE_OPENMP=$AMSS_ENABLE_OPENMP")
+[[ -n "${AMSS_MPI_CUDA_AWARE:-}" ]] && cmake_args+=("-DAMSS_MPI_CUDA_AWARE=$AMSS_MPI_CUDA_AWARE")
 
-echo "==> Configure: $CMAKE -B $BUILD_DIR -S . ${cmake_args[*]} $*"
-"$CMAKE" -B "$BUILD_DIR" -S . "${cmake_args[@]}" "$@"
+echo "==> Configure: $CMAKE -S \"$ROOT_DIR\" -B \"$BUILD_DIR\" ${cmake_args[*]:-} $*"
+"$CMAKE" -S "$ROOT_DIR" -B "$BUILD_DIR" "${cmake_args[@]}" "$@"
 
-echo "==> Build: $CMAKE --build $BUILD_DIR -j $JOBS"
+echo "==> Build: $CMAKE --build \"$BUILD_DIR\" -j $JOBS"
 "$CMAKE" --build "$BUILD_DIR" -j "$JOBS"
 
 echo "==> Built executables:"
-ls -lh "$BUILD_DIR"/TwoPunctureABE "$BUILD_DIR"/ABE "$BUILD_DIR"/ABEGPU
+ls -lh "$BUILD_DIR/TwoPunctureABE" "$BUILD_DIR/ABE"
+if [[ -f "$BUILD_DIR/ABEGPU" ]]; then
+  ls -lh "$BUILD_DIR/ABEGPU"
+fi

@@ -4,9 +4,9 @@
 
 ```text
 src/lab3
+├── run.py                            # 测试入口与结果输出
 ├── evaluation                        # 测试、正确性检查与性能测量
 │   ├── cases.csv                     # 公开测试 case 配置
-│   ├── run.py                        # 测试入口与结果输出
 │   └── support.py                    # 输入生成、正确性比较和计时辅助函数
 ├── preprocessing                     # 计时区外的 GDN 预处理
 │   ├── tilelang_cumsum.py            # 使用 TileLang 计算 gate 的分块前缀和

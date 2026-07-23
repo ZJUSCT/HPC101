@@ -348,6 +348,45 @@ FlashQLA 将作为本实验的主要性能基线，同时也会给出 FLA 和 Fl
 参考。性能分根据多个 case 上的综合表现计算，而不是由某一个 case 的最快结果决定。未通过正确性
 检查、运行出错或超时的 case 不计性能分。
 
+## 实验框架
+
+实验框架代码位于 [HPC101 课程仓库](https://github.com/ZJUSCT/HPC101) 的 `src/lab3` 路径下，详细的文件结构请见 `README.md`。
+
+- 你需要完成的代码文件位于 `student/tilelang_fwd.py`，你能且仅能修改这个文件。
+- 评测代码位于 `evaluation/run.py`，你可以直接运行该文件以执行测试。
+
+```bash
+# 输出参考开源实现的时间
+python evaluation/run.py --reference-benchmarks
+
+# 测试单一 case
+python evaluation/run.py --case short_tail_state
+```
+
+## 如何获取计算资源
+
+1. 登陆[实验平台](https://platform.s.zjusct.io)
+2. 创建预设为 `x86-5418Y` 的 DevPod。
+3. 在 DevPod 内进行代码开发。
+4. 由于 GPU 资源有限，DevPod 内不提供 GPU，你可以使用 `hpc submit` 提交任务来调试。
+
+你可以参考下面的命令
+
+```bash
+# 在 DevPod 中运行
+git clone https://github.com/zjusct/hpc101
+cd hpc101/src/lab3
+
+# 运行
+hpc submit -p lab3 "python evaluation/run.py"
+
+# 使用 ncu/nsys profile 你的程序
+hpc submit -p lab3 "ncu -o <output_name> python evaluation/run.py"
+hpc submit -p lab3 "nsys profile -o <output_name> python evaluation/run.py"
+```
+
+更详细的实验平台使用教程请参考文档 [集群使用](https://hpc101.zjusct.io/guide/)
+
 ## 实现要求
 
 - 使用 TileLang 完成题目指定的 forward 计算，禁止调用其他实现完成被测计算；
@@ -388,6 +427,28 @@ FlashQLA 将作为本实验的主要性能基线，同时也会给出 FLA 和 Fl
 注意：实验代码可用 Agent 辅助完成，因此请认真撰写实验报告，在实验报告中重点体现你的思路、分析和思考，而不是仅仅用 Agent 生成报告。这将成为你在实验中的主要评分依据。
 
 ## OJ 自动评测
+
+!!! info "OJ 评分指标"
+
+    OJ 总体采用与 Lab 2 类似的分段曲线进行评分。对于每个 case，横轴定义为提交实现相对于 100 分 checkpoint 的加速比：
+
+    $$
+    p=\frac{t_{100}}{t},
+    $$
+
+    其中，$t$ 为提交实现的核心计算时间，$t_{100}$ 为该 case 的最快的开源实现对应的运行时间。性能超过最快的开源实现时 $p>1$，并进入 100～120 分的奖励区间。60 分 turning point 为 $p_{60}=t_{100}/t_{60}$。
+
+    8 个公开 case 的 60 分和 100 分 turning point 如下，表中时间单位均为 ms：
+
+    | Checkpoint | `short_tail_state` | `chain_equal` | `parallel_equal` | `parallel_gva` | `long_low_gva` | `batch_split_gva` | `wide_gva_state` | `deep_gva_state` |
+    | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+    | 60 分 | 0.573952 | 3.999968 | 2.017248 | 1.899072 | 15.825312 | 11.320448 | 20.600449 | 22.717567 |
+    | 100 分 | 0.346048 | 0.497792 | 0.511264 | 0.491552 | 1.858816 | 1.532128 | 2.426656 | 2.831104 |
+
+    此外，评测还包含未公开的隐藏 case。公开 case 与隐藏 case 的部分得分，均由各自包含的所有 case 得分取简单算术平均得到。最终得分由这两部分加权计算，其中公开 case 占 60%，隐藏 case 占 40%。
+
+
+
 
 !!! warning "施工中"
 

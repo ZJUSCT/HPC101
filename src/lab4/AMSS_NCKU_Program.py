@@ -17,6 +17,12 @@
 ## parfile) and skip re-running the solver when the inputs are unchanged.
 ## Default (unset): TwoPuncture always runs.
 ##
+## Path overrides (relative paths resolve against the lab root):
+##   AMSS_BUILD_DIR    build output          (default: <lab4>/build)
+##   AMSS_OUTPUT_ROOT  run directory parent  (default: <lab4>)
+##   AMSS_CACHE_DIR    TwoPuncture cache root (default: <lab4>/twopuncture_cache)
+##   AMSS_MPIEXEC      MPI launcher          (default: mpiexec)
+##
 ##################################################################
 
 import hashlib
@@ -31,8 +37,58 @@ matplotlib.use("Agg")          # headless: write figures to files, no display
 import AMSS_NCKU_Input as input_data
 
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
-BUILD_DIR = os.path.join(REPO_ROOT, "build")
-SRC_DIR   = os.path.join(REPO_ROOT, "src")
+
+
+def _resolve_under_root(value, default):
+    """Resolve a path under the lab root. Absolute values are kept; relative
+    values are joined to REPO_ROOT. Empty/unset values fall back to default."""
+    if not value:
+        value = default
+    if os.path.isabs(value):
+        return os.path.abspath(value)
+    return os.path.abspath(os.path.join(REPO_ROOT, value))
+
+
+BUILD_DIR    = _resolve_under_root(os.environ.get("AMSS_BUILD_DIR"),
+                                   os.path.join(REPO_ROOT, "build"))
+OUTPUT_ROOT   = _resolve_under_root(os.environ.get("AMSS_OUTPUT_ROOT"),
+                                     REPO_ROOT)
+CACHE_ROOT   = _resolve_under_root(os.environ.get("AMSS_CACHE_DIR"),
+                                   os.path.join(REPO_ROOT, "twopuncture_cache"))
+SRC_DIR       = os.path.join(REPO_ROOT, "src")
+
+
+def _protected_paths():
+    """Canonical paths that run directories must not equal or contain."""
+    candidates = [
+        "/",
+        os.path.expanduser("~"),
+        REPO_ROOT,
+        OUTPUT_ROOT,
+        BUILD_DIR,
+        CACHE_ROOT,
+    ]
+    return {os.path.realpath(p) for p in candidates}
+
+
+def _safe_rmtree(path):
+    """Remove a directory tree, refusing to touch protected paths.
+
+    The top-level path is realpath()'d first so we never follow a symlink
+    out of the intended tree, and we refuse if the resolved path equals
+    or contains any protected path."""
+    real = os.path.realpath(path)
+    protected = _protected_paths()
+    if real in protected:
+        sys.exit(f" Refusing to delete protected path: {path} "
+                 f"(resolves to {real})")
+    for p in protected:
+        if real == p or p.startswith(real + os.sep):
+            sys.exit(f" Refusing to delete {path}: it contains or equals "
+                     f"protected path {p}")
+    shutil.rmtree(path, ignore_errors=True)
+
+
 os.chdir(REPO_ROOT)
 
 ##################################################################
@@ -63,14 +119,28 @@ os.environ["OMP_NUM_THREADS"] = str(input_data.OMP_threads)
 
 ## TwoPuncture initial-data cache (opt-in, for fast debugging)
 TWOP_CACHE   = os.environ.get("AMSS_NCKU_TWOP_CACHE", "") == "1"
-CACHE_ROOT   = os.path.join(REPO_ROOT, "twopuncture_cache")
 TWOP_OUTPUTS = ("Ansorg.psid", "puncture_parameters_new.txt")
 
 ##################################################################
 ## (Re)create the output directory tree
 
-File_directory = input_data.File_directory
-shutil.rmtree(File_directory, ignore_errors=True)
+# Resolve the run directory against AMSS_OUTPUT_ROOT. Absolute paths in
+# AMSS_NCKU_Input.py are honored; relative paths join to OUTPUT_ROOT.
+# Write the resolved absolute path back to input_data.File_directory so
+# downstream helper scripts (setup, numerical_grid, generate_TwoPuncture_input,
+# renew_puncture_parameter) that read input_data.File_directory directly
+# pick up the absolute path without needing container-specific copies.
+if os.path.isabs(input_data.File_directory):
+    File_directory = os.path.abspath(input_data.File_directory)
+else:
+    File_directory = os.path.join(OUTPUT_ROOT, input_data.File_directory)
+input_data.File_directory = File_directory
+
+print(f"==> Build    : {BUILD_DIR}")
+print(f"==> Output   : {File_directory}")
+print(f"==> Cache    : {CACHE_ROOT}")
+
+_safe_rmtree(File_directory)
 os.mkdir(File_directory)
 shutil.copy("AMSS_NCKU_Input.py", File_directory)
 
@@ -85,7 +155,7 @@ print(" Output directory has been generated\n")
 ##################################################################
 ## Generate parameter info and the ABE input parfile
 
-import setup
+from scripts import setup
 
 setup.print_input_data(File_directory)
 setup.generate_AMSSNCKU_input()
@@ -93,7 +163,7 @@ setup.print_puncture_information()
 
 print("\n Generating the AMSS-NCKU input parfile for the ABE executable.\n")
 
-import numerical_grid
+from scripts import numerical_grid
 
 numerical_grid.append_AMSSNCKU_cgh_input()
 numerical_grid.plot_initial_grid()
@@ -104,7 +174,7 @@ numerical_grid.plot_initial_grid()
 shutil.copy2(abe_built,  os.path.join(output_directory, abe_name))
 shutil.copy2(twop_built, os.path.join(output_directory, "TwoPunctureABE"))
 
-import makefile_and_run
+from scripts import makefile_and_run
 
 ##################################################################
 ## Run the TwoPuncture initial-data solver (or reuse a cached result)
@@ -113,7 +183,7 @@ start_time = time.time()
 
 print("\n Initial data method: Ansorg-TwoPuncture\n")
 
-import generate_TwoPuncture_input
+from scripts import generate_TwoPuncture_input
 generate_TwoPuncture_input.generate_AMSSNCKU_TwoPuncture_input()
 
 twop_parfile = os.path.join(output_directory, "TwoPunctureinput.par")
@@ -127,8 +197,8 @@ if TWOP_CACHE:
     cache_dir = os.path.join(CACHE_ROOT, key)
 
 cache_hit = (cache_dir is not None and
-             all(os.path.isfile(os.path.join(cache_dir, f))
-                 for f in TWOP_OUTPUTS))
+            all(os.path.isfile(os.path.join(cache_dir, f))
+                for f in TWOP_OUTPUTS))
 
 if cache_hit:
     print(f" TwoPuncture cache hit ({key}); reusing cached initial data")
@@ -136,9 +206,11 @@ if cache_hit:
         shutil.copy2(os.path.join(cache_dir, f),
                      os.path.join(output_directory, f))
 else:
-    os.chdir(output_directory)
-    makefile_and_run.run_TwoPunctureABE()
-    os.chdir(REPO_ROOT)
+    try:
+        os.chdir(output_directory)
+        makefile_and_run.run_TwoPunctureABE()
+    finally:
+        os.chdir(REPO_ROOT)
     missing_twop = [f for f in TWOP_OUTPUTS
                     if not os.path.isfile(os.path.join(output_directory, f))]
     if missing_twop:
@@ -155,7 +227,7 @@ else:
 ## Update puncture parameters from the TwoPuncture output, then
 ## assemble the final ABE input parfile
 
-import renew_puncture_parameter
+from scripts import renew_puncture_parameter
 
 renew_puncture_parameter.append_AMSSNCKU_BSSN_input(File_directory, output_directory)
 
@@ -165,9 +237,11 @@ shutil.copy2(os.path.join(File_directory, "AMSS-NCKU.input"),
 ##################################################################
 ## Run the ABE evolution
 
-os.chdir(output_directory)
-makefile_and_run.run_ABE()
-os.chdir(REPO_ROOT)
+try:
+    os.chdir(output_directory)
+    makefile_and_run.run_ABE()
+finally:
+    os.chdir(REPO_ROOT)
 
 elapsed_time = time.time() - start_time
 
@@ -187,8 +261,8 @@ for name in ("bssn_BH.dat", "bssn_ADMQs.dat", "bssn_psi4.dat", "bssn_constraint.
 
 print("\n Plotting the AMSS-NCKU simulation results\n")
 try:
-    import plot_xiaoqu
-    import plot_GW_strain_amplitude_xiaoqu
+    from scripts import plot_xiaoqu
+    from scripts import plot_GW_strain_amplitude_xiaoqu
 
     plot_xiaoqu.generate_puncture_orbit_plot(binary_results_directory, figure_directory)
     plot_xiaoqu.generate_puncture_orbit_plot3D(binary_results_directory, figure_directory)

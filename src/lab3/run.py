@@ -9,7 +9,7 @@ from pathlib import Path
 
 import torch
 
-from .support import (
+from evaluation.support import (
     DEFAULT_REPETITIONS,
     DEFAULT_WARMUP,
     Case,
@@ -18,13 +18,15 @@ from .support import (
     load_cases,
     make_inputs,
 )
-from ..preprocessing.tilelang_cumsum import chunk_local_cumsum
-from ..preprocessing.tilelang_kkt_solve import kkt_solve
-from ..references.torch_gdr import ref_chunk_gated_delta_rule
-from ..student.tilelang_fwd import gdn_prefill_forward
+from preprocessing.tilelang_cumsum import chunk_local_cumsum
+from preprocessing.tilelang_kkt_solve import kkt_solve
+from references.torch_gdr import ref_chunk_gated_delta_rule
+from student.tilelang_fwd import gdn_prefill_forward
 
 
-DEFAULT_CASES = Path(__file__).with_name("cases.csv")
+
+
+DEFAULT_CASES = Path(__file__).parent / "evaluation" / "cases.csv"
 ANSI_GREEN = "\033[32m"
 ANSI_RED = "\033[31m"
 ANSI_RESET = "\033[0m"
@@ -131,9 +133,9 @@ def _benchmark(
 
 def _load_full_implementations() -> dict[str, tuple[str, FullForward]]:
 
-    from ..references.official.fla import chunk_gated_delta_rule as fla
-    from ..references.official.flash_qla import chunk_gated_delta_rule as flash_qla
-    from ..references.official.flashinfer import chunk_gated_delta_rule as flashinfer
+    from references.official.fla import chunk_gated_delta_rule as fla
+    from references.official.flash_qla import chunk_gated_delta_rule as flash_qla
+    from references.official.flashinfer import chunk_gated_delta_rule as flashinfer
 
     return {
         "student": ("Student", chunk_gated_delta_rule),
