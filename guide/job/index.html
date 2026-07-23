@@ -1,0 +1,1676 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/guide/job/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../submit/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="zensical-0.0.43">
+    
+    
+      
+        <title>提交计算任务 - HPC101</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.fba56155.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  <script>
+    (function () {
+      try {
+        var saved = (typeof __md_get === "function") ? __md_get("__palette") : null;
+        var scheme;
+        if (saved && saved.color && saved.color.media) {
+          if (saved.color.media === "(prefers-color-scheme)") {
+            scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+          } else {
+            scheme = saved.color.scheme;
+          }
+        } else {
+          scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+        }
+        document.documentElement.setAttribute("data-md-color-scheme", scheme);
+        var attach = function () {
+          document.body.setAttribute("data-md-color-scheme", scheme);
+          new MutationObserver(function () {
+            var s = document.body.getAttribute("data-md-color-scheme");
+            if (s) document.documentElement.setAttribute("data-md-color-scheme", s);
+          }).observe(document.body, {
+            attributes: true,
+            attributeFilter: ["data-md-color-scheme"],
+          });
+        };
+        if (document.body) {
+          attach();
+        } else {
+          new MutationObserver(function (_, obs) {
+            if (document.body) {
+              attach();
+              obs.disconnect();
+            }
+          }).observe(document.documentElement, { childList: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script>
+    // Track keydown listeners added on window so v86 can later remove
+    // Material's global handler that would otherwise capture key presses
+    // intended for the in-browser Linux VM.
+    (function () {
+      window.__v86KeydownListeners = [];
+      var origAdd = window.addEventListener;
+      var origRemove = window.removeEventListener;
+      window.addEventListener = function (type, listener, options) {
+        origAdd.call(this, type, listener, options);
+        if (type === "keydown") {
+          window.__v86KeydownListeners.push({ listener: listener, options: options });
+        }
+      };
+      window.removeEventListener = function (type, listener, options) {
+        origRemove.call(this, type, listener, options);
+        if (type === "keydown") {
+          var i = window.__v86KeydownListeners.findIndex(function (e) {
+            return e.listener === listener;
+          });
+          if (i !== -1) window.__v86KeydownListeners.splice(i, 1);
+        }
+      };
+    })();
+  </script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#提交计算任务" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101" class="md-header__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              提交计算任务
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  集群使用
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../lab/Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101" class="md-nav__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    HPC101
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程信息
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程信息
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  欢迎来到 HPC 101 超算短学期
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../enroll/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  报名与选课
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sponsors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  支持单位
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群使用
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  集群使用
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  登录平台
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交计算任务
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交计算任务
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#分区" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        分区
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#提交任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="提交任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#直接运行命令" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        直接运行命令
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#环境变量sbatch-语义" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        环境变量（sbatch 语义）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#提交脚本sbatch-风格" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交脚本（sbatch 风格）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#交互式任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        交互式任务
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#工作目录sbatch-语义" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        工作目录（sbatch 语义）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#输出与日志" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        输出与日志
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#查看与管理" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        查看与管理
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#完整示例" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        完整示例
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../submit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交实验报告
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  在线测评 OJ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群概况
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程实验
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lab/Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 0: Linux 快速入门
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lab/Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 1: 简单集群搭建
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lab/Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 2: MoE 的向量化计算
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lab/Lab3-GDN-Prefill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3: GDN Prefill 前向优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lab/Lab4-AMSS-NCKU/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4: AMSS-NCKU 数值相对论程序优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lab/Lab5-Gemma4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 5: Gemma4 端到端推理优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#分区" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        分区
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#提交任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="提交任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#直接运行命令" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        直接运行命令
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#环境变量sbatch-语义" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        环境变量（sbatch 语义）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#提交脚本sbatch-风格" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交脚本（sbatch 风格）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#交互式任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        交互式任务
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#工作目录sbatch-语义" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        工作目录（sbatch 语义）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#输出与日志" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        输出与日志
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#查看与管理" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        查看与管理
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#完整示例" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        完整示例
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/guide/job.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="提交计算任务">提交计算任务<a class="headerlink" href="#提交计算任务" title="Permanent link">&para;</a></h1>
+<p>DevPod 适合编辑、编译和小规模调试，但它的资源是受限的。需要完整算力（整机核数、独占绑核、GPU）时，需要把程序作为<strong>计算任务</strong>提交到分区队列中运行。</p>
+<p>在 DevPod 内使用 <code>hpc</code> 命令提交和管理任务。它的用法是 Slurm 风格的，如果你用过 Slurm 会觉得很熟悉：</p>
+<div class="admonition tip">
+<p class="admonition-title">Tips for agent</p>
+<p><code>hpc skills</code> 显示 <code>hpc</code> 的用法。</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Slurm</th>
+<th>hpc</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sinfo</code></td>
+<td><code>hpc partitions</code>（别名 <code>hpc sinfo</code>）</td>
+<td>查看分区容量、限制、可用镜像</td>
+</tr>
+<tr>
+<td><code>srun cmd</code></td>
+<td><code>hpc submit cmd</code></td>
+<td>运行一条命令并实时输出</td>
+</tr>
+<tr>
+<td><code>sbatch job.sh</code></td>
+<td><code>hpc submit job.sh</code></td>
+<td>提交脚本，<code>#HPC</code> 指令设置参数</td>
+</tr>
+<tr>
+<td><code>srun --pty bash</code></td>
+<td><code>hpc submit --interactive bash</code> + <code>hpc attach</code></td>
+<td>交互式任务</td>
+</tr>
+<tr>
+<td><code>squeue</code></td>
+<td><code>hpc squeue</code></td>
+<td>查看排队/运行中的任务</td>
+</tr>
+<tr>
+<td><code>scancel</code></td>
+<td><code>hpc cancel</code></td>
+<td>取消任务</td>
+</tr>
+</tbody>
+</table>
+<p>在同一个物理区域内，任务和 DevPod <strong>共享同一个家目录</strong>，故在 DevPod 里准备好代码，直接 <code>hpc submit</code> 即可在计算节点上运行。</p>
+<h2 id="分区">分区<a class="headerlink" href="#分区" title="Permanent link">&para;</a></h2>
+<p>任务提交到<strong>分区</strong>（partition）。用下面的命令查看你能用的分区、它们的资源范围和排队情况：</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>hpc<span class="w"> </span>partitions<span class="w">   </span><span class="c1"># 分区容量、CPU/GPU/内存/时长限制、允许的镜像</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>hpc<span class="w"> </span>limits<span class="w">       </span><span class="c1"># 每个分区对「你」的限制（可申请的资源范围、同时任务数上限）</span>
+</span></code></pre></div>
+<p>各实验开放的分区以实验文档和平台页面为准。不指定 <code>-p</code> 时任务会进入默认分区。</p>
+<h2 id="提交任务">提交任务<a class="headerlink" href="#提交任务" title="Permanent link">&para;</a></h2>
+<h3 id="直接运行命令">直接运行命令<a class="headerlink" href="#直接运行命令" title="Permanent link">&para;</a></h3>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>intels4<span class="w"> </span>-c<span class="w"> </span><span class="m">4</span><span class="w"> </span>-m<span class="w"> </span>8Gi<span class="w"> </span>./build/myprog
+</span></code></pre></div>
+<p>任务会排队、启动，然后把输出实时流回你的终端，结束后返回（退出码就是你命令的退出码）。加 <code>-d</code>（detach）则只打印任务号立即返回。默认只显示任务自己的输出；加 <code>--events</code> 可以看到排队位置、调度事件等横幅。</p>
+<div class="admonition warning">
+<p class="admonition-title">hpc 的参数必须写在命令前面</p>
+<p>从第一个非选项参数（你的命令）开始，后面的内容会<strong>原样传给你的程序</strong>（引号也会保留），不再被 <code>hpc</code> 解析：</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>hpc<span class="w"> </span>submit<span class="w"> </span>uname<span class="w"> </span>-a<span class="w">                        </span><span class="c1"># -a 传给 uname</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>hpc<span class="w"> </span>submit<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span>-p<span class="w"> </span><span class="m">80</span><span class="w">    </span><span class="c1"># -m、-p 80 都传给 python3</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-c<span class="w"> </span><span class="m">4</span><span class="w"> </span>-p<span class="w"> </span>intels4<span class="w"> </span>uname<span class="w"> </span>-a<span class="w">        </span><span class="c1"># -c/-p 是 hpc 的，-a 是 uname 的</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>hpc<span class="w"> </span>submit<span class="w"> </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;echo $HOSTNAME &amp;&amp; date&#39;</span><span class="w">  </span><span class="c1"># 引号里的脚本原样交给 bash</span>
+</span></code></pre></div>
+<p>多个参数会像 <code>srun</code> 一样<strong>不经 shell 直接执行</strong>。要用管道、<code>&amp;&amp;</code> 等 shell 语法，
+写成一个带引号的整行，或者写进脚本提交：</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>hpc<span class="w"> </span>submit<span class="w"> </span><span class="s1">&#39;make -j &amp;&amp; ./run.sh&#39;</span>
+</span></code></pre></div>
+</div>
+<p>常用参数：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-p, --partition</code></td>
+<td>目标分区（省略则用默认分区）</td>
+</tr>
+<tr>
+<td><code>-c, --cpu N</code></td>
+<td>CPU 核数</td>
+</tr>
+<tr>
+<td><code>-g, --gpu N</code></td>
+<td>GPU 数（仅支持 GPU 的分区）</td>
+</tr>
+<tr>
+<td><code>-m, --mem SIZE</code></td>
+<td>内存，如 <code>8Gi</code></td>
+</tr>
+<tr>
+<td><code>-t, --time DUR</code></td>
+<td>最长运行时长，如 <code>30m</code>、<code>1h30m</code></td>
+</tr>
+<tr>
+<td><code>-i, --image</code></td>
+<td>容器镜像（须在分区允许列表内，默认取第一个）</td>
+</tr>
+<tr>
+<td><code>-e, --env K=V,…</code></td>
+<td>额外环境变量（覆盖继承的同名变量）</td>
+</tr>
+<tr>
+<td><code>--export ALL\|NONE</code></td>
+<td>环境继承（见下，默认 ALL）</td>
+</tr>
+<tr>
+<td><code>-o, --output PATH</code></td>
+<td>输出文件（见下；<code>-</code> = 明确不落文件）</td>
+</tr>
+<tr>
+<td><code>-n, --name</code></td>
+<td>任务显示名</td>
+</tr>
+<tr>
+<td><code>-d, --detach</code></td>
+<td>提交后立即返回任务号，不流式输出</td>
+</tr>
+<tr>
+<td><code>--interactive</code></td>
+<td>交互式任务（见下）</td>
+</tr>
+<tr>
+<td><code>--events</code></td>
+<td>显示排队/调度横幅（默认只显示任务自己的输出）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="环境变量sbatch-语义">环境变量（sbatch 语义）<a class="headerlink" href="#环境变量sbatch-语义" title="Permanent link">&para;</a></h3>
+<p>默认情况下（<code>--export=ALL</code>），提交时 shell 的<strong>整个环境跟着任务走</strong>——在 DevPod 里
+<code>export OMP_NUM_THREADS=8</code> 之后提交，任务里直接生效，和 <code>sbatch</code> 一致（会话类变量如
+<code>SSH_*</code>、<code>HOSTNAME</code>、<code>HOME</code> 除外）。<code>PATH</code> 会与任务镜像自带的 PATH <strong>合并</strong>：你的工具
+优先命中，镜像里的（如 CUDA 的 <code>nvcc</code>）也不会丢。<code>-e K=V</code> 覆盖继承的同名变量；
+<code>--export=NONE</code> 则只传 <code>-e</code> 给出的变量。</p>
+<h3 id="提交脚本sbatch-风格">提交脚本（sbatch 风格）<a class="headerlink" href="#提交脚本sbatch-风格" title="Permanent link">&para;</a></h3>
+<p>把参数写进脚本的 <code>#HPC</code> 指令（也兼容 <code>#SBATCH</code> 写法），直接提交脚本文件。脚本必须以
+<code>#!</code> 开头，并且<strong>按它的 shebang 解释器执行</strong>——<code>#!/bin/bash</code> 就跑在 bash 里，
+<code>#!/usr/bin/env python3</code> 也可以：</p>
+<div class="language-shell highlight"><span class="filename">job.sh</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="ch">#!/bin/bash</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1">#HPC --partition=intels4</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1">#HPC --cpu=8</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1">#HPC --mem=16Gi</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1">#HPC --time=30m</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1">#HPC --output=result_%j.log</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>make<span class="w"> </span>-j
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>./build/myprog
+</span></code></pre></div>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>hpc<span class="w"> </span>submit<span class="w"> </span>job.sh
+</span></code></pre></div>
+<p>命令行上显式给出的参数优先于脚本内的指令。</p>
+<h3 id="交互式任务">交互式任务<a class="headerlink" href="#交互式任务" title="Permanent link">&para;</a></h3>
+<p>需要一个「在计算节点上的 shell」时（类似 <code>srun --pty bash</code> / <code>salloc</code>）：</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>intels4<span class="w"> </span>-c<span class="w"> </span><span class="m">8</span><span class="w"> </span>--interactive<span class="w"> </span>bash
+</span></code></pre></div>
+<p>任务启动后自动进入终端；断开后可以随时用任务号重新接入：</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>hpc<span class="w"> </span>attach<span class="w"> </span>&lt;任务号&gt;
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>交互式任务同样占用你的任务配额并受时长限制，用完请 <code>exit</code> 或 <code>hpc cancel</code>，不要让它空挂。</p>
+</div>
+<h3 id="工作目录sbatch-语义">工作目录（sbatch 语义）<a class="headerlink" href="#工作目录sbatch-语义" title="Permanent link">&para;</a></h3>
+<p>任务在<strong>你提交时所在的目录</strong>中运行（相对家目录）。在 <code>~/lab2</code> 下执行 <code>hpc submit</code>，任务的工作目录就是 <code>~/lab2</code>。</p>
+<p>注意：只有家目录是共享存储。如果你在家目录之外提交，任务看不到那里的文件，会回退到 <code>~</code> 运行（提交时会有警告）。</p>
+<h2 id="输出与日志">输出与日志<a class="headerlink" href="#输出与日志" title="Permanent link">&para;</a></h2>
+<p>输出去向和 Slurm 一致，按提交模式分：</p>
+<ul>
+<li><strong>前台提交</strong>（默认，<code>srun</code> 语义）：输出只流回你的终端，<strong>不写文件</strong>。要留档加 <code>-o</code>。</li>
+<li><strong>后台提交</strong>（<code>-d</code>，<code>sbatch</code> 语义）：stdout/stderr 写入<strong>工作目录下的持久文件</strong>，默认 <code>j&lt;任务号&gt;.out</code>，可用 <code>-o</code> 自定义。</li>
+</ul>
+<p>文件名支持占位符：</p>
+<table>
+<thead>
+<tr>
+<th>占位符</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>%j</code></td>
+<td>任务号</td>
+</tr>
+<tr>
+<td><code>%u</code></td>
+<td>用户名</td>
+</tr>
+<tr>
+<td><code>%x</code></td>
+<td>任务名</td>
+</tr>
+<tr>
+<td><code>%Y %m %d %H %M %S</code></td>
+<td>提交时间</td>
+</tr>
+</tbody>
+</table>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-d<span class="w"> </span>-o<span class="w"> </span>result_%j.log<span class="w"> </span>...
+</span></code></pre></div>
+<p><code>hpc logs &lt;任务号&gt;</code>（<code>-f</code> 跟随）看的是容器的<strong>实时日志</strong>——它在任务结束、容器被回收后就没有了。要留档请用 <code>-d</code> 或 <code>-o</code> 落文件。</p>
+<p>任务的最终状态反映你的命令的退出码。</p>
+<h2 id="查看与管理">查看与管理<a class="headerlink" href="#查看与管理" title="Permanent link">&para;</a></h2>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>hpc<span class="w"> </span>ls<span class="w">               </span><span class="c1"># 我的任务列表（-s STATE 过滤状态）</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>hpc<span class="w"> </span>squeue<span class="w">           </span><span class="c1"># 全体用户的活跃任务</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>hpc<span class="w"> </span>info<span class="w"> </span>&lt;任务号&gt;<span class="w">     </span><span class="c1"># 任务详情（状态、节点、资源）</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>hpc<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>&lt;任务号&gt;<span class="w">  </span><span class="c1"># 实时日志</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>hpc<span class="w"> </span>cancel<span class="w"> </span>&lt;任务号&gt;<span class="w">   </span><span class="c1"># 取消（别名 hpc rm）</span>
+</span></code></pre></div>
+<p>这些信息在平台的「任务」「队列」页面上也都能看到，网页上同样可以提交任务和查看实时输出。</p>
+<h2 id="完整示例">完整示例<a class="headerlink" href="#完整示例" title="Permanent link">&para;</a></h2>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># 编译（在 DevPod 里）</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nb">cd</span><span class="w"> </span>~/lab2<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>-j
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># 前台提交，输出直接流回终端（srun 风格,不落文件）</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>intels4<span class="w"> </span>-c<span class="w"> </span><span class="m">8</span><span class="w"> </span>-m<span class="w"> </span>16Gi<span class="w"> </span>-t<span class="w"> </span>30m<span class="w"> </span>./build/benchmark
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># 后台提交，输出落到 ~/lab2/j&lt;id&gt;.out（sbatch 风格）</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-d<span class="w"> </span>-c<span class="w"> </span><span class="m">8</span><span class="w"> </span>./build/benchmark
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>hpc<span class="w"> </span>ls
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>cat<span class="w"> </span>~/lab2/j123.out
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="c1"># 前台但也想留档</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-o<span class="w"> </span>run_%j.log<span class="w"> </span>./build/benchmark
+</span></code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: 登录平台">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                登录平台
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../submit/" class="md-footer__link md-footer__link--next" aria-label="Next: 提交实验报告">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                提交实验报告
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.action.edit","content.code.annotate","content.code.copy","content.code.select","navigation.expand","navigation.footer","navigation.instant","navigation.instant.prefetch","navigation.instant.progress","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight","search.share","search.suggest","toc.follow"],"search":"../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6e5f0216.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="../../javascripts/v86-init.js"></script>
+      
+    
+  </body>
+</html>

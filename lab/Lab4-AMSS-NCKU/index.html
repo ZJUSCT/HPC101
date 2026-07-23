@@ -1,0 +1,3368 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab4-AMSS-NCKU/">
+      
+      
+        <link rel="prev" href="../Lab3-GDN-Prefill/">
+      
+      
+        <link rel="next" href="../Lab5-Gemma4/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="zensical-0.0.43">
+    
+    
+      
+        <title>实验四：AMSS-NCKU 数值相对论程序优化 - HPC101</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.fba56155.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  <script>
+    (function () {
+      try {
+        var saved = (typeof __md_get === "function") ? __md_get("__palette") : null;
+        var scheme;
+        if (saved && saved.color && saved.color.media) {
+          if (saved.color.media === "(prefers-color-scheme)") {
+            scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+          } else {
+            scheme = saved.color.scheme;
+          }
+        } else {
+          scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+        }
+        document.documentElement.setAttribute("data-md-color-scheme", scheme);
+        var attach = function () {
+          document.body.setAttribute("data-md-color-scheme", scheme);
+          new MutationObserver(function () {
+            var s = document.body.getAttribute("data-md-color-scheme");
+            if (s) document.documentElement.setAttribute("data-md-color-scheme", s);
+          }).observe(document.body, {
+            attributes: true,
+            attributeFilter: ["data-md-color-scheme"],
+          });
+        };
+        if (document.body) {
+          attach();
+        } else {
+          new MutationObserver(function (_, obs) {
+            if (document.body) {
+              attach();
+              obs.disconnect();
+            }
+          }).observe(document.documentElement, { childList: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script>
+    // Track keydown listeners added on window so v86 can later remove
+    // Material's global handler that would otherwise capture key presses
+    // intended for the in-browser Linux VM.
+    (function () {
+      window.__v86KeydownListeners = [];
+      var origAdd = window.addEventListener;
+      var origRemove = window.removeEventListener;
+      window.addEventListener = function (type, listener, options) {
+        origAdd.call(this, type, listener, options);
+        if (type === "keydown") {
+          window.__v86KeydownListeners.push({ listener: listener, options: options });
+        }
+      };
+      window.removeEventListener = function (type, listener, options) {
+        origRemove.call(this, type, listener, options);
+        if (type === "keydown") {
+          var i = window.__v86KeydownListeners.findIndex(function (e) {
+            return e.listener === listener;
+          });
+          if (i !== -1) window.__v86KeydownListeners.splice(i, 1);
+        }
+      };
+    })();
+  </script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#实验四amss-ncku-数值相对论程序优化" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101" class="md-header__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              实验四：AMSS-NCKU 数值相对论程序优化
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guide/" class="md-tabs__link">
+          
+  
+  集群使用
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101" class="md-nav__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    HPC101
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程信息
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程信息
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  欢迎来到 HPC 101 超算短学期
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../enroll/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  报名与选课
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sponsors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  支持单位
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群使用
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  集群使用
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  登录平台
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交计算任务
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/submit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交实验报告
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  在线测评 OJ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群概况
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程实验
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 0: Linux 快速入门
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 1: 简单集群搭建
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 2: MoE 的向量化计算
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab3-GDN-Prefill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3: GDN Prefill 前向优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4: AMSS-NCKU 数值相对论程序优化
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4: AMSS-NCKU 数值相对论程序优化
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验目的
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#背景介绍" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        背景介绍
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="背景介绍">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#amss-ncku-是什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AMSS-NCKU 是什么
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#测试用例gw250118" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        测试用例：GW250118
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#流程简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        流程简介
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#性能分析从-profiling-开始" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能分析：从 Profiling 开始
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="性能分析：从 Profiling 开始">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cpu-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        CPU Profile
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CPU Profile">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kunpeng-920b使用-perf-分析-cpu-优化路径" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Kunpeng 920B：使用 perf 分析 CPU 优化路径
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a100-节点主机端使用-intel-vtune-分析完整调用链和热点函数" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A100 节点主机端：使用 Intel VTune 分析完整调用链和热点函数
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gpu-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GPU Profile
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GPU Profile">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#使用-nsight-systems-分析-cpumpi-与-gpu-时间线" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        使用 Nsight Systems 分析 CPU、MPI 与 GPU 时间线
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#使用-nsight-compute-分析热点-kernel" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        使用 Nsight Compute 分析热点 kernel
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#共享优化阶段twopuncture-初值求解" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        共享优化阶段：TwoPuncture 初值求解
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="共享优化阶段：TwoPuncture 初值求解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#编译优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        编译优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="编译优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#编译选项" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        编译选项
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#编译器与工具链" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        编译器与工具链
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#初值求解优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        初值求解优化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#twopuncture-gpu-化bonus" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TwoPuncture GPU 化（Bonus）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务一abe-cpu-演化优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务一：ABE CPU 演化优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务一：ABE CPU 演化优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#abe-并行结构优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ABE 并行结构优化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abe-计算-kernel-优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ABE 计算 kernel 优化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#通信优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        通信优化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务二abegpu-gpu-演化优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务二：ABEGPU GPU 演化优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务二：ABEGPU GPU 演化优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kernel-形态与编译参数" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Kernel 形态与编译参数
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#访存优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        访存优化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-拆分融合与批处理" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Kernel 拆分、融合与批处理
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kernel 拆分、融合与批处理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#拆分巨型-kernel" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        拆分巨型 kernel
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#融合连续的不同操作" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        融合连续的不同操作
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#跨变量批处理相同操作" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        跨变量批处理相同操作
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stream-与异步执行" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Stream 与异步执行
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gpu-与-mpi" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GPU 与 MPI
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#修改范围与限制" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        修改范围与限制
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#代码框架" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        代码框架
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="代码框架">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#关键源文件" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        关键源文件
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#构建与运行" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        构建与运行
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="构建与运行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cpu--gpu-模式切换" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        CPU / GPU 模式切换
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#twopuncture-缓存" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TwoPuncture 缓存
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#输出目录" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        输出目录
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#如何获取计算资源" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        如何获取计算资源
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="如何获取计算资源">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#关于实验环境" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        关于实验环境
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#开发与运行" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        开发与运行
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="开发与运行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#家目录注意事项" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        家目录注意事项
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#评分方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评分方式
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="评分方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#正确性验证" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        正确性验证
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#性能评分" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能评分
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="性能评分">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#任务一" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务一
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#任务二" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务二
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验报告要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验报告要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#思考题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        思考题
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#提交要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        参考资料
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab5-Gemma4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 5: Gemma4 端到端推理优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验目的
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#背景介绍" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        背景介绍
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="背景介绍">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#amss-ncku-是什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AMSS-NCKU 是什么
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#测试用例gw250118" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        测试用例：GW250118
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#流程简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        流程简介
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#性能分析从-profiling-开始" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能分析：从 Profiling 开始
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="性能分析：从 Profiling 开始">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cpu-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        CPU Profile
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CPU Profile">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kunpeng-920b使用-perf-分析-cpu-优化路径" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Kunpeng 920B：使用 perf 分析 CPU 优化路径
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a100-节点主机端使用-intel-vtune-分析完整调用链和热点函数" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A100 节点主机端：使用 Intel VTune 分析完整调用链和热点函数
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gpu-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GPU Profile
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GPU Profile">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#使用-nsight-systems-分析-cpumpi-与-gpu-时间线" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        使用 Nsight Systems 分析 CPU、MPI 与 GPU 时间线
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#使用-nsight-compute-分析热点-kernel" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        使用 Nsight Compute 分析热点 kernel
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#共享优化阶段twopuncture-初值求解" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        共享优化阶段：TwoPuncture 初值求解
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="共享优化阶段：TwoPuncture 初值求解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#编译优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        编译优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="编译优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#编译选项" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        编译选项
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#编译器与工具链" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        编译器与工具链
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#初值求解优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        初值求解优化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#twopuncture-gpu-化bonus" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TwoPuncture GPU 化（Bonus）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务一abe-cpu-演化优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务一：ABE CPU 演化优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务一：ABE CPU 演化优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#abe-并行结构优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ABE 并行结构优化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abe-计算-kernel-优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ABE 计算 kernel 优化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#通信优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        通信优化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务二abegpu-gpu-演化优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务二：ABEGPU GPU 演化优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务二：ABEGPU GPU 演化优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kernel-形态与编译参数" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Kernel 形态与编译参数
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#访存优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        访存优化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-拆分融合与批处理" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Kernel 拆分、融合与批处理
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kernel 拆分、融合与批处理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#拆分巨型-kernel" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        拆分巨型 kernel
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#融合连续的不同操作" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        融合连续的不同操作
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#跨变量批处理相同操作" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        跨变量批处理相同操作
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stream-与异步执行" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Stream 与异步执行
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gpu-与-mpi" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GPU 与 MPI
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#修改范围与限制" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        修改范围与限制
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#代码框架" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        代码框架
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="代码框架">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#关键源文件" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        关键源文件
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#构建与运行" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        构建与运行
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="构建与运行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cpu--gpu-模式切换" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        CPU / GPU 模式切换
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#twopuncture-缓存" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TwoPuncture 缓存
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#输出目录" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        输出目录
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#如何获取计算资源" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        如何获取计算资源
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="如何获取计算资源">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#关于实验环境" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        关于实验环境
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#开发与运行" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        开发与运行
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="开发与运行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#家目录注意事项" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        家目录注意事项
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#评分方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评分方式
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="评分方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#正确性验证" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        正确性验证
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#性能评分" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能评分
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="性能评分">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#任务一" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务一
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#任务二" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务二
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验报告要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验报告要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#思考题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        思考题
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#提交要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        参考资料
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab4-AMSS-NCKU/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="实验四amss-ncku-数值相对论程序优化">实验四：AMSS-NCKU 数值相对论程序优化<a class="headerlink" href="#实验四amss-ncku-数值相对论程序优化" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">实验信息</p>
+<p><strong>负责助教</strong>：</p>
+<ul>
+<li><strong>任务一（CPU）</strong>：黄钰，胡笠桁，井淳</li>
+<li><strong>任务二（GPU）</strong>：刘天洋，胡笠桁，徐晨</li>
+</ul>
+</div>
+<h2 id="实验目的">实验目的<a class="headerlink" href="#实验目的" title="Permanent link">&para;</a></h2>
+<p>前几个实验中，我们主要围绕较小、较清晰的计算 kernel 进行优化，比如向量化、CUDA 编程、模型推理等。
+本次实验会有更大挑战。你将接近真实的科学计算工作流，面对一个经过裁剪但仍然较大的数值相对论程序
+<strong>AMSS-NCKU</strong>，在不改变物理问题和数值结果的前提下，分析并优化它在 CPU 和 GPU 上的运行性能。</p>
+<p>完成本实验后，你应当能够：</p>
+<ul>
+<li>了解一个真实科学计算程序从参数生成、初值求解、时间演化到结果后处理的基本流程；</li>
+<li>使用性能分析工具找出大型程序中的热点并做针对性优化；</li>
+<li>在多进程、多线程、向量化和访存局部性等优化手段之间合理取舍；</li>
+<li>在 GPU 上分析 kernel 性能、数据搬运和并行粒度，并尝试优化一个综合的 GPU 程序；</li>
+<li>用数值正确性约束自己的优化，避免为了速度破坏科学计算结果。</li>
+</ul>
+<h2 id="背景介绍">背景介绍<a class="headerlink" href="#背景介绍" title="Permanent link">&para;</a></h2>
+<h3 id="amss-ncku-是什么">AMSS-NCKU 是什么<a class="headerlink" href="#amss-ncku-是什么" title="Permanent link">&para;</a></h3>
+<p>AMSS-NCKU 是<strong>中国首个自主研发</strong>的数值相对论计算程序，用于数值求解爱因斯坦场方程，模拟黑洞等强引力系统的时空演化，并从模拟结果中提取引力波信号。
+它由中国科学院数学与系统科学研究院（AMSS）和成功大学（NCKU）等单位的研究者长期开发。</p>
+<figure>
+  <a class="glightbox" data-type="image" href="image/binary-black-hole.webp"><img alt="双黑洞并合示意图" src="image/binary-black-hole.webp" /></a>
+<br />
+<figcaption>双黑洞并合示意图。<a href="https://mp.weixin.qq.com/s/5F24M9nuCbNM0d0hqeb0Sg">图源</a>。</figcaption>
+</figure>
+<p>在数值相对论中，双黑洞和多黑洞系统是典型的强非线性问题：黑洞附近需要很高的空间分辨率，远处又要保留足够大的计算区域来传播和提取引力波。
+AMSS-NCKU 使用有限差分方法和自适应网格细化（AMR）技术来处理这种多尺度结构。AMR 不会在整个计算区域使用同样精细的网格，而是在黑洞附近等需要高分辨率的区域逐级加密，在远区保留较粗的网格。不同层级之间需要进行 prolongation、restriction 和 ghost zone 数据交换，这些操作也会成为后续并行与访存优化需要关注的部分。</p>
+<figure>
+  <a class="glightbox" data-type="image" href="image/adaptive-mesh-refinement.jpg"><img alt="自适应网格细化（AMR）示意图" src="image/adaptive-mesh-refinement.jpg" /></a>
+<br />
+<figcaption>自适应网格细化通过局部加密同时覆盖不同空间尺度。<a href="https://zhuanlan.zhihu.com/p/557345775">图源</a>。</figcaption>
+</figure>
+<p>程序首先通过 TwoPuncture 方法生成双黑洞初始数据，然后在网格上推进 BSSN 等演化方程，周期性输出黑洞轨迹、约束量、ADM 量和引力波相关数据。</p>
+<p>AMSS-NCKU 代码中，核心计算跨越 C++、Fortran、CUDA、MPI 和 Python。C++ 负责网格、patch 管理、通信和整体控制，Fortran 保留了大量 CPU 数值 kernel，CUDA 版本提供 GPU 计算路径，Python 脚本则负责生成输入、启动程序、整理输出和画图。
+原始项目后来还加入了更友好的 Python 操作接口，用于自动化初始化、运行和可视化流程。</p>
+<p>AMSS-NCKU 也被用作 <a href="https://www.asc-events.net/StudentChallenge/ASC26/preliminary.php">ASC26 世界大学生超级计算机竞赛</a> 的赛题之一。
+不过在本实验里，你不需要完整复现竞赛题目；我们会使用裁剪后的课程版本，保留一组固定的双黑洞配置、CPU/GPU 两套演化路径，以及必要的初值生成和后处理脚本。
+你要优化的不是某一个孤立 kernel 或代码片段，而是一条完整的科学计算流水线：输入参数生成、TwoPuncture 初值求解、BSSN 时间演化、MPI 通信、CPU/GPU kernel、结果整理和可视化。
+因此，本实验会关注端到端时间；在报告中，你也应当解释你的优化如何影响整个程序，而不是只报告某个局部函数的加速。</p>
+<div class="admonition info">
+<p class="admonition-title">代码来源与致谢</p>
+<p>本实验基于 AMSS-NCKU 原始程序构建，并根据 HPC101 课程需求进行了针对性调整。原始仓库为
+<a href="https://github.com/xiaoqu0000/NR-amssncku">xiaoqu0000/NR-amssncku</a>，使用
+<a href="https://github.com/xiaoqu0000/NR-amssncku/blob/main/LICENSE">LGPL-2.1</a> 许可证。
+本课程在使用和裁剪 AMSS-NCKU 作为教学实验前，已经征得目前项目的主要维护者<strong>乔琛凯（重庆理工大学）</strong>老师的许可。</p>
+<p>实验源码中的 C++ / Fortran 代码和整体计算框架著作权归原作者团队所有。为了适配本实验，浙江大学超算队（ZJUSCT）在原始框架上进行了裁剪，并实现/改造了 GPU 相关代码、CMake 构建脚本、运行脚本和测试用例等。除非特别说明，文档和实验框架中的这些课程适配部分由 ZJUSCT 维护。</p>
+</div>
+<h3 id="测试用例gw250118">测试用例：GW250118<a class="headerlink" href="#测试用例gw250118" title="Permanent link">&para;</a></h3>
+<p>本次实验以近两年的真实引力波事件 <strong>GW250118</strong> 作为测试用例的物理背景。
+更准确地说，这里参考的是 GWTC-5.0 中的 <code>GW250118_055802</code>，即 2025 年 1 月 18 日 05:58:02 UTC 探测到的一个双黑洞并合候选事件。
+根据 <a href="https://gwosc.org/eventapi/html/GWTC-5.0/GW250118_055802/v1/">GWOSC 的公开事件页面</a>，该事件的主、次黑洞质量约为 <span class="arithmatex">\(10.3 M_\odot\)</span> 和 <span class="arithmatex">\(6.9 M_\odot\)</span>，网络信噪比约为 10.5，光度距离约为 940 Mpc，天体物理概率大于 0.99。</p>
+<p>本实验使用的是一个以该事件为背景、经过裁剪和调整的双黑洞测试用例。数值相对论程序会使用无量纲变量，课程测试还缩小了网格、演化时间和输出规模，因此它并不试图严格复现 GW250118 的观测结果。你在 <code>AMSS_NCKU_Input.py</code> 中看到的参数也经过了简化，以适配课程提供的硬件资源。</p>
+<div class="admonition note">
+<p class="admonition-title">关于黑洞演化时间</p>
+<p>本实验的优化任务设计 CPU 和 GPU 两个平台。由于 CPU 单步演化的时间可能远大于 GPU 演化，因此在硬件资源有限的情况下我们无法支撑你在 CPU 平台上完整模拟整个引力波事件。目前演化时间的选择逻辑如下：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">Final_Evolution_Time</span>     <span class="o">=</span> <span class="mf">100.0</span> <span class="k">if</span> <span class="n">GPU_Calculation</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span> <span class="k">else</span> <span class="mf">40.0</span>  <span class="c1">## final evolution time t1</span>
+</span></code></pre></div>
+<p>也就是说，在 CPU 平台你只会模拟不到一半的时间，完整的演化将在 GPU 任务中实现。</p>
+</div>
+<h3 id="流程简介">流程简介<a class="headerlink" href="#流程简介" title="Permanent link">&para;</a></h3>
+<div class="admonition note">
+<p class="admonition-title">本实验的固定数值设定</p>
+<p>当前框架使用 <code>Ansorg-TwoPuncture</code> 初值方法和 vacuum <code>BSSN</code> 演化方程；网格为 <code>Patch</code> 结构、cell-centered 布局，并使用 equatorial symmetry；空间离散采用 4th order finite difference，时间推进采用 Runge-Kutta 积分方法。</p>
+</div>
+<p>程序的大致流程如下。初值生成完成后，程序根据 <code>GPU_Calculation</code> 选择 CPU 或 GPU 演化路径；两条路径产生相同类型的数值结果，并进入统一的整理与后处理流程。</p>
+<style>
+.lab4-flowchart {
+  display: grid;
+  align-items: start;
+}
+
+.lab4-flowchart__diagram {
+  grid-area: 1 / 1;
+  min-width: 0;
+  transition: opacity 0.15s ease;
+}
+
+.lab4-flowchart__diagram--light {
+  visibility: visible;
+  opacity: 1;
+}
+
+.lab4-flowchart__diagram--dark {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-md-color-scheme="default"] .lab4-flowchart__diagram--light {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+[data-md-color-scheme="default"] .lab4-flowchart__diagram--dark {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-md-color-scheme="slate"] .lab4-flowchart__diagram--light {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-md-color-scheme="slate"] .lab4-flowchart__diagram--dark {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+</style>
+
+<div class="lab4-flowchart">
+<div class="lab4-flowchart__diagram lab4-flowchart__diagram--light">
+<pre class="mermaid"><code>%%{init: {"theme": "default", "htmlLabels": false, "themeVariables": {"lineColor": "#527aa3", "edgeLabelBackground": "#ffffff", "primaryTextColor": "#17212b"}}}%%
+flowchart LR
+    A["AMSS_NCKU_Input.py&lt;br/&gt;实验参数"] --&gt; B["生成 parfile&lt;br/&gt;与初始网格"]
+    B --&gt; C["TwoPunctureABE&lt;br/&gt;双黑洞初值"]
+    C --&gt; D{"GPU_Calculation"}
+    D --&gt;|no| E["ABE&lt;br/&gt;CPU 演化"]
+    D --&gt;|yes| F["ABEGPU&lt;br/&gt;GPU 演化"]
+    E --&gt; G["binary_output&lt;br/&gt;原始数值结果"]
+    F --&gt; G
+    G --&gt; H["复制关键结果&lt;br/&gt;绘图与正确性检查"]
+
+    classDef input fill:#e3f2fd,stroke:#3975a7,color:#17212b;
+    classDef compute fill:#e4f5e9,stroke:#4b8a62,color:#17212b;
+    classDef decision fill:#f0e5fa,stroke:#7b5a9a,color:#17212b;
+    classDef output fill:#fff1d6,stroke:#a06c20,color:#17212b;
+    class A,B input;
+    class C,E,F compute;
+    class D decision;
+    class G,H output;
+    linkStyle default stroke:#527aa3,stroke-width:2px;</code></pre>
+</div>
+<div class="lab4-flowchart__diagram lab4-flowchart__diagram--dark">
+<pre class="mermaid"><code>%%{init: {"theme": "dark", "htmlLabels": false, "themeVariables": {"lineColor": "#8fb3d9", "edgeLabelBackground": "#334155", "primaryTextColor": "#ffffff"}}}%%
+flowchart LR
+    A["AMSS_NCKU_Input.py&lt;br/&gt;实验参数"] --&gt; B["生成 parfile&lt;br/&gt;与初始网格"]
+    B --&gt; C["TwoPunctureABE&lt;br/&gt;双黑洞初值"]
+    C --&gt; D{"GPU_Calculation"}
+    D --&gt;|no| E["ABE&lt;br/&gt;CPU 演化"]
+    D --&gt;|yes| F["ABEGPU&lt;br/&gt;GPU 演化"]
+    E --&gt; G["binary_output&lt;br/&gt;原始数值结果"]
+    F --&gt; G
+    G --&gt; H["复制关键结果&lt;br/&gt;绘图与正确性检查"]
+
+    classDef input fill:#244f7a,stroke:#9ccfff,color:#ffffff;
+    classDef compute fill:#246040,stroke:#9ee6b8,color:#ffffff;
+    classDef decision fill:#5a3e78,stroke:#d8b4fe,color:#ffffff;
+    classDef output fill:#75501a,stroke:#f7c873,color:#ffffff;
+    class A,B input;
+    class C,E,F compute;
+    class D decision;
+    class G,H output;
+    linkStyle default stroke:#8fb3d9,stroke-width:2px;</code></pre>
+</div>
+</div>
+<p><code>TwoPunctureABE</code> 负责生成初始数据，<code>ABE</code> 是 CPU 版本主演化程序，<code>ABEGPU</code> 是 GPU 版本主演化程序。原始演化结果写入 <code>binary_output/</code>，随后由 Python driver 复制关键数据并尝试生成结果图。</p>
+<div class="admonition note">
+<p class="admonition-title">本实验不考察相对论物理推导</p>
+<p>你不需要理解 BSSN 方程的完整物理推导，也不需要修改物理模型。
+本实验关注的是：面对一个由 C++、Fortran、CUDA、MPI 和 Python 共同组成的科学计算程序，如何跑通、验证、定位热点并持续优化。</p>
+</div>
+<h2 id="性能分析从-profiling-开始">性能分析：从 Profiling 开始<a class="headerlink" href="#性能分析从-profiling-开始" title="Permanent link">&para;</a></h2>
+<p>面对 AMSS-NCKU 这样的大型程序，正确的优化流程通常是：</p>
+<ol>
+<li>跑通 baseline；</li>
+<li>记录 baseline 时间；</li>
+<li>使用 profiler 找热点；</li>
+<li>做一个小而明确的优化；</li>
+<li>验证正确性；</li>
+<li>重新计时并记录收益；</li>
+<li>重复上述过程。</li>
+</ol>
+<div class="admonition tip">
+<p class="admonition-title">报告中应展示 profiling 证据，而不仅是最终加速比。</p>
+</div>
+<h3 id="cpu-profile">CPU Profile<a class="headerlink" href="#cpu-profile" title="Permanent link">&para;</a></h3>
+<p>本实验涉及两套不同的 CPU 环境：CPU 优化路径运行在华为鲲鹏 920B （ARM 架构）上，GPU 优化路径的主机端则运行在 A100 节点配套的 x86 CPU 上。两者可以使用的 profiler 和分析目的不尽相同。</p>
+<h4 id="kunpeng-920b使用-perf-分析-cpu-优化路径">Kunpeng 920B：使用 perf 分析 CPU 优化路径<a class="headerlink" href="#kunpeng-920b使用-perf-分析-cpu-优化路径" title="Permanent link">&para;</a></h4>
+<p><code>TwoPunctureABE + ABE</code> 在华为鲲鹏 920B 上评测。可以使用 <code>perf</code> 和平台提供的通用 Linux 工具分析 CPU 计算与 MPI 行为；加入 OpenMP 后，也可以观察线程并行效果。</p>
+<p>AMSS-NCKU 的调用链跨越 Python driver、TwoPuncture 和 MPI 主演化程序。应先对<strong>完整 baseline</strong> 采样，确认端到端时间分布，再对热点阶段或代表性 MPI rank 做更细的分析。只分析一个预先猜测的函数，可能会漏掉初始化、通信、线程等待和 I/O 开销。</p>
+<div class="admonition tip">
+<p class="admonition-title">perf 使用示例</p>
+<p>可以先用 <code>perf stat</code> 查看完整运行的硬件计数器，再用 <code>perf record</code> 采集热点和调用栈：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>perf<span class="w"> </span>stat<span class="w"> </span>-d<span class="w"> </span>./run.sh
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>perf<span class="w"> </span>record<span class="w"> </span>--call-graph<span class="w"> </span>dwarf<span class="w"> </span>--<span class="w"> </span>./run.sh
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>perf<span class="w"> </span>report
+</span></code></pre></div>
+</div>
+<p><code>run.sh</code> 会继续启动 Python、TwoPuncture 和 <code>mpirun</code> 子进程。采样后应确认报告确实包含 <code>TwoPunctureABE</code> 和 <code>ABE</code>；若受权限、MPI 启动方式或采样开销限制，也可以直接对实际的 <code>mpirun ... ./ABE</code> 命令采样，并在报告中写明覆盖范围、rank 数、线程数和绑核配置。建议在编译选项中加入 <code>-g</code> 参数，使热点能够对应到函数、源文件和代码行。</p>
+<p>重点观察：</p>
+<ul>
+<li>哪些函数和调用路径占用最多时间；</li>
+<li>程序是计算瓶颈、访存瓶颈还是通信/同步瓶颈；</li>
+<li>IPC、cache miss、TLB miss、branch miss 是否异常；</li>
+<li>MPI rank 之间是否负载均衡；</li>
+<li>加入 OpenMP 后，线程是否有效并行；</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">从 Sampling 到 Tracing</p>
+<p><code>perf stat</code> 统计硬件和软件事件，<code>perf record</code> 则按采样频率记录热点及调用栈。火焰图通常需要对采样得到的调用栈进一步处理，它不是 <code>perf</code> 自动生成的原始结果。</p>
+<p>Tracing（追踪）记录带时间戳的事件或插桩区间，可以重建线程、进程和设备活动的先后关系，适合分析同步、等待和负载不均衡。VTune、Nsight Systems 和 Perfetto 等工具都可以用于不同形式的 tracing。更细的采集通常意味着更高开销；可以根据分析目标选择系统级事件、运行时事件或手工插桩，而不必记录所有函数。</p>
+</div>
+<h4 id="a100-节点主机端使用-intel-vtune-分析完整调用链和热点函数">A100 节点主机端：使用 Intel VTune 分析完整调用链和热点函数<a class="headerlink" href="#a100-节点主机端使用-intel-vtune-分析完整调用链和热点函数" title="Permanent link">&para;</a></h4>
+<p><code>TwoPunctureABE + ABEGPU</code> 运行在 NVIDIA A100 节点上，其主机端为 x86 CPU。VTune 用于观察这个 GPU 程序的主机端热点、调用栈、线程活动和 MPI 相关等待，帮助判断时间消耗在 Python/TwoPuncture、主机端控制逻辑、MPI 调用，还是 CUDA runtime/API。这里的目标是理解整个程序的主机侧执行过程，而不是用 VTune 分析 CUDA kernel 内部指标。</p>
+<p>若在各 rank 内分别启动 VTune，必须使用不同的结果目录。采集完成后，可以将结果下载到本地，用 VTune GUI 查看 Summary、Bottom-up、Flame Graph 和 Threads。</p>
+<p>VTune 重点回答：</p>
+<ul>
+<li>完整调用链中哪些主机函数占用时间最多；</li>
+<li>MPI、CUDA API 和线程等待分别占多少时间；</li>
+<li>CPU 是否及时向 GPU 提交工作；</li>
+<li>是否存在主机端串行路径、负载不均衡或过长的同步等待。</li>
+</ul>
+<div class="admonition example">
+<p class="admonition-title">ABEGPU 的 VTune Hotspots 示例</p>
+<p>Top Hotspots 可以快速定位占用主机时间最多的函数；Bottom-up 视图则用于沿调用树追踪这些开销来自哪些演化阶段。</p>
+<p><div style="display: grid; grid-template-columns: minmax(0, 1.9829fr) minmax(0, 3.0791fr); gap: 1rem; align-items: start;">
+  <figure style="margin: 0;">
+    <a class="glightbox" href="image/vtune-top-hotspots-cuda-synchronization.webp" data-type="image"><img src="image/vtune-top-hotspots-cuda-synchronization.webp" alt="VTune Top Hotspots 显示 CUDA 同步占用大量主机时间" style="width: 100%; height: auto;"></a>
+    <figcaption>Top Hotspots</figcaption>
+  </figure>
+  <figure style="margin: 0;">
+    <a class="glightbox" href="image/vtune-bottom-up-bssn-call-tree.webp" data-type="image"><img src="image/vtune-bottom-up-bssn-call-tree.webp" alt="VTune Bottom-up 调用树显示 BSSN 递归演化与 CUDA 同步路径" style="width: 100%; height: auto;"></a>
+    <figcaption>Bottom-up：BSSN 递归演化路径及其 CUDA 同步调用</figcaption>
+  </figure>
+</div></p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">主机端同步时间不等于 GPU kernel 时间</p>
+<p><code>cuCtxSynchronize_v2</code> 占用大量 host CPU time，说明主机线程长时间停留在同步调用中；它并不能直接证明某个 CUDA kernel 执行了同样长的时间。请结合 Nsight Systems 对齐 CPU–GPU 时间线，再用 Nsight Compute 分析具体 kernel。</p>
+</div>
+<h3 id="gpu-profile">GPU Profile<a class="headerlink" href="#gpu-profile" title="Permanent link">&para;</a></h3>
+<p>GPU kernel、数据传输以及 CPU–GPU 时间线需要使用 NVIDIA Nsight 工具分析。Nsight Systems 面向全程序时间线，Nsight Compute 面向单个热点 kernel；它们与 CPU Profile 中的 VTune 互相补充。</p>
+<h4 id="使用-nsight-systems-分析-cpumpi-与-gpu-时间线">使用 Nsight Systems 分析 CPU、MPI 与 GPU 时间线<a class="headerlink" href="#使用-nsight-systems-分析-cpumpi-与-gpu-时间线" title="Permanent link">&para;</a></h4>
+<p>Nsight Systems 用于把主机端活动和 GPU 活动放在同一条时间线上，观察：</p>
+<ul>
+<li>kernel 执行时间和发射顺序；</li>
+<li>host-device 拷贝；</li>
+<li>CPU 等待 GPU 或 GPU 等待 CPU 的时间；</li>
+<li>MPI、CUDA API 与 GPU 计算是否串行阻塞；</li>
+<li>kernel 发射是否过于碎片化；</li>
+<li>GPU 是否存在明显空闲区间。</li>
+</ul>
+<h4 id="使用-nsight-compute-分析热点-kernel">使用 Nsight Compute 分析热点 kernel<a class="headerlink" href="#使用-nsight-compute-分析热点-kernel" title="Permanent link">&para;</a></h4>
+<p>在 VTune 和 Nsight Systems 定位出值得深入的 CUDA kernel 后，再使用 Nsight Compute 分析：</p>
+<ul>
+<li>SM occupancy；</li>
+<li>global memory throughput；</li>
+<li>memory coalescing；</li>
+<li>register pressure；</li>
+<li>shared memory 使用；</li>
+<li>warp divergence；</li>
+<li>achieved occupancy 和理论 occupancy 的差距。</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">不要只看单个 kernel 的加速</p>
+<p>本实验的 GPU 优化中，整个程序不仅包含大量 GPU kernel，也包含较为复杂的主机端控制和通信逻辑。一个 kernel 变快不代表端到端变快。</p>
+<p>如果引入了额外拷贝、同步或更多 kernel launch，整体运行时间可能反而上升。</p>
+</div>
+<h2 id="共享优化阶段twopuncture-初值求解">共享优化阶段：TwoPuncture 初值求解<a class="headerlink" href="#共享优化阶段twopuncture-初值求解" title="Permanent link">&para;</a></h2>
+<p><code>TwoPunctureABE</code> 负责生成双黑洞初始数据，是 CPU 和 GPU 两条运行路径都会经过的前置阶段。</p>
+<div class="admonition warning">
+<p class="admonition-title">TwoPuncture 不独立评分</p>
+<p><code>TwoPunctureABE</code> 是 CPU 和 GPU 两个任务共享的前置阶段，不作为独立任务评分。正式计时时，它会分别与 <code>ABE</code> 和 <code>ABEGPU</code> 组合，计入任务一和任务二的端到端时间。</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">优化提示不是必做清单</p>
+<p>下面列出的方向来自我们对当前框架的实际优化经验。你不需要复现所有手段，也不应当在没有 profile 证据时盲目套用。
+更合理的做法是：先找出你当前版本的瓶颈，再选择一两个能解释清楚的方向深入优化。</p>
+</div>
+<h3 id="编译优化">编译优化<a class="headerlink" href="#编译优化" title="Permanent link">&para;</a></h3>
+<p>编译优化不只包括增加编译选项，也包括为目标平台选择更合适的完整工具链。</p>
+<h4 id="编译选项">编译选项<a class="headerlink" href="#编译选项" title="Permanent link">&para;</a></h4>
+<p>可以尝试：</p>
+<ul>
+<li><code>-O2</code>、<code>-O3</code> 等优化等级；</li>
+<li><code>-march</code>、<code>-mtune</code> 或对应编译器的目标架构选项；</li>
+<li>自动向量化；</li>
+<li>OpenMP 编译和运行时选项；</li>
+</ul>
+<p>架构选项必须与实际评测节点支持的指令集匹配。课程 GPU 为 NVIDIA A100，其 compute capability 为 8.0（<code>sm_80</code>），当前 <code>CMAKE_CUDA_ARCHITECTURES=80</code> 已与目标架构匹配。<code>CMakeLists.txt</code> 中的 <code>AMSS_OPT</code> 只作用于 C++ 和 Fortran，CUDA 架构与其他 NVCC 参数需要单独设置。<code>-Ofast</code>、GCC/Clang 的 <code>-ffast-math</code> 或其他编译器对应的 fast-math 选项可能重排浮点表达式，改变求解器收敛过程或数值结果；使用后必须重新完成端到端正确性验证。</p>
+<h4 id="编译器与工具链">编译器与工具链<a class="headerlink" href="#编译器与工具链" title="Permanent link">&para;</a></h4>
+<p>不同编译器对 Fortran、自动向量化、数学函数和目标架构的优化能力不同，可以在相应平台上比较：</p>
+<table>
+<thead>
+<tr>
+<th>目标平台</th>
+<th>工具链</th>
+<th>常见 C++ / Fortran 编译器</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>x86 / Arm</td>
+<td>GNU</td>
+<td><code>g++</code> / <code>gfortran</code></td>
+</tr>
+<tr>
+<td>x86 / Arm</td>
+<td>LLVM</td>
+<td><code>clang++</code> / <code>flang-new</code></td>
+</tr>
+<tr>
+<td>x86</td>
+<td>Intel oneAPI</td>
+<td><code>icpx</code> / <code>ifx</code></td>
+</tr>
+<tr>
+<td>Arm</td>
+<td>Arm Compiler for Linux</td>
+<td><code>armclang++</code> / <code>armflang</code></td>
+</tr>
+<tr>
+<td>华为鲲鹏（Arm）</td>
+<td>毕昇</td>
+<td>BiSheng C++ / Fortran 编译器，命令名以平台环境为准</td>
+</tr>
+</tbody>
+</table>
+<p>AMSS-NCKU 混合了 C++、Fortran、MPI 和 CUDA，不能只替换其中一个编译器就默认工具链兼容。尝试时需要注意：</p>
+<ul>
+<li><code>mpicxx</code>、<code>mpifort</code> 是 MPI wrapper，不代表固定的编译器家族；先用 wrapper 的 show/config 选项确认其后端编译器；</li>
+<li>C++、Fortran 编译器及 MPI wrapper 应成套选择，避免混用不兼容的 C++ 标准库、Fortran ABI/运行时、OpenMP runtime 或 MPI 实现；当前 CMake 还显式链接了 <code>gfortran</code>，切换 Fortran 编译器时需同步处理对应 runtime；</li>
+<li>GPU 版本还需确认 NVCC 支持所选 host compiler；<code>CUDACXX</code> 和 CUDA 编译参数不由 <code>AMSS_OPT</code> 控制；</li>
+<li>CMake 会缓存编译器，比较不同工具链时应使用不同的 <code>BUILD_DIR</code>，不要复用已有的 <code>CMakeCache.txt</code>。</li>
+</ul>
+<p>当前 CMake 项目实际启用了 C++、Fortran 和 CUDA，未启用 C 语言。因此应重点通过 <code>CXX</code>、<code>FC</code>、<code>CUDACXX</code> 和 CMake 参数选择工具链；<code>compile.sh</code> 中的 <code>CC</code> 设置目前不会影响现有构建目标。</p>
+<p>比较结果时应固定 MPI rank、OpenMP thread、绑核方式和输入，并记录编译器版本、MPI 实现、完整编译选项、正确性及端到端时间。</p>
+<h3 id="初值求解优化">初值求解优化<a class="headerlink" href="#初值求解优化" title="Permanent link">&para;</a></h3>
+<p><code>TwoPunctureABE</code> 负责求解双黑洞初始数据。它不是最终演化程序，但在端到端运行时间中可能占有明显比例，尤其是在反复调试和正式评测都需要重新生成初值时。</p>
+<p>可以重点关注：</p>
+<ul>
+<li>对计算密集循环使用 OpenMP 并行化；</li>
+<li>检查求解器预条件子，尝试更适合当前 case 的预条件策略；</li>
+<li>替换或调整数学库，避免低效的标量数学函数成为热点；</li>
+<li>删除高频路径上的动态内存分配和释放；</li>
+<li>将碎片化的 OpenMP 并行区聚合，减少反复 fork-join 的开销；</li>
+<li>对固定大小或固定结构的数据，预先分配并复用缓冲区。</li>
+</ul>
+<div class="admonition danger">
+<p class="admonition-title">收敛速度与数值稳定性</p>
+<p>请注意：求解器收敛速度、数值稳定性和单步计算性能会相互影响。</p>
+<p>如果更换预条件子或调整求解流程，迭代收敛需要的步数可能大幅变化，单步更慢的迭代也可能因为更少的迭代次数而最终胜出。</p>
+</div>
+<h3 id="twopuncture-gpu-化bonus">TwoPuncture GPU 化（Bonus）<a class="headerlink" href="#twopuncture-gpu-化bonus" title="Permanent link">&para;</a></h3>
+<p><code>TwoPunctureABE</code> 当前主要作为 CPU 初值求解阶段出现。你也可以尝试将其中明确的计算热点迁移到 GPU 上，作为 bonus 方向探索。</p>
+<p>如果尝试，需要说明哪些计算被迁移到了 GPU、host-device 数据如何组织、是否改变了求解器收敛行为，以及最终初值和后续演化结果是否仍然通过正确性检查。</p>
+<h2 id="任务一abe-cpu-演化优化">任务一：ABE CPU 演化优化<a class="headerlink" href="#任务一abe-cpu-演化优化" title="Permanent link">&para;</a></h2>
+<p>任务一的目标是在保证结果正确的前提下，优化 <code>TwoPunctureABE + ABE</code> 在 CPU 平台上的端到端运行时间。
+其中 <code>TwoPunctureABE</code> 是两个任务共享的初值求解阶段，<code>ABE</code> 负责 CPU 版本 BSSN 时间演化；两者的计算模式不同，优化策略也不完全相同。</p>
+<div class="admonition note">
+<p class="admonition-title">共享阶段也计入任务一</p>
+<p>前一节的 TwoPuncture 优化会直接影响任务一的端到端时间，其中的编译、OpenMP 和访存优化思路也可能适用于 <code>ABE</code>。</p>
+</div>
+<h3 id="abe-并行结构优化">ABE 并行结构优化<a class="headerlink" href="#abe-并行结构优化" title="Permanent link">&para;</a></h3>
+<p>AMSS-NCKU 的 baseline 已使用 MPI 进行进程级并行，但尚未包含 OpenMP 并行区域。你需要探索：</p>
+<ul>
+<li>在固定资源下使用多少 MPI rank；</li>
+<li>是否值得为热点循环或其他独立任务加入 OpenMP；</li>
+<li>是否需要绑核以稳定进程和线程性能；</li>
+<li>是否存在 NUMA 远端访问带来的延迟；</li>
+<li>rank 数增大后通信时间是否成为瓶颈。</li>
+</ul>
+<p><code>AMSS_NCKU_Input.py</code> 中的 <code>MPI_processes</code> 会控制实际启动的 MPI rank 数；<code>OMP_threads</code> 当前只通过环境变量传递提示。若要使用 OpenMP，还需要加入正确的并行区域，并在 CMake 中启用对应语言的 OpenMP 编译和链接支持。此后才能讨论 MPI rank 与每 rank 线程数的组合，实际有效并行度仍会受到串行部分、通信、负载均衡和绑定策略影响。</p>
+<p>这些参数会通过 <code>run.sh</code> / <code>makefile_and_run.py</code> 传递给运行程序。</p>
+<p>对于 <code>ABE</code>，并行优化不只是“把更多循环加上 OpenMP”。真实代码里经常会出现两类情况：一类是表面串行、但不同 block / patch / detector / grid level 之间实际上可以并行；另一类是已经并行过，但并行粒度、调度方式或数据划分并不适合当前平台。</p>
+<p>课程“OpenMP 与 MPI 并行基础”中介绍过 OpenMP 的 fork-join（分叉—汇合）开销。如果并行区域过小，线程启动、调度和同步的开销可能超过并行计算带来的收益。</p>
+<p>你可以尝试：</p>
+<ul>
+<li>加入 OpenMP 后，重新平衡 MPI rank 与 OpenMP thread 的比例；</li>
+<li>对天然独立的 block、patch、grid level 或分析任务并行化，找到不那么明显的数据并行位置；</li>
+<li>重新设计已有并行区域的任务划分，减少负载不均衡；</li>
+<li>检查是否存在多个线程竞争同一缓存行或共享缓冲区；</li>
+<li>结合绑核和 NUMA 设置，避免线程/进程迁移带来的性能波动。</li>
+</ul>
+<p>CPU 评测平台为华为鲲鹏 920B。为 <code>ABE</code> 加入 OpenMP 后，NUMA 拓扑和进程/线程绑定可能显著影响 MPI + OpenMP 混合并行的稳定性和性能。
+你可以使用 <code>lscpu</code>、<code>numactl --hardware</code>、<code>hwloc-ls</code> 等工具了解节点拓扑，再结合 <code>mpirun</code> 绑核参数、<code>OMP_PROC_BIND</code> / <code>OMP_PLACES</code>、<code>numactl --cpunodebind</code> / <code>--membind</code> 等方式控制进程和内存位置。
+这类设置通常不需要用于 <code>TwoPunctureABE</code> 的早期调试，但在 <code>ABE</code> 长时间演化中值得系统测试。</p>
+<h3 id="abe-计算-kernel-优化">ABE 计算 kernel 优化<a class="headerlink" href="#abe-计算-kernel-优化" title="Permanent link">&para;</a></h3>
+<p>BSSN 演化中存在大量规则网格上的差分和逐点计算。这类代码通常可以从以下方向优化：</p>
+<ul>
+<li>帮助编译器自动向量化；</li>
+<li>先通过 <code>lscpu</code> 确认 Kunpeng 920B 支持的指令集，再对热点循环尝试 AArch64 SIMD intrinsic；</li>
+<li>对简单并行循环使用 OpenMP。</li>
+</ul>
+<p>你可以重点关注 <code>bssn_rhs.f90</code> 及相关调用的函数。</p>
+<h3 id="通信优化">通信优化<a class="headerlink" href="#通信优化" title="Permanent link">&para;</a></h3>
+<p>如果 profiling 结果显示 MPI 通信占比较高，可以进一步分析：</p>
+<ul>
+<li>ghost zone exchange 的通信量；</li>
+<li>是否存在过多同步；</li>
+<li>是否能合并小消息；</li>
+<li>是否能重叠通信与计算；</li>
+<li>rank 分布是否导致负载不均衡。</li>
+</ul>
+<p>如果 MPI rank 之间的任务量差异较大，较早完成的 rank 会在同步点等待其他 rank。应结合各 rank 的计算时间和等待时间判断是否存在负载不均衡。</p>
+<h2 id="任务二abegpu-gpu-演化优化">任务二：ABEGPU GPU 演化优化<a class="headerlink" href="#任务二abegpu-gpu-演化优化" title="Permanent link">&para;</a></h2>
+<p>任务二的目标是在保证结果正确的前提下，优化 <code>TwoPunctureABE + ABEGPU</code> 在单个 A100 MIG 实例上的端到端运行时间。
+其中 <code>TwoPunctureABE</code> 是两个任务共享的初值求解阶段，<code>ABEGPU</code> 负责 GPU 版本 BSSN 时间演化。</p>
+<p>当前 GPU 版本包含 BSSN RHS、prolongation、analysis、数据打包和 ghost exchange 等 device 侧实现。源码保留了两条 MPI 通信分支：CUDA-aware MPI 分支直接传递 device buffer，回退分支通过 host buffer 进行 D2H/H2D staging。当前 <code>macrodef.h</code> 将 <code>MPI_CUDA_AWARE</code> 固定为 <code>0</code>，因此默认构建使用 host staging；若要比较直接通信，需要先修改或重构该编译宏，并确认评测环境的 MPI 实现确实支持 CUDA-aware buffer。优化时应结合源码和 profiler 核实实际采用的通信路径。</p>
+<h3 id="kernel-形态与编译参数">Kernel 形态与编译参数<a class="headerlink" href="#kernel-形态与编译参数" title="Permanent link">&para;</a></h3>
+<p>对热点 CUDA kernel，首先检查：</p>
+<ul>
+<li>grid / block 大小是否合理；</li>
+<li>每个线程处理的数据粒度是否合适；</li>
+<li>是否存在大量线程空转；</li>
+<li>是否有明显 warp divergence；</li>
+<li>register 使用是否过高导致 occupancy 下降。</li>
+</ul>
+<p>可以尝试的方向包括：</p>
+<ul>
+<li>对频繁调用的小函数使用 CUDA inline / <code>__forceinline__</code>；</li>
+<li>使用 <code>__launch_bounds__</code> 控制寄存器和 occupancy 的权衡；</li>
+<li>对小循环尝试 <code>#pragma unroll</code> 或显式 unroll；</li>
+<li>调整 <code>nvcc</code> 编译参数，比较寄存器数量、occupancy 和实际时间；</li>
+<li>避免为了减少 kernel 数量而让单个 kernel 变得不可调优。</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title"><code>__forceinline__</code>、<code>.cuh</code> 与 RDC</p>
+<p>当前构建通过 <code>-rdc=true</code> 和 <code>CUDA_SEPARABLE_COMPILATION</code> 启用了 relocatable device code（RDC）。如果热点路径存在跨 CUDA 翻译单元的 device 调用，可以检查这些调用是否确实需要 RDC，并比较不同组织方式的性能。</p>
+<p>对频繁调用的小型 device 函数，可以尝试整理成 <code>.cuh</code> 头文件中的 <code>__device__ __forceinline__</code> 函数，使调用点能够在编译期展开，从而给予编译器更大的自由，进而提升性能。但 inline 也可能增加寄存器压力和代码体积；RDC 是否必要、是否构成瓶颈，都应通过构建结果、profiling 和正确性检查判断。</p>
+</div>
+<h3 id="访存优化">访存优化<a class="headerlink" href="#访存优化" title="Permanent link">&para;</a></h3>
+<p>规则网格计算往往受访存影响很大。你可以分析：</p>
+<ul>
+<li>global memory 访问是否 coalesced；</li>
+<li>是否有重复读取邻域数据或者多线程访问同一内存位置；</li>
+<li>是否适合使用 shared memory；</li>
+<li>是否适合改变数据布局；</li>
+<li>是否有只读数据可以利用 cache；</li>
+<li>是否存在过多临时数组或 device allocation。</li>
+</ul>
+<p>这一部分的优化可能包括：</p>
+<ul>
+<li>使用 shared memory 缓存邻域数据；</li>
+<li>在合适的数据布局中使用 padding 改善对齐、memory coalescing 或 shared-memory bank conflict，并评估增加的内存占用；</li>
+<li>将只读、重复访问的数据改成更适合 GPU cache 的访问方式；</li>
+<li>减少临时数组写回 global memory 的次数；</li>
+<li>对数学等价的公式做重排，让访存模式和 GPU 执行模型更友好。</li>
+</ul>
+<h3 id="kernel-拆分融合与批处理">Kernel 拆分、融合与批处理<a class="headerlink" href="#kernel-拆分融合与批处理" title="Permanent link">&para;</a></h3>
+<p>Kernel 数量并非越少越好。下面三类结构优化针对不同瓶颈，应根据 profiler 结果选择方向。</p>
+<h4 id="拆分巨型-kernel">拆分巨型 kernel<a class="headerlink" href="#拆分巨型-kernel" title="Permanent link">&para;</a></h4>
+<p><code>bssn_rhs_gpu.cu</code> 中的 RHS kernel 包含多个数学阶段。巨型 kernel 可以减少 launch 和中间数据写回，但也可能造成寄存器压力过高、occupancy 下降、指令 cache 工作集增大，并限制编译器优化。若 Nsight Compute 显示这些问题，可以按照明确的数据依赖把它拆成若干阶段。</p>
+<p>拆分也会增加 kernel launch、阶段间 global memory 读写和同步边界。应同时比较 registers per thread、occupancy、指令吞吐、内存流量和端到端时间，在资源压力与额外数据移动之间寻找平衡。</p>
+<h4 id="融合连续的不同操作">融合连续的不同操作<a class="headerlink" href="#融合连续的不同操作" title="Permanent link">&para;</a></h4>
+<p>如果多个连续 kernel 具有兼容的迭代域和清晰的生产者—消费者关系，可以将不同功能的逐点操作融合到一次 launch 中。这样可能减少 launch、全局同步和中间数组的 global memory 往返。</p>
+<p>但是，fusion 会延长中间值和寄存器的生命周期，也可能引入更多分支、降低 occupancy，并把原本能够独立调度的工作强制串行化。边界处理、ghost exchange 和 Runge-Kutta 阶段之间真实存在的数据依赖不能为了 fusion 被跳过。</p>
+<h4 id="跨变量批处理相同操作">跨变量批处理相同操作<a class="headerlink" href="#跨变量批处理相同操作" title="Permanent link">&para;</a></h4>
+<p>另一类常见情况不是“把不同功能合在一起”，而是<strong>同一个 kernel 分别作用于大量独立变量</strong>。例如，host 侧调度文件 <code>bssn_step_gpu.C</code> 会遍历多个状态变量，并分别调用 Runge-Kutta 更新等 kernel 的 launch wrapper。可以考虑把一组数组指针和每个变量的元数据组织成批次，增加一个变量维度，让一次 launch 同时处理多个状态变量；这也可以称为跨变量 batching 或 fusion。</p>
+<p>这种方法能够减少重复 launch，但需要保留每个变量不同的属性、传播速度、边界条件和数据依赖，并检查指针间接访问、数据布局与 memory coalescing 是否抵消了收益。它与前一类“连续不同操作的融合”解决的是两个不同问题。</p>
+<div class="admonition warning">
+<p class="admonition-title">请用端到端结果做判断</p>
+<p>最终应同时比较 kernel launch 数量、GPU 活跃时间、registers、occupancy、内存流量、同步等待、完整 <code>TwoPunctureABE + ABEGPU</code> 时间和数值正确性。Fusion 和 fission 都不是默认正确的方向，应由 profiler 数据和端到端结果共同决定。</p>
+</div>
+<h3 id="stream-与异步执行">Stream 与异步执行<a class="headerlink" href="#stream-与异步执行" title="Permanent link">&para;</a></h3>
+<p>单个 MIG 实例上的程序也不一定只能串行提交 kernel。对于相互独立的 patch、分析任务或数据搬运，可以考虑使用 CUDA stream：</p>
+<ul>
+<li>用 stream 级并行掩盖 kernel launch 延迟；</li>
+<li>将异步内存操作与计算重叠；</li>
+<li>将分析 kernel 与主演化中可并行的部分错开执行；</li>
+<li>避免不必要的全局同步，例如过早调用 <code>cudaDeviceSynchronize()</code>。</li>
+</ul>
+<p>这类优化对正确性约束更敏感。引入 stream 后，必须清楚每个数据依赖发生在哪些 kernel 之间，并用 event 或 stream ordering 保证顺序。</p>
+<h3 id="gpu-与-mpi">GPU 与 MPI<a class="headerlink" href="#gpu-与-mpi" title="Permanent link">&para;</a></h3>
+<p>基础 GPU 评测主要使用单个 A100 MIG 实例，但程序仍然会通过 MPI 启动，并且不会忽略相关的 MPI 通信模块。你需要注意：</p>
+<ul>
+<li>GPU 模式下 <code>MPI_processes</code> 是否应设为 1 或其他合适值；</li>
+<li>多 rank 是否会争用同一个 MIG 实例；</li>
+<li>MPI 初始化、通信和 GPU kernel 是否存在不必要等待。</li>
+</ul>
+<p>如果 profiling 结果显示通信开销明显，可以进一步探索：</p>
+<ul>
+<li>确认 MPI 实现是否支持 CUDA-aware buffer；当前默认构建未启用对应分支，需要先修改或重构 <code>MPI_CUDA_AWARE</code> 宏；</li>
+<li>启用后再比较 device buffer 直接通信与默认 host staging 的数据路径和开销；</li>
+<li>合并小消息，减少高频发送；</li>
+<li>调整发送/接收顺序，降低等待时间；</li>
+<li>将通信与可独立执行的 kernel 重叠。</li>
+</ul>
+<h2 id="修改范围与限制">修改范围与限制<a class="headerlink" href="#修改范围与限制" title="Permanent link">&para;</a></h2>
+<div class="admonition danger">
+<p class="admonition-title">请不要通过改变问题本身来加速</p>
+<p>不允许为了提高速度而减少物理计算、降低网格规模、缩短演化时间、跳过必要输出、直接读取预计算答案或修改评测输入。</p>
+</div>
+<p>允许修改：</p>
+<ul>
+<li><code>src/lab4/src/</code> 下的 C++ / Fortran / CUDA 源文件；</li>
+<li><code>src/lab4/CMakeLists.txt</code>；</li>
+<li><code>src/lab4/compile.sh</code>；</li>
+<li><code>src/lab4/run.sh</code>；</li>
+<li>必要的辅助源文件。</li>
+</ul>
+<p>这些修改必须保证数学意义上的算法等价性。禁止将关键计算直接替换为低精度版本来换取速度；如果使用低精度技巧，必须能解释它如何模拟或保持高精度结果，并通过正确性检查。</p>
+<p><code>AMSS_NCKU_Input.py</code> 的修改范围非常严格。正式测试中只允许修改 MPI / OpenMP 相关参数和 GPU 运行相关参数，其他物理参数、网格参数、演化时间、输出间隔等<strong>严禁更改</strong>。</p>
+<div class="admonition tip">
+<p class="admonition-title">调试时可以缩短演化时间</p>
+<p>调试阶段可以临时把 <code>Final_Evolution_Time</code> 调小，以便快速验证程序是否能编译、启动并完成一次短运行。
+提交和正式测试时必须恢复为规定输入；用缩短演化时间得到的性能结果不能作为评分依据。</p>
+</div>
+<p>正式评测会使用规定的输入与文件范围；请勿依赖修改受限参数来获得性能收益。具体收取和覆盖规则以评测说明为准。</p>
+<h2 id="代码框架">代码框架<a class="headerlink" href="#代码框架" title="Permanent link">&para;</a></h2>
+<p><strong>实验代码位于仓库根目录下的 <code>src/lab4/</code>。</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>src/lab4
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── compile.sh                          # 构建入口：生成 ABE / ABEGPU / TwoPunctureABE
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>├── run.sh                              # 运行入口：设置环境并调用 Python driver
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>├── check.sh                            # 正确性比对：验证和真值的演化精度
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>├── CMakeLists.txt                      # CMake 构建配置
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>├── AMSS_NCKU_Input.py                  # 主要输入参数：CPU/GPU 开关、MPI/OMP 设置、物理参数
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>├── AMSS_NCKU_Program.py                # 运行 driver：生成输入、运行程序、整理输出、画图
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>├── README.md                           # 课程版本简要说明
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>├── golden/                             # 正确性比对：真值仿真结果
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>├── scripts/                            # Python 辅助脚本
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>│   ├── setup.py                        # 生成 AMSS-NCKU 和 TwoPuncture 的输入文件
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>│   ├── numerical_grid.py               # 网格参数生成
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>│   ├── generate_TwoPuncture_input.py   # 生成 TwoPuncture 输入
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>│   ├── renew_puncture_parameter.py     # 更新 puncture 参数
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>│   ├── makefile_and_run.py             # 构建并运行主演化程序
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>│   ├── check_result.py                 # 结果正确性检查
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>│   ├── plot_xiaoqu.py                  # 轨迹、约束、ADM 量等绘图
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>│   └── plot_GW_strain_amplitude_xiaoqu.py  # 引力波应变绘图
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>└── src/
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>    ├── *.C, *.cpp, *.h                 # C++ 主程序、网格、MPI 通信、监控、I/O 等
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>    ├── *.f90                           # CPU Fortran 数值 kernel
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>    └── *_gpu.cu                        # GPU CUDA kernel
+</span></code></pre></div>
+<p>构建后会生成三个可执行文件：</p>
+<table>
+<thead>
+<tr>
+<th>可执行文件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>build/TwoPunctureABE</code></td>
+<td>生成双黑洞初始数据</td>
+</tr>
+<tr>
+<td><code>build/ABE</code></td>
+<td>CPU 版本 BSSN 演化</td>
+</tr>
+<tr>
+<td><code>build/ABEGPU</code></td>
+<td>GPU 版本 BSSN 演化</td>
+</tr>
+</tbody>
+</table>
+<h3 id="关键源文件">关键源文件<a class="headerlink" href="#关键源文件" title="Permanent link">&para;</a></h3>
+<p>CPU 版本中，值得重点阅读和分析的文件包括：</p>
+<ul>
+<li><code>src/bssn_rhs.f90</code>：BSSN 方程右端项计算；</li>
+<li><code>src/diff_new.f90</code>、<code>src/lopsidediff.f90</code>：有限差分；</li>
+<li><code>src/kodiss.f90</code>：Kreiss-Oliger dissipation；</li>
+<li><code>src/rungekutta4_rout.f90</code>：时间推进；</li>
+<li><code>src/prolongrestrict_cell.f90</code>：网格层级间 prolong / restrict；</li>
+<li><code>src/Parallel.C</code>、<code>src/MPatch.C</code>：MPI 通信和 patch 管理。</li>
+</ul>
+<p>GPU 版本中，值得重点阅读和分析的文件包括：</p>
+<ul>
+<li><code>src/bssn_rhs_gpu.cu</code>：GPU 版本 BSSN 右端项；</li>
+<li><code>src/diff_new_gpu.cu</code>、<code>src/lopsidediff_gpu.cu</code>：GPU 差分 kernel；</li>
+<li><code>src/kodiss_gpu.cu</code>：GPU dissipation；</li>
+<li><code>src/rungekutta4_rout_gpu.cu</code>：GPU 时间推进；</li>
+<li><code>src/prolongrestrict_cell_gpu.cu</code>：GPU prolong / restrict；</li>
+<li><code>src/MPatch_gpu.cu</code>、<code>src/Parallel_GPU.cpp</code>：GPU 数据管理和通信相关逻辑；</li>
+<li><code>src/bssn_step_gpu.C</code>：host 侧 GPU 演化调度，包括 kernel 发射、Runge-Kutta 子步、同步和 ghost exchange；</li>
+<li><code>src/surface_integral_gpu.cu</code>、<code>src/getnp4_gpu.cu</code>、<code>src/fadmquantites_bssn_gpu.cu</code>：分析量计算。</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">不要只盯着文件名猜热点</p>
+<p>上面的列表只是阅读入口。真正应当优化哪里，需要以 profiling 结果为准。
+大型科学计算程序里，最慢的地方可能来自数值 kernel，也可能来自通信、内存分配、I/O、host-device 拷贝或负载不均衡。</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">读不懂也没关系</p>
+<p>你不需要理解每个文件对应的完整物理公式，但应当弄清关键数据如何流动、主要函数如何调用，以及计算与通信发生在什么位置。</p>
+</div>
+<h3 id="构建与运行">构建与运行<a class="headerlink" href="#构建与运行" title="Permanent link">&para;</a></h3>
+<p>进入实验代码目录后：</p>
+<ul>
+<li>
+<p>构建程序：
+    <div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>./compile.sh
+</span></code></pre></div></p>
+<p>该脚本会调用 CMake，默认构建：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>build/TwoPunctureABE
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>build/ABE
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>build/ABEGPU
+</span></code></pre></div>
+</li>
+<li>
+<p>运行程序：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>./run.sh
+</span></code></pre></div>
+<p><code>run.sh</code> 会加载运行环境、设置栈大小、检查可执行文件是否存在，然后调用 <code>AMSS_NCKU_Program.py</code>。
+Python driver 会依次完成：</p>
+<ol>
+<li>读取 <code>AMSS_NCKU_Input.py</code>；</li>
+<li>生成 AMSS-NCKU 和 TwoPuncture 的输入文件；</li>
+<li>运行 <code>TwoPunctureABE</code> 生成初值；</li>
+<li>根据 <code>GPU_Calculation</code> 运行 <code>ABE</code> 或 <code>ABEGPU</code>；</li>
+<li>整理输出文件并生成轨迹、约束、ADM 量和引力波相关图像。</li>
+</ol>
+</li>
+</ul>
+<h4 id="cpu--gpu-模式切换">CPU / GPU 模式切换<a class="headerlink" href="#cpu--gpu-模式切换" title="Permanent link">&para;</a></h4>
+<p>在 <code>AMSS_NCKU_Input.py</code> 中：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">GPU_Calculation</span>  <span class="o">=</span> <span class="s2">&quot;no&quot;</span>
+</span></code></pre></div>
+<p>表示运行 CPU 版本 <code>ABE</code>。如果改成 <code>yes</code> 则表示运行 GPU 版本 <code>ABEGPU</code>。</p>
+<p>同时可以调整：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">MPI_processes</span>    <span class="o">=</span> <span class="o">...</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">OMP_threads</span>      <span class="o">=</span> <span class="o">...</span>
+</span></code></pre></div>
+<p><code>MPI_processes</code> 表示 MPI rank 数。<code>OMP_threads</code> 会被导出为 <code>OMP_NUM_THREADS</code>，但当前 baseline 尚未包含 OpenMP 并行区域，CMake 也没有启用 OpenMP，因此仅修改该参数不会产生实际的 OpenMP 并行。只有在加入 OpenMP 指令并启用相应编译、链接选项后，它才表示每个 MPI rank 使用的 OpenMP 线程数。</p>
+<p>实际评测平台上应当如何配置 MPI rank 和 OpenMP thread，需要结合节点核心数、NUMA 拓扑、绑定策略和程序负载来决定。</p>
+<div class="admonition tip">
+<p class="admonition-title">关于 MPI 进程数设置</p>
+<p>CPU 的 ABE 演化可以通过 MPI 调整并行度，而对于 GPU 上的 ABEGPU 演化，基础评测主要采用单个 A100 MIG 实例，我们建议你先将 MPI 进程数设置成 1。</p>
+</div>
+<h4 id="twopuncture-缓存">TwoPuncture 缓存<a class="headerlink" href="#twopuncture-缓存" title="Permanent link">&para;</a></h4>
+<p>调试时，反复运行 <code>TwoPunctureABE</code> 会浪费时间。若 TwoPuncture 输入没有改变，可以使用：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>./run.sh<span class="w"> </span>--twop-cache
+</span></code></pre></div>
+<p>该选项会在 <code>twopuncture_cache/</code> 下缓存 <code>Ansorg.psid</code> 和 <code>puncture_parameters_new.txt</code>，并根据生成的 TwoPuncture 输入内容选择对应缓存，方便快速调试主演化程序。</p>
+<div class="admonition warning">
+<p class="admonition-title">缓存只用于调试</p>
+<p>正式计时不会使用该选项。若修改了影响初值的输入，应确认程序生成了新的缓存条目；提交时也不要包含 <code>twopuncture_cache/</code>。</p>
+</div>
+<h4 id="输出目录">输出目录<a class="headerlink" href="#输出目录" title="Permanent link">&para;</a></h4>
+<p>输出目录由 <code>AMSS_NCKU_Input.py</code> 中的 <code>File_directory</code> 控制。例如：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">File_directory</span>   <span class="o">=</span> <span class="s2">&quot;GW250118&quot;</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">Output_directory</span> <span class="o">=</span> <span class="s2">&quot;binary_output&quot;</span>
+</span></code></pre></div>
+<p>运行完成后，主要输出位于：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>GW250118/AMSS_NCKU_output/
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>GW250118/AMSS_NCKU_output/binary_output/
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>GW250118/figure/
+</span></code></pre></div>
+<p>演化程序首先将原始结果写入 <code>AMSS_NCKU_output/binary_output/</code>。运行结束后，driver 会把以下关键文件复制到 <code>AMSS_NCKU_output/</code>，便于检查和提交：</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bssn_BH.dat</code></td>
+<td>黑洞位置等信息</td>
+</tr>
+<tr>
+<td><code>bssn_ADMQs.dat</code></td>
+<td>ADM 质量、动量、角动量等</td>
+</tr>
+<tr>
+<td><code>bssn_psi4.dat</code></td>
+<td>引力波 Weyl 标量 <code>Psi4</code></td>
+</tr>
+<tr>
+<td><code>bssn_constraint.dat</code></td>
+<td>约束误差</td>
+</tr>
+<tr>
+<td><code>Error.log</code></td>
+<td>运行日志和错误信息</td>
+</tr>
+</tbody>
+</table>
+<p>绘图脚本会尝试将结果图写入 <code>figure/</code>。绘图失败时，driver 会输出警告，但已经生成的数值结果仍会保留；因此应以 <code>.dat</code> 文件和正确性检查为准，而不能只依赖图片判断运行是否成功。</p>
+<h2 id="如何获取计算资源">如何获取计算资源<a class="headerlink" href="#如何获取计算资源" title="Permanent link">&para;</a></h2>
+<p>今年我们创建了一个平台来统一管理所有实验的计算资源和任务提交。使用方法请左转 <a href="https://hpc101.zjusct.io/guide/">集群使用</a>。</p>
+<p>关于 A100：由于资源限制，课程提供的 A100 资源是通过 MIG（Multi-Instance GPU）切分得到的 GPU 实例，并非独占完整的物理 GPU。MIG 不会改变 GPU 的 CUDA 架构和 compute capability，编译目标仍为 <code>sm_80</code>；但每个实例只拥有整卡的一部分计算单元、显存和显存带宽，因此 <code>nvidia-smi</code> 显示的资源规模和程序实测性能不能直接与完整 A100 对比。开发和评测时请以实际分配到的 MIG 实例为准。</p>
+<h3 id="关于实验环境">关于实验环境<a class="headerlink" href="#关于实验环境" title="Permanent link">&para;</a></h3>
+<p>由于本实验环境配置较为复杂，且涉及不同架构平台，我们为大家打包了一个同时兼容于任务一和任务二的完整镜像。在你申请相关计算资源时，平台会自动拉取该镜像并创建容器。镜像中包含了我们认为比较主要的工具和库，包括但不限于：</p>
+<ul>
+<li>Common（共同拥有）：build-essentials, GNU Compilers, Perf, OpenMPI;</li>
+<li>arm64-920B（任务一，华为鲲鹏 920B）：Arm Compiler for Linux;</li>
+<li>x86_64-A100（任务二，NVIDIA A100）：Intel oneAPI, Intel VTune, Intel MPI, CUDA, HPC-X, NCCL;</li>
+</ul>
+<p>代码框架目前应该能够直接适配我们打包好的环境，进入本实验的容器后可以直接运行基线。</p>
+<h2 id="开发与运行">开发与运行<a class="headerlink" href="#开发与运行" title="Permanent link">&para;</a></h2>
+<p>进入 lab4 的代码根目录后，你可以直接在开发容器进行开发、简单调试和编译等工作。</p>
+<p>任务一使用鲲鹏 CPU 资源。请从平台的 <code>arm64-920B</code> DevPod 预设进入登录节点，并将任务提交到 <code>lab4</code> 分区。该分区为任务提供 30 个物理核心，例如：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab4<span class="w"> </span>-c<span class="w"> </span><span class="m">30</span><span class="w"> </span>./run.sh
+</span></code></pre></div>
+<p>任务二使用 A100 MIG 实例。请从 <code>x86-5418Y</code> DevPod 预设进入登录节点，并根据所需实例规格选择分区：</p>
+<ul>
+<li><code>lab4g10</code>：由 A100 80GB 切分出的 <code>1g.10gb</code> MIG 实例，单个实例提供约 10GB 显存；</li>
+<li><code>lab4g5</code>：由 A100 40GB 切分出的 <code>1g.5gb</code> MIG 实例，单个实例提供约 5GB 显存。</li>
+</ul>
+<p><code>-g N</code> 申请的是 <code>N</code> 个 MIG 实例，而不是 <code>N</code> 张完整的物理 A100。实际分配到的实例及其所在物理 GPU 以任务内的 <code>nvidia-smi -L</code> 输出为准。申请单个实例时，可以使用：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab4g10<span class="w"> </span>-g<span class="w"> </span><span class="m">1</span><span class="w"> </span>./run.sh
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="c1"># 或者</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab4g5<span class="w"> </span>-g<span class="w"> </span><span class="m">1</span><span class="w"> </span>./run.sh
+</span></code></pre></div>
+<p>也可以提交交互式任务前往对应计算节点调试：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># CPU</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab4<span class="w"> </span>-c<span class="w"> </span><span class="m">30</span><span class="w"> </span>--interactive<span class="w"> </span>bash
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># GPU，以单个 1g.10gb MIG 实例为例</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab4g10<span class="w"> </span>-g<span class="w"> </span><span class="m">1</span><span class="w"> </span>--interactive<span class="w"> </span>bash
+</span></code></pre></div>
+<p>可运行 <code>hpc skills</code> 查看命令帮助；具体用法请参考 <a href="https://hpc101.zjusct.io/guide/job/">hpc 使用方法</a>。</p>
+<div class="admonition warning">
+<p class="admonition-title">devpod 仅用于开发</p>
+<p>devpod 是持久化的开发容器，适合编辑、编译和短时间调试，但<strong>不要在 devpod 中直接运行完整的演化任务</strong>。正式计时和性能评测必须通过 <code>hpc submit</code> 提交到对应分区，在计算节点上执行。</p>
+</div>
+<h3 id="家目录注意事项">家目录注意事项<a class="headerlink" href="#家目录注意事项" title="Permanent link">&para;</a></h3>
+<div class="admonition danger">
+<p class="admonition-title">不同物理地域的家目录不共享</p>
+<p><code>arm64-920B</code>（任务一）所需的节点和其他任务所需的节点不在同一物理地域，<strong>家目录不共享</strong>。</p>
+<p>具体的共享情况请参考 <a href="https://hpc101.zjusct.io/guide/#%E5%AE%B6%E7%9B%AE%E5%BD%95">家目录共享</a></p>
+<p>如果需要在两种架构之间同步代码，请使用 git 仓库或手动拷贝，不要依赖家目录。</p>
+</div>
+<h2 id="评分方式">评分方式<a class="headerlink" href="#评分方式" title="Permanent link">&para;</a></h2>
+<h3 id="正确性验证">正确性验证<a class="headerlink" href="#正确性验证" title="Permanent link">&para;</a></h3>
+<p>科学计算优化的第一原则是：<strong>快但错的程序没有意义</strong>。评分前会先运行正确性检查；只有能成功编译、在指定输入下完成运行，并生成 <code>bssn_BH.dat</code>、<code>bssn_ADMQs.dat</code>、<code>bssn_psi4.dat</code>、<code>bssn_constraint.dat</code> 等关键输出文件的程序，才会进入性能计分。</p>
+<p>当前数值正确性要求暂定如下；最终 checker 及比较细节将在正式评测前发布。<code>bssn_BH.dat</code> 中两个黑洞的六个坐标列
+<code>BH1_x, BH1_y, BH1_z, BH2_x, BH2_y, BH2_z</code> 需要满足相对 RMS 误差不超过 <strong>0.1%</strong>。设第 <span class="arithmatex">\(i\)</span> 个匹配时刻、第 <span class="arithmatex">\(j\)</span> 个坐标分量的参考值为
+<span class="arithmatex">\(r^{\mathrm{ref}}_{i,j}\)</span>，你的输出为 <span class="arithmatex">\(r^{\mathrm{out}}_{i,j}\)</span>，并令</p>
+<div class="arithmatex">\[
+d_{i,j} = \max\left(\left|r^{\mathrm{ref}}_{i,j}\right|,
+                    \left|r^{\mathrm{out}}_{i,j}\right|\right).
+\]</div>
+<p>忽略 <span class="arithmatex">\(d_{i,j}\)</span> 过小的项后，设剩余比较项集合为 <span class="arithmatex">\(\Omega\)</span>。具体的最小量级阈值将在 checker 中给出；RMS 误差定义和暂定容限为</p>
+<div class="arithmatex">\[
+\mathrm{RMS} =
+\sqrt{
+\frac{1}{|\Omega|}
+\sum_{(i,j)\in\Omega}
+\left(
+\frac{r^{\mathrm{out}}_{i,j}-r^{\mathrm{ref}}_{i,j}}
+     {d_{i,j}}
+\right)^2
+}
+\le 0.1\%.
+\]</div>
+<p>同时，<code>bssn_constraint.dat</code> 中 Grid Level 0 的 Hamiltonian constraint 和 momentum constraints 需要满足：</p>
+<div class="arithmatex">\[
+\max_{t,\;c\in\{H,P_x,P_y,P_z\}}\left|C^{(0)}_c(t)\right| \le 2.0.
+\]</div>
+<div class="admonition example">
+<p class="admonition-title">GW250118 背景测试用例的示例输出</p>
+<p>图像能帮助你快速发现严重错误，但最终应以数值文件和 checker 为准。课程中经过裁剪和调整的测试用例会生成类似下面的黑洞轨迹和约束检查图：</p>
+<p><div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; align-items: start;">
+  <figure style="margin: 0;">
+    <a class="glightbox" href="image/BH_Trajectory_XY.webp" data-type="image"><img src="image/BH_Trajectory_XY.webp" alt="GW250118 黑洞轨迹 XY 平面" style="width: 100%;"></a>
+    <figcaption>黑洞轨迹（XY 平面）</figcaption>
+  </figure>
+  <figure style="margin: 0;">
+    <a class="glightbox" href="image/ADM_Constraint_Grid_Level_0.webp" data-type="image"><img src="image/ADM_Constraint_Grid_Level_0.webp" alt="ADM Constraint Grid Level 0" style="width: 100%;"></a>
+    <figcaption>ADM Constraint，Grid Level 0</figcaption>
+  </figure>
+</div></p>
+</div>
+<h3 id="性能评分">性能评分<a class="headerlink" href="#性能评分" title="Permanent link">&para;</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">TODO：评分公式待定</p>
+<p>关于任务一和任务二对于总分的占比，以及任务二的性能评分曲线还在商讨中，请等待😭</p>
+</div>
+<p>性能评分的统一判据是 <code>AMSS_NCKU_Program.py</code> 输出的 <code>This Program Cost = ... Seconds</code>。</p>
+<h4 id="任务一">任务一<a class="headerlink" href="#任务一" title="Permanent link">&para;</a></h4>
+<p>对于唯一的 cpu 测试用例，在正确性通过的基础上，我们设置 340s 总运行时长为 100 分、500s 为 60 分，绘制得分曲线 <span class="arithmatex">\(y = a x^b\)</span>：</p>
+<figure>
+  <a class="glightbox" data-type="image" href="image/cpu-score.png"><img alt="任务一得分曲线" src="image/cpu-score.png" /></a>
+</figure>
+<p>满分为 100 分。</p>
+<h4 id="任务二">任务二<a class="headerlink" href="#任务二" title="Permanent link">&para;</a></h4>
+<h2 id="实验报告要求">实验报告要求<a class="headerlink" href="#实验报告要求" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">报告很重要</p>
+<p>本实验不只关注最终性能。我们更关注你是否能说明：瓶颈在哪里、为什么这样优化、优化前后指标发生了什么变化。</p>
+</div>
+<p>实验报告需要说明运行环境、baseline 性能、正确性结果、profiling 结论和主要优化过程。
+对每项重要优化，请写清楚它针对哪个瓶颈、修改了哪些关键位置、带来了多少端到端收益，以及是否影响正确性。
+CPU 和 GPU 部分都应给出最终运行配置，例如 MPI rank、OpenMP thread、绑核/NUMA 设置、CUDA block/grid 配置、使用的编译参数等。
+如果某些尝试没有带来收益，也可以简要说明；失败尝试往往能反映你对程序瓶颈的判断过程。</p>
+<div class="admonition tip">
+<p class="admonition-title">失败尝试也值得写</p>
+<p>在真实优化中，很多想法不会带来收益。只要分析清楚，它们同样能体现你对程序和平台的理解。</p>
+</div>
+<h2 id="思考题">思考题<a class="headerlink" href="#思考题" title="Permanent link">&para;</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">这里可能没有标答！</p>
+<p>部分思考题可能没有一个标准的正确答案。我们更希望看到你在实验过程中遇到的实际情况以及你个人的思考和理解，即使可能存在错误。</p>
+<p>我们不希望得到千篇一律的 AI 答案。</p>
+<div class="admonition warning">
+<p class="admonition-title">请不要使用 AI 😭</p>
+<p>我们强调过<strong>报告禁止使用 AI</strong>，思考题更是我们检测 AI 生成文本的重点区域。你可以使用 AI 辅助理解和答题，但是请不要直接生成。如果我们认为你的思考题有较为明显的 AI 生成痕迹，将会<strong>酌情扣分</strong>。</p>
+</div>
+</div>
+<ol>
+<li>
+<p>AMSS-NCKU 的主要热点更接近规则 stencil、稠密线性代数，还是通信/调度开销？请结合 profile 结果说明。</p>
+</li>
+<li>
+<p>在 CPU 平台上，MPI rank 数和 OpenMP thread 数如何权衡？描述你的最佳配置并解释选择这个配置的原因。MPI 和 OMP 同样作为并行化工具，虽然有自己的同步、通信方法，但是都可以达到并行的目的，可不可以只采用 MPI 或者 OMP 进行呢？有必要同时使用两者进行优化吗？</p>
+</li>
+<li>
+<p>AMSS-NCKU 程序中从高到低有非常多的并行层级，例如最简单的 MPI 分块并行和 OMP 循环并行等；而你在分析源码的过程中或许还发现了其他可以并行的结构。简述一下你优化后的程序都在哪些并行结构上实现了并行。</p>
+</li>
+<li>
+<p>如果优化前后结果精度出现小幅差异，如何判断它是合理的浮点误差还是程序错误？</p>
+</li>
+<li>
+<p>对于只分配一个 MIG 实例的情况，你是否尝试过让 MPI 进程数（<code>MPI_processes</code>）大于 1？如果是，你观察到了什么问题？NVIDIA 是否为多个进程共享同一个 GPU 实例提供了相应方案？</p>
+</li>
+<li>
+<p>在本实验的 GPU kernel 优化操作中，模板操作（Stencil，比如三维求导等）是一个广泛需要优化的部分。一味地使用 Shared Memory 加速是否一定是更好的？引入共享内存本身带来了什么性能问题？如果你在实验过程中有类似现象，也可以举例说明。</p>
+</li>
+<li>
+<p>（Bonus）你是否尝试了两个或更多 MIG 实例并行？如果是，相较于单个实例的加速比是多少，是否接近线性增长？如果没有，请分析原因。请通过 profiler 展示多实例并行时 MPI 通信的占比，并结合实例是否位于同一张物理 A100、数据传输路径和任务划分，分析扩展到更多 MIG 实例时需要考虑的问题。</p>
+</li>
+<li>
+<p>（Bonus）今年是我们首次直接将一个超算竞赛题目修改成实验，也是首次把一个完整的科学计算程序引入到实验中，并且首次在科学计算实验中着眼于 GPU 优化加速。欢迎你跟我们分享本次实验的体验，也欢迎你给出改进建议（锐评也可以，不会扣分的！）。</p>
+</li>
+</ol>
+<h2 id="提交要求">提交要求<a class="headerlink" href="#提交要求" title="Permanent link">&para;</a></h2>
+<p>需要提交的内容包括：</p>
+<ul>
+<li>实验代码压缩包；</li>
+<li>实验报告 PDF；</li>
+<li>最终运行产生的必要结果，包括 <code>GW250118/AMSS_NCKU_output/</code> 下复制出的关键 <code>.dat</code> 文件和日志，以及 <code>GW250118/figure/</code> 下的结果图。</li>
+</ul>
+<p>请不要提交：</p>
+<ul>
+<li><code>GW250118/AMSS_NCKU_output/binary_output/</code> 原始结果目录；</li>
+<li><code>twopuncture_cache/</code>；</li>
+<li>大型 <code>.bin</code> 输出文件；</li>
+<li>profiler 产生的原始结果目录。</li>
+</ul>
+<h2 id="参考资料">参考资料<a class="headerlink" href="#参考资料" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/KGWFpqZtRH4prfeiDqjpRg">ASC26 赛题推文：数值相对论程序优化</a></li>
+<li><a href="https://arxiv.org/abs/2509.21652">A User-Friendly Python Interface for the Numerical Relativity Code AMSS-NCKU</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Numerical_relativity">Numerical relativity - Wikipedia</a></li>
+<li><a href="https://en.wikipedia.org/wiki/BSSN_formalism">BSSN formalism - Wikipedia</a></li>
+<li><a href="https://www.openmp.org/resources/refguides/">OpenMP Documentation</a></li>
+<li><a href="https://rookiehpc.org/mpi/docs/">MPI Documentation - RookieHPC</a></li>
+<li><a href="https://perf.wiki.kernel.org/">Perf Wiki</a></li>
+<li><a href="https://www.intel.com/content/www/us/en/docs/vtune-profiler/get-started-guide/2025-4/overview.html">Get Started with Intel® VTune™ Profiler</a></li>
+<li><a href="https://developer.nvidia.com/nsight-systems">NVIDIA Nsight Systems</a></li>
+<li><a href="https://developer.nvidia.com/nsight-compute">NVIDIA Nsight Compute</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../Lab3-GDN-Prefill/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lab 3: GDN Prefill 前向优化">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Lab 3: GDN Prefill 前向优化
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../Lab5-Gemma4/" class="md-footer__link md-footer__link--next" aria-label="Next: Lab 5: Gemma4 端到端推理优化">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Lab 5: Gemma4 端到端推理优化
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.action.edit","content.code.annotate","content.code.copy","content.code.select","navigation.expand","navigation.footer","navigation.instant","navigation.instant.prefetch","navigation.instant.progress","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight","search.share","search.suggest","toc.follow"],"search":"../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6e5f0216.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="../../javascripts/v86-init.js"></script>
+      
+    
+  </body>
+</html>

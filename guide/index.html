@@ -1,0 +1,1653 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/guide/">
+      
+      
+        <link rel="prev" href="../sponsors/">
+      
+      
+        <link rel="next" href="./job/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="zensical-0.0.43">
+    
+    
+      
+        <title>登录平台 - HPC101</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.fba56155.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  <script>
+    (function () {
+      try {
+        var saved = (typeof __md_get === "function") ? __md_get("__palette") : null;
+        var scheme;
+        if (saved && saved.color && saved.color.media) {
+          if (saved.color.media === "(prefers-color-scheme)") {
+            scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+          } else {
+            scheme = saved.color.scheme;
+          }
+        } else {
+          scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+        }
+        document.documentElement.setAttribute("data-md-color-scheme", scheme);
+        var attach = function () {
+          document.body.setAttribute("data-md-color-scheme", scheme);
+          new MutationObserver(function () {
+            var s = document.body.getAttribute("data-md-color-scheme");
+            if (s) document.documentElement.setAttribute("data-md-color-scheme", s);
+          }).observe(document.body, {
+            attributes: true,
+            attributeFilter: ["data-md-color-scheme"],
+          });
+        };
+        if (document.body) {
+          attach();
+        } else {
+          new MutationObserver(function (_, obs) {
+            if (document.body) {
+              attach();
+              obs.disconnect();
+            }
+          }).observe(document.documentElement, { childList: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script>
+    // Track keydown listeners added on window so v86 can later remove
+    // Material's global handler that would otherwise capture key presses
+    // intended for the in-browser Linux VM.
+    (function () {
+      window.__v86KeydownListeners = [];
+      var origAdd = window.addEventListener;
+      var origRemove = window.removeEventListener;
+      window.addEventListener = function (type, listener, options) {
+        origAdd.call(this, type, listener, options);
+        if (type === "keydown") {
+          window.__v86KeydownListeners.push({ listener: listener, options: options });
+        }
+      };
+      window.removeEventListener = function (type, listener, options) {
+        origRemove.call(this, type, listener, options);
+        if (type === "keydown") {
+          var i = window.__v86KeydownListeners.findIndex(function (e) {
+            return e.listener === listener;
+          });
+          if (i !== -1) window.__v86KeydownListeners.splice(i, 1);
+        }
+      };
+    })();
+  </script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#登录平台" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="./.." title="HPC101" class="md-header__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              登录平台
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="./.." class="md-tabs__link">
+          
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="././" class="md-tabs__link">
+          
+  
+  集群使用
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../lab/Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="./.." title="HPC101" class="md-nav__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    HPC101
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程信息
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程信息
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  欢迎来到 HPC 101 超算短学期
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../enroll/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  报名与选课
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sponsors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  支持单位
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群使用
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  集群使用
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  登录平台
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  登录平台
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#登录" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        登录
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#创建-devpod" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        创建 DevPod
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#通过-ssh-连接-devpod" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        通过 SSH 连接 DevPod
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="通过 SSH 连接 DevPod">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#配置-ssh-公钥" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        配置 SSH 公钥
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#连接" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        连接
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#家目录" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        家目录
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#常见问题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        常见问题
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="常见问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#集群-ssh-代理原理" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        集群 SSH 代理原理
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#下一步" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        下一步
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交计算任务
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./submit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交实验报告
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  在线测评 OJ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群概况
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程实验
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab/Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 0: Linux 快速入门
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab/Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 1: 简单集群搭建
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab/Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 2: MoE 的向量化计算
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab/Lab3-GDN-Prefill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3: GDN Prefill 前向优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab/Lab4-AMSS-NCKU/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4: AMSS-NCKU 数值相对论程序优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab/Lab5-Gemma4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 5: Gemma4 端到端推理优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#登录" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        登录
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#创建-devpod" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        创建 DevPod
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#通过-ssh-连接-devpod" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        通过 SSH 连接 DevPod
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="通过 SSH 连接 DevPod">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#配置-ssh-公钥" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        配置 SSH 公钥
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#连接" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        连接
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#家目录" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        家目录
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#常见问题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        常见问题
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="常见问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#集群-ssh-代理原理" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        集群 SSH 代理原理
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#下一步" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        下一步
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/guide/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="登录平台">登录平台<a class="headerlink" href="#登录平台" title="Permanent link">&para;</a></h1>
+<p>课程集群通过统一的 Web 平台使用，有两个入口：</p>
+<ul>
+<li>校网：<strong><a href="https://platform.s.zjusct.io">https://platform.s.zjusct.io</a></strong></li>
+<li>公网（校外可访问）：<strong><a href="https://clusters.zju.edu.cn">https://clusters.zju.edu.cn</a></strong></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">注意</p>
+<p>由于平台鉴权使用的 ZJU Git 依赖校网环境，故若未给账户设置密码，仍需使用VPN/校网环境登录平台并设置密码。</p>
+</div>
+<p>在平台上你可以：</p>
+<ul>
+<li>创建和管理 <strong>DevPod</strong>（开发容器，通过 SSH 连接）</li>
+<li>向各分区<strong>提交计算任务</strong>（类 Slurm 的 <code>hpc</code> 命令行）</li>
+<li><strong>提交实验报告</strong>（平台从你的家目录收取文件树）</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">重要使用须知</p>
+<ul>
+<li>
+<p>集群为全体学员共享平台，请共同维护高效运行环境，严禁资源滥用。若发现异常占用（如恶意脚本、持续满负荷任务），将追溯责任人并限制账户。</p>
+</li>
+<li>
+<p>集群网络资源有限，严禁进行非授权的网络活动。</p>
+</li>
+<li>
+<p>请勿存放与课程无关的大文件（如影视、游戏、个人备份等）。</p>
+</li>
+<li>
+<p>重要数据及时本地备份。</p>
+</li>
+</ul>
+</div>
+<h2 id="登录">登录<a class="headerlink" href="#登录" title="Permanent link">&para;</a></h2>
+<p>打开平台，点击 <strong>Sign in with GitLab</strong>，用你的 <a href="https://git.zju.edu.cn/">ZJU Git</a> 账号授权即可。</p>
+<p>平台账户名为 <strong>h + 学号</strong>。</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>学号 3260100000 的同学，平台账户名为 <code>h3260100000</code>。</p>
+</div>
+<h2 id="创建-devpod">创建 DevPod<a class="headerlink" href="#创建-devpod" title="Permanent link">&para;</a></h2>
+<p>DevPod 是你在集群上的开发环境：一个常驻的容器，带有课程实验所需的完整工具链。</p>
+<ol>
+<li>登录平台后，点击 <strong>创建第一个</strong>（或右上角 <strong>New +</strong>）。</li>
+<li>任取一个名称（如 <code>mypod</code>），选择实验对应的环境模板（如做 x86 任务选 x86 模板，做 RISC-V 任务选 RISC-V 模板，具体以实验文档指引为准）。</li>
+<li>等待状态从 <code>Pending</code> 变为 <code>Running</code>。</li>
+</ol>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>每人可同时运行的 DevPod 数量有限。可按需暂停/删除不使用的 DevPod。</p>
+</div>
+<h2 id="通过-ssh-连接-devpod">通过 SSH 连接 DevPod<a class="headerlink" href="#通过-ssh-连接-devpod" title="Permanent link">&para;</a></h2>
+<h3 id="配置-ssh-公钥">配置 SSH 公钥<a class="headerlink" href="#配置-ssh-公钥" title="Permanent link">&para;</a></h3>
+<p>集群仅支持 SSH 密钥登录。请在 <a href="https://git.zju.edu.cn/">ZJU Git</a> 中添加你的 SSH 公钥，集群会从这里动态获取。你可以通过 <code>https://git.zju.edu.cn/学号.keys</code> 查看已添加的公钥。如果没有配置过 SSH 密钥对，请参考 <a href="../lab/Lab0-LinuxCrashCourse/">Lab 0 Linux Crash Course</a> 中的配置方法。</p>
+<h3 id="连接">连接<a class="headerlink" href="#连接" title="Permanent link">&para;</a></h3>
+<p>DevPod 运行后，可使用下面的命令连接：</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>ssh<span class="w"> </span>h学号+DevPod名+hpc101@clusters.zju.edu.cn<span class="w"> </span>-p<span class="w"> </span><span class="m">443</span>
+</span></code></pre></div>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>用户 <code>h3260100000</code> 连接自己名为 <code>mypod</code> 的 DevPod：</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ssh<span class="w"> </span>h3260100000+mypod+hpc101@clusters.zju.edu.cn<span class="w"> </span>-p<span class="w"> </span><span class="m">443</span>
+</span></code></pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>如果这一步你看到了输入密码的提示，说明 SSH 密钥登录配置有误，需要重新检查。</p>
+<p><strong>请不要在登录集群时输入自己的密码</strong>，这是因为登录入口配置了蜜罐，输入的密码会被明文记录在日志中。</p>
+</div>
+<p><code>clusters.zju.edu.cn</code> 支持 SSH 的端口有：22、80、443。如果默认端口（22）无法连接，请尝试使用另外两个端口。受限于学校网络安全策略，目前已知下列情况下 22 端口无法使用，请使用 80 或 443 端口：</p>
+<ul>
+<li><strong>校外访问</strong>（注意放假后校外访问时需要更改端口）</li>
+<li>RVPN（zju-connect）访问</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">推荐：配置 ssh config</p>
+<p>如果使用终端命令行或者 Visual Studio Code 连接集群，可以通过配置 <code>ssh config</code> 来获得更加优雅的登录方式。</p>
+<p>对于 Linux 和 macOS，这一配置位于 <code>~/.ssh/config</code>；对于 Windows 则位于 <code>C:\Users\&lt;用户名&gt;\.ssh\config</code>。例如：</p>
+<div class="language-text highlight"><span class="filename">~/.ssh/config</span><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Host mypod
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    User h3260100000+mypod+hpc101
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    HostName clusters.zju.edu.cn
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    Port 443
+</span></code></pre></div>
+<p>此后可以使用</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ssh<span class="w"> </span>mypod
+</span></code></pre></div>
+<p>或在 Visual Studio Code 建立远程 SSH 连接时选择 <code>mypod</code> 连接到你的 DevPod。</p>
+</div>
+<h2 id="家目录">家目录<a class="headerlink" href="#家目录" title="Permanent link">&para;</a></h2>
+<p>你的家目录 <code>~</code> 在<strong>所有 DevPod 和所有计算任务之间共享</strong>，且路径相同：在 DevPod 里准备的代码和脚本，计算任务可以直接使用；换一个 DevPod，家目录里的东西还在。</p>
+<p>与之相对，容器内家目录<strong>之外</strong>的位置（如 <code>/</code>，<code>/tmp</code>）是每个容器私有的临时空间，容器回收后即消失，且有较小的容量限额。请把所有需要保留的文件放在家目录下。</p>
+<p>同时，由于家目录使用的 <code>nfs</code> 要求较低的网络延迟，不同物理地域机器的 DevPod、计算容器的家目录不同。</p>
+<table>
+<thead>
+<tr>
+<th>分区 ↓  DevPod 预设 →</th>
+<th style="text-align: center;">x86-5418Y</th>
+<th style="text-align: center;">riscv-K1</th>
+<th style="text-align: center;">arm64-920B</th>
+<th style="text-align: center;">arm64-910B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lab2</code></td>
+<td style="text-align: center;">✅ 相同</td>
+<td style="text-align: center;">✅ 相同</td>
+<td style="text-align: center;">❌ 不同</td>
+<td style="text-align: center;">❌ 不同</td>
+</tr>
+<tr>
+<td><code>lab2rv</code></td>
+<td style="text-align: center;">✅ 相同</td>
+<td style="text-align: center;">✅ 相同</td>
+<td style="text-align: center;">❌ 不同</td>
+<td style="text-align: center;">❌ 不同</td>
+</tr>
+<tr>
+<td><code>lab3</code></td>
+<td style="text-align: center;">✅ 相同</td>
+<td style="text-align: center;">✅ 相同</td>
+<td style="text-align: center;">❌ 不同</td>
+<td style="text-align: center;">❌ 不同</td>
+</tr>
+<tr>
+<td><code>lab4</code></td>
+<td style="text-align: center;">❌ 不同</td>
+<td style="text-align: center;">❌ 不同</td>
+<td style="text-align: center;">✅ 相同</td>
+<td style="text-align: center;">❌ 不同</td>
+</tr>
+<tr>
+<td><code>lab4g10</code></td>
+<td style="text-align: center;">✅ 相同</td>
+<td style="text-align: center;">✅ 相同</td>
+<td style="text-align: center;">❌ 不同</td>
+<td style="text-align: center;">❌ 不同</td>
+</tr>
+<tr>
+<td><code>lab4g5</code></td>
+<td style="text-align: center;">✅ 相同</td>
+<td style="text-align: center;">✅ 相同</td>
+<td style="text-align: center;">❌ 不同</td>
+<td style="text-align: center;">❌ 不同</td>
+</tr>
+<tr>
+<td><code>lab5</code></td>
+<td style="text-align: center;">✅ 相同</td>
+<td style="text-align: center;">✅ 相同</td>
+<td style="text-align: center;">❌ 不同</td>
+<td style="text-align: center;">❌ 不同</td>
+</tr>
+<tr>
+<td><code>lab3p5</code></td>
+<td style="text-align: center;">❌ 不同</td>
+<td style="text-align: center;">❌ 不同</td>
+<td style="text-align: center;">❌ 不同</td>
+<td style="text-align: center;">✅ 相同</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>做 lab4 时，代码要放在 <strong>arm64-920B</strong> 预设的 DevPod 家目录里再 <code>hpc submit -p lab4</code>；在 x86 DevPod 里准备的文件，lab4 的任务是看不到的。</p>
+</div>
+<h2 id="常见问题">常见问题<a class="headerlink" href="#常见问题" title="Permanent link">&para;</a></h2>
+<div class="admonition question">
+<p class="admonition-title">是否能看到如下的 SSH Banner？</p>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$<span class="w"> </span>ssh<span class="w"> </span>h学号+DevPod名+hpc101@clusters.zju.edu.cn<span class="w"> </span>-p<span class="w"> </span><span class="m">443</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Wed,<span class="w"> </span><span class="m">22</span><span class="w"> </span>Jul<span class="w"> </span><span class="m">2026</span><span class="w"> </span><span class="m">13</span>:39:59<span class="w"> </span>+0000
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>h学号+DevPod名+hpc101
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>***.***.***.***:****
+</span></code></pre></div>
+<details class="note">
+<summary>不能看见 SSH Banner</summary>
+<p>未能连接到 <code>clusters.zju.edu.cn</code>。</p>
+<ul>
+<li>校网环境：检查 <code>clusters.zju.edu.cn</code> 的 DNS 解析是否正常。</li>
+<li>校外环境：尝试 80 或 443 端口，检查防火墙设置。</li>
+</ul>
+<p>如果使用的是 MobaXTerm、XShell 等软件，需要在其选项里找到关于协商 SSH 版本的选项，并指定为 SSHv2。</p>
+</details>
+<details class="note">
+<summary>能看见 SSH Banner</summary>
+<p>根据 SSH Banner 后的错误信息检查：</p>
+<table>
+<thead>
+<tr>
+<th>错误信息</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Permission denied (publickey).</code></td>
+<td>用户名或 SSH 公钥未配置正确，检查 ZJU Git 上的公钥</td>
+</tr>
+<tr>
+<td><code>Unknown host "..."</code></td>
+<td>缺少 <code>+hpc101</code> 后缀</td>
+</tr>
+<tr>
+<td><code>Connection closed by ***.***.***.*** port ***</code></td>
+<td>内部错误，请联系管理员</td>
+</tr>
+<tr>
+<td><code>* Failed to connect to remote host: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain</code></td>
+<td>DevPod 不存在或不处于 Running 状态</td>
+</tr>
+</tbody>
+</table>
+</details>
+</div>
+<h3 id="集群-ssh-代理原理">集群 SSH 代理原理<a class="headerlink" href="#集群-ssh-代理原理" title="Permanent link">&para;</a></h3>
+<p>集群使用 <a href="https://github.com/mrhaoxx/OpenNG">OpenNG</a> 提供的 SSH 代理功能：代理通过 TCP 头识别 SSH 连接并按用户名中的路由信息（<code>用户+目标</code>）转发，详见 <a href="https://github.com/mrhaoxx/OpenNG/blob/f59461d12c48a9410967c7f4dd5a5ae1df251eef/tcp/detect.go#L116"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></span> 源码</a>。</p>
+<h2 id="下一步">下一步<a class="headerlink" href="#下一步" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="./job/">提交计算任务</a></li>
+<li><a href="./submit/">提交实验报告</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../sponsors/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 支持单位">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                支持单位
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="./job/" class="md-footer__link md-footer__link--next" aria-label="Next: 提交计算任务">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                提交计算任务
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["content.action.edit","content.code.annotate","content.code.copy","content.code.select","navigation.expand","navigation.footer","navigation.instant","navigation.instant.prefetch","navigation.instant.progress","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight","search.share","search.suggest","toc.follow"],"search":"../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.6e5f0216.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../javascripts/tablesort.js"></script>
+      
+        <script src="../javascripts/v86-init.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,155 @@
+.md-logo__variant {
+    display: inline-flex;
+    align-items: center;
+}
+
+.md-logo__variant--dark {
+    display: none;
+}
+
+[data-md-color-scheme="slate"] .md-logo__variant--light {
+    display: none;
+}
+
+[data-md-color-scheme="slate"] .md-logo__variant--dark {
+    display: inline-flex;
+}
+
+.md-logo__variant .md-logo__image {
+    display: block;
+}
+
+.md-source-file__fact .md-author img {
+    border-radius: 100%;
+    height: 1.5rem;
+    width: 1.5rem;
+}
+
+.md-source-file__fact .md-author--more {
+    border-radius: 100%;
+    display: inline-block;
+    font-size: .6rem;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    width: 1.5rem;
+    background-color: var(--md-default-fg-color--lightest);
+    color: var(--md-default-fg-color--light);
+}
+
+.md-typeset img.sponsor-logo {
+    display: block;
+    margin: 0 auto;
+    width: 20rem;
+    max-width: 100%;
+    height: 8rem;
+    object-fit: contain;
+    padding: 1rem 1.5rem;
+    background-color: #fff;
+    border-radius: .2rem;
+    box-shadow: var(--md-shadow-z1);
+}
+
+/* Lab 2: compose the AMX explanation from focused, readable panels. */
+.md-typeset .amx-tile-flow {
+    display: grid;
+    grid-template-columns: minmax(18rem, 1fr) auto minmax(18rem, 1fr) auto minmax(18rem, 1fr);
+    align-items: center;
+    gap: .6rem;
+    margin: 1.25rem 0;
+    overflow-x: auto;
+    padding: .2rem .1rem .75rem;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+}
+
+.md-typeset .amx-tile-flow__panel {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    border: .05rem solid var(--md-default-fg-color--lightest);
+    border-radius: .4rem;
+    background: #fff;
+    box-shadow: var(--md-shadow-z1);
+    scroll-snap-align: start;
+}
+
+.md-typeset .amx-tile-flow__panel > .glightbox {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    background: #fff;
+}
+
+.md-typeset .amx-tile-flow__panel img {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0;
+}
+
+.md-typeset .amx-tile-flow__panel figcaption {
+    display: grid;
+    gap: .2rem;
+    padding: .65rem .75rem .75rem;
+    border-top: .05rem solid #e5e7eb;
+    background: #fff;
+    color: #374151;
+    font-size: .72rem;
+    line-height: 1.5;
+}
+
+.md-typeset .amx-tile-flow__panel figcaption strong {
+    color: #111827;
+    font-size: .8rem;
+}
+
+.md-typeset .amx-tile-flow__panel figcaption code {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.md-typeset .amx-tile-flow__arrow {
+    color: var(--md-accent-fg-color);
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+
+:root {
+    --hpc-gantt-grid: #e7e6e0;
+    --hpc-gantt-tick-text: #898781;
+    --hpc-gantt-title: #1f1f1e;
+    --hpc-gantt-section-title: #3a3a37;
+    --hpc-gantt-stripe: #f2f1ec;
+    --hpc-gantt-label: #3a3a37;
+    --hpc-gantt-lab2: #2a78d6;
+    --hpc-gantt-lab2-border: #1c5cab;
+    --hpc-gantt-lab3: #eb6834;
+    --hpc-gantt-lab3-border: #c14e1f;
+    --hpc-gantt-lab4: #1baf7a;
+    --hpc-gantt-lab4-border: #12855c;
+    --hpc-gantt-lab5: #4a3aa7;
+    --hpc-gantt-lab5-border: #372b80;
+}
+
+[data-md-color-scheme="slate"] {
+    --hpc-gantt-grid: #363845;
+    --hpc-gantt-tick-text: #9a9daa;
+    --hpc-gantt-title: #e6e7ec;
+    --hpc-gantt-section-title: #cfd1da;
+    --hpc-gantt-stripe: #252733;
+    --hpc-gantt-label: #cfd1da;
+    --hpc-gantt-lab2: #3987e5;
+    --hpc-gantt-lab2-border: #1c5cab;
+    --hpc-gantt-lab3: #d95926;
+    --hpc-gantt-lab3-border: #a33d15;
+    --hpc-gantt-lab4: #199e70;
+    --hpc-gantt-lab4-border: #0f7452;
+    --hpc-gantt-lab5: #cc5fb0;
+    --hpc-gantt-lab5-border: #9c3f84;
+}

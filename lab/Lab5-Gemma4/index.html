@@ -1,0 +1,3034 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab5-Gemma4/">
+      
+      
+        <link rel="prev" href="../Lab4-AMSS-NCKU/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="zensical-0.0.43">
+    
+    
+      
+        <title>实验五：Gemma4 端到端推理优化 - HPC101</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.fba56155.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  <script>
+    (function () {
+      try {
+        var saved = (typeof __md_get === "function") ? __md_get("__palette") : null;
+        var scheme;
+        if (saved && saved.color && saved.color.media) {
+          if (saved.color.media === "(prefers-color-scheme)") {
+            scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+          } else {
+            scheme = saved.color.scheme;
+          }
+        } else {
+          scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+        }
+        document.documentElement.setAttribute("data-md-color-scheme", scheme);
+        var attach = function () {
+          document.body.setAttribute("data-md-color-scheme", scheme);
+          new MutationObserver(function () {
+            var s = document.body.getAttribute("data-md-color-scheme");
+            if (s) document.documentElement.setAttribute("data-md-color-scheme", s);
+          }).observe(document.body, {
+            attributes: true,
+            attributeFilter: ["data-md-color-scheme"],
+          });
+        };
+        if (document.body) {
+          attach();
+        } else {
+          new MutationObserver(function (_, obs) {
+            if (document.body) {
+              attach();
+              obs.disconnect();
+            }
+          }).observe(document.documentElement, { childList: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script>
+    // Track keydown listeners added on window so v86 can later remove
+    // Material's global handler that would otherwise capture key presses
+    // intended for the in-browser Linux VM.
+    (function () {
+      window.__v86KeydownListeners = [];
+      var origAdd = window.addEventListener;
+      var origRemove = window.removeEventListener;
+      window.addEventListener = function (type, listener, options) {
+        origAdd.call(this, type, listener, options);
+        if (type === "keydown") {
+          window.__v86KeydownListeners.push({ listener: listener, options: options });
+        }
+      };
+      window.removeEventListener = function (type, listener, options) {
+        origRemove.call(this, type, listener, options);
+        if (type === "keydown") {
+          var i = window.__v86KeydownListeners.findIndex(function (e) {
+            return e.listener === listener;
+          });
+          if (i !== -1) window.__v86KeydownListeners.splice(i, 1);
+        }
+      };
+    })();
+  </script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#实验五gemma4-端到端推理优化" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101" class="md-header__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              实验五：Gemma4 端到端推理优化
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guide/" class="md-tabs__link">
+          
+  
+  集群使用
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101" class="md-nav__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    HPC101
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程信息
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程信息
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  欢迎来到 HPC 101 超算短学期
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../enroll/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  报名与选课
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sponsors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  支持单位
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群使用
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  集群使用
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  登录平台
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交计算任务
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/submit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交实验报告
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  在线测评 OJ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群概况
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程实验
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 0: Linux 快速入门
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 1: 简单集群搭建
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 2: MoE 的向量化计算
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab3-GDN-Prefill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3: GDN Prefill 前向优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab4-AMSS-NCKU/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4: AMSS-NCKU 数值相对论程序优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 5: Gemma4 端到端推理优化
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 5: Gemma4 端到端推理优化
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验目的
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#前置知识" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        前置知识
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="前置知识">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gemma4-模型简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Gemma4 模型简介
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Gemma4 模型简介">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#滑动窗口注意力sliding-window-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        滑动窗口注意力（Sliding Window Attention）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#分组查询注意力grouped-query-attention-gqa" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        分组查询注意力（Grouped Query Attention, GQA）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swiglu-激活函数与-ffn" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SwiGLU 激活函数与 FFN
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llm-推理时的显存占用" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        LLM 推理时的显存占用
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务一gptq-权重量化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务一：GPTQ 权重量化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务一：GPTQ 权重量化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#知识讲解训练后量化与-gptq" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：训练后量化与 GPTQ
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：训练后量化与 GPTQ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gptq-的基本思想" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GPTQ 的基本思想
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#数值稳定性与分块计算" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        数值稳定性与分块计算
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#本实验中的量化流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        本实验中的量化流程
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#任务要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#输入输出接口" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        输入输出接口
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务二端到端推理性能优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务二：端到端推理性能优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务二：端到端推理性能优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#性能分析方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能分析方法
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#方向一显存占用优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        方向一：显存占用优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="方向一：显存占用优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#权重-offloading" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        权重 Offloading
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ring KV Cache
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#paged-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Paged Attention
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#方向二算子优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        方向二：算子优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="方向二：算子优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#算子融合" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        算子融合
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="算子融合">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#反量化-gemm-融合" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        反量化-GEMM 融合
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flash-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Flash Attention
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#优化与验证流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        优化与验证流程
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#方向三请求调度优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        方向三：请求调度优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="方向三：请求调度优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#continuous-batching" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Continuous Batching
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#其他优化手段" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        其他优化手段
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#任务要求_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#代码框架" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        代码框架
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#评测方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评测方式
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="评测方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#提交要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#评测流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评测流程
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="评测流程">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#模型量化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        模型量化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#任务一评测" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务一评测
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#任务二评测" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务二评测
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#思考题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        思考题
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        参考资料
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验目的
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#前置知识" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        前置知识
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="前置知识">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gemma4-模型简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Gemma4 模型简介
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Gemma4 模型简介">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#滑动窗口注意力sliding-window-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        滑动窗口注意力（Sliding Window Attention）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#分组查询注意力grouped-query-attention-gqa" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        分组查询注意力（Grouped Query Attention, GQA）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swiglu-激活函数与-ffn" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SwiGLU 激活函数与 FFN
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llm-推理时的显存占用" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        LLM 推理时的显存占用
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务一gptq-权重量化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务一：GPTQ 权重量化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务一：GPTQ 权重量化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#知识讲解训练后量化与-gptq" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：训练后量化与 GPTQ
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：训练后量化与 GPTQ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gptq-的基本思想" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GPTQ 的基本思想
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#数值稳定性与分块计算" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        数值稳定性与分块计算
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#本实验中的量化流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        本实验中的量化流程
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#任务要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#输入输出接口" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        输入输出接口
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务二端到端推理性能优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务二：端到端推理性能优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务二：端到端推理性能优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#性能分析方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能分析方法
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#方向一显存占用优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        方向一：显存占用优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="方向一：显存占用优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#权重-offloading" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        权重 Offloading
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ring KV Cache
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#paged-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Paged Attention
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#方向二算子优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        方向二：算子优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="方向二：算子优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#算子融合" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        算子融合
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="算子融合">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#反量化-gemm-融合" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        反量化-GEMM 融合
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flash-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Flash Attention
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#优化与验证流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        优化与验证流程
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#方向三请求调度优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        方向三：请求调度优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="方向三：请求调度优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#continuous-batching" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Continuous Batching
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#其他优化手段" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        其他优化手段
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#任务要求_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#代码框架" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        代码框架
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#评测方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评测方式
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="评测方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#提交要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#评测流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评测流程
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="评测流程">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#模型量化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        模型量化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#任务一评测" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务一评测
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#任务二评测" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务二评测
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#思考题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        思考题
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        参考资料
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab5-Gemma4/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="实验五gemma4-端到端推理优化">实验五：Gemma4 端到端推理优化<a class="headerlink" href="#实验五gemma4-端到端推理优化" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">实验信息</p>
+<p>负责助教：任朱明，方嘉禾，周冠一</p>
+</div>
+<h2 id="实验目的">实验目的<a class="headerlink" href="#实验目的" title="Permanent link">&para;</a></h2>
+<p>在真实的 LLM 推理场景中，有限的显存资源往往成为推理吞吐量的提升瓶颈。在本次实验中，你将在 1/7 张 H800（10 GiB 显存）上，基于简化的 LLM 推理框架 <code>hpc101_infer</code> 对 Gemma4-12B 模型进行端到端的推理优化，目标是最大化推理的吞吐量。完成本实验后，你应当能够：</p>
+<ul>
+<li>
+<p>理解 LLM 推理框架的基本工作流程，包括推理计算、显存管理、请求调度等；</p>
+</li>
+<li>
+<p>掌握模型量化的基本原理，使用 GPTQ 对 LLM 模型进行权重量化；</p>
+</li>
+<li>
+<p>使用 offloading、paged attention 等方法降低显存占用，并结合 continuous batching 等方法提高推理吞吐量；</p>
+</li>
+<li>
+<p>使用 Pytorch Profiler 对 LLM 推理过程进行性能分析，找到热点并进行针对性优化。</p>
+</li>
+</ul>
+<h2 id="前置知识">前置知识<a class="headerlink" href="#前置知识" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>经过短学期课程和 Lab3 的学习，相信你对 LLM 的结构和推理过程已经有了基本的了解，请自查以下知识点：</p>
+<ul>
+<li>自回归模式</li>
+<li>Transformer 的基本结构</li>
+<li>Attention 机制</li>
+<li>Prefilling 和 Decoding</li>
+<li>KV Cache 的作用</li>
+</ul>
+<p>如果你对以上知识点不熟悉，请借助 AI 或查阅相关资料进行学习，可以参考以下资料：</p>
+<ul>
+<li><a href="https://blogs.erix025.me/EfficientAI/sct-llm-talk/sct-llm-talk/">An Introduction to Efficient LLM Inference for ZJUSCT</a></li>
+</ul>
+</div>
+<h3 id="gemma4-模型简介">Gemma4 模型简介<a class="headerlink" href="#gemma4-模型简介" title="Permanent link">&para;</a></h3>
+<p><a href="https://ai.google.dev/gemma/docs/core">Gemma4</a> 是 Google DeepMind 开发的新一代开源 LLM 模型，提供了包括 E2B，E4B，12B，31B 等在内的多种参数规模，并且支持多模态输入。本次实验中我们使用的是剥离多模态 tokenizer 后的 Gemma4-12B 模型，其结构如下图所示：</p>
+<figure>
+    <a class="glightbox" href="image/gemma4-12b_arch.png" data-type="image"><img src="image/gemma4-12b_arch.png" alt="Gemma4-12B 模型结构" width="60%"></a>
+    <figcaption>Gemma4-12B 模型结构。<a href="https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-gemma-4-12b">图源</a>。</figcaption>
+</figure>
+<p>在基础的 Decoder-only 架构之上，Gemma4-12B 进行了多项改进：</p>
+<ul>
+<li>
+<p><strong>滑动窗口注意力（Sliding Window Attention）</strong>：在计算注意力分数时仅考虑固定长度的上下文窗口内的 token</p>
+</li>
+<li>
+<p><strong>混合注意力</strong>：大部分层采用滑动窗口注意力，小部分层采用<strong>全局注意力（Regular Attention）</strong>捕捉长程依赖</p>
+</li>
+<li>
+<p><strong>分组查询注意力（Grouped Query Attention）</strong>：在计算注意力分数时，将查询向量分为若干组，每组共享一个键值向量</p>
+</li>
+<li>
+<p><strong>权重共享</strong>：全局注意力层内 <span class="arithmatex">\(W_K\)</span> 和 <span class="arithmatex">\(W_V\)</span> 共享权重</p>
+</li>
+<li>
+<p><strong>p-RoPE</strong>：全局注意力层采用比例旋转位置编码（proportional RoPE）捕捉词序信息，降低对词义信息的干扰</p>
+</li>
+<li>
+<p><strong>SwiGLU 激活函数</strong>：使用 SwiGLU 作为前馈网络的激活函数，增强模型的表达能力</p>
+</li>
+</ul>
+<p>下表简单列出 Gemma4-12B 的主要参数：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+<th>参数含义</th>
+<th>简写</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>num_hidden_layers</code></td>
+<td>48</td>
+<td>Decoder Layer 数量</td>
+<td><span class="arithmatex">\(N\)</span></td>
+</tr>
+<tr>
+<td><code>hidden_size</code></td>
+<td>3840</td>
+<td>每层的隐藏层维度</td>
+<td><span class="arithmatex">\(D\)</span></td>
+</tr>
+<tr>
+<td><code>num_attention_heads</code></td>
+<td>16</td>
+<td>注意力头数量</td>
+<td><span class="arithmatex">\(H_q\)</span></td>
+</tr>
+<tr>
+<td><code>num_key_value_heads</code></td>
+<td>8</td>
+<td>滑动窗口注意力层 Key/Value 头数量</td>
+<td><span class="arithmatex">\(H_{l,kv}\)</span></td>
+</tr>
+<tr>
+<td><code>num_global_key_value_heads</code></td>
+<td>1</td>
+<td>全局注意力层 Key/Value 头数量</td>
+<td><span class="arithmatex">\(H_{g,kv}\)</span></td>
+</tr>
+<tr>
+<td><code>head_dim</code></td>
+<td>256</td>
+<td>滑动窗口注意力层每个注意力头的维度</td>
+<td><span class="arithmatex">\(D_{l,h}\)</span></td>
+</tr>
+<tr>
+<td><code>global_head_dim</code></td>
+<td>512</td>
+<td>全局注意力层每个注意力头的维度</td>
+<td><span class="arithmatex">\(D_{g,h}\)</span></td>
+</tr>
+<tr>
+<td><code>sliding_window</code></td>
+<td>1024</td>
+<td>滑动窗口大小</td>
+<td><span class="arithmatex">\(w\)</span></td>
+</tr>
+<tr>
+<td><code>intermediate_size</code></td>
+<td>15360</td>
+<td>前馈网络中间层维度</td>
+<td><span class="arithmatex">\(F\)</span></td>
+</tr>
+<tr>
+<td><code>vocab_size</code></td>
+<td>262144</td>
+<td>词汇表大小</td>
+<td><span class="arithmatex">\(V\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>更多参数可参考模型权重目录下的 <code>config.json</code> 文件。</p>
+<p>下面我们会对 Gemma4-12B 的部分组件进行讲解，以帮助你理解模型的结构和推理过程。</p>
+<h4 id="滑动窗口注意力sliding-window-attention">滑动窗口注意力（Sliding Window Attention）<a class="headerlink" href="#滑动窗口注意力sliding-window-attention" title="Permanent link">&para;</a></h4>
+<p>我们知道，标准的自注意力机制公式为：</p>
+<div class="arithmatex">\[
+\begin{align*}
+    O &amp;= \operatorname{softmax} \left(\frac{A + M}{\sqrt{d_k}}\right)V, \\
+    A &amp;= Q K^{\mathrm{T}}.
+\end{align*}
+\]</div>
+<p>其中 <span class="arithmatex">\(M\)</span> 是掩码矩阵，用于屏蔽不需要参与计算的 token，<span class="arithmatex">\(A\)</span> 被称作注意力分数。在全局注意力层中，<span class="arithmatex">\(M\)</span> 是一个下三角矩阵，表明计算自注意力时，每个 token 只能看到它之前的 token。然而在实践中，我们发现在诸多情况下，<strong>注意力分数的分布具有局部性</strong>，即在位置 <span class="arithmatex">\(i\)</span> 的 token 对区间 <span class="arithmatex">\([i-w, i]\)</span> 内的 token 的注意力分数大于其他 token 的注意力分数，其中 <span class="arithmatex">\(w\)</span> 是一个固定的窗口大小：</p>
+<figure>
+    <a class="glightbox" href="image/attn_score.png" data-type="image"><img src="image/attn_score.png" alt="Attention Score Distribution"></a>
+    <figcaption>注意力分数分布示例。<a href="https://arxiv.org/abs/2309.17453">图源</a>。</figcaption>
+</figure>
+<p>因此，通过掩码矩阵屏蔽掉窗口外的 token 的注意力分数，对模型的性能影响不会太大。具体地，我们可以使用类似下图右侧的掩码矩阵 <span class="arithmatex">\(M\)</span> 限制每个 token 的注意力范围：</p>
+<figure>
+    <a class="glightbox" href="image/sliding_window_attn.png" data-type="image"><img src="image/sliding_window_attn.png" alt="Sliding Window Attention"></a>
+    <figcaption>全局注意力和滑动窗口注意力示例。<a href="https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-gemma-4">图源</a>。</figcaption>
+</figure>
+<p>然而，在实际情况下应用滑动窗口注意力仍需注意以下几点：</p>
+<ul>
+<li>
+<p>“注意力分数的分布具有局部性”这一假设并不总是成立的，尤其是处理长文本时，完全忽略窗口外的 token 可能会对模型性能产生较大负面影响。因此 Gemma4 采用了混合注意力的策略，在部分层保留 Regular Attention，以捕捉长程依赖。</p>
+</li>
+<li>
+<p>在数学上我们可以通过设置掩码矩阵 <span class="arithmatex">\(M\)</span> 为条带状矩阵来实现 Sliding Window Attention，然而在实际实现中，先计算再加掩码的方式会导致大量无效计算与访存，无法发挥其优势。</p>
+</li>
+</ul>
+<h4 id="分组查询注意力grouped-query-attention-gqa">分组查询注意力（Grouped Query Attention, GQA）<a class="headerlink" href="#分组查询注意力grouped-query-attention-gqa" title="Permanent link">&para;</a></h4>
+<p><a href="https://arxiv.org/abs/2305.13245">GQA</a> 是一种用于减少 Key Value 数量和 Attention 计算量的优化方法。在 MHA 中，一个 Query Head 对应一个 Key/Value Head，但在 GQA 中，多个 Query Heads 可以共享同一个 Key/Value Head，这样可以显著减少 KV 的数量。</p>
+<figure>
+    <a class="glightbox" href="image/gqa.png" data-type="image"><img src="image/gqa.png" alt="Grouped Query Attention"></a>
+    <figcaption>Gemma4 中的分组查询注意力。<a href="https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-gemma-4">图源</a>。</figcaption>
+</figure>
+<p>在 Gemma4-12B 中，<span class="arithmatex">\(H_q=16\)</span>，<span class="arithmatex">\(H_{l,kv}=8\)</span>，<span class="arithmatex">\(H_{g,kv}=1\)</span>，因此滑动窗口注意力层中每 2 个 Query Heads 共享 1 个 Key/Value Head，全局注意力层中所有 16 个 Query Heads 共享 1 个 Key/Value Head。</p>
+<p>在进行注意力计算时，Query Heads 的数量仍然是 <span class="arithmatex">\(H_q\)</span>，而 Key/Value Heads 的数量是 <span class="arithmatex">\(H_{l,kv}\)</span> 或 <span class="arithmatex">\(H_{g,kv}\)</span>。因此我们需要通过重复 Key/Value Heads 来匹配 Query Heads 的数量。</p>
+<h4 id="swiglu-激活函数与-ffn">SwiGLU 激活函数与 FFN<a class="headerlink" href="#swiglu-激活函数与-ffn" title="Permanent link">&para;</a></h4>
+<p>Gemma4 使用了 SwiGLU 激活函数，它结合了 SiLU 和 GLU 的优点，能够更好地捕捉非线性关系。</p>
+<p><strong>SiLU (Sigmoid Linear Unit)</strong> 是 Sigmoid 和 ReLU 的改进版，其公式为：</p>
+<div class="arithmatex">\[\text{SiLU}(x) = x \cdot \text{Sigmoid}(x)\]</div>
+<p><strong>GLU (Gated Linear Unit)</strong> 是一个门控机制，他的核心思想是通过一个范围在 <code>[0, 1]</code> 的门控函数来控制信息的流动。GLU 的公式为：</p>
+<div class="arithmatex">\[\text{GLU}(x) = \sigma(W_g x) \odot (W_x x)\]</div>
+<p>其中 <span class="arithmatex">\(\sigma\)</span> 是范围为 <code>[0,1]</code> 的激活函数，<span class="arithmatex">\(W_g\)</span> 和 <span class="arithmatex">\(W_x\)</span> 是可学习的权重矩阵，<span class="arithmatex">\(\odot\)</span> 表示逐元素乘法。</p>
+<p><strong>SwiGLU</strong> 是 <span class="arithmatex">\(\sigma = \text{SiLU}\)</span> 的 GLU 变体，其公式为：</p>
+<div class="arithmatex">\[\text{SwiGLU}(x) = \text{SiLU}(W_g x) \odot (W_x x)\]</div>
+<p>标准的前馈神经网络 (FFN) 由两个线性层和一个激活函数组成，可以表示为：</p>
+<div class="arithmatex">\[
+\text{FFN}(x) = W_2 \cdot \sigma(W_1 \cdot x + b_1) + b_2
+\]</div>
+<p>其中 <span class="arithmatex">\(W_1\)</span> 和 <span class="arithmatex">\(W_2\)</span> 是可学习的权重矩阵，<span class="arithmatex">\(b_1\)</span> 和 <span class="arithmatex">\(b_2\)</span> 是偏置项，<span class="arithmatex">\(\sigma\)</span> 是激活函数。</p>
+<p>在 Gemma4 中，FFN 采用 SwiGLU 作为激活函数，并使用 <span class="arithmatex">\(F\)</span> 作为中间层的维度，包含三个线性层：</p>
+<ol>
+<li><strong>门控投影 (Gate Projection)</strong>：计算门控值，形状为 <span class="arithmatex">\((D, F)\)</span>。</li>
+<li><strong>上投影 (Up Projection)</strong>：计算上投影值，形状为 <span class="arithmatex">\((D, F)\)</span>。</li>
+<li><strong>下投影 (Down Projection)</strong>：将结果投影回原维度，形状为 <span class="arithmatex">\((F, D)\)</span>。</li>
+</ol>
+<h3 id="llm-推理时的显存占用">LLM 推理时的显存占用<a class="headerlink" href="#llm-推理时的显存占用" title="Permanent link">&para;</a></h3>
+<p>LLM 推理时占用的显存主要由<strong>模型权重</strong>、<strong>KV Cache</strong>和<strong>激活值</strong>三部分组成：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>说明</th>
+<th>（通常情况下）生命周期</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>模型权重</strong></td>
+<td>模型的参数权重</td>
+<td>推理服务初始化时分配，服务结束时释放</td>
+</tr>
+<tr>
+<td><strong>KV Cache</strong></td>
+<td>各个 token 对应的 Key/Value 向量</td>
+<td>在请求处理过程中分配，请求处理完毕后释放</td>
+</tr>
+<tr>
+<td><strong>激活值</strong></td>
+<td>请求序列在模型各层的中间计算结果</td>
+<td>临时分配</td>
+</tr>
+</tbody>
+</table>
+<p>通常情况下，激活值在参与的计算完成之后就会被立即释放，因此其对整体显存占用的影响较小。相比之下，模型权重和 KV Cache 会持久性地占用显存，前者占用的显存大小固定，而后者占用的显存大小随请求序列长度和 batch size 线性增长。下面这个例子展示了根据模型结构和请求估算模型权重和 KV Cache 占用的显存大小的方法：</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>假设一个 Decoder-only 的模型由 <span class="arithmatex">\(N\)</span> 个 GQA 全局注意力层组成，隐藏层维度为 <span class="arithmatex">\(D\)</span>，注意力头数量为 <span class="arithmatex">\(H_q\)</span>，Key/Value 头数量为 <span class="arithmatex">\(H_{kv}\)</span>，每个注意力头的维度为 <span class="arithmatex">\(D_h\)</span>，FFN 采用 SwiGLU 激活函数，中间层维度为 <span class="arithmatex">\(F\)</span>，词表大小为 <span class="arithmatex">\(V\)</span>，我们可以先根据各线性层形状估计参数量：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>形状</th>
+<th>参数</th>
+<th>形状</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(W_q\)</span></td>
+<td><span class="arithmatex">\((H_q, D, D_h)\)</span></td>
+<td><span class="arithmatex">\(W_{up}, W_{gate}\)</span></td>
+<td><span class="arithmatex">\((D, F)\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(W_k, W_v\)</span></td>
+<td><span class="arithmatex">\((H_{kv}, D, D_h)\)</span></td>
+<td><span class="arithmatex">\(W_{down}\)</span></td>
+<td><span class="arithmatex">\((F, D)\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(W_o\)</span></td>
+<td><span class="arithmatex">\((H_q, D_h, D)\)</span></td>
+<td><span class="arithmatex">\(W_{embed}\)</span></td>
+<td><span class="arithmatex">\((V, D)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>因此在参数量化精度为 x-bit 时，整个模型的参数占用的显存大约为：</p>
+<div class="arithmatex">\[
+    M_w = [2 V D + N D(2H_q D_h + 2 H_{kv} D_h + 3 F)] \cdot x / 8 \text{ bytes}
+\]</div>
+<p>需要注意的是上述估算方式忽略了 RMSNorm 等参数规模较小的层，因此实际测量的显存占用可能会略大于估算值。</p>
+<hr />
+<p>下面估算静态分配策略下的 KV Cache 的显存占用，即为每个请求都按照最大的序列长度分配 KV Cache。假设目前请求的批次数（batch size）为 <span class="arithmatex">\(B\)</span>，请求序列的最大长度为 <span class="arithmatex">\(S\)</span>，激活值量化精度为 y-bit。那么 KV Cache 的显存占用大约为：</p>
+<div class="arithmatex">\[
+    M_{kv} = 2 B S N H_{kv} D_h \cdot y / 8 \text{ bytes}
+\]</div>
+</div>
+<h2 id="任务一gptq-权重量化">任务一：GPTQ 权重量化<a class="headerlink" href="#任务一gptq-权重量化" title="Permanent link">&para;</a></h2>
+<p>根据上文中的思路计算一下 bfloat16 精度下 Gemma4-12B 模型参数的显存占用，我们会发现参数占用的显存已经远超我们的可用显存（10 GiB），因此在全量加载模型原始权重的情况下，我们无法完成端到端的推理。</p>
+<p>模型参数量化是在显存受限环境下进行 LLM 推理的常用方法。其原理是将模型权重从高精度（如 FP32 或 BF16）根据一定的量化策略映射到低精度（如 FP8 或 INT4），从而降低模型权重占用的显存。由于高精度到低精度的映射不可逆，量化会导致精度损失，但是大多数情况下由于模型参数中包含大量冗余信息，量化后的模型的性能下降幅度是可以接受的。</p>
+<p>目前主流的量化策略均采用线性映射，通过零点 <span class="arithmatex">\(z\)</span> 和缩放因子 <span class="arithmatex">\(s\)</span> 即可确定高精度权重 <span class="arithmatex">\(r\)</span> 与低精度权重 <span class="arithmatex">\(q\)</span> 的映射关系：</p>
+<div class="arithmatex">\[
+    q = \operatorname{round}\left(\frac{r}{s} + z\right), \enspace r = s \cdot (q - z).
+\]</div>
+<p><a class="glightbox" data-type="image" href="image/quant.png"><img alt="quant" src="image/quant.png" /></a></p>
+<p><span class="arithmatex">\(z\)</span> 和 <span class="arithmatex">\(s\)</span> 都需要用较高的精度表示，通常为原始权重的精度，并且在量化后需要存储到模型权重文件中，以便推理时对权重进行反量化，因此我们需要让多参数共享同一组 <span class="arithmatex">\(z\)</span> 和 <span class="arithmatex">\(s\)</span>，共享的策略被称为<strong>量化粒度</strong>。常见的量化粒度有 per-tensor、per-channel、per-group 等，一般粒度越小量化损失越低，但存储量化参数的开销越大。</p>
+<h3 id="知识讲解训练后量化与-gptq">知识讲解：训练后量化与 GPTQ<a class="headerlink" href="#知识讲解训练后量化与-gptq" title="Permanent link">&para;</a></h3>
+<p>训练后量化（Post-Training Quantization，PTQ）是指在模型训练完成后，使用少量校准数据确定量化参数，而不再对模型进行训练或微调。在线性映射的归纳偏置下，量化策略的核心问题变为如何选择零点 <span class="arithmatex">\(z\)</span> 和缩放因子 <span class="arithmatex">\(s\)</span>，以最小化量化误差：</p>
+<div class="arithmatex">\[
+    \underset{z, s}{\operatorname{argmin}} \mathbb{E}_{X} \left[ L(f(W, X), f(Q, X)) \right]
+\]</div>
+<p>其中 <span class="arithmatex">\(W\)</span> 是原始权重，<span class="arithmatex">\(Q\)</span> 是量化后的权重，<span class="arithmatex">\(X\)</span> 是输入数据，<span class="arithmatex">\(f(\cdot)\)</span> 是前向函数，<span class="arithmatex">\(L(\cdot, \cdot)\)</span> 是损失函数。</p>
+<p>一种朴素的想法是 <strong>RTN（Round to Nearest）</strong>策略：对于同一个 group 中的权重，统计其最大值 <span class="arithmatex">\(r_{max}\)</span> 和最小值 <span class="arithmatex">\(r_{min}\)</span>，然后将 <span class="arithmatex">\(r_{max}\)</span> 映射到量化范围的最大值 <span class="arithmatex">\(q_{max}\)</span>，<span class="arithmatex">\(r_{min}\)</span> 映射到量化范围的最小值 <span class="arithmatex">\(q_{min}\)</span>，从而确定缩放因子和零点：</p>
+<div class="arithmatex">\[
+    s = \frac{r_{max} - r_{min}}{q_{max} - q_{min}}, \enspace z = q_{min} - \frac{r_{min}}{s}.
+\]</div>
+<p>随后，每个权重都被独立地舍入到最近的量化值。RTN 的计算开销很低，也不需要校准数据，因此适合作为量化流程的调试基线。但是，RTN 只关心权重本身的数值误差 <span class="arithmatex">\(\|W-Q\|\)</span>，没有考虑不同输入通道在真实推理过程中的重要性，也没有考虑多个权重的量化误差可能在层输出中相互叠加。在 INT8 等较高位宽下，这一问题通常并不明显；当权重被压缩到 INT4 时，舍入误差增大，并可能在经过后续层时进一步累积，导致模型精度明显下降。</p>
+<p>实际任务中的输入分布无法被精确求得，因此 PTQ 通常选择一小部分具有代表性的样本作为<strong>校准数据集</strong>，用校准样本上的平均误差近似上述期望。对于一个输入维度为 <span class="arithmatex">\(d_{in}\)</span>、输出维度为 <span class="arithmatex">\(d_{out}\)</span> 的线性层，设收集到的输入激活为 <span class="arithmatex">\(X \in \mathbb{R}^{N \times d_{in}}\)</span>，权重为 <span class="arithmatex">\(W \in \mathbb{R}^{d_{out} \times d_{in}}\)</span>，则可以使用层输出的重构误差作为优化目标：</p>
+<div class="arithmatex">\[
+    \min_Q \left\|XW^T-XQ^T\right\|_F^2
+    = \min_Q \left\|X(W-Q)^T\right\|_F^2.
+\]</div>
+<p>与直接比较 <span class="arithmatex">\(W\)</span> 和 <span class="arithmatex">\(Q\)</span> 相比，这个目标会根据输入激活自动区分不同方向的重要性：如果某个输入通道在校准数据中经常出现较大的激活，那么该通道上的权重误差通常会对层输出产生更大的影响。校准数据不参与参数更新，其作用只是估计模型在真实输入分布下对量化误差的敏感程度。</p>
+<h4 id="gptq-的基本思想">GPTQ 的基本思想<a class="headerlink" href="#gptq-的基本思想" title="Permanent link">&para;</a></h4>
+<p>GPTQ 是一种面向大模型的二阶训练后权重量化方法。它仍然使用普通的线性量化器产生 INT4 权重，但不再像 RTN 一样独立地量化所有权重，而是对每个线性层执行<strong>逐列量化与误差补偿</strong>：量化当前列后，立即调整尚未量化的列，使后续列尽可能抵消当前列引入的输出误差。</p>
+<p>例如，线性层的输出可以看作各输入通道贡献之和：<span class="arithmatex">\(w_1x_1+w_2x_2+\cdots\)</span>。如果校准数据中的 <span class="arithmatex">\(x_1\)</span> 和 <span class="arithmatex">\(x_2\)</span> 经常同时增大或减小，那么它们具有较强的相关性。此时，<span class="arithmatex">\(w_1\)</span> 被量化后产生的部分误差，可以通过调整尚未量化的 <span class="arithmatex">\(w_2\)</span> 来补偿。</p>
+<p>上述层重构目标关于权重的 Hessian 矩阵只与输入激活有关。忽略不影响算法的常数后，可以写为：</p>
+<div class="arithmatex">\[
+    H = \frac{2}{N}X^TX.
+\]</div>
+<p>其中 <span class="arithmatex">\(N\)</span> 是校准数据的 token 数。<span class="arithmatex">\(H\)</span> 描述了各输入通道在校准数据中的相关性：对角元素反映单个通道的活跃程度，非对角元素则反映不同通道之间的相关性。如果两个输入通道高度相关，那么一个通道上的量化误差就有可能通过修改另一个通道对应的权重得到补偿。因此，GPTQ 使用 <span class="arithmatex">\(H^{-1}\)</span> 中包含的二阶信息决定误差应当如何传播。</p>
+<p>设 <span class="arithmatex">\(H^{-1}=U^TU\)</span>，其中 <span class="arithmatex">\(U\)</span> 是通过 Cholesky 分解得到的上三角矩阵。按照输入维度从左到右处理权重列，量化第 <span class="arithmatex">\(i\)</span> 列时，先使用当前 group 的 <span class="arithmatex">\(s\)</span> 和 <span class="arithmatex">\(z\)</span> 将修正后的权重列 <span class="arithmatex">\(w_i\)</span> 映射为可表示的 INT4 值，并反量化得到 <span class="arithmatex">\(q_i\)</span>。随后计算归一化量化误差：</p>
+<div class="arithmatex">\[
+    e_i = \frac{w_i-q_i}{U_{ii}}.
+\]</div>
+<p>再利用 <span class="arithmatex">\(U\)</span> 的第 <span class="arithmatex">\(i\)</span> 行更新尚未量化的权重列：</p>
+<div class="arithmatex">\[
+    W_{:,\,i:} \leftarrow W_{:,\,i:} - e_i U_{i,\,i:}.
+\]</div>
+<p>这样，当前列被舍入后产生的误差会沿着输入通道之间的相关方向传播到后续列，后续列在补偿后的权重基础上进行量化。重复这一过程直到所有列都被量化，就可以在不进行反向传播和模型训练的情况下，显著降低整个线性层的输出重构误差。</p>
+<p>GPTQ 的思路来源于 <strong>OBQ（Optimal Brain Quantization）</strong>。OBQ 会反复寻找当前最适合量化的权重，并在每次量化后更新逆 Hessian，计算开销很高。GPTQ 使用固定的列顺序，让同一输入通道在所有输出通道中同时被处理，并将多次更新组织成分块矩阵运算，从而使这一方法能够应用到大模型。</p>
+<div class="admonition note">
+<p class="admonition-title">阅读材料</p>
+<p>想要进一步了解 GPTQ 算法原理的同学可以参考：</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2210.17323">原论文</a></li>
+<li><a href="https://declk.github.io/blog/LLMs/GPTQ%20%E5%8E%9F%E7%90%86%E4%BB%A5%E5%8F%8A%E5%AE%8C%E6%95%B4%E8%AF%81%E6%98%8E.html">GPTQ 原理以及完整证明</a></li>
+</ul>
+</div>
+<h4 id="数值稳定性与分块计算">数值稳定性与分块计算<a class="headerlink" href="#数值稳定性与分块计算" title="Permanent link">&para;</a></h4>
+<p>实际校准数据中，部分输入通道可能始终为零，或者不同通道高度相关，使 <span class="arithmatex">\(H\)</span> 不满秩或接近奇异矩阵，无法稳定地求逆。常见做法是先处理对角元素为零的 <strong>dead column</strong>，再向 Hessian 的对角线加入阻尼项：</p>
+<div class="arithmatex">\[
+    H \leftarrow H + \lambda I, \enspace
+    \lambda = \alpha \cdot \operatorname{mean}(\operatorname{diag}(H)),
+\]</div>
+<p>其中 <span class="arithmatex">\(\alpha\)</span> 是阻尼比例。阻尼可以改善 Cholesky 分解的数值稳定性，但过大的阻尼会削弱校准数据所提供的通道相关性信息，因此需要在稳定性和量化精度之间进行权衡。</p>
+<p>对于大模型中的宽矩阵，直接保存逐列更新产生的所有中间结果会带来较高的访存开销。GPTQ 通常以若干连续列为一个 block，先在 block 内逐列量化并传播误差，再将整个 block 累积的误差一次性更新到后续列。</p>
+<figure>
+    <a class="glightbox" href="image/gptq_procedure.png" data-type="image"><img src="image/gptq_procedure.png" alt="GPTQ Procedure" width="80%"></a>
+    <figcaption>GPTQ 分块计算示例。<a href="https://arxiv.org/abs/2210.17323">图源</a>。</figcaption>
+</figure>
+<p>下面是 GPTQ 量化的伪代码，需要注意的是这里的 blocksize <span class="arithmatex">\(B\)</span> 并不是量化粒度，而是本节所述的分块计算的列数：</p>
+<figure>
+    <a class="glightbox" href="image/gptq_algorithm.png" data-type="image"><img src="image/gptq_algorithm.png" alt="GPTQ Algorithm"></a>
+    <figcaption>GPTQ 算法流程。<a href="https://arxiv.org/abs/2210.17323">图源</a>。</figcaption>
+</figure>
+<h4 id="本实验中的量化流程">本实验中的量化流程<a class="headerlink" href="#本实验中的量化流程" title="Permanent link">&para;</a></h4>
+<p>本实验采用逐层量化的方式处理 Gemma4-12B：</p>
+<ol>
+<li>框架首先使用校准样本运行当前 Transformer 层，并通过 hook 收集各个目标 Linear 的输入激活；</li>
+<li>根据输入激活构造 Hessian，并通过 dead-column 处理、阻尼和 Cholesky 分解得到稳定的逆 Hessian 因子；</li>
+<li>按 group 计算量化参数，按 block 逐列量化权重；</li>
+<li>每量化一列，就使用逆 Hessian 信息修正剩余列；</li>
+<li>打包 INT4 权重、scale 和 zero point，存储到新的模型权重文件中；</li>
+<li>当前层量化完成后，框架会使用反量化后的权重重新计算该层输出，并将结果作为下一层的校准输入，从而让后续层看到前面各层已经产生的量化误差。</li>
+</ol>
+<p>与 RTN 相比，GPTQ 需要额外的校准时间和临时显存，但只执行一次离线量化，不需要原始训练数据，也不需要重新训练模型。它将优化目标从“权重数值尽可能接近”转化为“校准数据上的层输出尽可能接近”，因此更适合本实验中的 W4A16 低位宽量化任务。</p>
+<h3 id="实验任务">实验任务<a class="headerlink" href="#实验任务" title="Permanent link">&para;</a></h3>
+<h4 id="任务要求">任务要求<a class="headerlink" href="#任务要求" title="Permanent link">&para;</a></h4>
+<p>你的任务是实现 GPTQ 的核心算法，将 Gemma4-12B 的权重从 BF16 量化到 INT4。</p>
+<ul>
+<li>
+<p>我们提供的量化框架已经实现了分层量化、校准数据集激活值捕捉、INT4 权重打包等功能，请你阅读框架代码并理解整体工作流程后，基于 <code>src/quantization/methods/gptq.py</code> 中的函数接口，完成 GPTQ 的核心算法实现。</p>
+</li>
+<li>
+<p>我们提供了 RTN（Round to Nearest）量化方法的参考实现，你可以阅读相关代码并理解接口设计。</p>
+</li>
+<li>
+<p>我们提供了一份校准数据集 <code>calibration-256.jsonl</code>，包含 256 条英文文本，你可以直接使用该数据集，也可以自行准备其他数据集。我们欢迎你尝试不同规模、不同长度、不同语义的校准数据集，并在报告中分析其对量化精度的影响。</p>
+</li>
+<li>
+<p>在实现 GPTQ 算法后，你需要使用量化框架将 Gemma4-12B 的参数量化到 INT4，并将量化后的权重保存到新的模型权重文件中，量化框架入口脚本为 <code>scripts/quantize.py</code>。</p>
+</li>
+<li>
+<p>量化后的权重需要在测试集上通过精度评测，具体评测标准详见 <a href="#任务一评测">评测方式</a>。我们提供了公开测试集 <code>quality_public.jsonl</code>，你可以使用该数据集自行测试。</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">量化精度损失的评估</p>
+<p>我们使用 <strong>NLL（Negative Log-Likelihood，负对数似然）</strong>衡量量化前后模型对文本的建模能力。对于 token 序列 <span class="arithmatex">\(x_1,x_2,\ldots,x_L\)</span>，评测器在每个位置向模型提供真实的历史 token，并计算模型为下一个真实 token 分配的概率。序列的平均 NLL 为：</p>
+<div class="arithmatex">\[
+    \mathrm{NLL}
+    = -\frac{1}{L-1}\sum_{t=1}^{L-1}
+    \log p(x_{t+1}\mid x_1,\ldots,x_t).
+\]</div>
+<p>NLL 越小，表示模型为真实文本分配的概率越高。我们主要关注测试集上的全局平均 <span class="arithmatex">\(\mathrm{NLL}\)</span>，即</p>
+<div class="arithmatex">\[
+    \mathrm{NLL}_{\mathrm{avg}}
+    = \frac{\sum_{i=1}^{M} S_i \cdot \mathrm{NLL}_i}{\sum_{i=1}^{M} S_i},
+\]</div>
+<p>评测时，我们分别在原始 BF16 模型和量化后的 INT4 模型上运行完全相同的数据集，并计算：</p>
+<div class="arithmatex">\[
+    \Delta\mathrm{NLL}
+    = \mathrm{NLL}_{\mathrm{INT4}}-\mathrm{NLL}_{\mathrm{BF16}}.
+\]</div>
+</div>
+<h4 id="输入输出接口">输入输出接口<a class="headerlink" href="#输入输出接口" title="Permanent link">&para;</a></h4>
+<p>你需要实现的 GPTQ 算法核心函数如下：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">quantize_weight_gptq</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">weight</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">activations</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">group_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">damp_percent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">symmetric</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">scale_dtype</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">QuantizedWeight</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">]]:</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="sd">    使用 GPTQ 算法将权重量化为 INT4。</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="sd">    参数：</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="sd">        weight: 待量化的权重张量，形状为 (out_features, in_features)。</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="sd">        activations: 校准数据集的输入激活，形状为 (calibration_tokens, in_features)。</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="sd">        group_size: 量化粒度，即每个 group 中的列数。</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="sd">        block_size: 分块计算时每个 block 中的列数。</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="sd">        damp_percent: 阻尼比例，用于改善 Hessian 的数值稳定性。</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="sd">        symmetric: 是否使用对称量化。</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="sd">        scale_dtype: 缩放因子的 dtype。</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="sd">    返回：</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="sd">        quantized_weight: 量化后的权重对象，具体详见 QuantizedWeight 类的定义。</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="sd">        metadatas: 量化过程中的统计信息，不影响评测，用于分析和调试。</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="n">quantized</span> <span class="o">=</span> <span class="n">QuantizedWeight</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>        <span class="s2">&quot;activation_tokens&quot;</span><span class="p">:</span> <span class="n">activations</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>        <span class="s2">&quot;block_size&quot;</span><span class="p">:</span> <span class="n">block_size</span><span class="p">,</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>        <span class="s2">&quot;damp_percent&quot;</span><span class="p">:</span> <span class="n">damp_percent</span><span class="p">,</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>        <span class="s2">&quot;dead_columns&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>        <span class="s2">&quot;predicted_loss&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>    <span class="p">}</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>    <span class="k">return</span> <span class="n">quantized</span><span class="p">,</span> <span class="n">metadata</span>
+</span></code></pre></div>
+<h2 id="任务二端到端推理性能优化">任务二：端到端推理性能优化<a class="headerlink" href="#任务二端到端推理性能优化" title="Permanent link">&para;</a></h2>
+<p>将 Gemma4-12B 模型量化到 INT4 后，我们终于可以在 10 GiB 显存限制下进行完整的推理了。然而，在使用推理框架加载量化后的模型进行推理时，你可能会发现模型的推理效率不如预期，下面我们将提供一些优化方向供你参考。</p>
+<h3 id="性能分析方法">性能分析方法<a class="headerlink" href="#性能分析方法" title="Permanent link">&para;</a></h3>
+<p>在进行性能优化前，我们需要先对推理过程进行性能分析，找出性能瓶颈。在分析像 LLM 推理系统这样的复杂异构应用时，我们一般会采用自顶向下的分析方法，先定位 CPU 端各函数的执行时间和 GPU 端各算子的执行时间，确定性能瓶颈在 CPU 端还是 GPU 端，再进一步分析瓶颈函数或算子内部的性能问题。</p>
+<p>你可以继续使用 Nvidia Nsight Systems 对推理系统进行分析，但是对于基于 pytorch 编写的应用，我们更推荐使用 Pytorch Profiler 来进行整体性能分析。Pytorch Profiler 的输出格式是 JSONL 格式的 Chrome Trace 文件，可以用 <a href="https://ui.perfetto.dev/">perfetto</a> 或 <a href="chrome://tracing">chrome://tracing</a> 打开进行可视化分析，还支持用 SQL 查询性能分析数据。</p>
+<p>使用 Pytorch Profiler 进行性能分析的工作流程如下：</p>
+<ul>
+<li>
+<p>在代码中将需要分析的区域用 <code>with torch.profiler.profile(...)</code> 包裹起来，指定需要收集的事件类型和输出文件路径；</p>
+</li>
+<li>
+<p>运行程序，生成性能分析文件；</p>
+</li>
+<li>
+<p>使用可视化工具打开性能分析文件，查看 CPU 端函数和 GPU 端算子的执行时间，找出性能瓶颈；</p>
+</li>
+</ul>
+<details class="example">
+<summary>Example</summary>
+<p><a class="glightbox" data-type="image" href="image/profiler_example.png"><img alt="pytorch_profiler_example" src="image/profiler_example.png" /></a></p>
+<p>例如在上面这张 timeline 中，我们可以看到 CPU 大部分时间都在同步等待 GPU 端某个算子执行完成，这通常是由于 CPU 端的控制流或数据依赖于该 GPU 算子的执行结果，导致 CPU 端无法继续发射后续算子。我们可以检查 CPU-GPU 同步触发的原因，并判断该同步是否可以被消除。</p>
+</details>
+<h3 id="方向一显存占用优化">方向一：显存占用优化<a class="headerlink" href="#方向一显存占用优化" title="Permanent link">&para;</a></h3>
+<p>在 LLM 推理中，提高 batch size 可以均摊算子发射的开销和数据搬运的延迟，从而提高吞吐量。然而，提高 batch size 意味着 KV Cache 和激活值占用的显存同比增长。为了让固定的显存资源能支持更大的 batch size，我们需要着重关注以下方向：</p>
+<ul>
+<li>
+<p>降低模型权重占用的峰值显存</p>
+</li>
+<li>
+<p>相同请求数下，降低 KV Cache 占用的峰值显存</p>
+</li>
+</ul>
+<h4 id="权重-offloading">权重 Offloading<a class="headerlink" href="#权重-offloading" title="Permanent link">&para;</a></h4>
+<p>权重 Offloading 的基本思想是只让当前计算所需的模型权重常驻 GPU，其余权重保存在 CPU 内存中，并在执行到对应层之前搬运到 GPU。Gemma4 的 Transformer 层按顺序执行，因此在计算第 <span class="arithmatex">\(i\)</span> 层时，第 <span class="arithmatex">\(i+1\)</span> 层之后的权重暂时不会参与计算。我们可以利用这一特点，将若干层的权重放在 CPU 内存中，并使用一块可复用的 GPU 缓冲区逐层加载权重，从而降低模型权重占用的峰值显存。</p>
+<p>最简单的实现方式是<strong>同步 Offloading</strong>：在每层计算开始前将该层权重从 CPU 搬运到 GPU，等待搬运完成后执行计算，再复用这部分显存加载下一层权重。这种方法容易保证正确性，但 Host-to-Device 数据搬运与 GPU 计算完全串行，可能使 PCIe 传输成为新的性能瓶颈。</p>
+<p>为了隐藏数据搬运开销，可以进一步实现<strong>异步 Offloading</strong>。你可能需要准备两组 GPU 权重缓冲区，并使用独立的 CUDA Stream，在第 <span class="arithmatex">\(i\)</span> 层执行计算时预取第 <span class="arithmatex">\(i+1\)</span> 层的权重；计算流在使用下一组权重前，通过 CUDA Event 等待搬运完成。对于 INT4 模型，需要将打包后的权重、scale 和 zero point 作为一个整体进行管理，避免遗漏量化参数或在前向过程中反复创建临时张量。</p>
+<p>在实现时你可以控制 Offloading 的粒度，例如根据显存预算选择常驻层与卸载层，或是以多个连续的 DecoderLayer 为粒度进行卸载，并结合 profiler 分析权重搬运是否与计算充分重叠。</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>建议先实现同步版本，确认输出与全量加载版本一致，并记录峰值显存和 Host-to-Device 搬运时间；再引入 pinned memory、独立 CUDA Stream、预取和双缓冲，逐步验证异步优化是否真正提高了端到端吞吐量。</p>
+</div>
+<h4 id="ring-kv-cache">Ring KV Cache<a class="headerlink" href="#ring-kv-cache" title="Permanent link">&para;</a></h4>
+<p>Gemma4 同时包含全局注意力层和滑动窗口注意力层。对于窗口大小为 <span class="arithmatex">\(W\)</span> 的滑动窗口注意力层，位置 <span class="arithmatex">\(t\)</span> 的 token 最多只会访问最近 <span class="arithmatex">\(W\)</span> 个 token 的 Key 和 Value。更早的 KV 一旦移出窗口，之后就不会再次参与该层的计算，因此没有必要像全局注意力层一样保存完整的历史序列。</p>
+<p>Ring KV Cache 使用固定大小为 <span class="arithmatex">\(W\)</span> 的环形缓冲区保存滑动窗口层的 KV。绝对位置为 <span class="arithmatex">\(t\)</span> 的 KV 被写入物理槽位 <span class="arithmatex">\(t \bmod W\)</span>；当序列长度超过 <span class="arithmatex">\(W\)</span> 时，新 KV 会覆盖已经移出注意力窗口的旧 KV。这样，滑动窗口层中每个请求的 KV Cache 占用由 <span class="arithmatex">\(O(S)\)</span> 降低为 <span class="arithmatex">\(O(\min(S, W))\)</span>，其中 <span class="arithmatex">\(S\)</span> 为当前序列长度。</p>
+<p>若模型包含 <span class="arithmatex">\(N_g\)</span> 个全局注意力层和 <span class="arithmatex">\(N_l\)</span> 个滑动窗口注意力层，在忽略不同层 KV 头数差异的情况下，KV Cache 的序列长度因子可以从 <span class="arithmatex">\((N_g + N_l)S\)</span> 降低为：</p>
+<div class="arithmatex">\[
+    N_g S + N_l \min(S, W).
+\]</div>
+<p>在当前框架中，你可以分别为全局注意力层和滑动窗口注意力层设计不同的缓存布局，并在滑动窗口注意力的 KV 写入与读取路径中加入环形索引。该方法不会改变模型的注意力范围，因此在索引和掩码实现正确时，不会引入额外的精度损失。</p>
+<h4 id="paged-attention">Paged Attention<a class="headerlink" href="#paged-attention" title="Permanent link">&para;</a></h4>
+<p>当前框架会按照 <code>max_batch_size</code> 和 <code>max_sequence_length</code> 为每个注意力层预先分配连续的 KV Cache。即使实际 batch 较小或请求提前结束，这部分显存也无法被其他请求使用。当不同请求的长度差异较大时，静态连续分配会产生大量未使用的预留空间，并限制系统能够同时处理的请求数。</p>
+<p>Paged Attention 将每个请求的 KV Cache 划分为固定大小的 block，并从全局 KV block 池中按需分配物理块。每个请求维护一张 block table，用于记录逻辑 KV block 到物理 KV block 的映射。当请求长度增长到新的 block 时，系统再从空闲列表中分配物理块；当请求结束时，其占用的物理块可以立即回收到空闲列表，供后续请求复用。</p>
+<p>假设 block size 为 <span class="arithmatex">\(P\)</span>，Paged Attention 不再为每个请求预留完整的最大序列长度，而是只为已经产生的 token 分配 KV 空间。每个请求在每层最多浪费最后一个 block 中的 <span class="arithmatex">\(P-1\)</span> 个槽位，因此 block 越小，内部碎片越少；但 block table 更大，分配和寻址开销也更高。你需要根据请求长度分布和注意力算子的实现选择合适的 block size。</p>
+<p>在当前基于 PyTorch 的框架中，可以先实现一个功能正确的版本：用 block pool 和 block table 管理 KV，在执行注意力前按照逻辑顺序收集当前请求对应的 K/V block，再复用现有注意力计算。该实现会引入额外的数据整理开销，但能够验证分页分配、扩容和回收逻辑。进一步优化时，可以改写注意力算子，使其根据 block table 直接读取离散的物理块，避免将 KV Cache 重新拼接为连续张量。</p>
+<div class="admonition note">
+<p class="admonition-title">阅读材料</p>
+<p><a href="https://hamzaelshafie.bearblog.dev/paged-attention-from-first-principles-a-view-inside-vllm/">Paged Attention from First Principles: A View Inside vLLM</a></p>
+</div>
+<h3 id="方向二算子优化">方向二：算子优化<a class="headerlink" href="#方向二算子优化" title="Permanent link">&para;</a></h3>
+<p>观察 profiler timeline 时，可以将空闲时间粗略分为两类：</p>
+<ul>
+<li><strong>算子之间的空隙（外部 bubble）</strong>：通常来自 Python 与算子发射开销、过多的小算子、GPU-CPU 同步或频繁的动态内存分配。它在 timeline 中表现为相邻 GPU kernel 之间存在明显空白。</li>
+<li><strong>算子内部的停顿（内部 bubble）</strong>：kernel 已经开始执行，但线程块可能在等待 global memory 数据、同步或其他执行单元。对于访存密集型算子，计算单元会因为数据供给不足而空闲。</li>
+</ul>
+<p>减少外部 bubble 的常见方法包括消除不必要的同步、复用临时缓冲区、合并小算子，以及在执行形状稳定后使用 CUDA Graph。减少内部 bubble 则需要从 kernel 内部的数据访问和并行划分入手，例如采用分块计算、合并访存、提高数据复用率和减少中间结果的读写。</p>
+<p>在修改算子前，应当分别分析 <strong>prefill</strong> 和 <strong>decode</strong>。Prefill 一次处理多个 token，矩阵规模较大，通常更容易利用 GPU 的并行计算能力；decode 每次只处理一个 token，许多矩阵乘法退化为矩阵-向量乘法，更容易受到权重读取和算子发射开销限制。因此，同一个 kernel 在两种阶段的最优分块策略可能不同，也不应只根据单个算子的加速比判断优化效果。</p>
+<h4 id="算子融合">算子融合<a class="headerlink" href="#算子融合" title="Permanent link">&para;</a></h4>
+<p>算子融合将多个前后相邻的操作放入同一个 kernel，使中间结果尽可能保留在寄存器或片上存储中，避免写回 global memory 后又被下一个算子读入。融合还可以减少 kernel 数量，从而同时缓解外部 bubble 和内部 bubble。</p>
+<p>本方向要求你使用 <strong>Triton 或 TileLang 自行编写 kernel</strong>，不得调用 FlashAttention、xFormers、bitsandbytes、cuBLASLt 封装、PyTorch SDPA 等现成算子库。下面给出两个适合在当前框架中实现的融合算子。</p>
+<h5 id="反量化-gemm-融合">反量化-GEMM 融合<a class="headerlink" href="#反量化-gemm-融合" title="Permanent link">&para;</a></h5>
+<p>当前 <code>QuantizedLinear.forward</code> 会先将整块 INT4 权重反量化为 BF16/FP16 张量，再调用 <code>F.linear</code>：</p>
+<div class="arithmatex">\[
+    Q_4 \longrightarrow W_{16} \longrightarrow Y.
+\]</div>
+<p>这种实现逻辑清晰，但每次前向都会创建完整的高精度权重临时张量。反量化结果需要写入 global memory，随后又被 GEMM 读回；在 decode 阶段，同一层每次只处理少量 token，这部分数据搬运可能比实际计算更昂贵。</p>
+<p>融合 kernel 不再物化完整的 <span class="arithmatex">\(W_{\text{fp16}}\)</span>。对于输出矩阵的一个 tile，kernel 依次完成：</p>
+<ol>
+<li>从 <code>qweight</code> 中读取打包的字节，并用位运算提取两个 INT4 权重；</li>
+<li>根据输入维度位置计算 group 编号，加载对应的 <code>scales</code> 和可选的 <code>zeros</code>；</li>
+<li>在寄存器或片上存储中将当前权重 tile 反量化为计算精度；</li>
+<li>立即与输入 tile 相乘并累加到 FP32 accumulator；</li>
+<li>在归约结束后转换到输出精度，并写回结果。</li>
+</ol>
+<p>对于非对称量化，反量化关系为</p>
+<div class="arithmatex">\[
+    w_{m,k}=s_{m,g(k)}\left(q_{m,k}-z_{m,g(k)}\right),
+    \qquad g(k)=\left\lfloor\frac{k}{G}\right\rfloor,
+\]</div>
+<p>其中 <span class="arithmatex">\(G\)</span> 是 group size。实现时需要与框架中的 <code>uint8_little_nibble</code> packing 格式保持一致，并正确处理 <code>padded_in_features</code>、末尾越界、对称/非对称量化和可选 bias。</p>
+<p>你可以分别为两类工作负载选择调度策略：prefill 使用较大的 <span class="arithmatex">\(M\)</span> 维 tile，提高 Tensor Core 利用率；decode 的 <span class="arithmatex">\(M\)</span> 很小，应优先减少权重重复读取、线程块数量和发射开销。除了 <code>BLOCK_M</code>、<code>BLOCK_N</code> 和 <code>BLOCK_K</code>，还可以比较 warp 数量、pipeline stage 数量，以及 group size 与 <code>BLOCK_K</code> 对齐方式对性能的影响。</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>融合 kernel 的持久参数必须仍然是打包 INT4 权重、scale、zero point 和必要的元数据。不得在模型加载时将全部权重永久展开为 BF16/FP16，也不得通过缓存完整反量化权重绕过显存限制。</p>
+</div>
+<h5 id="flash-attention">Flash Attention<a class="headerlink" href="#flash-attention" title="Permanent link">&para;</a></h5>
+<p>当前注意力实现会依次构造 <code>scores</code>、<code>mask</code> 和 <code>prob</code>：</p>
+<div class="arithmatex">\[
+    A = QK^T,\qquad P=\operatorname{softmax}(A+M), \qquad O=PV.
+\]</div>
+<p>对于序列长度 <span class="arithmatex">\(L\)</span>，中间矩阵 <span class="arithmatex">\(A\)</span> 和 <span class="arithmatex">\(P\)</span> 的大小均为 <span class="arithmatex">\(O(L^2)\)</span>。它们需要多次写入和读取 global memory，长序列 prefill 时会产生较大的显存占用和带宽开销。Flash Attention 的核心思想是按块读取 <span class="arithmatex">\(Q\)</span>、<span class="arithmatex">\(K\)</span>、<span class="arithmatex">\(V\)</span>，在片上完成分数计算、mask、softmax 更新和对 <span class="arithmatex">\(V\)</span> 的加权累加，从而不在显存中物化完整的注意力矩阵。</p>
+<p>由于一个 query block 会依次遍历多个 key/value block，softmax 需要使用在线归一化算法。设处理完前若干 block 后，某一行已知最大值 <span class="arithmatex">\(m\)</span>、指数和 <span class="arithmatex">\(l\)</span> 与未归一化输出累加值 <span class="arithmatex">\(o\)</span>；读入新分数块 <span class="arithmatex">\(A_j\)</span> 后，可按以下方式更新：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+    m' &amp;= \max\left(m, \operatorname{rowmax}(A_j)\right), \\
+    \alpha &amp;= e^{m-m'}, \\
+    P_j &amp;= e^{A_j-m'}, \\
+    l' &amp;= \alpha l + \operatorname{rowsum}(P_j), \\
+    o' &amp;= \alpha o + P_jV_j.
+\end{aligned}
+\]</div>
+<p>遍历完成后输出 <span class="arithmatex">\(O=o/l\)</span>。实际实现中应使用 FP32 保存 <span class="arithmatex">\(m\)</span>、<span class="arithmatex">\(l\)</span> 和累加器，避免长序列下的溢出和精度损失。</p>
+<p>为适配当前 Gemma4 推理框架，你的 kernel 至少需要正确处理：</p>
+<ul>
+<li>因果注意力，以及 padding token 对应的无效 query/key；</li>
+<li>全局注意力层和滑动窗口注意力层；</li>
+<li>GQA 中 query head 与 KV head 的映射，避免先调用 <code>repeat_kv</code> 物化重复的 K/V；</li>
+<li>prefill 中 <span class="arithmatex">\(q_{len}&gt;1\)</span> 与 decode 中 <span class="arithmatex">\(q_{len}=1\)</span> 的不同形状；</li>
+<li>KV Cache 中已经存在的历史 token，以及最后一个不完整 tile 的越界掩码。</li>
+</ul>
+<p>全局注意力中，一个 query block 只遍历满足因果条件的 KV block；滑动窗口注意力还应跳过窗口之外的 block，而不是先计算完整分数再填充 <span class="arithmatex">\(-\infty\)</span>。这样不仅移除了显式 mask 和注意力矩阵，还能避免执行理论上不需要的乘加运算。对于 decode，可以设计单独的窄 query kernel，以减少只有一个 query token 时的空线程和调度开销。</p>
+<h4 id="优化与验证流程">优化与验证流程<a class="headerlink" href="#优化与验证流程" title="Permanent link">&para;</a></h4>
+<p>推荐按照以下顺序完成算子优化：</p>
+<ol>
+<li><strong>建立基线</strong>：固定输入形状、随机种子和量化 checkpoint，记录 prefill、decode、端到端吞吐量以及峰值显存；</li>
+<li><strong>验证正确性</strong>：在小尺寸张量上与框架原有 PyTorch 实现比较，并覆盖非整除维度、不同 batch size、不同序列长度和滑动窗口边界；</li>
+<li><strong>进行 microbenchmark</strong>：预热后使用 CUDA Event 测量 kernel 时间，分别测试实验评测中具有代表性的 prefill 和 decode 形状；</li>
+<li><strong>结合 profiler 调优</strong>：检查 kernel 数量、global memory 吞吐、Tensor Core 利用率和时间占比，再调整 tile、warp 和 pipeline 配置；</li>
+<li><strong>回到端到端评测</strong>：确认优化没有被其他开销抵消，并报告 TTFT、TPOT、吞吐量和峰值显存的变化。</li>
+</ol>
+<p>算子优化必须保持模型语义不变，你需要保证你编写的 kernel 与参考的 pytorch 实现在相同输入下的输出一致。由于 softmax 的归约顺序和低精度计算会带来合理的浮点误差，可以使用适当的绝对误差和相对误差阈值。</p>
+<p>实验报告中应给出“瓶颈现象—优化假设—kernel 设计—性能结果”的完整证据链。除端到端结果外，还应包含关键算子的形状、基线与优化版延迟、加速比、显存变化和正确性误差，并解释为何某些优化只对 prefill 或 decode 有效。</p>
+<h3 id="方向三请求调度优化">方向三：请求调度优化<a class="headerlink" href="#方向三请求调度优化" title="Permanent link">&para;</a></h3>
+<p>当前框架下请求处理采用静态调度策略：所有请求被放到队列中，当 InferenceEngine 空闲时，框架会从队列中取出最多 batch size 个请求进行处理，待所有请求都计算完毕后，才会处理队列中的下一个 batch。</p>
+<h4 id="continuous-batching">Continuous Batching<a class="headerlink" href="#continuous-batching" title="Permanent link">&para;</a></h4>
+<p>当请求的生成长度差异较大时，较短的请求会提前结束，但它占用的 batch 槽位无法被新请求使用。GPU 只能继续等待同一 batch 中最长的请求完成，导致实际参与计算的请求数不断减少。这个现象通常被称为拖尾效应。</p>
+<p><strong>Continuous Batching（连续批处理）</strong>不再将一个 batch 视为不可拆分的整体，而是在每次推理迭代后重新调整活跃请求集合。一个基本的调度循环可以包含以下步骤：</p>
+<ol>
+<li>检查本轮生成的 token，将达到停止条件的请求移出活跃队列，并释放其 KV Cache；</li>
+<li>根据最大 batch size 和剩余 KV Cache 容量，从等待队列中接纳新请求；</li>
+<li>对新请求执行 prefill，将其加入活跃请求集合；</li>
+<li>对处于 decoding 状态的请求各生成一个 token，然后进入下一轮调度。</li>
+</ol>
+<p>通过及时补充新请求，Continuous Batching 可以让 decode batch size 长时间保持在较高水平，从而提高 GPU 利用率和系统吞吐量。实现时，每个活跃请求需要拥有稳定的请求 ID、状态和 KV Cache 映射；请求离开后，其 batch 槽位或分页 KV block 必须能够被安全复用。当前框架已经使用 <code>RequestState</code> 记录请求的 prefill、decoding 和 completed 状态，你可以在此基础上扩展调度器，并将一次性执行完整 batch 的流程改为可重复调用的调度步。</p>
+<p>Prefill 通常处理多个 token，计算量明显大于单步 decode。如果每次有新请求到达都立即执行完整 prefill，可能阻塞正在生成的请求并增大 TPOT。一个易于实现的基础策略是分别执行新请求的 prefill batch 和活跃请求的 decode batch，并限制每轮接纳的新请求数；进一步可以为每轮设置 token budget，将长 prompt 切分为多个 chunk，使 chunked prefill 与 decode 交替执行。</p>
+<div class="admonition note">
+<p class="admonition-title">阅读材料</p>
+<p><a href="https://huggingface.co/blog/continuous_batching">Continuous batching</a></p>
+</div>
+<h3 id="其他优化手段">其他优化手段<a class="headerlink" href="#其他优化手段" title="Permanent link">&para;</a></h3>
+<p>我们欢迎你根据 profiler 结果尝试不同的优化策略，例如减少张量布局转换与临时内存分配、尝试 <code>torch.compile</code>、调整 batch 组织方式，或针对 prefill 和 decode 设计不同的执行路径。</p>
+<p>你需要使用 profiler 自行定位瓶颈，并通过优化前后的数据验证判断。即使你的尝试没有带来加速，甚至造成负优化，也是有价值的实验结果：你可以在报告中记录原始现象、优化假设、实现方法、测试条件和性能变化，并分析负优化来自额外的算子发射、数据搬运、同步、访存模式恶化，还是工作负载与优化策略不匹配。</p>
+<h3 id="任务要求_1">任务要求<a class="headerlink" href="#任务要求_1" title="Permanent link">&para;</a></h3>
+<p>你的任务是尽可能降低 Gemma4-12B 在 10 GiB 显存限制下的端到端推理延迟，具体地：</p>
+<ul>
+<li>
+<p>你需要使用优化后的推理框架在 1/7 张 H800 上进行推理，推理框架启动入口为 <code>scripts/run_generation_queue.py</code>。</p>
+</li>
+<li>
+<p>我们会给出一份公开的性能测试数据集 <code>performance_public.jsonl</code>，在测试时我们采用无限并发模式，即在开始推理之间将所有请求压入等待队列，推理过程中不再有新的请求到达。</p>
+</li>
+<li>
+<p>允许修改代码框架的推理逻辑、算子实现、KV Cache 管理和请求调度策略，但不得修改模型结构，修改计时区间或跳过必要步骤。</p>
+</li>
+</ul>
+<h2 id="代码框架">代码框架<a class="headerlink" href="#代码框架" title="Permanent link">&para;</a></h2>
+<p>实验代码位于仓库根目录下的 <code>src/lab5/</code> 目录，文件结构如下：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>.
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── config.yaml                        # 配置文件
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├── datasets
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│   ├── calibration-256.jsonl          # 参考校准数据集
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│   ├── performance_public.jsonl       # 公开性能评测数据集
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│   ├── performance_small.jsonl        # 小规模性能测试数据集
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│   └── quality_public.jsonl           # 公开精度评测数据集
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>├── pyproject.toml
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>├── README.md                          # 实验框架和工具脚本说明
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>├── results
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│   └── bf16-public-quality.json       # 公开精度评测数据集的 BF16 精度评测结果
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>├── scripts
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>│   ├── evaluate_quality.py            # 量化精度评测脚本
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>│   ├── quantize.py                    # 量化框架入口
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>│   └── run_generation_queue.py        # 推理框架入口
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>└── src
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    └── hpc101_infer                   # 实验框架
+</span></code></pre></div>
+<p>我们提供以下工具脚本辅助你完成实验任务：</p>
+<ul>
+<li><code>scripts/quantize.py</code>：量化框架的入口脚本，你可以通过该脚本启动量化流程，并指定量化方法、校准数据集、量化粒度等参数。</li>
+<li><code>scripts/evaluate_quality.py</code>：精度评测脚本，你可以在量化完成后使用该脚本，对量化后的模型进行精度评测。</li>
+<li><code>scripts/run_generation_queue.py</code>：推理框架的入口脚本，你可以通过该脚本启动端到端推理，并按需指定请求数据集、最大 batch size、最大序列长度等参数。</li>
+</ul>
+<div class="admonition example">
+<p class="admonition-title">脚本运行示例</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><code>quantize.py</code></label><label for="__tabbed_1_2"><code>evaluate_quality.py</code></label><label for="__tabbed_1_3"><code>run_generation_queue.py</code></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>在完成 <code>src/hpc101_infer/quantization/methods/gptq.py</code> 后，你可以运行以下命令：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>scripts/quantize.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span>--config<span class="w"> </span>config.yaml<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>--model<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$MODEL_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span>--output<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$QUANT_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span>--device<span class="w"> </span>cuda<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span>--verbose
+</span></code></pre></div>
+<p>该命令会将 <code>$MODEL_DIR</code> 下的 Gemma4-12B 权重量化为 INT4，并保存到 <code>$QUANT_DIR</code>。你可以通过配置文件或命令行参数指定量化选项，包括量化方法、量化粒度、校准数据集等。</p>
+</div>
+<div class="tabbed-block">
+<p>在框架中，你可以参考以下命令进行量化精度评测：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python3<span class="w"> </span>scripts/evaluate_quality.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span>--model<span class="w"> </span>&lt;path_to_quantized_model&gt;<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span>--dataset<span class="w"> </span>&lt;path_to_test_dataset&gt;<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span>--output<span class="w"> </span>&lt;output_file&gt;<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span>--chunk-size<span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span>--max-sequence-length<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span>--linear-backend<span class="w"> </span>int4_reference
+</span></code></pre></div>
+<p>输出文件中的 <code>mean_nll</code> 字段即为全局平均 <span class="arithmatex">\(\mathrm{NLL}_{\mathrm{INT4}}\)</span>。该脚本也会统计不同长度区间的请求的平均 <span class="arithmatex">\(\mathrm{NLL}\)</span>，仅供参考。由于 10GiB 显存下无法直接运行 BF16 精度的推理，我们额外提供公开测试集的精度评测数据 <code>results/bf16-public-quality.json</code>，你可以从中获取 <span class="arithmatex">\(\mathrm{NLL}_{\mathrm{BF16}}\)</span>。</p>
+</div>
+<div class="tabbed-block">
+<p>你可以使用以下命令运行推理框架，加载指定的模型，并在指定的性能测试数据集上进行推理测试。你还可以通过配置文件或命令行参数额外指定推理引擎的运行时参数，包括最大 batch size，最大序列长度等。</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python3<span class="w"> </span>scripts/run_generation_queue.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span>--config<span class="w"> </span>config.yaml<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span>--model<span class="w"> </span>&lt;path_to_checkpoints&gt;<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span>--input<span class="w"> </span>requests.jsonl<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span>--output<span class="w"> </span>outputs.jsonl<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span>--batch-size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span>--max-sequence-length<span class="w"> </span><span class="m">2048</span>
+</span></code></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>关于实验环境配置和工具脚本使用的更多细节，请参考 <code>README.md</code> 中的说明。</strong>简单来说，两个框架入口脚本遵循以下参数处理逻辑：</p>
+<ul>
+<li>
+<p>命令行参数的优先级高于配置文件参数；</p>
+</li>
+<li>
+<p>入口脚本负责解析命令行参数，而配置文件参数则会被交给具体的配置文件类进行解析；</p>
+<ul>
+<li>这意味着在优化过程中，你可以扩展配置文件类，以支持更多的参数选项；</li>
+<li>但是模型路径、推理数据集路径、输出文件路径等参数只能通过命令行参数指定；</li>
+</ul>
+</li>
+</ul>
+<h2 id="评测方式">评测方式<a class="headerlink" href="#评测方式" title="Permanent link">&para;</a></h2>
+<div class="admonition danger">
+<p class="admonition-title">施工中</p>
+<p>目前 OJ 自动评测系统仍在建设中😭，我们会尽快发布。</p>
+</div>
+<h3 id="提交要求">提交要求<a class="headerlink" href="#提交要求" title="Permanent link">&para;</a></h3>
+<p>需要提交的内容包括：</p>
+<ul>
+<li><code>src</code> 目录下的实验代码</li>
+<li>配置文件 <code>config.yaml</code></li>
+<li>实验报告 PDF</li>
+<li>公开数据集上的精度评测结果和性能评测结果 JSON 文件</li>
+<li>（可选）自定义的校准数据集</li>
+</ul>
+<p>提交目录结构如下：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>.
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>├── src/
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>│   └── ...
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>├── config.yaml
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>├── datasets/                            # optimal
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>│   └── calibration.jsonl
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>├── report.pdf
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>└── results/
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    ├── gptq-public-quality.json
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    └── gptq-public-performance.json
+</span></code></pre></div>
+<p>请勿提交下列内容：</p>
+<ul>
+<li><code>scripts</code> 目录下的工具脚本</li>
+<li>量化前或量化后的模型权重</li>
+<li>profiler 产物</li>
+<li>任何中间结果或临时文件</li>
+</ul>
+<h3 id="评测流程">评测流程<a class="headerlink" href="#评测流程" title="Permanent link">&para;</a></h3>
+<p>OJ 评测时会经过三个阶段：</p>
+<h4 id="模型量化">模型量化<a class="headerlink" href="#模型量化" title="Permanent link">&para;</a></h4>
+<p>OJ 会根据你提交的量化框架代码和配置文件中的量化选项，使用 <code>scripts/quantize.py</code> 对 Gemma4-12B 进行 4-bit 量化，并将量化后的权重保存到指定目录。如果你提交了自定义的校准数据集，OJ 会使用该数据集进行量化；否则会使用默认的 <code>datasets/calibration-256.jsonl</code>。</p>
+<p>如果在量化过程中出现 OOM 或者任何其他运行时错误，OJ 会直接判定该提交 0 分。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>你无需在配置文件中指定量化前后模型的路径，OJ 会从命令行参数传入。</p>
+</div>
+<h4 id="任务一评测">任务一评测<a class="headerlink" href="#任务一评测" title="Permanent link">&para;</a></h4>
+<p>任务一的主指标为 <code>scripts/evaluate_quality.py</code> 输出 JSON 文件中的 <code>delta_nll</code> 字段，即量化前后模型在精度测试集 <code>quality_public.jsonl</code> 上的全局平均 <span class="arithmatex">\(\mathrm{NLL}\)</span> 差值。你需要确保 <span class="arithmatex">\(\Delta\mathrm{NLL} &lt; 0.16\)</span>，否则任务一不计分，并且任务二的评测也会被跳过。</p>
+<p>在 <span class="arithmatex">\(\Delta\mathrm{NLL} &lt; 0.16\)</span> 的情况下，任务一的得分曲线如下图所示：</p>
+<p><a class="glightbox" data-type="image" href="image/task1_score.png"><img alt="任务一得分曲线" src="image/task1_score.png" /></a></p>
+<p>具体定义如下：</p>
+<div class="arithmatex">\[
+S_1(x) = \begin{cases}
+    100, &amp; x &lt; 0.1 \\[0.9em]
+    100 \cdot \dfrac{e^{20x} - e^{3.6}}{e^{2} - e^{3.6}}, &amp; 0.1 \le x &lt; 0.16 \\[0.9em]
+    0, &amp; x \ge 0.16
+\end{cases}
+\]</div>
+<p>其中 <span class="arithmatex">\(x = \Delta\mathrm{NLL}\)</span>。</p>
+<h4 id="任务二评测">任务二评测<a class="headerlink" href="#任务二评测" title="Permanent link">&para;</a></h4>
+<p>任务二的主指标为 <code>scripts/run_generation_queue.py</code> 输出 summary JSON 文件中的 <code>elapsed_s</code> 字段，即处理全部请求的总时间。性能测试集有两份：</p>
+<ul>
+<li>
+<p><code>performance_public.jsonl</code>：主测试集，包含 10 个请求</p>
+<div class="grid cards" markdown>
+<ul>
+<li>
+<p><strong>输入分布</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th>长度区间</th>
+<th>请求数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0-512</td>
+<td>4</td>
+</tr>
+<tr>
+<td>512-1024</td>
+<td>2</td>
+</tr>
+<tr>
+<td>1024-2000</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p><strong>输出分布</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th>长度区间</th>
+<th>请求数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0-16</td>
+<td>3</td>
+</tr>
+<tr>
+<td>16-32</td>
+<td>4</td>
+</tr>
+<tr>
+<td>32-48</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</div>
+<p>主测试集的评分曲线如下图所示：</p>
+<p><a class="glightbox" data-type="image" href="image/task2_score.png"><img alt="任务二得分曲线" src="image/task2_score.png" /></a></p>
+<p>具体定义如下：</p>
+<div class="arithmatex">\[
+S_2(x) = \begin{cases}
+    100, &amp; x &lt; 36 \\[0.9em]
+    -\dfrac{5}{6} x + 30, &amp; 36 \le x &lt; 60 \\[0.9em]
+    \dfrac{5}{6} u \ln \dfrac{u}{x + u - 60} + 80, &amp; 60 \le x &lt; 150 \\[0.9em]
+    -\dfrac{1}{3} x + 80, &amp; 150 \le x &lt; 240 \\[0.9em]
+    0, &amp; x \ge 240
+\end{cases}
+\]</div>
+<p>其中 <span class="arithmatex">\(x\)</span> 是 <code>elapsed_s</code>，<span class="arithmatex">\(u \approx -65.56\)</span> 是方程 <span class="arithmatex">\(u \ln \left( 1 + \dfrac{90}{u} \right) = 60\)</span> 的正根。</p>
+</li>
+<li>
+<p><code>performance_long.jsonl</code>：Bonus 测试集，考查长上下文压力下的性能表现</p>
+<div class="admonition danger">
+<p class="admonition-title">Bonus 测评</p>
+<p>Bonus 数据集设计和测评方式尚未发布，敬请期待...</p>
+</div>
+</li>
+</ul>
+<p>除报告外，你的最终得分公式如下：</p>
+<div class="arithmatex">\[
+S = 0.4 S_1 + 0.6 S_2 + 0.1 S_{Bonus}
+\]</div>
+<h2 id="思考题">思考题<a class="headerlink" href="#思考题" title="Permanent link">&para;</a></h2>
+<ol>
+<li>根据 Gemma4-12B 的结构，推导在 W4A16 量化下，全量加载模型权重占用的显存大小，以及 KV Cache 占用的显存大小与 batch_size、max_seq_len 的关系式，与实际测量的显存占用进行对比，分析差异原因。</li>
+<li>滑动窗口注意力实质上是一种静态稀疏注意力机制，根据经验设置了注意力掩码的形状。请你思考如果我们不事先设定注意力掩码的形状，可以如何实现稀疏注意力？你的实现相比滑动窗口注意力会对模型的性能和推理效率产生什么影响？</li>
+<li>我们的量化框架已经实现了分层量化，请分析分层量化时对权重的管理策略与推理时的 Offloading 策略的异同点。</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>思考题可能还会继续补充，请大家保持关注...</p>
+</div>
+<h2 id="参考资料">参考资料<a class="headerlink" href="#参考资料" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><a href="https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-gemma-4">A Visual Guide to Gemma 4</a></p>
+</li>
+<li>
+<p><a href="https://arxiv.org/abs/2210.17323">GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers</a></p>
+</li>
+<li>
+<p><a href="https://declk.github.io/blog/LLMs/GPTQ%20%E5%8E%9F%E7%90%86%E4%BB%A5%E5%8F%8A%E5%AE%8C%E6%95%B4%E8%AF%81%E6%98%8E.html">GPTQ 原理以及完整证明</a></p>
+</li>
+<li>
+<p><a href="https://hamzaelshafie.bearblog.dev/paged-attention-from-first-principles-a-view-inside-vllm/">Paged Attention from First Principles: A View Inside vLLM</a></p>
+</li>
+<li>
+<p><a href="https://huggingface.co/blog/continuous_batching">Continuous batching</a></p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../Lab4-AMSS-NCKU/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lab 4: AMSS-NCKU 数值相对论程序优化">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Lab 4: AMSS-NCKU 数值相对论程序优化
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.action.edit","content.code.annotate","content.code.copy","content.code.select","navigation.expand","navigation.footer","navigation.instant","navigation.instant.prefetch","navigation.instant.progress","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight","search.share","search.suggest","toc.follow"],"search":"../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6e5f0216.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="../../javascripts/v86-init.js"></script>
+      
+    
+  </body>
+</html>

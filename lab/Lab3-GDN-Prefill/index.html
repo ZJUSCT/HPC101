@@ -1,0 +1,2380 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab3-GDN-Prefill/">
+      
+      
+        <link rel="prev" href="../Lab2-Vectorization/">
+      
+      
+        <link rel="next" href="../Lab4-AMSS-NCKU/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="zensical-0.0.43">
+    
+    
+      
+        <title>实验三：GDN Prefill 前向优化 - HPC101</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.fba56155.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  <script>
+    (function () {
+      try {
+        var saved = (typeof __md_get === "function") ? __md_get("__palette") : null;
+        var scheme;
+        if (saved && saved.color && saved.color.media) {
+          if (saved.color.media === "(prefers-color-scheme)") {
+            scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+          } else {
+            scheme = saved.color.scheme;
+          }
+        } else {
+          scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+        }
+        document.documentElement.setAttribute("data-md-color-scheme", scheme);
+        var attach = function () {
+          document.body.setAttribute("data-md-color-scheme", scheme);
+          new MutationObserver(function () {
+            var s = document.body.getAttribute("data-md-color-scheme");
+            if (s) document.documentElement.setAttribute("data-md-color-scheme", s);
+          }).observe(document.body, {
+            attributes: true,
+            attributeFilter: ["data-md-color-scheme"],
+          });
+        };
+        if (document.body) {
+          attach();
+        } else {
+          new MutationObserver(function (_, obs) {
+            if (document.body) {
+              attach();
+              obs.disconnect();
+            }
+          }).observe(document.documentElement, { childList: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script>
+    // Track keydown listeners added on window so v86 can later remove
+    // Material's global handler that would otherwise capture key presses
+    // intended for the in-browser Linux VM.
+    (function () {
+      window.__v86KeydownListeners = [];
+      var origAdd = window.addEventListener;
+      var origRemove = window.removeEventListener;
+      window.addEventListener = function (type, listener, options) {
+        origAdd.call(this, type, listener, options);
+        if (type === "keydown") {
+          window.__v86KeydownListeners.push({ listener: listener, options: options });
+        }
+      };
+      window.removeEventListener = function (type, listener, options) {
+        origRemove.call(this, type, listener, options);
+        if (type === "keydown") {
+          var i = window.__v86KeydownListeners.findIndex(function (e) {
+            return e.listener === listener;
+          });
+          if (i !== -1) window.__v86KeydownListeners.splice(i, 1);
+        }
+      };
+    })();
+  </script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#实验三gdn-prefill-前向优化" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101" class="md-header__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              实验三：GDN Prefill 前向优化
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guide/" class="md-tabs__link">
+          
+  
+  集群使用
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101" class="md-nav__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    HPC101
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程信息
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程信息
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  欢迎来到 HPC 101 超算短学期
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../enroll/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  报名与选课
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sponsors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  支持单位
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群使用
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  集群使用
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  登录平台
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交计算任务
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/submit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交实验报告
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  在线测评 OJ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群概况
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程实验
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 0: Linux 快速入门
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 1: 简单集群搭建
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 2: MoE 的向量化计算
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3: GDN Prefill 前向优化
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3: GDN Prefill 前向优化
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目标" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验目标
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#背景知识" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        背景知识
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="背景知识">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prefill-与-decode" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Prefill 与 Decode
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linear-attention-与-gated-deltanet" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linear Attention 与 Gated DeltaNet
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Linear Attention 与 Gated DeltaNet">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#linear-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linear Attention
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gla-deltanet-与-gated-deltanet" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GLA, DeltaNet 与 Gated DeltaNet
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chunk-wise-parallel" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Chunk-wise Parallel
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tilelang" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TileLang
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gpu-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GPU Profiling
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#计算过程描述" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        计算过程描述
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#输入输出定义" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        输入输出定义
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#任务要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#优化方向" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        优化方向
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="优化方向">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Profiling
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#等价数学变换" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        等价数学变换
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-fusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Kernel Fusion
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Shared Memory
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ping-pong-buffer--multi-buffering" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ping-pong buffer / multi-buffering
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#手动-warp-specialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        手动 warp specialization
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#其他优化手段" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        其他优化手段
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#评测方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评测方式
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验框架" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验框架
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#如何获取计算资源" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        如何获取计算资源
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实现要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实现要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#提交要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验报告" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验报告
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oj-自动评测" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        OJ 自动评测
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        参考资料
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab4-AMSS-NCKU/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4: AMSS-NCKU 数值相对论程序优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab5-Gemma4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 5: Gemma4 端到端推理优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目标" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验目标
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#背景知识" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        背景知识
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="背景知识">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prefill-与-decode" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Prefill 与 Decode
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linear-attention-与-gated-deltanet" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linear Attention 与 Gated DeltaNet
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Linear Attention 与 Gated DeltaNet">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#linear-attention" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linear Attention
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gla-deltanet-与-gated-deltanet" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GLA, DeltaNet 与 Gated DeltaNet
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chunk-wise-parallel" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Chunk-wise Parallel
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tilelang" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TileLang
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gpu-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GPU Profiling
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#计算过程描述" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        计算过程描述
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#输入输出定义" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        输入输出定义
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#任务要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#优化方向" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        优化方向
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="优化方向">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Profiling
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#等价数学变换" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        等价数学变换
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kernel-fusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Kernel Fusion
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Shared Memory
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ping-pong-buffer--multi-buffering" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ping-pong buffer / multi-buffering
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#手动-warp-specialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        手动 warp specialization
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#其他优化手段" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        其他优化手段
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#评测方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评测方式
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验框架" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验框架
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#如何获取计算资源" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        如何获取计算资源
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实现要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实现要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#提交要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验报告" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验报告
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oj-自动评测" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        OJ 自动评测
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        参考资料
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab3-GDN-Prefill/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="实验三gdn-prefill-前向优化">实验三：GDN Prefill 前向优化<a class="headerlink" href="#实验三gdn-prefill-前向优化" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">实验信息</p>
+<p>负责助教：林熙、胡哲文、丁宁、童泽远</p>
+</div>
+<h2 id="实验目标">实验目标<a class="headerlink" href="#实验目标" title="Permanent link">&para;</a></h2>
+<p>本实验围绕 <strong>GDN（Gated DeltaNet）的 prefill 前向计算</strong>展开。你需要使用 TileLang 完成给定算子的
+GPU 实现，并在保证结果正确的前提下进行优化。</p>
+<p>完成实验后，你应当能够：</p>
+<ul>
+<li>理解 Gated DeltaNet 的计算流程；</li>
+<li>理解 chunk-wise parallel 的作用及其 GPU 实现；</li>
+<li>使用分块、数据复用、融合和流水化等方法优化 GPU kernel；</li>
+<li>使用性能分析工具定位瓶颈，并用可复现的数据验证优化效果。</li>
+</ul>
+<h2 id="背景知识">背景知识<a class="headerlink" href="#背景知识" title="Permanent link">&para;</a></h2>
+<h3 id="prefill-与-decode">Prefill 与 Decode<a class="headerlink" href="#prefill-与-decode" title="Permanent link">&para;</a></h3>
+<p>自回归模型推理通常分为两个阶段：</p>
+<ul>
+<li><strong>Prefill</strong>：一次处理提示词中的全部 token，生成各层后续 decode 所需的状态；</li>
+<li><strong>Decode</strong>：每次处理一个或少量新 token，并复用 prefill 阶段产生的状态。</li>
+</ul>
+<p>本实验只关注 prefill forward。与单 token decode 相比，prefill 提供了更多序列维度上的并行机会，
+但 GDN 的状态递推仍然引入了因果依赖，因此不能简单地把所有 token 当作相互独立的任务。</p>
+<details class="note">
+<summary>扩展阅读</summary>
+<p>这里只是对 prefill 与 decode 的概念进行简要说明，更多关于自回归模型推理的内容可以参考互联网上的一些讲解。</p>
+<p><em>下面是私货夹带时间，里面也有一些相关的基础知识</em></p>
+<p><a href="https://blogs.erix025.me/EfficientAI/sct-llm-talk/sct-llm-talk/">An Introduction to Efficient LLM Inference for ZJUSCT</a></p>
+</details>
+<h3 id="linear-attention-与-gated-deltanet">Linear Attention 与 Gated DeltaNet<a class="headerlink" href="#linear-attention-与-gated-deltanet" title="Permanent link">&para;</a></h3>
+<h4 id="linear-attention">Linear Attention<a class="headerlink" href="#linear-attention" title="Permanent link">&para;</a></h4>
+<p>标准的因果自注意力可以写为：</p>
+<div class="arithmatex">\[
+O = \operatorname{softmax}\left(\frac{QK^{\mathsf T} + M}{\sqrt{d_k}}\right)V.
+\]</div>
+<p>其中 <span class="arithmatex">\(M\)</span> 是下三角的因果掩码。对于长度为 <span class="arithmatex">\(L\)</span> 的序列，显式计算所有 token 两两之间的注意力分数需要
+<span class="arithmatex">\(O(L^2d)\)</span> 的计算量。这一二次复杂度来源于构造 <span class="arithmatex">\(QK^{\mathsf T}\)</span> 所产生的
+<span class="arithmatex">\(L\times L\)</span> 中间结果。Linear Attention 的核心思想是避免显式计算这一二次规模的中间矩阵，从而将复杂度降低到线性。</p>
+<p>最初的经典方法使用特征映射 <span class="arithmatex">\(\phi(\cdot)\)</span> 对 softmax kernel 进行近似：</p>
+<div class="arithmatex">\[
+\exp(QK^{\mathsf T})
+\approx
+\phi(Q)\phi(K)^{\mathsf T},
+\qquad
+O_t=
+\frac{
+\sum_{i=1}^{t}\phi(q_t)\phi(k_i)^{\mathsf T}v_i
+}{
+\sum_{i=1}^{t}\phi(q_t)\phi(k_i)^{\mathsf T}
+}.
+\]</div>
+<p>由于 <span class="arithmatex">\(\phi(q_t)\)</span> 与求和无关，可以利用矩阵乘法的结合律将其提出求和，即先累积历史的 key-value 外积，再与当前 query 做乘法：</p>
+<div class="arithmatex">\[
+O_t=
+\frac{
+\phi(q_t)
+\left(
+\sum_{i=1}^{t}\phi(k_i)^{\mathsf T}v_i
+\right)
+}{
+\phi(q_t)
+\left(
+\sum_{i=1}^{t}\phi(k_i)^{\mathsf T}
+\right)
+}.
+\]</div>
+<p>对于因果注意力，上式中的历史累积项可以递推计算。为简洁起见，下文省略特征映射 <span class="arithmatex">\(\phi(\cdot)\)</span> 和归一化项，仅保留状态更新形式，则有</p>
+<div class="arithmatex">\[
+\begin{aligned}
+S_t &amp;= S_{t-1} + k_t^{\mathsf T}v_t, \\
+o_t &amp;= q_tS_t,
+\end{aligned}
+\]</div>
+<p>这里将单个 token 的向量记为行向量，即 <span class="arithmatex">\(q_t,k_t\in\mathbb{R}^{1\times d_k}\)</span>、
+<span class="arithmatex">\(v_t\in\mathbb{R}^{1\times d_v}\)</span>，因此
+<span class="arithmatex">\(S_t\in\mathbb{R}^{d_k\times d_v}\)</span>。由于状态 <span class="arithmatex">\(S_t\)</span> 的大小与序列长度无关，Linear Attention 可以像 RNN 一样仅维护固定大小的状态。</p>
+<p>在递推形式下，Linear Attention 按照 token 顺序更新 <span class="arithmatex">\(S_t\)</span>，每步仅维护固定大小的状态，总计算量关于序列长度为线性，特别适合 autoregressive decoding，但序列维度上的依赖链限制了 GPU 并行度。</p>
+<p>Linear Attention 的固定大小状态同时也是它的限制。所有历史关联都被叠加到同一个矩阵中，
+当不同 key 相似或状态容量逐渐饱和时，旧关联容易互相干扰；纯加法更新也没有主动遗忘或覆盖旧信息的机制。
+后续的 GLA、DeltaNet 和 Gated DeltaNet 都是在改进这个状态更新规则。</p>
+<h4 id="gla-deltanet-与-gated-deltanet">GLA, DeltaNet 与 Gated DeltaNet<a class="headerlink" href="#gla-deltanet-与-gated-deltanet" title="Permanent link">&para;</a></h4>
+<p><a href="https://arxiv.org/abs/2312.06635">GLA（Gated Linear Attention）</a>在状态递推中加入
+由当前输入决定的遗忘门。用简化的标量门表示，其更新为：</p>
+<div class="arithmatex">\[
+S_t = \alpha_t S_{t-1} + k_t^{\mathsf T}v_t,\qquad \alpha_t\in(0,1).
+\]</div>
+<p>实际的 GLA 可以使用更细粒度的门。与固定 decay 相比，数据相关的 <span class="arithmatex">\(\alpha_t\)</span> 能让模型根据输入决定
+保留多少历史状态：<span class="arithmatex">\(\alpha_t\)</span> 接近 1 时记忆基本保留，接近 0 时快速遗忘。它缓解了状态无限累积的问题，
+但写入仍然是简单的外积相加，无法针对与当前 key 冲突的旧关联做精确修改。</p>
+<p><a href="https://arxiv.org/abs/2406.06484">DeltaNet</a>把加法写入替换为 delta rule。它先用当前 key
+从旧状态中读取预测值，再根据预测与目标 value 之间的误差更新状态：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\widehat{v}_t &amp;= k_tS_{t-1}, \\
+S_t &amp;= S_{t-1} + \beta_tk_t^{\mathsf T}(v_t-\widehat{v}_t),
+\qquad \beta_t\in(0,1).
+\end{aligned}
+\]</div>
+<p>在 key 已归一化的情况下，可以把 <span class="arithmatex">\(\beta_t\)</span> 理解为写入强度：<span class="arithmatex">\(\beta_t=0\)</span> 时不修改状态，
+<span class="arithmatex">\(\beta_t=1\)</span> 时当前 key 对应的旧预测被完整替换为 <span class="arithmatex">\(v_t\)</span>。因此 DeltaNet 能够定向修正已有的
+key-value 关联，而不只是继续向状态中叠加信息。不过，它没有独立的全局遗忘门，难以快速清除大量已经无关的记忆。</p>
+<p><a href="https://arxiv.org/abs/2412.06464">Gated DeltaNet</a>把门控遗忘与 delta update 组合起来：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\overline{S}_t &amp;= \alpha_tS_{t-1}, \\
+S_t &amp;= \overline{S}_t
+      + \beta_tk_t^{\mathsf T}(v_t-k_t\overline{S}_t), \\
+o_t &amp;= q_tS_t.
+\end{aligned}
+\]</div>
+<p>等价地，状态更新也可以写为
+<span class="arithmatex">\(S_t=\alpha_t(I-\beta_tk_t^{\mathsf T}k_t)S_{t-1}+\beta_tk_t^{\mathsf T}v_t\)</span>。
+<span class="arithmatex">\(\alpha_t\)</span> 负责控制旧状态整体保留多少，<span class="arithmatex">\(\beta_t\)</span> 负责控制当前 key 对应的关联修改多少。
+两种机制分工不同且可以互补：门控适合快速释放状态容量，delta rule 适合精确覆盖特定记忆。</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>状态更新的核心机制</th>
+<th>能力与局限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linear Attention</td>
+<td>直接累加 <span class="arithmatex">\(k_t^{\mathsf T}v_t\)</span></td>
+<td>简单高效，但旧关联只能累积</td>
+</tr>
+<tr>
+<td>GLA</td>
+<td>写入前对旧状态施加数据相关 decay</td>
+<td>能主动遗忘，但写入仍是加法</td>
+</tr>
+<tr>
+<td>DeltaNet</td>
+<td>根据预测误差定向修改关联</td>
+<td>能精确覆盖，但缺少独立的快速遗忘机制</td>
+</tr>
+<tr>
+<td>Gated DeltaNet</td>
+<td>decay + delta rule</td>
+<td>同时支持快速遗忘与定向更新</td>
+</tr>
+</tbody>
+</table>
+<h3 id="chunk-wise-parallel">Chunk-wise Parallel<a class="headerlink" href="#chunk-wise-parallel" title="Permanent link">&para;</a></h3>
+<p>递推形式虽然数学形式简洁，但是由于存在逐 token 的依赖链，GPU 并行度受限。而完全并行的形式 <span class="arithmatex">\(O=(QK^{\mathsf T}\odot M)V\)</span> 需要 <span class="arithmatex">\(O(L^2d)\)</span> 的计算量, 失去了线性复杂度的优势。因此 <a href="https://arxiv.org/abs/2312.06635">Gated Linear Attention Transformers with Hardware-Efficient Training</a> 提出了一种折中方案 Chunk-wise Parallel，它把序列切成长度为 <span class="arithmatex">\(C\)</span> 的 chunk，每次 S 的更新只在 chunk 之间进行，由此让递推的计算由向量计算转换为以 chunk 为单位的矩阵计算。</p>
+<div class="arithmatex">\[
+\begin{aligned}
+S_{[i+1]} &amp;= S_{[i]} + \sum_{j=iC}^{(i+1)C - 1} k_{j}^{\mathsf T} v_{j}\\
+O_{[i]} &amp;= Q_{[i]} S_{[i]} + ((Q_{[i]} K_{[i]}^{\mathsf T}) \odot M) V_{[i]}
+\end{aligned}
+\]</div>
+<p>一般而言，<span class="arithmatex">\(C\)</span> 决定串行度、并行度和片上资源占用之间的权衡。<span class="arithmatex">\(C=1\)</span> 退化为逐 token recurrence，
+<span class="arithmatex">\(C=L\)</span> 接近完全并行形式。本实验的<strong>算法 chunk size 固定为 <span class="arithmatex">\(C=64\)</span></strong>，门控前缀和与 <span class="arithmatex">\(A\)</span> 的预处理
+都按照这一大小进行。</p>
+<p>关于 GDN chunk-wise parallel 形式推导的更多细节可以参考 GDN 论文的 Section 3.3。这里也提供一个看上去冗长且复杂但是不需要什么二级结论和经验的推导过程，供有兴趣的同学参考：<a href="https://blogs.erix025.me/EfficientAI/GDN_from_scratch/">从零开始的 GDN 推导</a>。</p>
+<h3 id="tilelang">TileLang<a class="headerlink" href="#tilelang" title="Permanent link">&para;</a></h3>
+<p>为了减少 GPU kernel 开发的复杂度，本实验使用 <a href="https://tilelang.com/">TileLang</a> 作为开发语言。TileLang 是一种面向高性能计算的领域专用语言，能够让开发者专注于算法本身，而不必过多关注底层硬件细节。关于 TileLang 的语法和使用方法，请参考官方文档和<a href="https://github.com/tile-ai/tilelang/tree/main/examples/gemm">官方仓库中的示例</a>。</p>
+<p>虽然 TileLang 提供了很多便利，但仍然需要开发者理解 GPU 的计算模型和性能优化方法。你需要根据 GDN 的计算特点，合理使用 TileLang 提供的功能，设计高效的 kernel。关于 GPU 的计算模型和性能优化方法这里不再赘述，请参考 7 月 13 日下午课程 “GPU 编程基础” 的课程内容。</p>
+<h3 id="gpu-profiling">GPU Profiling<a class="headerlink" href="#gpu-profiling" title="Permanent link">&para;</a></h3>
+<p>在我们的理论课中已经介绍了 Profiling 的重要性，它能够帮助你定位性能瓶颈，指导优化方向。你可以使用 NVIDIA Nsight Compute 和 Nsight Systems 等工具对你的 kernel 进行性能分析。</p>
+<ul>
+<li>Nsight Compute：用于分析单个 kernel 的性能指标，如吞吐量、延迟、访存效率等。你可以通过它来了解你的 kernel 在计算和访存方面的表现，从而找到优化的切入点。</li>
+<li>Nsight Systems：用于分析整个应用的性能，包括 kernel launch 的开销、CPU 和 GPU 的协同工作等。如果你的解法由多个 kernel 组成，你可以使用它来分析各个 kernel 的时间占比，找出性能瓶颈。</li>
+</ul>
+<h2 id="实验任务">实验任务<a class="headerlink" href="#实验任务" title="Permanent link">&para;</a></h2>
+<h3 id="计算过程描述">计算过程描述<a class="headerlink" href="#计算过程描述" title="Permanent link">&para;</a></h3>
+<p>对于 GDN 来说，chunk-wise parallel 包括以下几个阶段：</p>
+<ol>
+<li>在每个 chunk 内计算门控量的前缀和 <span class="arithmatex">\(g^{\mathrm{cumsum}}\)</span> 和矩阵 <span class="arithmatex">\(A\)</span>；</li>
+<li>计算中间量 <span class="arithmatex">\(U\)</span> 和 <span class="arithmatex">\(W\)</span>；</li>
+<li>递推更新状态 <span class="arithmatex">\(S\)</span>；</li>
+<li>计算输出 <span class="arithmatex">\(O\)</span>。</li>
+</ol>
+<p>对第 <span class="arithmatex">\(c\)</span> 个 chunk，令其有效长度为 <span class="arithmatex">\(\ell_c=\min(C,L-cC)\)</span>。下式中的 <span class="arithmatex">\(Q,K,V\)</span>、
+<span class="arithmatex">\(\Gamma\)</span> 和 <span class="arithmatex">\(B\)</span> 均表示该 chunk 内的有效部分，并省略 chunk 下标：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+A &amp;= (I+\mathrm{StrictLower}(B\Gamma KK^\top \Gamma^{-1}))^{-1}\\
+U &amp;= ABV, \qquad W = AB\Gamma K\\
+S_{[c+1]} &amp;= \gamma_{\ell_c}S_{[c]}
+  +\gamma_{\ell_c}K^\top\Gamma^{-1}(U-WS_{[c]})\\
+O_{[c]} &amp;= \frac{1}{\sqrt{d_k}}\left[
+  \Gamma QS_{[c]}
+  +\Gamma\mathrm{Lower}(QK^\top)\Gamma^{-1}(U-WS_{[c]})
+\right]
+\end{aligned}
+\]</div>
+<p>对于整个长度为 <span class="arithmatex">\(L\)</span> 的序列，总共有 <span class="arithmatex">\(\lceil L/C\rceil\)</span> 个 chunk。最后一个 chunk 可能不足 64 个
+token，此时 <span class="arithmatex">\(\gamma_{\ell_c}\)</span> 表示最后一个有效 token 对应的门控累积值。框架中 <span class="arithmatex">\(A\)</span> 的最后一维
+仍按 64 存储，但尾块只有前 <span class="arithmatex">\(\ell_c\)</span> 列参与计算；实现必须屏蔽其余无效位置。</p>
+<p>为了简化，<span class="arithmatex">\(g^{\mathrm{cumsum}}\)</span> 和 <span class="arithmatex">\(A\)</span> 的计算已经给出且位于核心计时区间之外。你需要实现并优化
+<span class="arithmatex">\(U\)</span>、<span class="arithmatex">\(W\)</span>、<span class="arithmatex">\(S\)</span> 和 <span class="arithmatex">\(O\)</span> 的全部计算。</p>
+<h3 id="输入输出定义">输入输出定义<a class="headerlink" href="#输入输出定义" title="Permanent link">&para;</a></h3>
+<p>记 batch size、序列长度、query/key head 数和 value head 数分别为
+<span class="arithmatex">\(B,T,H_q,H_v\)</span>，key 和 value 的 head dimension 分别为 <span class="arithmatex">\(d_k,d_v\)</span>。函数
+<code>gdn_prefill_forward</code> 的接口如下：</p>
+<table>
+<thead>
+<tr>
+<th>张量</th>
+<th>形状</th>
+<th>数据类型</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>q</code>, <code>k</code></td>
+<td><code>[B, T, Hq, dk]</code></td>
+<td>BF16</td>
+<td>已完成 L2 normalization 的 query 和 key</td>
+</tr>
+<tr>
+<td><code>v</code></td>
+<td><code>[B, T, Hv, dv]</code></td>
+<td>BF16</td>
+<td>value</td>
+</tr>
+<tr>
+<td><code>g_cumsum</code></td>
+<td><code>[B, T, Hv]</code></td>
+<td>FP32</td>
+<td>每个 64-token chunk 内独立计算的 log-space 门控前缀和</td>
+</tr>
+<tr>
+<td><code>beta</code></td>
+<td><code>[B, T, Hv]</code></td>
+<td>FP32</td>
+<td>delta rule 的写入强度</td>
+</tr>
+<tr>
+<td><code>A</code></td>
+<td><code>[B, T, Hv, 64]</code></td>
+<td>BF16</td>
+<td>分块 KKT 下三角矩阵的逆</td>
+</tr>
+<tr>
+<td><code>initial_state</code></td>
+<td><code>[B, Hv, dk, dv]</code></td>
+<td>FP32</td>
+<td>可选的初始状态；未提供时使用零矩阵</td>
+</tr>
+<tr>
+<td>返回的 <code>output</code></td>
+<td><code>[B, T, Hv, dv]</code></td>
+<td>BF16</td>
+<td>prefill 输出</td>
+</tr>
+<tr>
+<td>返回的 <code>final_state</code></td>
+<td><code>[B, Hv, dk, dv]</code></td>
+<td>FP32</td>
+<td>最后一个 chunk 更新后的状态</td>
+</tr>
+</tbody>
+</table>
+<p>当前评测固定 <span class="arithmatex">\(C=64\)</span>、<span class="arithmatex">\(d_k=d_v=128\)</span>。上述维度顺序和数据类型均属于函数接口的一部分；
+评测会同时检查 <code>output</code> 和 <code>final_state</code>。</p>
+<p>完整 forward 的原始门控输入记为 <code>raw_g</code>，满足</p>
+<div class="arithmatex">\[
+\mathrm{raw\_g}_{c,r}=\log\alpha_{c,r},\qquad
+g^{\mathrm{cumsum}}_{c,r}
+=\sum_{j=1}^{r}\mathrm{raw\_g}_{c,j}
+=\log\gamma_{c,r},\qquad
+\gamma_{c,r}=\exp\left(g^{\mathrm{cumsum}}_{c,r}\right).
+\]</div>
+<p>这里的前缀和会在每个 chunk 开头重新从零开始计算。函数接收的是
+<code>g_cumsum</code>，而不是 <span class="arithmatex">\(\alpha\)</span>、<code>raw_g</code> 或线性空间的 <span class="arithmatex">\(\gamma\)</span>。在公式中使用 <span class="arithmatex">\(\gamma\)</span> 时需要对
+<code>g_cumsum</code> 取 <code>exp</code>。<span class="arithmatex">\(\Gamma=\mathrm{Diag}(\gamma)\)</span>、<span class="arithmatex">\(B=\mathrm{Diag}(\beta)\)</span> 只是为了方便
+表达矩阵运算，实际实现不需要显式构造这两个对角阵。</p>
+<p>同时为了保证算子的通用性，我们还会考虑以下几种输入变种：</p>
+<ul>
+<li><strong>给定 <span class="arithmatex">\(S_0\)</span></strong>：部分 case 会传入非零的 <code>initial_state</code>，其余 case 从零状态开始；两种情况都必须正确处理。</li>
+<li><strong>GVA（Group-Value Attention）</strong>：可能有 <span class="arithmatex">\(H_v&gt;H_q\)</span>，且保证 <span class="arithmatex">\(H_v\)</span> 能被 <span class="arithmatex">\(H_q\)</span> 整除。令组大小
+  <span class="arithmatex">\(G=H_v/H_q\)</span>，第 <span class="arithmatex">\(h_v\)</span> 个 value head 使用的 query/key head 为
+  <span class="arithmatex">\(h_{qk}=\lfloor h_v/G\rfloor\)</span>。也就是说，每个 query/key head 连续对应 <span class="arithmatex">\(G\)</span> 个 value head；
+  <code>g_cumsum</code>、<code>beta</code>、<code>A</code>、输出和状态均按 <span class="arithmatex">\(H_v\)</span> 编号。</li>
+</ul>
+<h3 id="任务要求">任务要求<a class="headerlink" href="#任务要求" title="Permanent link">&para;</a></h3>
+<p>你的任务是使用 TileLang 完成 GDN 的 prefill forward kernel 实现，基于给定的
+<code>g_cumsum</code> 和 <span class="arithmatex">\(A\)</span> 完成 <span class="arithmatex">\(S\)</span> 和 <span class="arithmatex">\(O\)</span> 的计算，并在保证结果正确的前提下进行优化。</p>
+<ul>
+<li>实验框架中已给出 PyTorch 的参考实现，你需要在 TileLang 中实现相同的计算过程，并确保输出结果与参考实现一致。</li>
+<li>实验框架中已经给出 <code>g_cumsum</code> 和 <span class="arithmatex">\(A\)</span> 的计算，你不需要进行修改。这两部分的计算 kernel 也是使用 TileLang 实现的，可以作为语法参考。</li>
+<li>你需要在实验报告中说明你的优化思路和依据，并尝试分析优化后的性能提升及其原因。</li>
+<li>实验框架中会给出目前主流开源实现的性能数据，你可以参考这些数据来评估你的优化效果，并尝试挑战更高的性能。</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">向上游贡献</p>
+<p>如果你的实现在某些 case 上取得了稳定的性能提升，欢迎整理成可复现的 benchmark 和实现，尝试向相关开源项目提交 issue 或 pull request。</p>
+</div>
+<h2 id="优化方向">优化方向<a class="headerlink" href="#优化方向" title="Permanent link">&para;</a></h2>
+<h3 id="profiling">Profiling<a class="headerlink" href="#profiling" title="Permanent link">&para;</a></h3>
+<p>Profiling 是性能优化的基础。通过 profiling 可以了解 kernel 的性能瓶颈，从而有针对性地进行优化。建议在每次优化后都进行 profiling，分析优化前后的性能变化，并在报告中说明你的分析和结论。</p>
+<h3 id="等价数学变换">等价数学变换<a class="headerlink" href="#等价数学变换" title="Permanent link">&para;</a></h3>
+<p>相信大家也看到了 GDN 的公式还是比较复杂的，在 GDN 论文中的公式推导更多考虑与之前 linear attention 的继承性和数学上的可解释性，而在 GPU 实现上，可能有一些等价的数学变换来改变计算顺序、减少中间量、降低复杂度或增加并行度。</p>
+<ul>
+<li>你可以尝试自己推导一些等价的数学变换，或者参考 FlashQLA、FLA、FlashInfer 等开源实现中的优化方法，看看是否有可以借鉴的地方。</li>
+<li>不管是自己的推导还是参考别人的方法，都需要在实验报告中说明你的思路和依据，并且在代码中注明来源。</li>
+<li>如果你对数学变换不熟悉，也可以先保持原有的公式不变，从其他优化方向入手。</li>
+</ul>
+<h3 id="kernel-fusion">Kernel Fusion<a class="headerlink" href="#kernel-fusion" title="Permanent link">&para;</a></h3>
+<p>在 GDN 的论文推导中，公式被拆分成了多个计算过程。但如果在 GPU 上直接将每一步都作为单独的 kernel 来执行，就会导致中间结果需要在 global memory 中读写，增加了访存开销和 kernel launch 的开销。因此 kernel fusion 是一个常见的优化手段，它通过将多个计算过程融合到一个 kernel 中，减少中间结果的读写和 kernel launch 的次数，从而提高性能。</p>
+<ul>
+<li>你可以尝试将多个计算过程融合到一个 kernel 中来减少访存开销和 kernel launch 的开销。</li>
+<li>如果你进行了 kernel fusion，需要在实验报告中说明你的思路和依据，尝试分析融合后的性能提升及其原因，并且注明每个 kernel 对应的计算过程。</li>
+</ul>
+<h3 id="shared-memory">Shared Memory<a class="headerlink" href="#shared-memory" title="Permanent link">&para;</a></h3>
+<p>Shared Memory 是 GPU 上的一种高速缓存，它可以被同一个 SM 内的所有线程访问。合理使用 Shared Memory 可以减少 global memory 的访问次数，从而提高性能。因此在 GDN 的计算中，将输入数据和中间结果放入 Shared Memory 中进行计算，可以减少 global memory 的访问次数，有效提高性能。</p>
+<ul>
+<li>建议尽可能的使用 Shared Memory 来存储输入数据和中间结果，减少 global memory 的访问次数。</li>
+<li>如果你使用了 Shared Memory，请确保你理解 Shared Memory 的大小限制并且在报告中说明你对 Shared Memory 空间的规划。</li>
+</ul>
+<h3 id="ping-pong-buffer--multi-buffering">ping-pong buffer / multi-buffering<a class="headerlink" href="#ping-pong-buffer--multi-buffering" title="Permanent link">&para;</a></h3>
+<p>在 GDN 的计算中，S 矩阵的递推更新是一个串行依赖的过程。如果每次更新 S 矩阵都需要等待相关数据的读入和写出，就会导致 GPU 的计算单元闲置，降低了运算效率。因此可以考虑使用 ping-pong buffer 或 multi-buffering 的方式，在第 t 步计算的同时准备第 t+1 步甚至以后的数据，从而实现计算和访存的重叠，提高 GPU 的利用率。</p>
+<ul>
+<li>你可以尝试使用 ping-pong buffer 或 multi-buffering 的方式，在第 t 步计算的同时准备第 t+1 步甚至以后的数据，从而实现计算和访存的重叠，提高 GPU 的利用率。</li>
+<li>这里需要注意的是通常会使用两个/多个 buffer 来存储，因此需要在报告中说明你对 buffer 的规划和使用方式，并且分析其对性能的影响。</li>
+<li>这里需要注意对数据传输阶段和计算阶段的依赖同步问题，请在报告中说明你是如何处理同步的。</li>
+<li>这里的实现可能与下一节的 warp specialization 紧密相关，因此可以结合考虑。</li>
+</ul>
+<h3 id="手动-warp-specialization">手动 warp specialization<a class="headerlink" href="#手动-warp-specialization" title="Permanent link">&para;</a></h3>
+<p>在 GPU 上，warp 是最小的执行单元。因此可以通过 warp specialization 的方式，将不同的计算过程分配给不同的 warp，从而实现更精细的控制和 warp 间计算的重叠，提高 GPU 的利用率。</p>
+<p>特别的，在 GDN 的计算中不仅会涉及到基于 Tensor Core 的矩阵乘法，还会涉及到一些在 CUDA Core 上执行的 element-wise 计算。可以考虑利用 warp specialization 将 CUDA Core 上的计算掩盖在 Tensor Core 上的计算中，从而实现更优的性能。</p>
+<ul>
+<li>你可以尝试使用 warp specialization 的方式，将不同的计算过程分配给不同的 warp，从而实现更精细的控制和 warp 间计算的重叠，提高 GPU 的利用率。</li>
+<li>这里需要注意的是 warp specialization 的实现可能会涉及到 warp 内线程的分工和 warp 间的同步，请在报告中明确说明你的每一个 warp 的分工和每次同步发生时对应计算流程的关系。</li>
+<li>这里的实现可能与上一节的 ping-pong buffer / multi-buffering 紧密相关，因此可以结合考虑。</li>
+</ul>
+<h3 id="其他优化手段">其他优化手段<a class="headerlink" href="#其他优化手段" title="Permanent link">&para;</a></h3>
+<p>上述优化手段仅供参考，并不意味着你必须使用这些方法。你可以根据自己的理解和实验结果，尝试其他优化手段。如果你有其他优化思路，也可以在实验报告中说明你的思路和依据，并尝试分析其对性能的影响。</p>
+<p>下面列举一些可能的优化手段，供参考：</p>
+<ul>
+<li>更多访存优化手段</li>
+<li>更合理的 thread block 划分</li>
+<li>...</li>
+</ul>
+<h2 id="评测方式">评测方式<a class="headerlink" href="#评测方式" title="Permanent link">&para;</a></h2>
+<p>我们会提供 PyTorch reference，以及统一的正确性测试和性能测试。评测程序会将 TileLang 实现的结果与 reference 进行比较；只有通过正确性检查的 case 才会参与性能评分。</p>
+<p>性能评测包含两种计时区间：</p>
+<ul>
+<li><strong>forward 端到端时间</strong>：从 <code>raw_g</code> 开始，包含 <code>g_cumsum</code>、<span class="arithmatex">\(A\)</span>、<span class="arithmatex">\(U\)</span>、<span class="arithmatex">\(W\)</span>、<span class="arithmatex">\(S\)</span> 和 <span class="arithmatex">\(O\)</span>
+  的全部计算，以及中间结果读写和 kernel launch 的开销。<strong>这部分时间仅供参考与其他实现对比，最终评分不以此为准</strong>。</li>
+<li><strong>核心计算时间</strong>：只统计学生函数内 <span class="arithmatex">\(U\)</span>、<span class="arithmatex">\(W\)</span>、<span class="arithmatex">\(S\)</span> 和 <span class="arithmatex">\(O\)</span> 的计算，不包括
+  <code>g_cumsum</code> 和 <span class="arithmatex">\(A\)</span> 的预处理。学生函数内的张量分配、数据转换和 kernel launch 均包含在内。
+  <strong>这部分时间将作为最终评分的主要依据</strong>。</li>
+</ul>
+<p>正确性评测和性能评测都会在多组不同的输入 shape 下进行。最终的性能分数是各组 shape 的加权平均。</p>
+<p>FlashQLA 将作为本实验的主要性能基线，同时也会给出 FLA 和 FlashInfer 在相同 case 下的结果作为
+参考。性能分根据多个 case 上的综合表现计算，而不是由某一个 case 的最快结果决定。未通过正确性
+检查、运行出错或超时的 case 不计性能分。</p>
+<h2 id="实验框架">实验框架<a class="headerlink" href="#实验框架" title="Permanent link">&para;</a></h2>
+<p>实验框架代码位于 <a href="https://github.com/ZJUSCT/HPC101">HPC101 课程仓库</a> 的 <code>src/lab3</code> 路径下，详细的文件结构请见 <code>README.md</code>。</p>
+<ul>
+<li>你需要完成的代码文件位于 <code>student/tilelang_fwd.py</code>，你能且仅能修改这个文件。</li>
+<li>评测代码位于 <code>evaluation/run.py</code>，你可以直接运行该文件以执行测试。</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># 输出参考开源实现的时间</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python<span class="w"> </span>evaluation/run.py<span class="w"> </span>--reference-benchmarks
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># 测试单一 case</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>python<span class="w"> </span>evaluation/run.py<span class="w"> </span>--case<span class="w"> </span>short_tail_state
+</span></code></pre></div>
+<h2 id="如何获取计算资源">如何获取计算资源<a class="headerlink" href="#如何获取计算资源" title="Permanent link">&para;</a></h2>
+<ol>
+<li>登陆<a href="https://platform.s.zjusct.io">实验平台</a></li>
+<li>创建预设为 <code>x86-5418Y</code> 的 DevPod。</li>
+<li>在 DevPod 内进行代码开发。</li>
+<li>由于 GPU 资源有限，DevPod 内不提供 GPU，你可以使用 <code>hpc submit</code> 提交任务来调试。</li>
+</ol>
+<p>你可以参考下面的命令</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># 在 DevPod 中运行</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/zjusct/hpc101
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nb">cd</span><span class="w"> </span>hpc101/src/lab3
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># 运行</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab3<span class="w"> </span><span class="s2">&quot;python evaluation/run.py&quot;</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1"># 使用 ncu/nsys profile 你的程序</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab3<span class="w"> </span><span class="s2">&quot;ncu -o &lt;output_name&gt; python evaluation/run.py&quot;</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab3<span class="w"> </span><span class="s2">&quot;nsys profile -o &lt;output_name&gt; python evaluation/run.py&quot;</span>
+</span></code></pre></div>
+<p>更详细的实验平台使用教程请参考文档 <a href="https://hpc101.zjusct.io/guide/">集群使用</a></p>
+<h2 id="实现要求">实现要求<a class="headerlink" href="#实现要求" title="Permanent link">&para;</a></h2>
+<ul>
+<li>使用 TileLang 完成题目指定的 forward 计算，禁止调用其他实现完成被测计算；</li>
+<li>保持给定的函数签名、输入输出和计算语义；</li>
+<li>可以自行决定 kernel 的拆分与融合方式，也可以为不同 shape 选择不同配置；</li>
+<li>不得修改 PyTorch reference、测试程序和计时逻辑；</li>
+<li>不得硬编码测试数据或输出结果，也不得利用评测程序的漏洞绕过计算；</li>
+<li>实验框架所需的依赖库和工具链已经在课程环境中安装好，禁止使用未说明的软件包或自建工具链。</li>
+<li>你可以阅读 FlashQLA、FLA 和 FlashInfer 等开源实现，了解已有的算法和优化方法。实验报告中应注明参考过的实现或资料，并说明自己的修改
+与优化。</li>
+</ul>
+<h2 id="提交要求">提交要求<a class="headerlink" href="#提交要求" title="Permanent link">&para;</a></h2>
+<p>你需要提交以下内容：</p>
+<ol>
+<li><strong>实现代码</strong>：TileLang forward 实现及其运行所需的辅助代码；</li>
+<li><strong>实验报告</strong>：PDF 格式，说明你的优化思路、依据和结果。具体要求见下一节；</li>
+</ol>
+<p>评测时只会收取指定目录中的文件。新增的辅助文件也需要放在该目录中，并保证程序可以在课程提供的
+环境中从干净目录直接运行。</p>
+<p>请勿提交测试数据、编译产物、模型权重或 profiler 生成的大文件。</p>
+<h2 id="实验报告">实验报告<a class="headerlink" href="#实验报告" title="Permanent link">&para;</a></h2>
+<p>实验报告不需要重复大段背景知识，重点说明你做了哪些优化、为什么这样做，以及结果如何。报告至少应包含：</p>
+<ul>
+<li>算法与数据依赖分析；</li>
+<li>baseline 的性能结果与瓶颈分析；</li>
+<li>每项主要优化的设计、实现和收益；</li>
+<li>最终性能数据、测试环境和运行命令；</li>
+<li>与 FlashQLA 等各实现在各个 case 上的对比；</li>
+<li>尝试过但未采用的方案及其原因。</li>
+</ul>
+<p>性能数据需要注明对应的输入 shape、统计方式和单位。建议使用表格或图表展示各阶段优化前后的变化；
+较长的代码、命令输出和 profiler 结果可以作为附件，不需要全部放在正文中。</p>
+<p>注意：实验代码可用 Agent 辅助完成，因此请认真撰写实验报告，在实验报告中重点体现你的思路、分析和思考，而不是仅仅用 Agent 生成报告。这将成为你在实验中的主要评分依据。</p>
+<h2 id="oj-自动评测">OJ 自动评测<a class="headerlink" href="#oj-自动评测" title="Permanent link">&para;</a></h2>
+<div class="admonition info">
+<p class="admonition-title">OJ 评分指标</p>
+<p>OJ 总体采用与 Lab 2 类似的分段曲线进行评分。对于每个 case，横轴定义为提交实现相对于 100 分 checkpoint 的加速比：</p>
+<div class="arithmatex">\[
+p=\frac{t_{100}}{t},
+\]</div>
+<p>其中，<span class="arithmatex">\(t\)</span> 为提交实现的核心计算时间，<span class="arithmatex">\(t_{100}\)</span> 为该 case 的最快的开源实现对应的运行时间。性能超过最快的开源实现时 <span class="arithmatex">\(p&gt;1\)</span>，并进入 100～120 分的奖励区间。60 分 turning point 为 <span class="arithmatex">\(p_{60}=t_{100}/t_{60}\)</span>。</p>
+<p>8 个公开 case 的 60 分和 100 分 turning point 如下，表中时间单位均为 ms：</p>
+<table>
+<thead>
+<tr>
+<th>Checkpoint</th>
+<th style="text-align: right;"><code>short_tail_state</code></th>
+<th style="text-align: right;"><code>chain_equal</code></th>
+<th style="text-align: right;"><code>parallel_equal</code></th>
+<th style="text-align: right;"><code>parallel_gva</code></th>
+<th style="text-align: right;"><code>long_low_gva</code></th>
+<th style="text-align: right;"><code>batch_split_gva</code></th>
+<th style="text-align: right;"><code>wide_gva_state</code></th>
+<th style="text-align: right;"><code>deep_gva_state</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>60 分</td>
+<td style="text-align: right;">0.573952</td>
+<td style="text-align: right;">3.999968</td>
+<td style="text-align: right;">2.017248</td>
+<td style="text-align: right;">1.899072</td>
+<td style="text-align: right;">15.825312</td>
+<td style="text-align: right;">11.320448</td>
+<td style="text-align: right;">20.600449</td>
+<td style="text-align: right;">22.717567</td>
+</tr>
+<tr>
+<td>100 分</td>
+<td style="text-align: right;">0.346048</td>
+<td style="text-align: right;">0.497792</td>
+<td style="text-align: right;">0.511264</td>
+<td style="text-align: right;">0.491552</td>
+<td style="text-align: right;">1.858816</td>
+<td style="text-align: right;">1.532128</td>
+<td style="text-align: right;">2.426656</td>
+<td style="text-align: right;">2.831104</td>
+</tr>
+</tbody>
+</table>
+<p>此外，评测还包含未公开的隐藏 case。公开 case 与隐藏 case 的部分得分，均由各自包含的所有 case 得分取简单算术平均得到。最终得分由这两部分加权计算，其中公开 case 占 60%，隐藏 case 占 40%。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">施工中</p>
+<p>目前 OJ 自动评测系统仍在建设中😭，我们会尽快发布。</p>
+</div>
+<h2 id="参考资料">参考资料<a class="headerlink" href="#参考资料" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://tilelang.com/">TileLang: Domain-specific language designed to streamline the development of high-performance GPU/CPU/Accelerators kernels</a></li>
+<li><a href="https://arxiv.org/abs/2412.06464">Gated DeltaNet: A Gated Linear Attention Model with Delta Update</a></li>
+<li><a href="https://arxiv.org/abs/2406.06484">Parallelizing Linear Transformers with the Delta Rule over Sequence Length</a></li>
+<li><a href="https://arxiv.org/abs/2312.06635">Gated Linear Attention Transformers with Hardware-Efficient Training</a></li>
+<li><a href="https://github.com/QwenLM/FlashQLA">FlashQLA: High-Performance Linear Attention Kernel Library built on TileLang</a></li>
+<li><a href="https://github.com/flashinfer-ai/flashinfer">FlashInfer: Kernel Library for LLM Serving</a></li>
+<li><a href="https://github.com/fla-org/flash-linear-attention">Flash Linear Attention: Efficient implementations for emerging model architectures</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../Lab2-Vectorization/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lab 2: MoE 的向量化计算">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Lab 2: MoE 的向量化计算
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../Lab4-AMSS-NCKU/" class="md-footer__link md-footer__link--next" aria-label="Next: Lab 4: AMSS-NCKU 数值相对论程序优化">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Lab 4: AMSS-NCKU 数值相对论程序优化
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.action.edit","content.code.annotate","content.code.copy","content.code.select","navigation.expand","navigation.footer","navigation.instant","navigation.instant.prefetch","navigation.instant.progress","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight","search.share","search.suggest","toc.follow"],"search":"../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6e5f0216.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="../../javascripts/v86-init.js"></script>
+      
+    
+  </body>
+</html>

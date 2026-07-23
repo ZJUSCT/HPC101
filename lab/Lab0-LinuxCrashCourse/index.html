@@ -1,0 +1,2969 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab0-LinuxCrashCourse/">
+      
+      
+        <link rel="prev" href="../../guide/overview/">
+      
+      
+        <link rel="next" href="../Lab1-MiniCluster/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="zensical-0.0.43">
+    
+    
+      
+        <title>Lab 0: Linux Crash Course - HPC101</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.fba56155.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  <script>
+    (function () {
+      try {
+        var saved = (typeof __md_get === "function") ? __md_get("__palette") : null;
+        var scheme;
+        if (saved && saved.color && saved.color.media) {
+          if (saved.color.media === "(prefers-color-scheme)") {
+            scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+          } else {
+            scheme = saved.color.scheme;
+          }
+        } else {
+          scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+        }
+        document.documentElement.setAttribute("data-md-color-scheme", scheme);
+        var attach = function () {
+          document.body.setAttribute("data-md-color-scheme", scheme);
+          new MutationObserver(function () {
+            var s = document.body.getAttribute("data-md-color-scheme");
+            if (s) document.documentElement.setAttribute("data-md-color-scheme", s);
+          }).observe(document.body, {
+            attributes: true,
+            attributeFilter: ["data-md-color-scheme"],
+          });
+        };
+        if (document.body) {
+          attach();
+        } else {
+          new MutationObserver(function (_, obs) {
+            if (document.body) {
+              attach();
+              obs.disconnect();
+            }
+          }).observe(document.documentElement, { childList: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script>
+    // Track keydown listeners added on window so v86 can later remove
+    // Material's global handler that would otherwise capture key presses
+    // intended for the in-browser Linux VM.
+    (function () {
+      window.__v86KeydownListeners = [];
+      var origAdd = window.addEventListener;
+      var origRemove = window.removeEventListener;
+      window.addEventListener = function (type, listener, options) {
+        origAdd.call(this, type, listener, options);
+        if (type === "keydown") {
+          window.__v86KeydownListeners.push({ listener: listener, options: options });
+        }
+      };
+      window.removeEventListener = function (type, listener, options) {
+        origRemove.call(this, type, listener, options);
+        if (type === "keydown") {
+          var i = window.__v86KeydownListeners.findIndex(function (e) {
+            return e.listener === listener;
+          });
+          if (i !== -1) window.__v86KeydownListeners.splice(i, 1);
+        }
+      };
+    })();
+  </script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lab-0-linux-crash-course" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101" class="md-header__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Lab 0: Linux Crash Course
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guide/" class="md-tabs__link">
+          
+  
+  集群使用
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="././" class="md-tabs__link">
+          
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101" class="md-nav__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    HPC101
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程信息
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程信息
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  欢迎来到 HPC 101 超算短学期
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../enroll/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  报名与选课
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sponsors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  支持单位
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群使用
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  集群使用
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  登录平台
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交计算任务
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/submit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交实验报告
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  在线测评 OJ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群概况
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程实验
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 0: Linux 快速入门
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 0: Linux 快速入门
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tasks
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Before You Start
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#obtain-a-linux-virtual-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Obtain a Linux Virtual Machine
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Obtain a Linux Virtual Machine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#os-and-kernel" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        OS and Kernel
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linux
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux-distributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linux distributions
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Virtual Machine
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linux-basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linux Basics
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Linux Basics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#command-line-interface-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Command Line Interface (CLI)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux-file-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linux File System
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-advanced-packaging-tool-apt" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The Advanced Packaging Tool (APT)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#access-the-virtual-machine-using-ssh" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Access the Virtual Machine using SSH
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Access the Virtual Machine using SSH">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#network-basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Network Basics
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network-in-virtual-machines" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Network in Virtual Machines
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SSH
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#more-on-linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        More on Linux
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="More on Linux">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#users-and-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Users and Permissions
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Environment Variables
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#git" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Git
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Git">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#register-a-zju-git-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Register a ZJU Git account
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-public-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Configure Public Key
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-git" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Install Git
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ai-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AI Agent
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AI Agent">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Introduction
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-api-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Get API Key
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Installation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slash-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Slash Commands
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extending-agent-skills-and-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Extending Agent: Skills and MCP
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extending Agent: Skills and MCP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Skills
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        MCP
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#codex-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Codex CLI
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Codex CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Installation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Configuration
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        References
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 1: 简单集群搭建
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 2: MoE 的向量化计算
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab3-GDN-Prefill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3: GDN Prefill 前向优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab4-AMSS-NCKU/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4: AMSS-NCKU 数值相对论程序优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab5-Gemma4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 5: Gemma4 端到端推理优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tasks
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Before You Start
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#obtain-a-linux-virtual-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Obtain a Linux Virtual Machine
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Obtain a Linux Virtual Machine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#os-and-kernel" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        OS and Kernel
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linux
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux-distributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linux distributions
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Virtual Machine
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linux-basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linux Basics
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Linux Basics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#command-line-interface-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Command Line Interface (CLI)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux-file-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Linux File System
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-advanced-packaging-tool-apt" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The Advanced Packaging Tool (APT)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#access-the-virtual-machine-using-ssh" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Access the Virtual Machine using SSH
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Access the Virtual Machine using SSH">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#network-basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Network Basics
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network-in-virtual-machines" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Network in Virtual Machines
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SSH
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#more-on-linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        More on Linux
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="More on Linux">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#users-and-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Users and Permissions
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Environment Variables
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#git" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Git
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Git">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#register-a-zju-git-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Register a ZJU Git account
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-public-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Configure Public Key
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-git" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Install Git
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ai-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AI Agent
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AI Agent">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Introduction
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-api-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Get API Key
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Installation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slash-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Slash Commands
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extending-agent-skills-and-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Extending Agent: Skills and MCP
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extending Agent: Skills and MCP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Skills
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        MCP
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#codex-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Codex CLI
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Codex CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Installation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Configuration
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        References
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab0-LinuxCrashCourse/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="lab-0-linux-crash-course">Lab 0: Linux Crash Course<a class="headerlink" href="#lab-0-linux-crash-course" title="Permanent link">&para;</a></h1>
+<div class="admonition tip">
+<p class="admonition-title">To help students get accustomed to reading English documentation, this lab will be conducted entirely in English.</p>
+<p>In the fields of <strong>Linux</strong> and <strong>HPC</strong>, a significant amount of software and hardware infrastructure is collaboratively developed by people from around the world. <strong>English serves as a crucial medium for communication.</strong> In the future, you will encounter well-known software projects such as <strong>NumPy</strong>, <strong>PyTorch</strong>, <strong>OpenMP</strong>, and <strong>MPI</strong>. While using these tools, you will inevitably need to read their documentation to solve problems, and these documents are often written in English. <strong>To help students get accustomed to reading English documentation, this lab will be conducted entirely in English.</strong></p>
+<p>Of course, we understand that reading lengthy English documents can be challenging. Therefore, we <strong>recommend students download and configure the <a href="https://immersivetranslate.com/">Immersive Translate</a> browser extension</strong> to assist with reading.</p>
+<p>Similarly, when installing the system later in this lab, we also require selecting the <strong>English language pack</strong>.</p>
+<p>Don't worry, the rest of course labs will still provide documentation in <strong>Chinese</strong>.</p>
+<p>If you encounter any issues while completing the lab or notice that some instructions in the lab documentation are outdated and need updating, feel free to raise them in the group or consult the <strong>TA</strong>.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">About This Lab</p>
+<p>Most students may have only heard of <strong>Linux</strong> but have never used it. To reduce the difficulties caused by unfamiliarity with the <strong>Linux environment</strong> when completing <strong>Lab 1</strong>, we have added this lab.</p>
+<p>Through this lab, we aim to provide students with a <strong>consistent basic understanding of Linux and set up a uniform environment</strong>, laying the groundwork for subsequent labs.</p>
+<p>This lab is <strong>not included in the evaluation</strong> of the <strong>HPC 101 short-term course</strong>, and no lab report is required. <strong>Answers are directly provided after the questions.</strong></p>
+<p>If you complete this lab, you only need to provide a few screenshots:</p>
+<ul>
+<li><strong>Task 1.1</strong>: Hash result</li>
+<li><strong>Task 2.1</strong>: <code>nano</code> screenshot</li>
+<li><strong>Task 3.2</strong>: SSH connection screenshot</li>
+<li><strong>Task 5.2</strong>: SSH connection screenshot</li>
+<li><strong>Task 6.1</strong>: Coding agent installation and first conversation screenshot</li>
+</ul>
+<p>If you already have a <strong>deep understanding of Linux</strong> or are currently using a <strong>Linux system</strong> and are familiar with the content of this lab, you can skip reading the content and directly complete the tasks.</p>
+</div>
+<h2 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Obtain a Linux Virtual Machine<ul>
+<li>Install a hypervisor on your computer</li>
+<li>Create a new virtual machine in the hypervisor</li>
+<li>Install a Linux distribution in the virtual machine</li>
+</ul>
+</li>
+<li>Linux Basics<ul>
+<li>Command Line Interface (CLI)</li>
+<li>Linux File System</li>
+<li>Package Management</li>
+</ul>
+</li>
+<li>Remote Access<ul>
+<li>Network Basics</li>
+<li>SSH</li>
+</ul>
+</li>
+<li>More on Linux<ul>
+<li>Users and Permissions</li>
+<li>Environment Variables</li>
+</ul>
+</li>
+<li>Git<ul>
+<li>Register a ZJU Git account</li>
+<li>Configure Public Key</li>
+<li>Clone a Repository</li>
+</ul>
+</li>
+<li>AI Agent<ul>
+<li>What is an AI Coding Agent</li>
+<li>Installation</li>
+<li>Basic Usage</li>
+<li>Skills and MCP</li>
+</ul>
+</li>
+</ul>
+<h2 id="before-you-start">Before You Start<a class="headerlink" href="#before-you-start" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Read this <a href="https://slides.tonycrane.cc/PracticalSkillsTutorial/2023-fall-ckc/lec1/">presentation</a> or watch this <a href="https://www.bilibili.com/video/BV1ry4y1A7qo/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.813 4.653h.854q2.266.08 3.773 1.574Q23.946 7.72 24 9.987v7.36q-.054 2.266-1.56 3.773c-1.506 1.507-2.262 1.524-3.773 1.56H5.333q-2.266-.054-3.773-1.56C.053 19.614.036 18.858 0 17.347v-7.36q.054-2.267 1.56-3.76t3.773-1.574h.774l-1.174-1.12a1.23 1.23 0 0 1-.373-.906q0-.534.373-.907l.027-.027q.4-.373.92-.373t.92.373L9.653 4.44q.107.106.187.213h4.267a.8.8 0 0 1 .16-.213l2.853-2.747q.4-.373.92-.373c.347 0 .662.151.929.4s.391.551.391.907q0 .532-.373.906zM5.333 7.24q-1.12.027-1.88.773-.76.748-.786 1.894v7.52q.026 1.146.786 1.893t1.88.773h13.334q1.12-.026 1.88-.773t.786-1.893v-7.52q-.026-1.147-.786-1.894t-1.88-.773zM8 11.107q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q0-.56.386-.947.387-.386.947-.386m8 0q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q.025-.586.4-.96.373-.373.933-.373"/></svg></span> video</a>.</li>
+<li>Make sure you can access GitHub, Google and Stack Overflow.</li>
+</ul>
+<h2 id="obtain-a-linux-virtual-machine">Obtain a Linux Virtual Machine<a class="headerlink" href="#obtain-a-linux-virtual-machine" title="Permanent link">&para;</a></h2>
+<h3 id="os-and-kernel">OS and Kernel<a class="headerlink" href="#os-and-kernel" title="Permanent link">&para;</a></h3>
+<figure>
+<a class="glightbox" data-type="image" href="image/os_and_kernel.webp"><img alt="os_and_kernel" src="image/os_and_kernel.webp" /></a>
+
+<figcaption>Computer Architecture</figcaption>
+</figure>
+<p>An operating system (OS) is system software that manages computer hardware, software resources, and provides common services for computer programs. The operating system is a vital component of the system software in a computer system.</p>
+<p>A kernel is a computer program that is the <strong>core of a computer's operating system</strong>, with complete control over everything in the system. It is the "lowest" level of the OS.</p>
+<h3 id="linux">Linux<a class="headerlink" href="#linux" title="Permanent link">&para;</a></h3>
+<p>Linux is a family of open-source Unix-like operating systems based on the Linux kernel, an operating system kernel first released on September 17, 1991, by Linus Torvalds. Linux is typically packaged in a Linux distribution.</p>
+<p>Linux is a popular choice for developers and system administrators due to its flexibility and open-source nature. Linux is also widely used in the HPC field due to its high performance and scalability.</p>
+<details class="success" open="open">
+<summary>🎉 Good Luck! You are a Linux User now!</summary>
+<p><!-- A minimal structure for the ScreenAdapter defined in browser/screen.js -->
+<div id="screen_container" style="display: flex;">
+    <div style="white-space: pre; font: 14px monospace; line-height: 14px; margin: auto;"></div>
+    <canvas style="display: none"></canvas>
+</div></p>
+<p>We want to show you that learning Linux is not hard and getting Linux is very easy. <strong>Linux runs everywhere, even in your browser.</strong></p>
+<p>Don't be afraid, the black screen above is an emulator using <a href="https://webassembly.org/">Web Assembly</a> technology. It runs <a href="https://en.wikipedia.org/wiki/Linux">Linux</a> kernel 6.8.12 (Try typing <code>uname -a</code> to check it out!) with <a href="https://buildroot.org/">Buildroot</a> environment (which contains a collection of basic Linux command line tools).</p>
+<p>You can try common Linux commands here, like <code>ls</code>, <code>cd</code>, <code>cat</code>, <code>echo</code>, <code>pwd</code>, <code>uname</code>, <code>date</code>, <code>top</code>, <code>ps</code>, <code>clear</code>, and <code>exit</code>.</p>
+<p>Good job! Now you're a true Linux user. You can go on and finish this lab.</p>
+</details>
+<!-- v86 initialization is handled by docs/javascripts/v86-init.js so it
+     re-runs across instant navigations. The #screen_container above is
+     the only markup needed here. -->
+
+<h3 id="linux-distributions">Linux distributions<a class="headerlink" href="#linux-distributions" title="Permanent link">&para;</a></h3>
+<p>What is Linux distribution? A Linux distribution (or Linux distro) is essentially a collection of software packages and configurations that are used to create a complete Linux operating system. They both use the Linux kernel, but might have different out-of-the-box configurations and user applications.</p>
+<p>There are many Linux distributions available, each with its own strengths and weaknesses. Here are some popular choices:</p>
+<ul>
+<li><strong>Ubuntu</strong>: A popular choice for beginners due to its ease of use, large community support, and compatibility with many hardware devices.</li>
+<li><strong>Debian</strong>: Known for its stability and security.</li>
+<li><strong>Fedora</strong>: A community-driven Linux distribution sponsored by Red Hat.</li>
+<li><strong>Arch Linux</strong>: A lightweight and flexible Linux distribution that follows the "rolling release" model.</li>
+</ul>
+<p>In HPC and cloud computing, Debian is a popular choice due to its stability and security.</p>
+<p><strong>We recommend using Debian for this course.</strong></p>
+<div class="admonition question">
+<p class="admonition-title">Task 1.1: Download and verify the latest <strong>textonly</strong> version of Debian ISO image from <a href="https://mirrors.zju.edu.cn/debian-cd/">ZJU Mirrors</a></p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Step 1</label><label for="__tabbed_1_2">Step 2</label><label for="__tabbed_1_3">Step 3</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Follow the link to the Debian CD image download page: <a href="https://mirrors.zju.edu.cn/debian-cd/">ZJU Mirrors</a>.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Index of /debian-cd/
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Parent directory/
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>13.5.0/                                            2026/05/17 03:43:13
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>13.5.0-live/                                       2026/05/17 03:43:13
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>current/                                           2026/05/17 03:43:13
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>current-live/                                      2026/05/17 03:43:13
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>project/                                           2005/05/24 00:50:12
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>ls-lR.gz                                           2026/05/27 01:12:01
+</span></code></pre></div>
+<p>We need you to download the <strong>textonly</strong> version.</p>
+<p>Don't know how to find correct download link from the above webpage? Read this guide: <a href="https://github.com/slowpeek/debian-iso-guide"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></span> Your guide to Debian iso downloads</a>.</p>
+</div>
+<div class="tabbed-block">
+<div class="admonition warning">
+<p class="admonition-title">For MacBook users with M series processors</p>
+<p>You need to download the <code>arm64</code> version of Debian, but <strong>not</strong> the <code>debian-mac-</code> version under <code>amd64</code> directory.</p>
+</div>
+<p>The download link should look like this: <a href="https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-13.5.0-amd64-netinst.iso">https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-13.5.0-amd64-netinst.iso</a>.</p>
+<p><strong>Quick questions:</strong></p>
+<ul>
+<li>What is the difference between <code>debian-13.5.0-amd64-netinst.iso</code> and the <code>debian-13.5.0-amd64-DVD-1.iso</code>?</li>
+<li>What is the difference between the <code>amd64</code> and <code>arm64</code> versions?</li>
+</ul>
+<details class="success">
+<summary>Check your answer</summary>
+<ul>
+<li>The <code>netinst</code> version is a small ISO image that contains only the necessary files to start the installation. The <code>DVD-1</code> version is a large ISO image that contains desktop environments, applications, and other software.</li>
+<li><code>amd64</code> is the 64-bit version for x86-64 processors, while <code>arm64</code> is the 64-bit version for ARM processors. For example, Windows laptops usually use x86-64 processors, while latest MacBooks use ARM processors.</li>
+</ul>
+</details>
+</div>
+<div class="tabbed-block">
+<p>Verify the integrity of the downloaded ISO image. This is to ensure the ISO image is not corrupted or modified during the download process.</p>
+<p>You can use:</p>
+<ul>
+<li><code>sha256sum</code> on Linux: <code>sha256sum debian-13.5.0-amd64-netinst.iso</code></li>
+<li><code>certutil</code> on Windows: <code>certutil -hashfile debian-13.5.0-amd64-netinst.iso SHA256</code></li>
+<li><code>shasum</code> on macOS: <code>shasum -a 256 debian-13.5.0-amd64-netinst.iso</code></li>
+</ul>
+<p>Show the result of your verification, and compare it with the result in <code>SHA256SUMS</code> file under the same directory as the ISO image.</p>
+<p>If they are the same, then you are good to go.</p>
+</div>
+</div>
+</div>
+</div>
+<h3 id="virtual-machine">Virtual Machine<a class="headerlink" href="#virtual-machine" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">More on Virtualization</p>
+<p>If you are interested in virtualization and cloud computing, you can watch the <a href="https://www.bilibili.com/video/BV1b64y1a7wL/">Cloud·Explained video series</a> to learn the related concepts as an introduction.</p>
+</div>
+<p>A virtual machine (VM) is a software-based emulation of a computer. By running a VM on your computer, you can run multiple operating systems on the same hardware. This is useful for testing software, running legacy applications, and learning new operating systems.</p>
+<figure>
+<a class="glightbox" data-type="image" href="image/virtual_machine.webp"><img alt="virtual_machine" src="image/virtual_machine.webp" /></a>
+
+<figcaption>Virtual Machines</figcaption>
+</figure>
+<p>Hypervisors are software that creates and runs virtual machines.</p>
+<details class="info">
+<summary>Two types of hypervisors</summary>
+<ul>
+<li><strong>Type 1 hypervisor</strong>: Runs directly on the host's hardware to control the hardware and to manage guest operating systems. Examples include VMware ESXi, Microsoft Hyper-V, and Xen.</li>
+<li><strong>Type 2 hypervisor</strong>: Runs on a conventional operating system just like other computer programs. Examples include VMware Workstation, Oracle VirtualBox, and Parallels Desktop.</li>
+</ul>
+<p>Usually, we use Type 2 hypervisors for personal use. There are many Type 2 hypervisors available, such as VMware Workstation, Oracle VirtualBox, and Parallels Desktop.</p>
+</details>
+<p>You can choose whatever hypervisor you like. In this course, we recommend using <a href="https://www.vmware.com/products/desktop-hypervisor.html">VMware Workstation Pro</a> on Windows and Linux, or <a href="https://www.vmware.com/products/fusion.html">VMware Fusion</a> on macOS. They are free for personal use since <a href="https://blogs.vmware.com/workstation/2024/05/vmware-workstation-pro-now-available-free-for-personal-use.html">May 13, 2024</a>.</p>
+<p><a class="glightbox" data-type="image" href="image/vmware.webp"><img alt="vmware_workstation" src="image/vmware.webp" /></a></p>
+<div class="admonition question">
+<p class="admonition-title">Task 1.2: Download and install VMware Hypervisor</p>
+<p>Watch this video to learn how to download and install VMware Workstation: <a href="https://www.youtube.com/watch?v=66qMLGCGP5s"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814M9.545 15.568V8.432L15.818 12z"/></svg></span> VMware Workstation Pro is Now FREE (How to get it)</a></p>
+<ul>
+<li><a href="https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Workstation%20Pro">VMware Workstation Pro</a></li>
+<li><a href="https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Fusion">VMware Fusion</a></li>
+</ul>
+<p>(When filling out the download form, you can use any information like address, etc. It's common for large companies to have such tedious download processes 😵.)</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Task 1.3: Create a new virtual machine and install Debian</p>
+<div class="admonition warning">
+<p class="admonition-title">Please read the installation instructions carefully.</p>
+<p>If the following instructions don't mention a specific step, leave it as default.</p>
+</div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:6"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><input id="__tabbed_2_5" name="__tabbed_2" type="radio" /><input id="__tabbed_2_6" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Step 1 (Windows)</label><label for="__tabbed_2_2">Step 1 (macOS)</label><label for="__tabbed_2_3">Step 2</label><label for="__tabbed_2_4">Step 3</label><label for="__tabbed_2_5">Step 4</label><label for="__tabbed_2_6">Step 5</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Select the downloaded Debian ISO image as the installation media. Create a new virtual machine.</p>
+<p><center><a class="glightbox" data-type="image" href="image/task1.3.w1.webp"><img alt="task1.3.w1" src="image/task1.3.w1.webp" width="80%" /></a></center></p>
+<p>Here is my configuration:</p>
+<p><center><a class="glightbox" data-type="image" href="image/task1.3.w2.webp"><img alt="task1.3.w2" src="image/task1.3.w2.webp" width="80%" /></a></center></p>
+</div>
+<div class="tabbed-block">
+<p>Select the downloaded Debian ISO image as the installation media. Create a new virtual machine.</p>
+<p><a class="glightbox" data-type="image" href="image/task1.3.m1.webp"><img alt="task1.3.m1" src="image/task1.3.m1.webp" /></a></p>
+<p>Here is my configuration:</p>
+<p><a class="glightbox" data-type="image" href="image/task1.3.m2.webp"><img alt="task1.3.m2" src="image/task1.3.m2.webp" /></a></p>
+</div>
+<div class="tabbed-block">
+<p>Run the virtual machine and install Debian. (We recommend to choose <code>Install</code> but not <code>Graphical install</code>.)</p>
+<p><a class="glightbox" data-type="image" href="image/task1.3.m3.webp"><img alt="task1.3.m3" src="image/task1.3.m3.webp" /></a></p>
+<p>Please <strong>choose English as the language</strong>.</p>
+<p><a class="glightbox" data-type="image" href="image/task1.3.m4.webp"><img alt="task1.3.m4" src="image/task1.3.m4.webp" /></a></p>
+</div>
+<div class="tabbed-block">
+<p>You can change hostname, domain name, etc. as you like.</p>
+<p>Don't set a root password. Read the text on the screen carefully.</p>
+<blockquote>
+<p>If you leave this empty, the root account will be disabled and the system's initial user will be given the power to become root using the <code>sudo</code> command.</p>
+</blockquote>
+<p>So, if you set a root password, you will need to add yourself to the <code>sudo</code> group later manually.</p>
+<p><a class="glightbox" data-type="image" href="image/task1.3.m5.webp"><img alt="task1.3.m5" src="image/task1.3.m5.webp" /></a></p>
+<p>Then set up your user account. Use the entire disk for the installation.</p>
+<p><a class="glightbox" data-type="image" href="image/task1.3.m6.webp"><img alt="task1.3.m6" src="image/task1.3.m6.webp" /></a></p>
+</div>
+<div class="tabbed-block">
+<p>Configure the package manager. Choose <code>enter information manually</code> and set the mirror to <code>mirrors.zju.edu.cn</code>.</p>
+<p><a class="glightbox" data-type="image" href="image/task1.3.m7.webp"><img alt="task1.3.m7" src="image/task1.3.m7.webp" /></a></p>
+<p><a class="glightbox" data-type="image" href="image/task1.3.m8.webp"><img alt="task1.3.m8" src="image/task1.3.m8.webp" /></a></p>
+<p>Notice in the <code>Software selection</code> step, you need to select <code>SSH server</code> and <code>standard system utilities</code>, and cancel the selection of any other options. The text at the bottom of the screen will tell you how to navigate the menu.</p>
+<p><a class="glightbox" data-type="image" href="image/task1.3.w9.webp"><img alt="task1.3.w9" src="image/task1.3.w9.webp" /></a></p>
+</div>
+<div class="tabbed-block">
+<p>In the <code>Configuring grub-pc</code> step, should choose <code>/dev/sda</code> as the device for boot loader installation. Otherwise, you may not be able to boot into the system.</p>
+<p><center><a class="glightbox" data-type="image" href="image/task1.3.w10.webp"><img alt="task1.3.w9" src="image/task1.3.w10.webp" width="80%" /></a></center></p>
+<p>Installation finished. Usually you don't need to remove the installation media manually because the virtual machine will try to boot from the disk first.</p>
+<p><a class="glightbox" data-type="image" href="image/task1.3.m9.webp"><img alt="task1.3.m9" src="image/task1.3.m9.webp" /></a></p>
+<p>After rebooting, you can log in with the user account you created.</p>
+<p><a class="glightbox" data-type="image" href="image/task1.3.m10.webp"><img alt="task1.3.m10" src="image/task1.3.m10.webp" /></a></p>
+</div>
+</div>
+</div>
+</div>
+<h2 id="linux-basics">Linux Basics<a class="headerlink" href="#linux-basics" title="Permanent link">&para;</a></h2>
+<h3 id="command-line-interface-cli">Command Line Interface (CLI)<a class="headerlink" href="#command-line-interface-cli" title="Permanent link">&para;</a></h3>
+<p>Read <a href="https://ubuntu.com/tutorials/command-line-for-beginners#1-overview">The Linux command line for beginners - Ubuntu</a>. Begin with section 1 and stop at section 5.</p>
+<div class="admonition question">
+<p class="admonition-title">Task 2.1: Answer the following questions</p>
+<ol>
+<li>What is terminal, shell and prompt? Find definitions from the article.</li>
+<li>What commands did you learn from the article?</li>
+<li>Try to learn <code>nano</code>. Use it to create a file and write some text.</li>
+</ol>
+</div>
+<details class="success">
+<summary>Check your answer</summary>
+<ol>
+<li>Answers:<ul>
+<li>Terminal: They would just send keystrokes to the server and display any data they received on the screen.</li>
+<li>Shell: By wrapping the user’s commands this “shell” program, as it was known, could provide common capabilities to any of them, such as the ability to pass data from one command straight into another, or to use special wildcard characters to work with lots of similarly named files at once.</li>
+<li>Prompt: That text is there to tell you the computer is ready to accept a command, it’s the computer’s way of prompting you.</li>
+</ul>
+</li>
+<li>
+<p>Examples:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cd pwd mkdir ls cat echo less mv rm rmdir
+</span></code></pre></div>
+</li>
+<li>
+<p>Show your screenshot of using <code>nano</code>.</p>
+</li>
+</ol>
+</details>
+<h3 id="linux-file-system">Linux File System<a class="headerlink" href="#linux-file-system" title="Permanent link">&para;</a></h3>
+<p>Watch <a href="https://www.youtube.com/watch?v=bbmWOjuFmgA"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814M9.545 15.568V8.432L15.818 12z"/></svg></span> Linux File System Explained!</a></p>
+<div class="admonition question">
+<p class="admonition-title">Task 2.2: Answer the following questions</p>
+<ol>
+<li>Where is your location when you first log in?</li>
+<li>Where are the homes for executable binaries?</li>
+<li>What is <code>/usr</code> stands for?</li>
+<li>What's in <code>/usr/local/bin</code>?</li>
+<li>Where are the configuration files stored?</li>
+</ol>
+</div>
+<details class="success">
+<summary>Check your answer</summary>
+<ol>
+<li><code>/home/username</code></li>
+<li><code>/bin</code>, <code>/sbin</code>, <code>/usr/bin</code>, <code>/usr/local/bin</code>.</li>
+<li><code>/usr</code> stands for "Unix System Resources".</li>
+<li><code>/usr/local/bin</code> holds executables installed by the admin, usually after building them from source.</li>
+<li><code>/etc</code></li>
+</ol>
+</details>
+<h3 id="the-advanced-packaging-tool-apt">The Advanced Packaging Tool (APT)<a class="headerlink" href="#the-advanced-packaging-tool-apt" title="Permanent link">&para;</a></h3>
+<p>Unlike Windows, where you need to download software from the internet and install it manually (this can be dangerous), Linux distributions have package managers that allow you to install software from a central repository.</p>
+<p>For Debian-based distributions, the package manager is called <code>apt</code>. You can use <code>apt</code> to install, update, and remove software packages. For example, to install the <code>htop</code> package, you can run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>update
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>htop
+</span></code></pre></div>
+<p>The first command updates the local package list from the repository, and the second command installs the <code>htop</code> package.</p>
+<p>You can edit the <code>/etc/apt/sources.list</code> file to change the repository mirror. Read <a href="https://wiki.debian.org/SourcesList">SourceList - Debian Wiki</a> to learn more about the <code>sources.list</code> file.</p>
+<p>If you are finding a package, you can use <a href="https://pkgs.org/">pkgs.org</a> to search for the package and find the repository.</p>
+<details class="note">
+<summary><a href="https://askubuntu.com/questions/913180/what-are-mirrors">Why you need repository mirrors?</a></summary>
+<p>On the Internet, distance matters. In fact, it matters a lot. A long connection can cause high latency, slower connection speeds, and pretty much all the other classic issues that data has when it needs to travel across an ocean and half a continent. Therefore, we have these distributed mirrors. People connect to their physically nearest one (as it's usually the fastest -- there are some exceptions) for the lowest latency and highest download speed.</p>
+</details>
+<div class="admonition question">
+<p class="admonition-title">Task 2.3: Answer the following questions</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Question 1</label><label for="__tabbed_3_2">Question 2</label><label for="__tabbed_3_3">Question 3</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>One student encountered an error when running <code>sudo apt update</code>. The error message is:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Ign:1 cdrom://[Debian GNU/Linux 11.0.0 _Bullseye_ - Official amd64 DVD Binary-1 20210814-10:04] bullseye InRelease
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Err:2 cdrom://[Debian GNU/Linux 11.0.0 _Bullseye_ - Official amd64 DVD Binary-1 20210814-10:04] bullseye Release
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Please use apt-cdrom to make this CD-ROM recognized by APT. apt-get update cannot be used to add new CD-ROMs
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>Hit:3 &lt;http://security.debian.org/debian-security&gt; bullseye-security InRelease
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>Hit:4 &lt;http://deb.debian.org/debian&gt; bullseye InRelease
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>Hit:5 &lt;http://deb.debian.org/debian&gt; bullseye-updates InRelease
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>Reading package lists... Done
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>E: The repository &#39;cdrom://[Debian GNU/Linux 11.0.0 _Bullseye_ - Official amd64 DVD Binary-1 20210814-10:04] bullseye Release&#39; does not have a Release file.
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>N: Updating from such a repository can&#39;t be done securely, and is therefore disabled by default.
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>N: See apt-secure(8) manpage for repository creation and user configuration details.
+</span></code></pre></div>
+<p>And here is the content of the <code>/etc/apt/sources.list</code> file:</p>
+<div class="language-text highlight"><span class="filename">/etc/apt/sources.list</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>deb cdrom:[Debian GNU/Linux 11.0.0 _Bullseye_ - Official amd64 DVD Binary-1 20210814-10:04] bullseye main
+</span></code></pre></div>
+<p>What is the problem? How to solve it?</p>
+<details class="success">
+<summary>Check your answer</summary>
+<p>The problem is that the <code>cdrom</code> repository is not available. You can remove the <code>cdrom</code> repository from the <code>/etc/apt/sources.list</code> file and add the correct repository. Then run <code>sudo apt update</code> again.</p>
+</details>
+</div>
+<div class="tabbed-block">
+<p>One student can't install the <code>nvtop</code> package. The error message is:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Reading package lists... Done
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Building dependency tree... Done
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Reading state information... Done
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>E: Unable to locate package nvtop
+</span></code></pre></div>
+<p>And here is the content of the <code>/etc/apt/sources.list</code> file:</p>
+<div class="language-text highlight"><span class="filename">/etc/apt/sources.list</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>deb http://deb.debian.org/debian bullseye main
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>deb http://deb.debian.org/debian bullseye-updates main
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>deb http://security.debian.org/debian-security bullseye-security main
+</span></code></pre></div>
+<p>What is the problem? How to solve it?</p>
+<div class="admonition tip">
+<p class="admonition-title">Hint: use <a href="https://pkgs.org/">pkgs.org</a> to search for the package's component.</p>
+</div>
+<details class="success">
+<summary>Check your answer</summary>
+<p>The problem is that the <code>nvtop</code> package is not available in the <code>main</code> component of the repository. You can add the correct repository to the <code>/etc/apt/sources.list</code> file and run <code>sudo apt update</code> again.</p>
+</details>
+</div>
+<div class="tabbed-block">
+<p>One student can't install the <code>htop</code> package. The error message is:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Reading package lists... Done
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>Building dependency tree... Done
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>Reading state information... Done
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>E: Unable to locate package htop
+</span></code></pre></div>
+<p>And here is the content of the <code>/etc/apt/sources.list</code> file:</p>
+<div class="language-text highlight"><span class="filename">/etc/apt/sources.list</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Types: deb
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>URIs: &lt;https://mirrors.zju.edu.cn/debian/&gt;
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>Suites: trixie trixie-updates trixie-backports
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>Components: main contrib non-free non-free-firmware
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>Types: deb
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>URIs: &lt;https://mirrors.zju.edu.cn/debian-security/&gt;
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>Suites: trixie-security
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>Components: main contrib non-free non-free-firmware
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+</span></code></pre></div>
+<p>What is the problem? How to solve it?</p>
+<details class="success">
+<summary>Check your answer</summary>
+<p>For Deb822-style Format sources, each file needs to have the <code>.sources</code> extension. So you need to rename the file to <code>/etc/apt/sources.list.d/trixie.sources</code> and run <code>sudo apt update</code> again.</p>
+</details>
+</div>
+</div>
+</div>
+</div>
+<h2 id="access-the-virtual-machine-using-ssh">Access the Virtual Machine using SSH<a class="headerlink" href="#access-the-virtual-machine-using-ssh" title="Permanent link">&para;</a></h2>
+<h3 id="network-basics">Network Basics<a class="headerlink" href="#network-basics" title="Permanent link">&para;</a></h3>
+<p>Do you know the following concepts?</p>
+<ul>
+<li>IP address</li>
+<li>MAC address</li>
+<li>Subnet mask</li>
+<li>Gateway</li>
+<li>Port</li>
+<li>Port forwarding</li>
+</ul>
+<p>If you are not familiar with these concepts, watch the following video to learn more about network:</p>
+<ul>
+<li><a href="https://www.bilibili.com/video/BV1CQ4y1d728"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.813 4.653h.854q2.266.08 3.773 1.574Q23.946 7.72 24 9.987v7.36q-.054 2.266-1.56 3.773c-1.506 1.507-2.262 1.524-3.773 1.56H5.333q-2.266-.054-3.773-1.56C.053 19.614.036 18.858 0 17.347v-7.36q.054-2.267 1.56-3.76t3.773-1.574h.774l-1.174-1.12a1.23 1.23 0 0 1-.373-.906q0-.534.373-.907l.027-.027q.4-.373.92-.373t.92.373L9.653 4.44q.107.106.187.213h4.267a.8.8 0 0 1 .16-.213l2.853-2.747q.4-.373.92-.373c.347 0 .662.151.929.4s.391.551.391.907q0 .532-.373.906zM5.333 7.24q-1.12.027-1.88.773-.76.748-.786 1.894v7.52q.026 1.146.786 1.893t1.88.773h13.334q1.12-.026 1.88-.773t.786-1.893v-7.52q-.026-1.147-.786-1.894t-1.88-.773zM8 11.107q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q0-.56.386-.947.387-.386.947-.386m8 0q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q.025-.586.4-.96.373-.373.933-.373"/></svg></span> IP、MAC、DHCP 与 ARP</a></li>
+<li><a href="https://www.bilibili.com/video/BV1DD4y127r4"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.813 4.653h.854q2.266.08 3.773 1.574Q23.946 7.72 24 9.987v7.36q-.054 2.266-1.56 3.773c-1.506 1.507-2.262 1.524-3.773 1.56H5.333q-2.266-.054-3.773-1.56C.053 19.614.036 18.858 0 17.347v-7.36q.054-2.267 1.56-3.76t3.773-1.574h.774l-1.174-1.12a1.23 1.23 0 0 1-.373-.906q0-.534.373-.907l.027-.027q.4-.373.92-.373t.92.373L9.653 4.44q.107.106.187.213h4.267a.8.8 0 0 1 .16-.213l2.853-2.747q.4-.373.92-.373c.347 0 .662.151.929.4s.391.551.391.907q0 .532-.373.906zM5.333 7.24q-1.12.027-1.88.773-.76.748-.786 1.894v7.52q.026 1.146.786 1.893t1.88.773h13.334q1.12-.026 1.88-.773t.786-1.893v-7.52q-.026-1.147-.786-1.894t-1.88-.773zM8 11.107q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q0-.56.386-.947.387-.386.947-.386m8 0q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q.025-.586.4-.96.373-.373.933-.373"/></svg></span> IP 与 NAT</a></li>
+</ul>
+<h3 id="network-in-virtual-machines">Network in Virtual Machines<a class="headerlink" href="#network-in-virtual-machines" title="Permanent link">&para;</a></h3>
+<p>Watch this video to understand network in the virtual machines: <a href="https://www.bilibili.com/video/BV11M4y1J7zP"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.813 4.653h.854q2.266.08 3.773 1.574Q23.946 7.72 24 9.987v7.36q-.054 2.266-1.56 3.773c-1.506 1.507-2.262 1.524-3.773 1.56H5.333q-2.266-.054-3.773-1.56C.053 19.614.036 18.858 0 17.347v-7.36q.054-2.267 1.56-3.76t3.773-1.574h.774l-1.174-1.12a1.23 1.23 0 0 1-.373-.906q0-.534.373-.907l.027-.027q.4-.373.92-.373t.92.373L9.653 4.44q.107.106.187.213h4.267a.8.8 0 0 1 .16-.213l2.853-2.747q.4-.373.92-.373c.347 0 .662.151.929.4s.391.551.391.907q0 .532-.373.906zM5.333 7.24q-1.12.027-1.88.773-.76.748-.786 1.894v7.52q.026 1.146.786 1.893t1.88.773h13.334q1.12-.026 1.88-.773t.786-1.893v-7.52q-.026-1.147-.786-1.894t-1.88-.773zM8 11.107q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q0-.56.386-.947.387-.386.947-.386m8 0q.56 0 .933.373.375.374.4.96v1.173q-.025.586-.4.96-.373.375-.933.374c-.56-.001-.684-.125-.933-.374q-.375-.373-.4-.96V12.44q.025-.586.4-.96.373-.373.933-.373"/></svg></span> 虚拟机网络模式</a>.</p>
+<div class="admonition question">
+<p class="admonition-title">Task 3.1: Ping the virtual machine</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><input id="__tabbed_4_3" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Step 1</label><label for="__tabbed_4_2">Step 2</label><label for="__tabbed_4_3">Step 3</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Check if the network mode of the virtual machine is set to <code>NAT</code>.</p>
+<p><a class="glightbox" data-type="image" href="image/task3.1.1.webp"><img alt="task3.1.1" src="image/task3.1.1.webp" /></a></p>
+</div>
+<div class="tabbed-block">
+<p>Start the virtual machine and log in. Use the <code>ip addr</code> command to find the IP address of the virtual machine.</p>
+<p><a class="glightbox" data-type="image" href="image/task3.1.2.webp"><img alt="task3.1.2" src="image/task3.1.2.webp" /></a></p>
+<p>From the screenshot, the virtual machine has two network interfaces: <code>ens160</code> and <code>lo</code>. The latter is the loopback interface, and the former is the network interface used to connect to the network. We can see that the IP address of the virtual machine is <code>172.16.39.129</code>.</p>
+</div>
+<div class="tabbed-block">
+<p>Open a terminal on your host machine and ping the virtual machine.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>ping<span class="w"> </span>IP_ADDRESS
+</span></code></pre></div>
+<p>Replace <code>IP_ADDRESS</code> with the IP address of the virtual machine.</p>
+<p>The correct output should look like this:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>PING 172.16.39.129 (172.16.39.129): 56 data bytes
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>64 bytes from 172.16.39.129: icmp_seq=0 ttl=64 time=5.485 ms
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>64 bytes from 172.16.39.129: icmp_seq=1 ttl=64 time=0.695 ms
+</span></code></pre></div>
+</div>
+</div>
+</div>
+</div>
+<h3 id="ssh">SSH<a class="headerlink" href="#ssh" title="Permanent link">&para;</a></h3>
+<p>Secure Shell (SSH) is a cryptographic network protocol for operating network services securely over an unsecured network. The best-known example application is for remote login to computer systems by users.</p>
+<details class="info">
+<summary>Asymmetric Encryption</summary>
+<p>SSH uses asymmetric encryption to secure the connection between the client and the server. In asymmetric encryption, two keys are used: a public key and a private key. The public key is used to encrypt the data, and the private key is used to decrypt the data.</p>
+<p>When you connect to an SSH server, the server sends its public key to the client. The client uses this public key to encrypt a random session key and sends it back to the server. The server uses its private key to decrypt the session key and establish a secure connection.</p>
+<p>The public key is shared with others, while the private key is kept secret.</p>
+<p>For more information, watch this video: <a href="https://www.youtube.com/watch?v=AQDCe585Lnc"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814M9.545 15.568V8.432L15.818 12z"/></svg></span> Asymmetric Encryption - Simply explained</a></p>
+</details>
+<figure>
+<a class="glightbox" data-type="image" href="image/ssh.webp"><img alt="ssh" src="image/ssh.webp" /></a>
+
+<figcaption>SSH</figcaption>
+</figure>
+<div class="admonition question">
+<p class="admonition-title">Task 3.2: Connect to the virtual machine using SSH</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Step 1</label><label for="__tabbed_5_2">Step 2</label><label for="__tabbed_5_3">Step 3</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>To use SSH, you need to install an SSH client on your computer. On Linux and macOS, the SSH client is usually pre-installed. On Windows, you can follow the instructions <a href="https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=gui#install-openssh-for-windows">Get started with OpenSSH for Windows - Microsoft</a> to install the OpenSSH client.</p>
+</div>
+<div class="tabbed-block">
+<p>You also need to install an SSH server on the virtual machine. On Debian-based distributions, you can install the <code>openssh-server</code> package:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>update
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>openssh-server
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>After installing the SSH server, you can use the <code>ssh</code> command to connect to the virtual machine:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>ssh<span class="w"> </span>username@IP_ADDRESS
+</span></code></pre></div>
+<p>Replace <code>username</code> with your username on the virtual machine and <code>IP_ADDRESS</code> with the IP address of the virtual machine.</p>
+<p>It will ask you to enter the password of the user account. After entering the password, you will be logged in to the virtual machine.</p>
+<p><a class="glightbox" data-type="image" href="image/ssh_connect.webp"><img alt="ssh_connect" src="image/ssh_connect.webp" /></a></p>
+<p>Show the screenshot of your successful connection.</p>
+</div>
+</div>
+</div>
+</div>
+<p>Now you can copy and paste commands to this terminal. You can also use the <code>scp</code> command to copy files between your computer and the virtual machine. You can also connect your VSCode to the virtual machine using the Remote-SSH extension, but don't rely on it too much.</p>
+<h2 id="more-on-linux">More on Linux<a class="headerlink" href="#more-on-linux" title="Permanent link">&para;</a></h2>
+<h3 id="users-and-permissions">Users and Permissions<a class="headerlink" href="#users-and-permissions" title="Permanent link">&para;</a></h3>
+<p>Watch this video to learn about:</p>
+<ul>
+<li>Users and Groups: <a href="https://www.youtube.com/watch?v=19WOD84JFxA"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814M9.545 15.568V8.432L15.818 12z"/></svg></span> Linux Crash Course - Managing Users</a></li>
+<li>Permissions: <a href="https://www.youtube.com/watch?v=LnKoncbQBsM"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814M9.545 15.568V8.432L15.818 12z"/></svg></span> Linux File Permissions in 5 Minutes | MUST Know!</a></li>
+</ul>
+<h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<p>Read this article to learn about environment variables: <a href="https://linuxize.com/post/how-to-set-and-list-environment-variables-in-linux/">How to Set and List Environment Variables in Linux</a>.</p>
+<div class="admonition question">
+<p class="admonition-title">Task 4.1: Answer the following questions</p>
+<ol>
+<li>What is the <code>$HOME</code> environment variable used for? What is the value of <code>$HOME</code> for you and the root user?</li>
+<li>What is the difference between the <code>chmod</code> and <code>chown</code> commands?</li>
+<li>What is the difference between the <code>rwx</code> permissions for a file and a directory?</li>
+</ol>
+</div>
+<details class="success">
+<summary>Check your answer</summary>
+<ol>
+<li>Answers:<ul>
+<li>The <code>$HOME</code> environment variable is used to store the path to the current user's home directory.</li>
+<li>The value of <code>$HOME</code> for you is <code>/home/username</code>, and the value of <code>$HOME</code> for the root user is <code>/root</code>.</li>
+</ul>
+</li>
+<li><code>chmod</code> is used to change the permissions of a file or directory, while <code>chown</code> is used to change the owner of a file or directory.</li>
+<li>For a file, <code>rwx</code> permissions mean read, write, and execute permissions. For a directory, the execute permission is used to list the contents of the directory.</li>
+</ol>
+</details>
+<h2 id="git">Git<a class="headerlink" href="#git" title="Permanent link">&para;</a></h2>
+<p>Git is a distributed version control system that is widely used in software development. It allows multiple developers to work on the same project simultaneously and track changes to the codebase over time.</p>
+<p><a class="glightbox" data-type="image" href="image/git.webp"><img alt="git" src="image/git.webp" /></a></p>
+<div class="admonition warning">
+<p class="admonition-title">Do the following tasks on your <strong>host machine</strong>.</p>
+</div>
+<h3 id="register-a-zju-git-account">Register a ZJU Git account<a class="headerlink" href="#register-a-zju-git-account" title="Permanent link">&para;</a></h3>
+<div class="admonition question">
+<p class="admonition-title">Task 5.1: Go to <a href="https://git.zju.edu.cn">ZJU Git</a> and register an account.</p>
+</div>
+<h3 id="configure-public-key">Configure Public Key<a class="headerlink" href="#configure-public-key" title="Permanent link">&para;</a></h3>
+<div class="admonition question">
+<p class="admonition-title">Task 5.2: Generate an SSH key and add it to your ZJU Git account.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Step 1</label><label for="__tabbed_6_2">Step 2</label><label for="__tabbed_6_3">Step 3</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Follow this guide to generate an SSH key: <a href="https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></span> Generating a new SSH key and adding it to the ssh-agent</a>.</p>
+<p>Please take care of your <strong>private</strong> key, don't share it with anyone. And for the <strong>public</strong> key, you can share it with anyone who needs it.</p>
+<p>We strongly suggest you to use <code>ed25519</code> algorithm instead of <code>rsa</code> for better security with shorter key length, unless you want to end up being like this when sharing your SSH <strong>public</strong> key:</p>
+<p><figure markdown="span" style="width: 30%;">
+<a class="glightbox" data-type="image" href="image/ssh_key_meme.webp"><img alt="ssh_key_meme" src="image/ssh_key_meme.webp" /></a>
+</figure></p>
+</div>
+<div class="tabbed-block">
+<p>Add the public key to your ZJU Git account:</p>
+<p><a class="glightbox" data-type="image" href="image/zjugit_add_key.webp"><img alt="zjugit_add_key" src="image/zjugit_add_key.webp" /></a></p>
+</div>
+<div class="tabbed-block">
+<p>Test the SSH connection, it should look like this:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>$<span class="w"> </span>ssh<span class="w"> </span>-T<span class="w"> </span>git@git.zju.edu.cn
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>ssh<span class="w"> </span>-T<span class="w"> </span>git@git.zju.edu.cn
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>Welcome<span class="w"> </span>to<span class="w"> </span>GitLab,<span class="w"> </span>@324010****!
+</span></code></pre></div>
+<p>Show the screenshot of your successful connection.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">This public key will be <strong>used to access the clusters</strong> in the future.</p>
+</div>
+<h3 id="install-git">Install Git<a class="headerlink" href="#install-git" title="Permanent link">&para;</a></h3>
+<div class="admonition question">
+<p class="admonition-title">Task 5.3: Install Git on your virtual machine.</p>
+<p>On Debian-based distributions, you can install Git using the following command:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>update
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>git
+</span></code></pre></div>
+<p>On Windows, you can download the Git installer from <a href="https://git-scm.com/download/win">Git for Windows</a> and follow the installation instructions.</p>
+<p>On macOS, you can install Git using <a href="https://brew.sh/">Homebrew</a>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>brew<span class="w"> </span>install<span class="w"> </span>git
+</span></code></pre></div>
+<p>After installing Git, you can check the version of Git to verify the installation:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>git<span class="w"> </span>--version
+</span></code></pre></div>
+<p>You should see the version number of Git printed, like:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>git version 2.x.x
+</span></code></pre></div>
+</div>
+<h2 id="ai-agent">AI Agent<a class="headerlink" href="#ai-agent" title="Permanent link">&para;</a></h2>
+<p>In the previous sections, you have been typing commands manually in the terminal: reading documentation, installing packages, editing configuration files, and running programs. This is the traditional workflow that every developer follows.</p>
+<p>In recent years, a new kind of tool has emerged: <strong>AI coding agents</strong>. Unlike simple chatbots (such as ChatGPT's web interface) that only generate text responses, AI coding agents can directly interact with your computer. They read and write files, run terminal commands, search the web, and manage version control. They serve as intelligent assistants that understand your codebase and can take real actions on your behalf.</p>
+<details class="info">
+<summary>Why learn AI agents in an HPC course?</summary>
+<p>In Lab 1 and beyond, you will face complex tasks like debugging <code>Makefile</code> errors, understanding unfamiliar source code, and configuring multi-node clusters. An AI coding agent can help you:</p>
+<ul>
+<li>Quickly understand what a 500-line <code>configure</code> script does.</li>
+<li>Identify why <code>make</code> is failing and suggest a fix.</li>
+<li>Generate boilerplate configuration files (like <code>HPL.dat</code> or <code>hostfile</code>).</li>
+<li>Explain error messages you encounter during compilation.</li>
+</ul>
+<p>You still need to understand what is happening, but you do not have to figure out everything from scratch.</p>
+</details>
+<h3 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h3>
+<p>A traditional chatbot takes your message and returns text. An AI coding agent combines a large language model (LLM) with a set of tools that allow it to interact with the real world:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What It Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Read</td>
+<td>Opens and reads any file on your computer</td>
+</tr>
+<tr>
+<td>Edit</td>
+<td>Makes precise, targeted changes to existing files</td>
+</tr>
+<tr>
+<td>Write</td>
+<td>Creates brand new files from scratch</td>
+</tr>
+<tr>
+<td>Bash</td>
+<td>Runs terminal commands (build, test, install, git, etc.)</td>
+</tr>
+<tr>
+<td>Web Search</td>
+<td>Searches the internet for up-to-date information</td>
+</tr>
+</tbody>
+</table>
+<p>When you give an AI coding agent an instruction like "fix the compilation error in my Makefile," it reads the Makefile, identifies the problem, edits the file, and runs <code>make</code> again to verify the fix works. This read-think-act loop is what distinguishes an agent from a chatbot.</p>
+<pre class="mermaid"><code>flowchart LR
+    A[You: natural language instruction] --&gt; B[Agent: read files &amp; context]
+    B --&gt; C[Agent: think &amp; plan]
+    C --&gt; D[Agent: take action]
+    D --&gt; E[Agent: observe result]
+    E --&gt;|iterate| B
+    E --&gt;|done| F[Report back to you]</code></pre>
+<p>There are many AI coding agents available today, such as <a href="https://opencode.ai/">OpenCode</a>, <a href="https://github.com/openai/codex">Codex CLI</a>, <a href="https://github.com/google-gemini/gemini-cli">Gemini CLI</a>, <a href="https://github.com/features/copilot">GitHub Copilot</a>, <a href="https://www.cursor.com/">Cursor</a>, and <a href="https://windsurf.com/">Windsurf</a>. They share the same core idea but differ in interface, model provider, and specific features. In this lab, we use <strong>OpenCode</strong> as a representative example. It is an open-source agentic AI coding agent that runs in your terminal.</p>
+<p>Read the official getting started guide to get an overview: <a href="https://opencode.ai/docs/">Intro - OpenCode Docs</a>.</p>
+<h3 id="get-api-key">Get API Key<a class="headerlink" href="#get-api-key" title="Permanent link">&para;</a></h3>
+<p>Our course provides free access to several LLM APIs (such as GLM and DeepSeek) that you can use with OpenCode. To get your API key, log in to <a href="https://newapi.s.zjusct.io/">our New API Platform</a> with your <a href="https://git.zju.edu.cn/">ZJU Git</a> account, and then go to the "Token Management" section to create a new API key.</p>
+<p>Our New API platform supports two types of LLM protocol:</p>
+<ul>
+<li>OpenAI: <code>https://clusters.zju.edu.cn/newapi/v1</code></li>
+<li>Anthropic: <code>https://clusters.zju.edu.cn/newapi</code></li>
+</ul>
+<p><code>clusters.zju.edu.cn</code> can be accessed both in and out of campus network.</p>
+<h3 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h3>
+<div class="admonition question">
+<p class="admonition-title">Task 6.1: Install and try a coding agent</p>
+<p>We'll use <a href="https://github.com/anomalyco/opencode">OpenCode</a> in this example. You may complete this task with any mainstream coding agent, such as Codex CLI, Gemini CLI, GitHub Copilot, Cursor, Windsurf, or other tools with similar agentic coding capabilities.</p>
+<p>If you choose another coding agent, follow its official installation guide instead of the OpenCode-specific steps below.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="7:4"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><input id="__tabbed_7_3" name="__tabbed_7" type="radio" /><input id="__tabbed_7_4" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">Step 1: Install</label><label for="__tabbed_7_2">Step 2: Set your LLM provider</label><label for="__tabbed_7_3">Step 3: First Run</label><label for="__tabbed_7_4">Step 4: First Conversation</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Follow instructions from <a href="https://opencode.ai/download">OpenCode | Download</a> to install OpenCode on your computer. When it's done, <strong>close and reopen your terminal</strong>, then run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>opencode<span class="w"> </span>--version
+</span></code></pre></div>
+<p>You should see a version number printed.</p>
+</div>
+<div class="tabbed-block">
+<p>Follow instructions from <a href="https://opencode.ai/docs/providers/">Providers | OpenCode</a> to configure LLM providers for opencode.</p>
+<p>For API Keys fetched from our New API platform, we recommend using OpenAI API. Example:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="p">{</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">    </span><span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://opencode.ai/config.json&quot;</span><span class="p">,</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zjusct/glm-5.2&quot;</span><span class="p">,</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="nt">&quot;provider&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">        </span><span class="nt">&quot;zjusct&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">            </span><span class="nt">&quot;npm&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@ai-sdk/openai-compatible&quot;</span><span class="p">,</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ZJUSCT New API&quot;</span><span class="p">,</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="w">            </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">                </span><span class="nt">&quot;baseURL&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://clusters.zju.edu.cn/newapi/v1&quot;</span><span class="p">,</span>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="w">                </span><span class="nt">&quot;apiKey&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;your-api-key&gt;&quot;</span>
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="w">            </span><span class="p">},</span>
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="w">            </span><span class="nt">&quot;models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="w">                </span><span class="nt">&quot;glm-5.2&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+</span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__span-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-19-16"><a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-19-17"><a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>You can find more details about configuring LLM providers in the official documentation:</p>
+<ul>
+<li><a href="https://docs.bigmodel.cn/cn/coding-plan/tool/opencode">OpenCode - 智谱AI开放文档</a></li>
+<li><a href="https://opencode.ai/docs/providers/">Providers - OpenCode Docs</a></li>
+</ul>
+</div>
+<div class="tabbed-block">
+<p>Navigate to a project folder (or create one for experimenting):</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>mkdir<span class="w"> </span>my-first-project
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="nb">cd</span><span class="w"> </span>my-first-project
+</span></code></pre></div>
+<p>Start OpenCode:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>opencode
+</span></code></pre></div>
+<p>You should see GLM-5.2 selected as the active model.</p>
+<p><a class="glightbox" data-type="image" href="https://opencode.ai/docs/_astro/screenshot.CQjBbRyJ_1dLadc.webp"><img alt="OpenCode First Run" src="https://opencode.ai/docs/_astro/screenshot.CQjBbRyJ_1dLadc.webp" /></a></p>
+<p>That <code>&gt;</code> is your prompt. The agent is waiting for you to type something.</p>
+</div>
+<div class="tabbed-block">
+<p>Try typing the following prompts one by one and observe what the agent does:</p>
+<ol>
+<li>
+<p>Ask about the current directory:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>What files are in this directory?
+</span></code></pre></div>
+<p>The agent will read the directory and show you the list of files.</p>
+</li>
+<li>
+<p>Ask it to create a script:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>Create a shell script that prints the hostname, kernel version, CPU info, and memory usage.
+</span></code></pre></div>
+<p>The agent will show you the file content it wants to create and ask for permission. Select <code>Yes</code> and press Enter to approve.</p>
+</li>
+<li>
+<p>Ask it to run the script:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>Run the script and show me the output.
+</span></code></pre></div>
+<p>Again, it will ask for permission before executing the command. Select <code>Yes</code> and press Enter to approve.</p>
+</li>
+</ol>
+<p>Show a screenshot of your conversation with the coding agent, including the created file and its output.</p>
+</div>
+</div>
+</div>
+</div>
+<details class="example">
+<summary>Example: Agent Basic Usage</summary>
+<p>Here are the most common interaction patterns you will use in this course:</p>
+<p><strong>Asking questions about code:</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>&gt; Explain what the configure script does in this project.
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>&gt; What dependencies does this Makefile need?
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>&gt; What does the -O2 flag do in gcc?
+</span></code></pre></div>
+<p><strong>Editing files:</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>&gt; Add error handling to the main function in server.c
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>&gt; Change the optimization flag from -O0 to -O2 in the Makefile
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>&gt; Fix the linker path in Make.Linux_PII_FBLAS
+</span></code></pre></div>
+<p><strong>Running commands:</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>&gt; Compile this project and show me any errors.
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>&gt; Run the test suite and summarize the results.
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>&gt; Check if OpenMPI is installed correctly.
+</span></code></pre></div>
+<p><strong>Git workflows:</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>&gt; Show me what changed since the last commit.
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>&gt; Create a commit with a descriptive message for the current changes.
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>&gt; What does the most recent commit do?
+</span></code></pre></div>
+<p><strong>Debugging:</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>&gt; I&#39;m getting &quot;undefined reference to dgemm_&quot; when linking. What&#39;s wrong?
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>&gt; The configure script says it can&#39;t find mpi.h. How do I fix this?
+</span></code></pre></div>
+</details>
+<h3 id="slash-commands">Slash Commands<a class="headerlink" href="#slash-commands" title="Permanent link">&para;</a></h3>
+<p>During an OpenCode session, type <code>/</code> to see a list of available commands. They are the primary interface for controlling the agent's behavior. Here are the most useful ones:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What It Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/help</code></td>
+<td>Shows the help dialog and available commands</td>
+</tr>
+<tr>
+<td><code>/new</code> (<code>/clear</code>)</td>
+<td>Starts a fresh session and frees context window space</td>
+</tr>
+<tr>
+<td><code>/compact</code> (<code>/summarize</code>)</td>
+<td>Compresses the conversation into a summary to reclaim context</td>
+</tr>
+<tr>
+<td><code>/models</code></td>
+<td>Lists or switches the AI model mid-session</td>
+</tr>
+<tr>
+<td><code>/init</code></td>
+<td>Generates or updates an <code>AGENTS.md</code> project memory file</td>
+</tr>
+<tr>
+<td><code>/undo</code> / <code>/redo</code></td>
+<td>Reverts (or restores) your last message and any file changes</td>
+</tr>
+<tr>
+<td><code>/sessions</code> (<code>/resume</code>)</td>
+<td>Lists and switches between past sessions</td>
+</tr>
+<tr>
+<td><code>/share</code></td>
+<td>Creates a shareable link to the current session</td>
+</tr>
+<tr>
+<td><code>/connect</code></td>
+<td>Adds and configures an LLM provider</td>
+</tr>
+</tbody>
+</table>
+<p>You can also define your own custom commands by placing Markdown files in <code>.opencode/commands/</code> or <code>~/.config/opencode/commands/</code>. See <a href="https://opencode.ai/docs/commands/">Commands - OpenCode Docs</a> for details.</p>
+<details class="info">
+<summary>Context window and <code>/compact</code></summary>
+<p>OpenCode has a <strong>context window</strong>, which you can think of as a shared whiteboard between you and the agent. Everything you discuss, every file it reads, and every command output goes onto this whiteboard. But the whiteboard has a fixed size. When it gets full, OpenCode may start "forgetting" earlier parts of your conversation.</p>
+<p>Use <code>/compact</code> to compress your conversation (keeping the essence but freeing space), or <code>/new</code> to completely wipe it and start a fresh session.</p>
+<p>In most cases, OpenCode can automatically manage the context without needing a manual <code>/compact</code>.</p>
+</details>
+<h3 id="extending-agent-skills-and-mcp">Extending Agent: Skills and MCP<a class="headerlink" href="#extending-agent-skills-and-mcp" title="Permanent link">&para;</a></h3>
+<p>OpenCode is not limited to its built-in capabilities. It can be extended through <strong>Skills</strong> and <strong>MCP (Model Context Protocol)</strong>.</p>
+<h4 id="skills">Skills<a class="headerlink" href="#skills" title="Permanent link">&para;</a></h4>
+<p>A <strong>Skill</strong> is a Markdown file that teaches OpenCode how to perform a specific task. When the agent sees that a skill is available (by reading its description), it loads the corresponding skill file on demand and follows the instructions inside.</p>
+<p>For example, you might create a skill called <code>check-system-status</code> that instructs the agent to check system resource usage and status. The skill file would look like this:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>~/.config/opencode/skills/check-system-status/SKILL.md
+</span></code></pre></div>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="nn">---</span>
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">check-system-status</span>
+</span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check system resources usage and status</span>
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="nn">---</span>
+</span><span id="__span-31-5"><a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>
+</span><span id="__span-31-6"><a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a><span class="l l-Scalar l-Scalar-Plain">When invoked, do the following</span><span class="p p-Indicator">:</span>
+</span><span id="__span-31-7"><a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a><span class="l l-Scalar l-Scalar-Plain">1. Run `top -b -n 1` to get a snapshot of current system resource usage.</span>
+</span><span id="__span-31-8"><a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a><span class="l l-Scalar l-Scalar-Plain">2. Run `df -h` to check disk space usage.</span>
+</span><span id="__span-31-9"><a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a><span class="l l-Scalar l-Scalar-Plain">3. Summarize the results in a human-readable format, highlighting any potential issues (e.g., high CPU usage, low disk space).</span>
+</span></code></pre></div>
+<p>After creating this file, you can ask the agent to "check the system status" in any OpenCode session and it will load the skill and execute these steps.</p>
+<p>Skills can be stored in several locations:</p>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Path</th>
+<th>Applies To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Global</td>
+<td><code>~/.config/opencode/skills/&lt;name&gt;/SKILL.md</code></td>
+<td>All your projects</td>
+</tr>
+<tr>
+<td>Project</td>
+<td><code>.opencode/skills/&lt;name&gt;/SKILL.md</code></td>
+<td>This project only</td>
+</tr>
+</tbody>
+</table>
+<p>OpenCode also discovers Claude-compatible paths (<code>.claude/skills/</code>) and <code>.agents/skills/</code>, so skills written for other agents work out of the box.</p>
+<h4 id="mcp">MCP<a class="headerlink" href="#mcp" title="Permanent link">&para;</a></h4>
+<p>MCP (Model Context Protocol) is an open standard that allows AI agents to connect to external tools and services in a standardized way. An MCP server is a separate process that exposes a set of tools (APIs) that an AI agent can call. By adding an MCP server to OpenCode, you can give it access to new capabilities without needing to teach it through skills.</p>
+<details class="info">
+<summary>The problem MCP solves</summary>
+<p>Before MCP, every agent had its own proprietary integration system. If you wanted to connect an AI agent to a database, you had to write a custom integration for that specific agent. If you switched to a different agent, you had to rewrite the integration from scratch.</p>
+<p>MCP defines a standard interface: you write your tool once, and any MCP-compatible agent can use it. This is similar to how USB solved the proliferation of proprietary connectors for peripherals.</p>
+</details>
+<p><strong>Adding an MCP server</strong> in your <code>opencode.json</code> (or <code>opencode.jsonc</code>):</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="p">{</span>
+</span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="w">    </span><span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://opencode.ai/config.json&quot;</span><span class="p">,</span>
+</span><span id="__span-32-3"><a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="w">    </span><span class="nt">&quot;mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-32-4"><a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="w">        </span><span class="nt">&quot;filesystem&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-32-5"><a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;local&quot;</span><span class="p">,</span>
+</span><span id="__span-32-6"><a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a><span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;npx&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@modelcontextprotocol/server-filesystem&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;/home/user/projects&quot;</span><span class="p">],</span>
+</span><span id="__span-32-7"><a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a><span class="w">            </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-32-8"><a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a><span class="w">        </span><span class="p">},</span>
+</span><span id="__span-32-9"><a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a><span class="w">        </span><span class="nt">&quot;my-remote-server&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-32-10"><a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a><span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;remote&quot;</span><span class="p">,</span>
+</span><span id="__span-32-11"><a id="__codelineno-32-11" name="__codelineno-32-11" href="#__codelineno-32-11"></a><span class="w">            </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://mcp.example.com/endpoint&quot;</span>
+</span><span id="__span-32-12"><a id="__codelineno-32-12" name="__codelineno-32-12" href="#__codelineno-32-12"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-32-13"><a id="__codelineno-32-13" name="__codelineno-32-13" href="#__codelineno-32-13"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-32-14"><a id="__codelineno-32-14" name="__codelineno-32-14" href="#__codelineno-32-14"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>Managing MCP servers</strong> from the command line:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>opencode<span class="w"> </span>mcp<span class="w"> </span>list<span class="w">                </span><span class="c1"># List all configured servers and their auth status</span>
+</span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>opencode<span class="w"> </span>mcp<span class="w"> </span>auth<span class="w"> </span>&lt;name&gt;<span class="w">         </span><span class="c1"># Authenticate with a remote server</span>
+</span><span id="__span-33-3"><a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>opencode<span class="w"> </span>mcp<span class="w"> </span><span class="nb">logout</span><span class="w"> </span>&lt;name&gt;<span class="w">       </span><span class="c1"># Remove stored credentials</span>
+</span><span id="__span-33-4"><a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>opencode<span class="w"> </span>mcp<span class="w"> </span>debug<span class="w"> </span>&lt;name&gt;<span class="w">        </span><span class="c1"># Diagnose connection and OAuth issues</span>
+</span></code></pre></div>
+<p>Once an MCP server is added, its tools appear in your OpenCode session automatically. For instance, if you add a database MCP server, OpenCode gains the ability to run SQL queries when you ask questions like "show me all users who registered last week." Refer to a server by name in your prompt (e.g. <code>use the filesystem tool</code>) to nudge the agent toward using it.</p>
+<details class="example">
+<summary>Example: Using the GitHub MCP server</summary>
+<p>The official <a href="https://github.com/github/github-mcp-server">GitHub MCP Server</a> allows OpenCode to interact with GitHub. It supports creating issues, reading pull requests, searching repositories, and more.</p>
+<p>Here is how to add it (you may need to have <a href="https://nodejs.org/en/download">Node.js</a> installed for this). Add it to your <code>opencode.json</code>:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="p">{</span>
+</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="w">    </span><span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://opencode.ai/config.json&quot;</span><span class="p">,</span>
+</span><span id="__span-34-3"><a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="w">    </span><span class="nt">&quot;mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-34-4"><a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="w">        </span><span class="nt">&quot;github&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-34-5"><a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a><span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;local&quot;</span><span class="p">,</span>
+</span><span id="__span-34-6"><a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a><span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;npx&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@modelcontextprotocol/server-github&quot;</span><span class="p">],</span>
+</span><span id="__span-34-7"><a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a><span class="w">            </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-34-8"><a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a><span class="w">            </span><span class="nt">&quot;environment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-34-9"><a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a><span class="w">                </span><span class="nt">&quot;GITHUB_PERSONAL_ACCESS_TOKEN&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ghp_...&quot;</span>
+</span><span id="__span-34-10"><a id="__codelineno-34-10" name="__codelineno-34-10" href="#__codelineno-34-10"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__span-34-11"><a id="__codelineno-34-11" name="__codelineno-34-11" href="#__codelineno-34-11"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-34-12"><a id="__codelineno-34-12" name="__codelineno-34-12" href="#__codelineno-34-12"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-34-13"><a id="__codelineno-34-13" name="__codelineno-34-13" href="#__codelineno-34-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>You will need a GitHub personal access token. If you have a GitHub account, you can click <a href="https://github.com/settings/tokens/new?scopes=repo,read:org,read:user,user:email&amp;description=GitHub%20MCP%20Server">here</a> to generate one.</p>
+<p>After this, OpenCode gains GitHub-related tools. You can then ask things like:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>&gt; Get the latest 5 issues in the repository torvalds/linux using GitHub MCP tools.
+</span><span id="__span-35-2"><a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>&gt; Create a new repo called &quot;my-awesome-project&quot; under my GitHub account using GitHub MCP tools.
+</span></code></pre></div>
+</details>
+<h3 id="codex-cli">Codex CLI<a class="headerlink" href="#codex-cli" title="Permanent link">&para;</a></h3>
+<p>If you want to use Codex CLI instead of OpenCode, you can read the following part.</p>
+<h4 id="installation_1">Installation<a class="headerlink" href="#installation_1" title="Permanent link">&para;</a></h4>
+<p>Open a terminal on your machine and run the installer for your operating system:</p>
+<p><strong>macOS / Linux:</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://chatgpt.com/codex/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</span></code></pre></div>
+<p><strong>Windows (PowerShell):</strong></p>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="n">powershell</span> <span class="n">-ExecutionPolicy</span> <span class="n">ByPass</span> <span class="n">-c</span> <span class="s2">&quot;irm https://chatgpt.com/codex/install.ps1 | iex&quot;</span>
+</span></code></pre></div>
+<p>If you see any network error during installation, you can install <a href="https://nodejs.org/en/download/">Node.js</a> and then run the following command to install Codex CLI:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>npm<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>registry<span class="w"> </span>https://registry.npmmirror.com
+</span><span id="__span-38-2"><a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>@openai/codex
+</span></code></pre></div>
+<p><strong>Close and reopen your terminal</strong>, then run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>codex<span class="w"> </span>--version
+</span></code></pre></div>
+<p>You should see a version number printed, like:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>codex-cli 0.x.x
+</span></code></pre></div>
+<p>If you see that, installation succeeded.</p>
+<h4 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h4>
+<p>To use our New API Platform, you can edit the configuration file <code>~/.codex/config.toml</code> and add the following content:</p>
+<div class="language-toml highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="n">model_provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;zjusct&quot;</span>
+</span><span id="__span-41-2"><a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>
+</span><span id="__span-41-3"><a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a><span class="k">[model_providers.zjusct]</span>
+</span><span id="__span-41-4"><a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;zjusct&quot;</span>
+</span><span id="__span-41-5"><a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a><span class="n">base_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://clusters.zju.edu.cn/newapi/v1&quot;</span>
+</span><span id="__span-41-6"><a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a><span class="n">wire_api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;responses&quot;</span>
+</span><span id="__span-41-7"><a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a><span class="n">experimental_bearer_token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;sk-xxxxxxx&quot;</span><span class="w">  </span><span class="c1"># your API key</span>
+</span><span id="__span-41-8"><a id="__codelineno-41-8" name="__codelineno-41-8" href="#__codelineno-41-8"></a><span class="n">requires_openai_auth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+</span></code></pre></div>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://medium.com/@anandthanu/how-do-you-explain-an-os-kernel-to-a-5-year-old-92a08755e014">How do you explain an OS Kernel to a 5 year old?</a></li>
+<li><a href="https://medium.com/@syed.sohaib/virtual-machines-in-azure-7efdee4df802">Virtual machines in Azure</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../guide/overview/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 集群概况">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                集群概况
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../Lab1-MiniCluster/" class="md-footer__link md-footer__link--next" aria-label="Next: Lab 1: 简单集群搭建">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Lab 1: 简单集群搭建
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.action.edit","content.code.annotate","content.code.copy","content.code.select","navigation.expand","navigation.footer","navigation.instant","navigation.instant.prefetch","navigation.instant.progress","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight","search.share","search.suggest","toc.follow"],"search":"../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6e5f0216.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="../../javascripts/v86-init.js"></script>
+      
+    
+  </body>
+</html>

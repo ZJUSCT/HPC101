@@ -1,0 +1,1971 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/">
+      
+      
+      
+        <link rel="next" href="./enroll/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="./assets/zjusct-hpc101.svg">
+      <meta name="generator" content="zensical-0.0.43">
+    
+    
+      
+        <title>欢迎来到 HPC 101 超算短学期 - HPC101</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="./assets/stylesheets/modern/main.fba56155.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="./assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="./stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="./stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="./stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="./stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL(".",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  <script>
+    (function () {
+      try {
+        var saved = (typeof __md_get === "function") ? __md_get("__palette") : null;
+        var scheme;
+        if (saved && saved.color && saved.color.media) {
+          if (saved.color.media === "(prefers-color-scheme)") {
+            scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+          } else {
+            scheme = saved.color.scheme;
+          }
+        } else {
+          scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+        }
+        document.documentElement.setAttribute("data-md-color-scheme", scheme);
+        var attach = function () {
+          document.body.setAttribute("data-md-color-scheme", scheme);
+          new MutationObserver(function () {
+            var s = document.body.getAttribute("data-md-color-scheme");
+            if (s) document.documentElement.setAttribute("data-md-color-scheme", s);
+          }).observe(document.body, {
+            attributes: true,
+            attributeFilter: ["data-md-color-scheme"],
+          });
+        };
+        if (document.body) {
+          attach();
+        } else {
+          new MutationObserver(function (_, obs) {
+            if (document.body) {
+              attach();
+              obs.disconnect();
+            }
+          }).observe(document.documentElement, { childList: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script>
+    // Track keydown listeners added on window so v86 can later remove
+    // Material's global handler that would otherwise capture key presses
+    // intended for the in-browser Linux VM.
+    (function () {
+      window.__v86KeydownListeners = [];
+      var origAdd = window.addEventListener;
+      var origRemove = window.removeEventListener;
+      window.addEventListener = function (type, listener, options) {
+        origAdd.call(this, type, listener, options);
+        if (type === "keydown") {
+          window.__v86KeydownListeners.push({ listener: listener, options: options });
+        }
+      };
+      window.removeEventListener = function (type, listener, options) {
+        origRemove.call(this, type, listener, options);
+        if (type === "keydown") {
+          var i = window.__v86KeydownListeners.findIndex(function (e) {
+            return e.listener === listener;
+          });
+          if (i !== -1) window.__v86KeydownListeners.splice(i, 1);
+        }
+      };
+    })();
+  </script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#欢迎来到-hpc-101-超算短学期" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="" title="HPC101" class="md-header__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="./assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="./assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              欢迎来到 HPC 101 超算短学期
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="" class="md-tabs__link">
+          
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="./guide/" class="md-tabs__link">
+          
+  
+  集群使用
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="./lab/Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="" title="HPC101" class="md-nav__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="./assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="./assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    HPC101
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程信息
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程信息
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  欢迎来到 HPC 101 超算短学期
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  欢迎来到 HPC 101 超算短学期
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#课程信息" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        课程信息
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="课程信息">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#课程安排" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        课程安排
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#课程实验" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        课程实验
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#公告实时更新" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        公告（实时更新）
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="公告（实时更新）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#课程平台" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        课程平台
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-api-问题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        New API 问题
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#网络问题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        网络问题
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#导言hello-hpc-world" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        导言：Hello HPC World
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="导言：Hello HPC World">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hpc-是什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        HPC 是什么？
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#在这个短学期课程中你会学到什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        在这个短学期课程中，你会学到什么？
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#修读建议" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        修读建议
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#资源推荐" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        资源推荐
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#历史" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        历史
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./enroll/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  报名与选课
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./sponsors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  支持单位
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群使用
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  集群使用
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  登录平台
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交计算任务
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./guide/submit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交实验报告
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  在线测评 OJ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群概况
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程实验
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./lab/Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 0: Linux 快速入门
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./lab/Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 1: 简单集群搭建
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./lab/Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 2: MoE 的向量化计算
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./lab/Lab3-GDN-Prefill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3: GDN Prefill 前向优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./lab/Lab4-AMSS-NCKU/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4: AMSS-NCKU 数值相对论程序优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./lab/Lab5-Gemma4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 5: Gemma4 端到端推理优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#课程信息" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        课程信息
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="课程信息">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#课程安排" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        课程安排
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#课程实验" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        课程实验
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#公告实时更新" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        公告（实时更新）
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="公告（实时更新）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#课程平台" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        课程平台
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-api-问题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        New API 问题
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#网络问题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        网络问题
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#导言hello-hpc-world" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        导言：Hello HPC World
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="导言：Hello HPC World">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hpc-是什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        HPC 是什么？
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#在这个短学期课程中你会学到什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        在这个短学期课程中，你会学到什么？
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#修读建议" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        修读建议
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#资源推荐" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        资源推荐
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#历史" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        历史
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="欢迎来到-hpc-101-超算短学期">欢迎来到 HPC 101 超算短学期<a class="headerlink" href="#欢迎来到-hpc-101-超算短学期" title="Permanent link">&para;</a></h1>
+<h2 id="课程信息">课程信息<a class="headerlink" href="#课程信息" title="Permanent link">&para;</a></h2>
+<p>HPC 101 是浙江大学超算队开设的一门短学期课程，旨在帮助同学走进 Linux 和 HPC (高性能计算) 的世界，了解 HPC 领域的基本概念、超算的体系结构、编程技术等。</p>
+<p>课程的正式名称是“课程综合实践 Ⅰ”，课程代码为 CS1030M，学分为 2.5 学分。</p>
+<p>HPC 101 可以用来申请替代计算机学院非计科专业的短学期课程。</p>
+<h3 id="课程安排">课程安排<a class="headerlink" href="#课程安排" title="Permanent link">&para;</a></h3>
+<ul>
+<li>上课时间：一般上午 8:30 开始，下午 14:00 开始，课时 3 个小时，没课的时间不用到教室</li>
+<li>上课地点：紫金港北 3-312</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>内容</th>
+<th>讲师</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-07-05 08:30</td>
+<td>超算概述</td>
+<td>陈建海老师</td>
+</tr>
+<tr>
+<td>2026-07-06 14:00</td>
+<td>集群软硬件及运维基础</td>
+<td>胡笠桁/徐晨</td>
+</tr>
+<tr>
+<td>2026-07-07 14:00</td>
+<td>HPC 中的计算机系统 - 1</td>
+<td>刘烨</td>
+</tr>
+<tr>
+<td>2026-07-08 14:00</td>
+<td>HPC 中的计算机系统 - 2</td>
+<td>何水兵老师/宋浩喆</td>
+</tr>
+<tr>
+<td>2026-07-10 14:00</td>
+<td>向量化并行计算基础</td>
+<td>陈宏哲</td>
+</tr>
+<tr>
+<td>2026-07-11 14:00</td>
+<td>高性能网络基础</td>
+<td>朱宝林</td>
+</tr>
+<tr>
+<td>2026-07-12 08:30</td>
+<td>OpenMP/MPI 并行计算基础</td>
+<td>黄钰</td>
+</tr>
+<tr>
+<td>2026-07-12 14:00</td>
+<td>性能分析技术基础 Profiling</td>
+<td>郝星星</td>
+</tr>
+<tr>
+<td>2026-07-13 08:30</td>
+<td>高性能计算高级话题</td>
+<td>王则可老师</td>
+</tr>
+<tr>
+<td>2026-07-13 14:00</td>
+<td>CUDA 编程基础</td>
+<td>王则可老师/陈楷骐</td>
+</tr>
+<tr>
+<td>2026-07-14 08:30</td>
+<td>华为 CANN</td>
+<td></td>
+</tr>
+<tr>
+<td>2026-07-14 14:00</td>
+<td>华为 HCCL</td>
+<td></td>
+</tr>
+<tr>
+<td>2026-07-16 08:30</td>
+<td>机器学习基础</td>
+<td>赵彬彬老师</td>
+</tr>
+<tr>
+<td>2026-07-16 14:00</td>
+<td>机器学习基础</td>
+<td>周俊康</td>
+</tr>
+<tr>
+<td>2026-07-17 08:30</td>
+<td>机器学习高级话题</td>
+<td>庄博涵老师</td>
+</tr>
+<tr>
+<td>2026-07-17 14:00</td>
+<td>机器学习高级话题</td>
+<td>张寅老师</td>
+</tr>
+</tbody>
+</table>
+<h3 id="课程实验">课程实验<a class="headerlink" href="#课程实验" title="Permanent link">&para;</a></h3>
+<p>课程目前开放了 5 个实验，具体要求详见各实验文档：</p>
+<ul>
+<li><a href="./lab/Lab1-MiniCluster/">Lab 1: 简单集群搭建</a></li>
+<li><a href="./lab/Lab2-Vectorization/">Lab 2: MoE 的向量化计算</a></li>
+<li><a href="./lab/Lab3-GDN-Prefill/">Lab 3: GDN Prefill 前向优化</a></li>
+<li><a href="./lab/Lab4-AMSS-NCKU/">Lab 4: AMSS-NCKU 数值相对论程序优化</a></li>
+<li><a href="./lab/Lab5-Gemma4/">Lab 5: Gemma4 端到端推理优化</a></li>
+</ul>
+<p>Lab 2 至 Lab 5 按分组（A–H 组）错开截止时间，<strong>截止时间均为当日 23:59:59</strong>。请在下图中找到自己的分组，确认各实验的 DDL（时间轴为 2026 年 8 月的日期，菱形颜色按实验区分）：</p>
+<div class="admonition note">
+<p class="admonition-title">分组 DDL 的编排规则</p>
+<p>各组的 DDL 是按实验工作量加权（Lab 2 至 Lab 5 规模难度递增）排布的，使每组加权后的整体时间待遇基本一致。同组相邻两个实验的 DDL 至少间隔 5 天，同时考虑了Lab的资源使用特征以错开集群负载高峰。<br />
+分组是随机的，如果有特殊情况（如请假，有其他安排等），请在<strong>DDL前</strong>和助教联系。</p>
+</div>
+<pre class="mermaid"><code>%%{init: {
+  "gantt": {
+    "displayMode": "compact",
+    "fontSize": 12,
+    "sectionFontSize": 13,
+    "barHeight": 22,
+    "numberSectionStyles": 2
+  },
+  "themeCSS": "svg { font-family: var(--md-mermaid-font-family, Noto Sans, sans-serif) !important; } .grid path { stroke: none !important; } .grid .tick line { stroke: var(--hpc-gantt-grid, #e7e6e0) !important; stroke-width: 1px !important; } .grid .tick text { fill: var(--hpc-gantt-tick-text, #898781) !important; font-family: inherit !important; } .titleText { fill: var(--hpc-gantt-title, #1f1f1e) !important; font-family: inherit !important; } .sectionTitle { fill: var(--hpc-gantt-section-title, #3a3a37) !important; font-weight: 600 !important; font-family: inherit !important; } .section0 { fill: var(--hpc-gantt-stripe, #f2f1ec) !important; opacity: 1 !important; } .section1 { fill: transparent !important; } text.milestoneText[class] { fill: var(--hpc-gantt-label, #3a3a37) !important; font-style: normal !important; font-weight: 500 !important; font-family: inherit !important; } .milestone.task0, .milestone.task1 { fill: var(--hpc-gantt-lab2, #2a78d6) !important; stroke: var(--hpc-gantt-lab2-border, #1c5cab) !important; } .milestone.active0, .milestone.active1 { fill: var(--hpc-gantt-lab3, #eb6834) !important; stroke: var(--hpc-gantt-lab3-border, #c14e1f) !important; } .milestone.done0, .milestone.done1 { fill: var(--hpc-gantt-lab4, #1baf7a) !important; stroke: var(--hpc-gantt-lab4-border, #12855c) !important; } .milestone.crit0, .milestone.crit1 { fill: var(--hpc-gantt-lab5, #4a3aa7) !important; stroke: var(--hpc-gantt-lab5-border, #372b80) !important; }"
+}}%%
+gantt
+    title 2026 年 8 月
+    dateFormat YYYY-MM-DD
+    axisFormat %d
+    tickInterval 1day
+    todayMarker off
+    section A 组
+        Lab 2 : milestone, 2026-08-06, 0d
+        Lab 5 : milestone, crit, 2026-08-18, 0d
+        Lab 3 : milestone, active, 2026-08-26, 0d
+        Lab 4 : milestone, done, 2026-08-31, 0d
+    section B 组
+        Lab 2 : milestone, 2026-08-07, 0d
+        Lab 3 : milestone, active, 2026-08-13, 0d
+        Lab 5 : milestone, crit, 2026-08-24, 0d
+        Lab 4 : milestone, done, 2026-08-30, 0d
+    section C 组
+        Lab 2 : milestone, 2026-08-08, 0d
+        Lab 4 : milestone, done, 2026-08-16, 0d
+        Lab 3 : milestone, active, 2026-08-21, 0d
+        Lab 5 : milestone, crit, 2026-08-31, 0d
+    section D 组
+        Lab 2 : milestone, 2026-08-09, 0d
+        Lab 3 : milestone, active, 2026-08-14, 0d
+        Lab 5 : milestone, crit, 2026-08-23, 0d
+        Lab 4 : milestone, done, 2026-08-28, 0d
+    section E 组
+        Lab 2 : milestone, 2026-08-10, 0d
+        Lab 4 : milestone, done, 2026-08-17, 0d
+        Lab 3 : milestone, active, 2026-08-22, 0d
+        Lab 5 : milestone, crit, 2026-08-30, 0d
+    section F 组
+        Lab 2 : milestone, 2026-08-11, 0d
+        Lab 3 : milestone, active, 2026-08-16, 0d
+        Lab 4 : milestone, done, 2026-08-21, 0d
+        Lab 5 : milestone, crit, 2026-08-27, 0d
+    section G 组
+        Lab 2 : milestone, 2026-08-12, 0d
+        Lab 3 : milestone, active, 2026-08-17, 0d
+        Lab 4 : milestone, done, 2026-08-22, 0d
+        Lab 5 : milestone, crit, 2026-08-28, 0d
+    section H 组
+        Lab 2 : milestone, 2026-08-13, 0d
+        Lab 5 : milestone, crit, 2026-08-19, 0d
+        Lab 4 : milestone, done, 2026-08-24, 0d
+        Lab 3 : milestone, active, 2026-08-29, 0d</code></pre>
+<p>Lab2 - Lab5 需在 <a href="https://platform.s.zjusct.io/assignments"><strong>课程平台</strong></a> 以及 <strong>学在浙大</strong> 提交，课程平台上会显示你的分组和截止时间，以及具体需要提交的文件。请将<strong>报告PDF</strong>同步提交到学在浙大。</p>
+<div class="admonition tip">
+<p class="admonition-title">平台提交</p>
+<p>课程平台收取的目录是 <code>x86-5418Y</code> 对应的家目录，请在 DevPod 里把报告和代码放好，到平台上提交。具体家目录规则参考 <a href="./guide/#家目录">家目录</a>。</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Bonus 分数计算</p>
+<p>每个实验会设置 Bonus 任务，Bonus 分数会添加在该实验的分数中。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">迟交政策</p>
+<p>在各实验的截止时间后再提交作业，将会在正常评分的基础上，扣除相应分数。具体扣分规则如下：</p>
+<p>按照每天5%的扣分率计算，时间细化到每小时，不足一小时按一小时计算，即每小时扣除0.2083%的分数。</p>
+<p>迟交将会对你的成绩不利，请务必按时提交作业。如果有特殊情况，请提前联系助教，事后再联系的不予认可。</p>
+<p>如果迟交导致的扣分达到100%或不提交，则该实验的作业成绩记为0分。</p>
+</div>
+<p>如果在做 Lab 过程中遇到问题或有其他疑问，欢迎在交流群内提问或私聊助教，我们会尽力解答。</p>
+<h2 id="公告实时更新">公告（实时更新）<a class="headerlink" href="#公告实时更新" title="Permanent link">&para;</a></h2>
+<h3 id="课程平台"><a href="./guide/">课程平台</a><a class="headerlink" href="#课程平台" title="Permanent link">&para;</a></h3>
+<h3 id="new-api-问题">New API 问题<a class="headerlink" href="#new-api-问题" title="Permanent link">&para;</a></h3>
+<p>本课程为同学提供一定额度的 LLM API 访问，请在使用前仔细阅读以下网络访问说明：</p>
+<ul>
+<li><strong>Web 控制台（获取 API Key）</strong>：<a href="https://newapi.s.zjusct.io/">newapi.s.zjusct.io</a>，使用 <a href="https://git.zju.edu.cn/">ZJU Git</a> 账号登录，在「令牌管理（Token Management）」中创建令牌。</li>
+<li><strong>API 调用地址（仅限 API 调用，不可作为网页在浏览器中访问）</strong>：<ul>
+<li>OpenAI 协议：<code>https://clusters.zju.edu.cn/newapi/v1</code></li>
+<li>Anthropic 协议：<code>https://clusters.zju.edu.cn/newapi</code></li>
+</ul>
+</li>
+<li><strong>可用模型</strong>：<ul>
+<li>每人每日限额 ¥2000</li>
+<li><code>hpc101-openai</code> 分组的 API Key 可以使用 <code>gpt-5.5</code> 模型（50 倍计价），该模型<strong>仅能配合 Codex 使用</strong>，其他 Agent 的兼容性不做保证。</li>
+<li><code>hpc101</code> 分组的 API Key 可以使用 <code>glm-5.2</code> 模型（1 倍计价，仅在夜间（20:00-07:00）可用）</li>
+<li>额度和倍率后续可能根据使用情况调整。</li>
+</ul>
+</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">如果遇到问题，请带上 New API Web 控制台的「使用日志（Usage Logs）」中的错误请求截图发送到课程交流群询问</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">示例配置</p>
+<p>注意，示例配置均为 YOLO 模式（为 Agent 开放所有权限），比较危险，你可能需要根据自己的需求对 Agent 的权限进行限制。</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Codex</label><label for="__tabbed_1_2">OpenCode</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-toml highlight"><span class="filename">~/.codex/config.toml</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">gpt</span><span class="mf">-5.5</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">model_provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;zjusct&quot;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">model_reasoning_effort</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">disable_response_storage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">approval_policy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;never&quot;</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">sandbox_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;danger-full-access&quot;</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="k">[sandbox_workspace_write]</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">network_access</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="k">[model_providers.zjusct]</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;zjusct&quot;</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="n">base_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">https://clusters.zju.edu.cn/newapi/v</span><span class="mi">1</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="n">wire_api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;responses&quot;</span>
+</span></code></pre></div>
+<div class="language-json highlight"><span class="filename">~/.codex/auth.json</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nt">&quot;OPENAI_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;your-api-key&gt;&quot;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">}</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-text highlight"><span class="filename">~/.config/opencode/opencode.jsonc</span><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>{
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    &quot;$schema&quot;: &quot;https://opencode.ai/config.json&quot;,
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    &quot;model&quot;: &quot;zjusct/glm-5.2&quot;,
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    &quot;permission&quot;: {
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        &quot;external_directory&quot;: &quot;allow&quot;,
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    },
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    &quot;provider&quot;: {
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        &quot;zjusct&quot;: {
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>            &quot;npm&quot;: &quot;@ai-sdk/openai-compatible&quot;,
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>            &quot;name&quot;: &quot;ZJUSCT New API&quot;,
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>            &quot;options&quot;: {
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>                &quot;baseURL&quot;: &quot;https://clusters.zju.edu.cn/newapi/v1&quot;,
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>                &quot;apiKey&quot;: &quot;&lt;your-api-key&gt;&quot;
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>            },
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>            &quot;models&quot;: {
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>                &quot;glm-5.2&quot;: {},
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>            }
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>        }
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>    }
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>}
+</span></code></pre></div>
+</div>
+</div>
+</div>
+</div>
+<h3 id="网络问题">网络问题<a class="headerlink" href="#网络问题" title="Permanent link">&para;</a></h3>
+<p>课程服务分布在两个域名下，<strong>可达性取决于你所在的网络</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>域名</th>
+<th style="text-align: center;">公网可访问</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>clusters.zju.edu.cn</code></td>
+<td style="text-align: center;">是</td>
+<td>公网可访问。该域名采用 <strong>DNS 分离解析（split-horizon DNS）</strong>，在校园网内外会解析到不同的地址，但均可正常访问。</td>
+</tr>
+<tr>
+<td><code>*.s.zjusct.io</code>、<code>*.clusters.zjusct.io</code></td>
+<td style="text-align: center;">否</td>
+<td><strong>仅校园网内可访问</strong>。例如用于获取 API Key 的 <code>newapi.s.zjusct.io</code>。</td>
+</tr>
+</tbody>
+</table>
+<p>因此，请特别注意你的<strong>网络与代理（proxy）配置，尤其是 DNS</strong>：</p>
+<ul>
+<li><strong>在校园网内</strong>（如连接 ZJUWLAN 或紫金港有线网络）时，请确保使用<strong>校园 DNS</strong>（即校园网通过 DHCP 自动下发的 DNS 服务器），而不要手动改用公共 DNS（如 <code>8.8.8.8</code>、<code>114.114.114.114</code>），否则部分校内服务域名可能解析错误。<strong>使用 VPN / 代理时</strong>，请注意其 DNS 解析行为。若代理把域名解析到了非校园地址，或使用公共 DNS 解析校园内网域名，会导致访问失败。</li>
+<li><strong>在校外</strong>时，可直接调用 <code>clusters.zju.edu.cn</code> 的 API 地址；但用于获取 API Key 的 Web 控制台（<code>newapi.s.zjusct.io</code>）只能通过校园网（或 VPN）访问。</li>
+</ul>
+<h2 id="导言hello-hpc-world">导言：Hello HPC World<a class="headerlink" href="#导言hello-hpc-world" title="Permanent link">&para;</a></h2>
+<p>第一次听到 HPC 这个词，你是不是觉得很陌生？没关系，我第一次听到时也是一头雾水。几乎没有学生在学习这门课程之前了解过 HPC，这是一个相对陌生的领域。在这门课程中，我们会一步步地带你走进 HPC 的世界，带你了解这个领域的基础知识和技术，带你感受到 HPC 的魅力。</p>
+<div class="admonition quote inline end">
+<p><a class="glightbox" data-type="image" href="index.assets/frontier.webp"><img alt="Image title" src="index.assets/frontier.webp" /></a></p>
+<p>最快的超级计算机 Frontier 每秒能提供 <span class="arithmatex">\(10^{18}\)</span> 次浮点运算，相当于 <span class="arithmatex">\(10^6\)</span> 张 4090 显卡。</p>
+</div>
+<h3 id="hpc-是什么">HPC 是什么？<a class="headerlink" href="#hpc-是什么" title="Permanent link">&para;</a></h3>
+<p>HPC 是 High Performance Compute 的缩写，意思是高性能计算，通常是指通过<strong>聚合计算能力</strong>来提供比传统计算机或服务器更强大的计算性能，处理海量多维数据集（大数据），并以极高的速度解决复杂问题。HPC 系统的运行速度通常要比最快的商用台式机、笔记本电脑或服务器系统快一百万倍以上。</p>
+<p>标准计算系统主要使用<strong>串行计算</strong>来解决问题，它将工作负载分成一系列任务，然后在同一处理器上依次执行这些任务。相比之下，HPC 则利用以下技术来提高计算速度：</p>
+<ul>
+<li><strong>大规模并行计算</strong>。并行计算是在多个计算机服务器或处理器上同时运行多个任务。大规模并行计算则是使用数万到数百万个处理器或处理器核心的并行计算。</li>
+<li><strong>计算机集群</strong>（也称为 HPC 集群）。HPC 集群由多个联网的高速计算机服务器组成，并有一个集中式调度器来管理并行计算工作负载。这些计算机被称为节点，可能会使用高性能多核 CPU，如今更有可能使用 GPU（图形处理单元），它们非常适合处理严格的数学计算、机器学习模型和图形密集型任务。单个 HPC 集群可能包括 100,000 个或更多节点。</li>
+<li><strong>高性能组件</strong>：HPC 集群中的所有其他计算资源（网络、内存、存储和文件系统）都是高速、高吞吐量、低延迟组件，可以与节点同步，优化集群的计算能力和性能。</li>
+</ul>
+<p>下图展示了一个典型的 HPC 集群架构：</p>
+<p><a class="glightbox" data-type="image" href="index.assets/hpc-architecture-explained-diagram.webp"><img alt="hpc-architecture" src="index.assets/hpc-architecture-explained-diagram.webp" /></a></p>
+<p>HPC 提供的超高性能，使得它在很多领域都有着广泛的应用。随着 AI 技术的发展，<strong>HPC 应用也已成为 AI 应用的代名词</strong>，尤其是机器学习和深度学习应用。HPC 应用正在推动以下领域的持续创新：</p>
+<ul>
+<li>科学研究。HPC 在科学研究中的应用包括气候建模、天气预报、宇宙学、地震学、生物学、物理学、化学、材料科学和地球科学。这些学科需要处理大量数据、进行复杂的模拟和建模，以及进行大规模的数据分析。</li>
+<li>医疗保健、基因组学和生命科学。人类基因组测序的首次尝试耗时长达 13 年；而如今，HPC 系统可以在不到一天的时间内完成这项工作。在医疗保健和生命科学领域，HPC 的其他应用还包括药物发现和设计、癌症快速诊断和分子建模。</li>
+<li>金融服务。除了自动交易和欺诈检测，HPC 还支持蒙特卡罗模拟和其他风险分析方法的应用。</li>
+<li>政府和国防。在这一领域，两个日益增长的 HPC 用例是天气预报和气候建模，这两个用例都涉及处理大量的历史气象数据和气候相关数据点每日数百万次的变化。其他政府和国防应用包括能源研究和情报工作。</li>
+<li>能源。能源相关 HPC 应用包括地震数据处理、油藏模拟和建模、地理空间分析、风场模拟和地形测绘。</li>
+</ul>
+<h3 id="在这个短学期课程中你会学到什么">在这个短学期课程中，你会学到什么？<a class="headerlink" href="#在这个短学期课程中你会学到什么" title="Permanent link">&para;</a></h3>
+<p>在这门课中，你能够学习到的知识和技能大致如下：</p>
+<div class="grid cards" style="grid-template-columns: 1fr">
+<ul>
+<li>
+<p><img alt="🏗" class="twemoji lg middle" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f3d7.svg" title=":construction_site:" /> <strong>前置知识：计算机体系结构</strong></p>
+<hr />
+<p>要学习并行程序设计，首先要理解现有的硬件（如 CPU、GPU 等）是如何工作的、为并行做了哪些优化。并行化的目的之一，是为了最大化利用现有的硬件资源，对大量数据进行快速操作。对于 CPU，我们会了解指令集、存储器层次结构和局部性原理，知道 Cache 一致性问题的原因和解决办法，掌握 SIMD（Single Instruction Multiple Data）并行方法。对于 GPU（以 NVIDIA 为主），我们会了解流处理器（Stream Processor，SP）、CUDA Core（甚至是 Tensor Core）的组织方式，掌握 CUDA 编程的基本方法。上面只提及了最重要的知识，你应该能体会到内容非常之多且陌生，这些内容大概会用 4 天的时间完成讲授。在这门短学期课程中，我们只需要对这些知识有基本的了解即可。一定程度上，对硬件的理解越深入，并行编程技术也会越好，所以这是值得在日后深入学习的模块。</p>
+</li>
+<li>
+<p><img alt="💻" class="twemoji lg middle" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f4bb.svg" title=":computer:" /> <strong>核心技术：并行编程技术</strong></p>
+<hr />
+<p>在本课程中，我们将学习三种经典的并行编程技术：OpenMP/MPI 和 CUDA。前者两者主要用于 CPU，后者用于 GPU（当然二者可以结合使用，不过课程中不会涉及）。表面上，学习一些 API 就能写并行程序了，但性能并不会得到很大的提升。基于对现有硬件的理解进行针对性的优化是非常重要的一环。</p>
+<p>在基本的 API 之外，我们还将学习并行算法，深入体会不同算法的特点，以及如何根据硬件特性进行选择。并行编程的难点在于数据的并行化和任务的并行化，这需要对算法有深入的理解。因此你也需要经常阅读经典例程、他人的优化思路和效果，学习并积累经验。对 CUDA 来说，多看例程尤为重要。CUDA 提供了多层次的 API，我们使用的主要是 CUDART（CUDA RunTime API）。它与具体的 CUDA 硬件无关，但你仍然需要考虑数据会如何被存储在具体的硬件上、如何优化存取、运算和线程调度。比如，在 2080Ti 上调优过的程序，在 A100 上的性能表现可能会大打折扣。</p>
+</li>
+<li>
+<p><img alt="🐧" class="twemoji lg middle" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f427.svg" title=":penguin:" /> <strong>辅助技术：Linux 相关</strong></p>
+<hr />
+<p>本课程全程使用 Linux 环境。如果你对 Linux 系统有过一定了解和经验，或是曾经用服务器搭建过网站并持续使用等，那么你的实验流程会十分舒适。不过没有基础也不必担心，集群使用 Slurm 和 Lmod 进行管理，配置环境和运行任务都非常方便。我们也会在课程中讲解如何使用这些工具，以及如何在集群上提交任务。如果出现问题，你可以随时询问运维人员，他们会很乐意帮助你解决问题。</p>
+</li>
+<li>
+<p><img alt="🤖" class="twemoji lg middle" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f916.svg" title=":robot:" /> <strong>附加技术：科学计算、AI 相关</strong></p>
+<hr />
+<p>在第 2 个 Lab，你会接触科学计算中关键的工具：NumPy。在最后一个 Lab，你将会揭开大模型的面纱，自己编写一个 Transformer，并进行训练和推理。课程会花约 2 天时间讲授 AI 基础。这次实验，或许是你第一次真正理解那些神秘的 AI 究竟是怎么用实际的代码构建起来的。</p>
+</li>
+</ul>
+</div>
+<h3 id="修读建议">修读建议<a class="headerlink" href="#修读建议" title="Permanent link">&para;</a></h3>
+<div class="admonition quote inline end">
+<p><a class="glightbox" data-type="image" href="index.assets/comment.webp"><img alt="comment" src="index.assets/comment.webp" /></a></p>
+</div>
+<p>阅读完上面的介绍，相信你已经初步了解了自己将要学习哪些内容。再回顾一下计算机系的培养方案，你会看见这些内容贯穿了整个计算机专业的学习。因此，有同学在 98 上评论“没有 ICS（计算机系统概论）的话，这门课就是最有用的”，这句话是相当正确的。HPC101 是一门非常有挑战性的课程，知识量大且难，注重实践操作，但也是一门非常有趣的课程。如果你对计算机体系结构、并行编程、AI 等方面有浓厚的兴趣，那么这门课程将会是你的一次深度学习之旅。</p>
+<p>或许在进入计算机专业以来，你已经多次听到「CS 人的基本素养就是自学能力」这样的言论。这句话在 HPC101 中将会得到最好的体现。HPC 领域的知识广阔，我们难以在 14 * 2 个课时里向你讲授所有内容。事实上，这些课时只够上导论，能够让你对相关知识有一个基本的了解就已经达到了目的。因此，你注定要在课后花费一定时间和精力去深入学习，在 Lab 中尝试应用并真正理解。我们会提供一些资源和参考资料，帮助你更好地学习。希望你能够在课程中坚持<strong>自发地学习</strong>，收获满满的知识和技能。我们也非常鼓励你在学习过程中多多提问，多多交流，这样你会学得更快更好。</p>
+<h3 id="资源推荐">资源推荐<a class="headerlink" href="#资源推荐" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://lab.cs.tsinghua.edu.cn/hpc/doc/">thu-cs-lab/HPC-Lab-Docs 清华大学高性能计算导论实验文档</a>：作为国内超算课程建设的标杆，清华大学的 HPC 课程已经开设多年，积累了丰富的经验和资料。</li>
+<li><a href="https://101.lug.ustc.edu.cn/">Linux 101 - USTC</a>：中科大拥有国内高校最大的 Linux User Group，其开设的 Linux 入门课程内容丰富，适合初学者。</li>
+<li><a href="https://book.douban.com/subject/20374756/">《并行程序设计导论》</a>（An Introduction to Parallel Programming）<ul>
+<li>很薄，介绍了 OpenMPI 和 OpenMP（Pthreads 我们不学，也基本不会接触到）。讲解的内容浅显易懂，适合快速入门。</li>
+</ul>
+</li>
+<li>Python 编程三剑客：从上至下，书籍难度逐渐递增。如果你对自己的编程能力不太自信，选择第一本书。如果你编程能力好，但没接触过 Python，可以选择第二本。如果你对 Python 有一定了解，非常推荐你直接从第三本开始做一些简单的项目。<ul>
+<li><a href="https://book.douban.com/subject/36365320/">《Python 编程 : 从入门到实践（第 3 版）》</a>（Python Crash Course）<ul>
+<li>项目推荐：数据可视化、Web 应用程序</li>
+</ul>
+</li>
+<li><a href="https://book.douban.com/subject/35387685/">《Python 编程快速上手：让繁琐工作自动化》</a>（Automate the Boring Stuff with Python, 2nd Edition: Practical Programming for Total Beginners）<ul>
+<li>项目推荐：从 Web 抓取信息，处理 CSV 文件和 JSON 数据，保持时间、计划任务和启动程序</li>
+</ul>
+</li>
+<li><a href="https://book.douban.com/subject/27050630/">《Python 极客项目编程》</a>（Python Playground: Geeky Projects for the Curious Programmer）<ul>
+<li>项目推荐：模拟生命、图片之乐</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="https://www.oreilly.com/library/view/programming-massively-parallel/9780323984638/">《Programming Massively Parallel Processors: A Hands-on Approach, 4th Edition》</a><ul>
+<li>CUDA 编程目前仍在活跃发展中，因此没有合适的中文书籍。要想学习到最新的 CUDA 技术，只能看英文书籍，而且要看最新版，超过 5 年的书籍均可能过时。</li>
+</ul>
+</li>
+</ul>
+<h2 id="历史">历史<a class="headerlink" href="#历史" title="Permanent link">&para;</a></h2>
+<p>本节记录 HPC 101 超算短学期课程的历史版本、重要里程碑和一些统计数据。</p>
+<ul>
+<li>
+<p>课程规模：</p>
+<table>
+<thead>
+<tr>
+<th>年份</th>
+<th>课程规模</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026</td>
+<td>112</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>109（本）+ 3（研）+ 7（旁听）</td>
+</tr>
+<tr>
+<td>2024</td>
+<td>41</td>
+</tr>
+<tr>
+<td>2023</td>
+<td>36</td>
+</tr>
+<tr>
+<td>2022</td>
+<td>29</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Lab 提交时间分布（绘制 Python 脚本位于 <a href="index.assets/statistics/submission.py">index.assets/statistics/submission.py</a>）：</p>
+<table>
+<thead>
+<tr>
+<th>年份</th>
+<th>分布</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2025</td>
+<td><a class="glightbox" data-type="image" href="index.assets/statistics/2025_submission.webp"><img alt="2025_submission" src="index.assets/statistics/2025_submission.webp" /></a></td>
+</tr>
+<tr>
+<td>2024</td>
+<td><a class="glightbox" data-type="image" href="index.assets/statistics/2024_submission.webp"><img alt="2024_submission" src="index.assets/statistics/2024_submission.webp" /></a></td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>报名表提交时间分布：</p>
+<table>
+<thead>
+<tr>
+<th>年份</th>
+<th>分布</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026</td>
+<td><a class="glightbox" data-type="image" href="index.assets/statistics/2026_application.webp"><img alt="2026_application" src="index.assets/statistics/2026_application.webp" /></a></td>
+</tr>
+<tr>
+<td>2025</td>
+<td><a class="glightbox" data-type="image" href="index.assets/statistics/2025_application.webp"><img alt="2025_application" src="index.assets/statistics/2025_application.webp" /></a></td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+        
+          
+          <a href="./enroll/" class="md-footer__link md-footer__link--next" aria-label="Next: 报名与选课">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                报名与选课
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":".","features":["content.action.edit","content.code.annotate","content.code.copy","content.code.select","navigation.expand","navigation.footer","navigation.instant","navigation.instant.prefetch","navigation.instant.progress","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight","search.share","search.suggest","toc.follow"],"search":"./assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="./assets/javascripts/bundle.6e5f0216.min.js"></script>
+      
+        <script src="./javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="./javascripts/tablesort.js"></script>
+      
+        <script src="./javascripts/v86-init.js"></script>
+      
+    
+  </body>
+</html>

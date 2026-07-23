@@ -1,0 +1,3371 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab2-Vectorization/">
+      
+      
+        <link rel="prev" href="../Lab1-MiniCluster/">
+      
+      
+        <link rel="next" href="../Lab3-GDN-Prefill/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="zensical-0.0.43">
+    
+    
+      
+        <title>实验二：MoE 的向量化计算 - HPC101</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.fba56155.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  <script>
+    (function () {
+      try {
+        var saved = (typeof __md_get === "function") ? __md_get("__palette") : null;
+        var scheme;
+        if (saved && saved.color && saved.color.media) {
+          if (saved.color.media === "(prefers-color-scheme)") {
+            scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+          } else {
+            scheme = saved.color.scheme;
+          }
+        } else {
+          scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+        }
+        document.documentElement.setAttribute("data-md-color-scheme", scheme);
+        var attach = function () {
+          document.body.setAttribute("data-md-color-scheme", scheme);
+          new MutationObserver(function () {
+            var s = document.body.getAttribute("data-md-color-scheme");
+            if (s) document.documentElement.setAttribute("data-md-color-scheme", s);
+          }).observe(document.body, {
+            attributes: true,
+            attributeFilter: ["data-md-color-scheme"],
+          });
+        };
+        if (document.body) {
+          attach();
+        } else {
+          new MutationObserver(function (_, obs) {
+            if (document.body) {
+              attach();
+              obs.disconnect();
+            }
+          }).observe(document.documentElement, { childList: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script>
+    // Track keydown listeners added on window so v86 can later remove
+    // Material's global handler that would otherwise capture key presses
+    // intended for the in-browser Linux VM.
+    (function () {
+      window.__v86KeydownListeners = [];
+      var origAdd = window.addEventListener;
+      var origRemove = window.removeEventListener;
+      window.addEventListener = function (type, listener, options) {
+        origAdd.call(this, type, listener, options);
+        if (type === "keydown") {
+          window.__v86KeydownListeners.push({ listener: listener, options: options });
+        }
+      };
+      window.removeEventListener = function (type, listener, options) {
+        origRemove.call(this, type, listener, options);
+        if (type === "keydown") {
+          var i = window.__v86KeydownListeners.findIndex(function (e) {
+            return e.listener === listener;
+          });
+          if (i !== -1) window.__v86KeydownListeners.splice(i, 1);
+        }
+      };
+    })();
+  </script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#实验二moe-的向量化计算" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101" class="md-header__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              实验二：MoE 的向量化计算
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guide/" class="md-tabs__link">
+          
+  
+  集群使用
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101" class="md-nav__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    HPC101
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程信息
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程信息
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  欢迎来到 HPC 101 超算短学期
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../enroll/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  报名与选课
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sponsors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  支持单位
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群使用
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  集群使用
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  登录平台
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交计算任务
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/submit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交实验报告
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  在线测评 OJ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群概况
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程实验
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 0: Linux 快速入门
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 1: 简单集群搭建
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 2: MoE 的向量化计算
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 2: MoE 的向量化计算
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验目的
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解moe-是什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：MoE 是什么
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：MoE 是什么">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#从稠密-ffn-到稀疏专家" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        从稠密 FFN 到稀疏专家
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#单层-moe-的前向流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        单层 MoE 的前向流程
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#量化推理w8a8" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        量化推理：W8A8
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解x86-64-simd-优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：x86-64 SIMD 优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：x86-64 SIMD 优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#avx-向量指令扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AVX 向量指令扩展
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#avx-512" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AVX-512
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amx-高级矩阵扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AMX 高级矩阵扩展
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AMX 高级矩阵扩展">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#硬件结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        硬件结构
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tile-config-配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tile Config 配置
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amx-矩阵乘法详解" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AMX 矩阵乘法详解
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解openmp-多线程并行" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：OpenMP 多线程并行
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：OpenMP 多线程并行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#变量作用域与归约" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        变量作用域与归约
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#调度方式与负载均衡" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        调度方式与负载均衡
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#复用并行区域" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        复用并行区域
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moe-中的任务划分" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        MoE 中的任务划分
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#代码框架" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        代码框架
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务优化-moe-前向" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务：优化 MoE 前向
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务：优化 MoE 前向">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#评测场景" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评测场景
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#性能优化的好伙伴profiler-工具" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能优化的好伙伴：Profiler 工具
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bonus-任务在-risc-v-上实现-moe-算子" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Bonus 任务：在 RISC-V 上实现 MoE 算子
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bonus 任务：在 RISC-V 上实现 MoE 算子">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#知识讲解risc-v-指令集" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：RISC-V 指令集
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#知识讲解risc-v-vector-向量化扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：RISC-V Vector 向量化扩展
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：RISC-V Vector 向量化扩展">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#基本概念" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        基本概念
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="基本概念">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#硬件参数elen-与-vlen" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        硬件参数：ELEN 与 VLEN
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#运行参数sew-与-lmul" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        运行参数：SEW 与 LMUL
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#编程方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        编程方式
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="编程方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intrinsic" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Intrinsic
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#数据类型" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        数据类型
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vsetvl-系列指令" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        vsetvl 系列指令
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#常见操作" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        常见操作
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#self-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Self Check
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#知识讲解spacemit-ime-矩阵扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：SpaceMiT IME 矩阵扩展
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：SpaceMiT IME 矩阵扩展">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spacemit-ime-简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SpaceMiT IME 简介
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vmadot-详解" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        vmadot 详解
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#分块矩阵乘法" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        分块矩阵乘法
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#思考题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        思考题
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务与要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务与要求
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务与要求">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#主线任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        主线任务
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bonus在-risc-v-上继续优化-moe-前向" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Bonus：在 RISC-V 上继续优化 MoE 前向
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        参考资料
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab3-GDN-Prefill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3: GDN Prefill 前向优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab4-AMSS-NCKU/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4: AMSS-NCKU 数值相对论程序优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab5-Gemma4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 5: Gemma4 端到端推理优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验目的
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解moe-是什么" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：MoE 是什么
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：MoE 是什么">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#从稠密-ffn-到稀疏专家" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        从稠密 FFN 到稀疏专家
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#单层-moe-的前向流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        单层 MoE 的前向流程
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#量化推理w8a8" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        量化推理：W8A8
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解x86-64-simd-优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：x86-64 SIMD 优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：x86-64 SIMD 优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#avx-向量指令扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AVX 向量指令扩展
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#avx-512" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AVX-512
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amx-高级矩阵扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AMX 高级矩阵扩展
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AMX 高级矩阵扩展">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#硬件结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        硬件结构
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tile-config-配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tile Config 配置
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amx-矩阵乘法详解" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AMX 矩阵乘法详解
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#知识讲解openmp-多线程并行" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：OpenMP 多线程并行
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：OpenMP 多线程并行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#变量作用域与归约" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        变量作用域与归约
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#调度方式与负载均衡" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        调度方式与负载均衡
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#复用并行区域" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        复用并行区域
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moe-中的任务划分" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        MoE 中的任务划分
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#代码框架" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        代码框架
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#任务优化-moe-前向" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        任务：优化 MoE 前向
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务：优化 MoE 前向">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#评测场景" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评测场景
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#性能优化的好伙伴profiler-工具" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能优化的好伙伴：Profiler 工具
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bonus-任务在-risc-v-上实现-moe-算子" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Bonus 任务：在 RISC-V 上实现 MoE 算子
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bonus 任务：在 RISC-V 上实现 MoE 算子">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#知识讲解risc-v-指令集" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：RISC-V 指令集
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#知识讲解risc-v-vector-向量化扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：RISC-V Vector 向量化扩展
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：RISC-V Vector 向量化扩展">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#基本概念" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        基本概念
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="基本概念">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#硬件参数elen-与-vlen" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        硬件参数：ELEN 与 VLEN
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#运行参数sew-与-lmul" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        运行参数：SEW 与 LMUL
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#编程方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        编程方式
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="编程方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intrinsic" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Intrinsic
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#数据类型" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        数据类型
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vsetvl-系列指令" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        vsetvl 系列指令
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#常见操作" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        常见操作
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#self-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Self Check
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#知识讲解spacemit-ime-矩阵扩展" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        知识讲解：SpaceMiT IME 矩阵扩展
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="知识讲解：SpaceMiT IME 矩阵扩展">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spacemit-ime-简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SpaceMiT IME 简介
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vmadot-详解" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        vmadot 详解
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#分块矩阵乘法" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        分块矩阵乘法
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#思考题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        思考题
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务与要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务与要求
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务与要求">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#主线任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        主线任务
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bonus在-risc-v-上继续优化-moe-前向" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Bonus：在 RISC-V 上继续优化 MoE 前向
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        参考资料
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab2-Vectorization/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="实验二moe-的向量化计算">实验二：MoE 的向量化计算<a class="headerlink" href="#实验二moe-的向量化计算" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">实验信息</p>
+<p>负责助教：郝星星, 胡哲文</p>
+</div>
+<h2 id="实验目的">实验目的<a class="headerlink" href="#实验目的" title="Permanent link">&para;</a></h2>
+<p>从 Mixtral 到 DeepSeek-V3、Qwen、GLM，<strong>MoE（Mixture of Experts，混合专家）</strong>已经成为大模型的主流架构。本次实验将带你实现并优化一个 DeepSeek-V3 风格的量化 MoE 层前向计算，在这个过程中：</p>
+<ul>
+<li>理解 MoE 的计算模式：路由、专家分发、加权合并</li>
+<li>理解量化推理（W8A8）中整数与浮点混合的计算流水线</li>
+<li>掌握向量化优化的通用方法：识别热点、数据重排、提高算术强度</li>
+<li>Bonus：在 RISC-V 平台上实现 MoE 算子（待更新）</li>
+</ul>
+<h2 id="知识讲解moe-是什么">知识讲解：MoE 是什么<a class="headerlink" href="#知识讲解moe-是什么" title="Permanent link">&para;</a></h2>
+<h3 id="从稠密-ffn-到稀疏专家">从稠密 FFN 到稀疏专家<a class="headerlink" href="#从稠密-ffn-到稀疏专家" title="Permanent link">&para;</a></h3>
+<p>Transformer 中参数量最大的组件是 FFN（前馈网络）。MoE 的想法是：与其让所有 token 共享一个大 FFN，不如准备 <span class="arithmatex">\(E\)</span> 个“专家”FFN，让每个 token 只经过其中得分最高的 <span class="arithmatex">\(K\)</span> 个（<span class="arithmatex">\(K \ll E\)</span>）。这样，总参数量可以显著增长，而每个 token 只激活少量专家，从而在一定程度上分离模型容量与激活层的大小，也就是单 token 计算量和其占用的内存；当然，与此同时，路由和分发会带来额外控制开销。</p>
+<p>本实验采用 <a href="https://arxiv.org/abs/2412.19437">DeepSeek-V3</a> 的 MoE 架构，它与早期 MoE（如 Mixtral 的 8 专家选 2）相比有几个标志性设计：</p>
+<ul>
+<li><strong>更细粒度的专家</strong>：专家数量更多、单个专家更小（V3 是 256 个路由专家选 8 个）。同样的总参数量下，专家组合的可能性大大增加；</li>
+<li><strong>共享专家</strong>：一个所有 token 都必须经过的专家，负责学习通用知识，让路由专家专注于特化知识；</li>
+</ul>
+<p>本实验的目标即为在 CPU 上实现 DeepSeek-V3 的 MoE 前向计算，并在保证正确性的前提下尽可能优化其性能。</p>
+<p>我们可以简单的从参数量和前向计算量理解这种设计。一个 SwiGLU 专家包含两个 <span class="arithmatex">\(D\to H\)</span> 投影和一个 <span class="arithmatex">\(H\to D\)</span> 投影，因此忽略偏置时的权重数为</p>
+<div class="arithmatex">\[
+P_{expert}=HD+HD+DH=3DH.
+\]</div>
+<p>代入 <span class="arithmatex">\(D=256,H=128\)</span>，每个专家有</p>
+<div class="arithmatex">\[
+3\times256\times128=98\,304
+\]</div>
+<p>个权重。17 个专家一共包含 <span class="arithmatex">\(1\,671\,168\)</span> 个专家权重，但每个 token 只激活 4 个路由专家和 1 个共享专家，对应的专家矩阵乘加数约为</p>
+<div class="arithmatex">\[
+(K+1)\times3DH
+=5\times98\,304
+=491\,520\ \text{MACs}
+\]</div>
+<p>这与相同参数量的单个稠密 SwiGLU FFN 相比，计算量显著降低。若稠密 FFN 具有相同的总参数量，其中间维度需要取为</p>
+<div class="arithmatex">\[
+H_{\mathrm{dense}}=17H=2176.
+\]</div>
+<p>此时每个 token 都必须经过全部参数，对应的矩阵乘加数为</p>
+<div class="arithmatex">\[
+3DH_{\mathrm{dense}}
+=17\times3DH
+=1\,671\,168\ \text{MACs}.
+\]</div>
+<p>相比之下，MoE 每个 token 只计算 5 个激活专家，因此其专家计算量仅为稠密 FFN 的</p>
+<div class="arithmatex">\[
+\frac{(K+1)3DH}{17\cdot3DH}
+=\frac{5}{17}
+\approx29.4\%.
+\]</div>
+<p>也就是说，在总专家参数量相同的情况下，MoE 将每个 token 的专家计算量降低了约 <span class="arithmatex">\(70.6\%\)</span>，理论上约为稠密 FFN 的 <span class="arithmatex">\(1/3.4\)</span>。这体现了 MoE 的核心优势：保留较大的总参数容量，同时只激活其中一小部分参与当前 token 的计算。</p>
+<h3 id="单层-moe-的前向流程">单层 MoE 的前向流程<a class="headerlink" href="#单层-moe-的前向流程" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    X["token 向量 x（FP32）"]
+
+    X --&gt; R["Router（FP32）&lt;br/&gt;sigmoid 亲和度&lt;br/&gt;带偏置选择 Top-4"]
+    X --&gt; Q["激活量化&lt;br/&gt;FP32 → INT8"]
+
+    R --&gt; I["Top-4 专家编号"]
+    R --&gt; G["归一化路由权重"]
+
+    Q --&gt; SE["共享专家（INT8）&lt;br/&gt;所有 token 都执行"]
+    Q --&gt; RE["路由专家（INT8）&lt;br/&gt;只执行被选中的 4 个"]
+    I --&gt; RE
+
+    SE --&gt; C["加权合并"]
+    RE --&gt; C
+    G --&gt; C
+    X -- "残差" --&gt; C
+
+    C --&gt; Y["输出 y（FP32）"]</code></pre>
+<p>对每个 token <span class="arithmatex">\(x_t \in \mathbb{R}^{D}\)</span>，先计算路由 logit 和原始亲和度：</p>
+<div class="arithmatex">\[
+z_{t,e}=r_e^\top x_t,\qquad
+s_{t,e}=\sigma(z_{t,e})=\frac{1}{1+e^{-z_{t,e}}},
+\qquad e=1,\ldots,E.
+\]</div>
+<p>再定义被选中的专家集合</p>
+<div class="arithmatex">\[
+\mathcal S_t
+=\operatorname{TopK}_{e\in\{1,\ldots,E\}}
+\bigl(s_{t,e}+b_e\bigr),
+\qquad |\mathcal S_t|=K.
+\]</div>
+<p>路由权重只对 <span class="arithmatex">\(\mathcal S_t\)</span> 中的原始亲和度进行归一化：</p>
+<div class="arithmatex">\[
+g_{t,e}=
+\begin{cases}
+\displaystyle
+\frac{s_{t,e}}{\sum_{j\in\mathcal S_t}s_{t,j}},
+&amp; e\in\mathcal S_t,\\[8pt]
+0,&amp;e\notin\mathcal S_t.
+\end{cases}
+\]</div>
+<p>共享专家和每个被选中的路由专家都是 SwiGLU 结构：</p>
+<div class="arithmatex">\[
+\operatorname{FFN}_e(x)
+=W_d^{(e)}\left(
+\operatorname{SiLU}\!\left(W_g^{(e)}x\right)
+\odot W_u^{(e)}x
+\right),
+\qquad
+\operatorname{SiLU}(v)=\frac{v}{1+e^{-v}}.
+\]</div>
+<p>其中 <span class="arithmatex">\(\odot\)</span> 表示逐元素相乘</p>
+<p>最后合并：</p>
+<div class="arithmatex">\[
+y_t=x_t+\operatorname{FFN}_{shared}(x_t)
++\sum_{e\in\mathcal S_t}g_{t,e}\operatorname{FFN}_e(x_t).
+\]</div>
+<h3 id="量化推理w8a8">量化推理：W8A8<a class="headerlink" href="#量化推理w8a8" title="Permanent link">&para;</a></h3>
+<p>真实的推理引擎很少用 fp32 存储和计算专家权重：int8 量化能把内存占用和带宽需求降到 1/4，同时精度损失在可接受范围内。而现代 SIMD 指令集处理 int8 的吞吐量也远高于 fp32，尤其在 Intel 引入 AMX 矩阵加速单元之后。本实验采用简化的 <strong>W8A8</strong>（权重、激活都量化到 int8）：</p>
+<div class="arithmatex">\[
+x_q = \mathrm{round}\left(\frac{x}{s_x}\right), \quad s_x = \frac{\max_i |x_i|}{127}
+\]</div>
+<ul>
+<li>激活使用 per-token scale，每个 token 向量单独计算 <span class="arithmatex">\(s_x\)</span></li>
+<li>每个权重矩阵一个 scale</li>
+</ul>
+<p>int8 <span class="arithmatex">\(\times\)</span> int8 的结果在 int32 中累加，随后乘以 scale 反量化回 fp32：</p>
+<div class="arithmatex">\[
+W x \approx (W_q x_q) \cdot s_W s_x
+\]</div>
+<details class="example">
+<summary>举例：一个三维 W8A8 点积</summary>
+<p>考虑一个输入向量和权重矩阵中的一行：</p>
+<div class="arithmatex">\[
+x=
+\begin{bmatrix}1.00\\-0.49\\0.25\end{bmatrix},
+\qquad
+w=
+\begin{bmatrix}0.40\\-0.80\\1.20\end{bmatrix}.
+\]</div>
+<p>输入的 per-token 缩放因子为 <span class="arithmatex">\(s_x=1/127\)</span>，因此</p>
+<div class="arithmatex">\[
+x_q=\operatorname{round}
+\begin{bmatrix}127\\-62.23\\31.75\end{bmatrix}
+=\begin{bmatrix}127\\-62\\32\end{bmatrix}.
+\]</div>
+<p>假设这一行权重所在矩阵的最大绝对值也是 <span class="arithmatex">\(1.20\)</span>，则该矩阵的缩放因子为 <span class="arithmatex">\(s_W=1.20/127\)</span>，对应的量化权重为</p>
+<div class="arithmatex">\[
+w_q=\operatorname{round}
+\begin{bmatrix}42.33\\-84.67\\127\end{bmatrix}
+=\begin{bmatrix}42\\-85\\127\end{bmatrix}.
+\]</div>
+<p>整数点积在 INT32 中计算：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+a_{int}
+&amp;=w_q^\top x_q\\
+&amp;=42\times127+(-85)\times(-62)+127\times32\\
+&amp;=14\,668.
+\end{aligned}
+\]</div>
+<p>反量化后得到</p>
+<div class="arithmatex">\[
+\hat y=a_{int}s_Ws_x
+=14\,668\times\frac{1.20}{127}\times\frac{1}{127}
+\approx1.09130.
+\]</div>
+<p>原始 FP32 点积为</p>
+<div class="arithmatex">\[
+y=w^\top x
+=0.40\times1.00+(-0.80)\times(-0.49)+1.20\times0.25
+=1.092.
+\]</div>
+<p>两者相差约 <span class="arithmatex">\(6.99\times10^{-4}\)</span>。（已足够小）</p>
+</details>
+<h2 id="知识讲解x86-64-simd-优化">知识讲解：x86-64 SIMD 优化<a class="headerlink" href="#知识讲解x86-64-simd-优化" title="Permanent link">&para;</a></h2>
+<p>如果需要快速复习 SIMD，可以查看<a href="./doc/向量化计算.pdf">课程 PPT</a>。
+或者⽤最直⽩、最不绕弯⼦的⽅式告诉你：SIMD就是让原本一条只能干一个事情的指令变成一次可以干一堆相似的事情。那么聪明的你马上就会想到：☝🏼🤓这样不就可以让计算机一个单位时间干更多的事情了吗？没错这就是最简单的通过指令级并行的方式进行加速的方式，超算，亦如反掌！！！下面我们将介绍用于lab2实验的机器上所支持的SIMD指令，带大家理解具体的SIMD指令是怎么工作，以及可以如何由程序员来手动调用从而主动实现代码性能优化的。</p>
+<h3 id="avx-向量指令扩展">AVX 向量指令扩展<a class="headerlink" href="#avx-向量指令扩展" title="Permanent link">&para;</a></h3>
+<p>x86 架构下 Intel 和 AMD 两家的处理器提供了诸如 SSE，AVX 等 SIMD 指令集，一条指令可以同时操作多个数据进行运算，大大提高了现代处理器的数据吞吐量。</p>
+<p>现代编译器在高优化等级下，具有自动向量化的功能，对于结构清晰，循环边界清晰的程序，编译器的自动向量化已经可以达到很优秀的程度了。然而，编译器的优化始终是保守的，很多情况下编译器无法完成使用 SIMD 指令进行向量化的工作，为了追求性能，高性能计算领域经常需要手写 SIMD 代码进行代码优化。</p>
+<p>显然直接手写汇编指令过于困难，在 C 语言环境下，Intel 提供了一整套关于 SIMD 指令的函数封装接口和指令相关行为的参照手册，可以在<a href="https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html">Intel Intrinsics Guide</a>中找到。笔者是比较推荐使用ai来辅助你理解不同指令的实际功能的，你甚至可以直接用它帮助你快速的找到可以用AVX指令来替换优化的代码位置的，这一点可以放心。当然如果你感兴趣，也推荐你去理解阅读相关技术文档做深入的理解。</p>
+<p>使用这些函数 API 需要 include 对应的头文件，不同 SIMD 指令集需要的头文件不同，具体需要参考 Intel 相关文档。</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;smmintrin.h&gt;</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;emmintrin.h&gt;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;immintrin.h&gt;</span>
+</span></code></pre></div>
+<p>另外深入到这个级别的优化已经开始需要考虑具体处理器的体系结构细节了，如某个架构下某条指令的实现延时和吞吐量是多少，处理器提供了多少向量寄存器，访存的对齐等等。这种时候编译器具体产生的汇编代码能比 C 语言代码提供更多的信息，你能了解到自己使用了多少寄存器，编译器是否生成了预期外的代码等等。</p>
+<details class="example">
+<summary>示例：编译器如何自动生成 AVX-512 指令</summary>
+<p>下面的例子使用循环完成 16 个 32-bit 整数的对应元素相加。代码中的 <code>__restrict</code> 告诉编译器两个数组不会重叠；而 16 个 <code>int</code> 恰好可以装满一个 512-bit 的 ZMM 寄存器(后面会详细介绍)。</p>
+<p><a class="glightbox" data-type="image" href="./image/image.png"><img alt="Compiler Explorer 自动向量化示例" src="./image/image.png" /></a></p>
+<p>在 <code>-O3 -march=sapphirerapids -mprefer-vector-width=512</code> 等编译选项下，编译器自动消除了原来的循环：<code>vmovdqu32</code> 将 16 个整数加载到 ZMM 寄存器，<code>vpaddd</code> 并行完成 16 次整数加法，随后另一条 <code>vmovdqu32</code> 将结果写回内存。可以看到，对于结构清晰、没有数据依赖的循环，现代编译器能够自动生成高效的 SIMD 指令。</p>
+<p>你可以在 <a href="https://godbolt.org/">Compiler Explorer</a> 中修改代码和编译选项，实时观察生成的汇编。需要注意的是，当编译器无法确认指针是否重叠、循环之间是否存在数据依赖，或认为向量化收益不足时，它可能会选择更保守的实现。你也可以用它来观察编译器是不是实现了你想要的优化</p>
+</details>
+<h3 id="avx-512">AVX-512<a class="headerlink" href="#avx-512" title="Permanent link">&para;</a></h3>
+<p><a href="https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html">AVX-512</a> (Advanced Vector Extensions 512-bit) 是 x86 架构中目前的 SIMD 指令集，通过 512 位宽寄存器和增强指令集为高性能计算提供突破性加速。在矩阵乘法等线性代数运算中，能发挥巨大作用：</p>
+<ul>
+<li><strong>并行计算优势</strong>：AVX 的 512 位寄存器能单周期处理 16 个 32 位浮点数（FP32），相比标量运算提升 16 倍吞吐量</li>
+<li><strong>内存访问优化</strong>：<code>vmovaps</code> 等指令支持对齐内存加载，减少数据搬运开销</li>
+<li><strong>融合运算能力</strong>：<code>vfmadd</code> 等融合乘加指令在单周期完成乘法和累加操作</li>
+</ul>
+<p>可以来看一下 SIMD 指令集的演进：</p>
+<table>
+<thead>
+<tr>
+<th>指令集</th>
+<th>推出年份</th>
+<th>寄存器宽度</th>
+<th>寄存器数量</th>
+<th>峰值吞吐增益（FP32）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MMX</td>
+<td>1996</td>
+<td>64-bit</td>
+<td>8</td>
+<td>2x (INT8)</td>
+</tr>
+<tr>
+<td>SSE</td>
+<td>1999</td>
+<td>128-bit</td>
+<td>8</td>
+<td>4x (FP32)</td>
+</tr>
+<tr>
+<td>AVX/AVX2</td>
+<td>2011/2013</td>
+<td>256-bit</td>
+<td>16</td>
+<td>8x (FP32)</td>
+</tr>
+<tr>
+<td>AVX-512</td>
+<td>2016</td>
+<td>512-bit</td>
+<td>32</td>
+<td>16x (FP32)</td>
+</tr>
+<tr>
+<td>AMX</td>
+<td>2021</td>
+<td>1024-bit</td>
+<td>8 (TILE)</td>
+<td>专用矩阵加速</td>
+</tr>
+</tbody>
+</table>
+<p>AVX-512 VNNI (Vector Neural Network Instructions) 专为卷积神经网络设计，提供了整数与低精度浮点数的运算加速指令。在本次实验中，我们对 8-bit 相乘、32-bit 累加的操作，除了使用传统的数据类型转换指令，还可以借助 AVX-512 VNNI 指令直接一步到位，减少操作次数。</p>
+<div class="admonition info">
+<p class="admonition-title">实验平台上的 AVX-512</p>
+<p>本实验的主线目标平台为 <a href="https://www.intel.com/content/www/us/en/developer/articles/technical/fourth-generation-xeon-scalable-family-overview.html">Intel Sapphire Rapids（第四代 Xeon Scalable）</a> CPU。在 64-bit 模式下，每个逻辑处理器可以使用 32 个 512-bit ZMM 寄存器（<code>zmm0</code>–<code>zmm31</code>），合计可以暂存 2 KiB 向量数据；此外还有 8 个掩码寄存器（<code>k0</code>–<code>k7</code>），用于选择向量中参与运算的元素。这些是指令能够直接访问的架构寄存器。指令执行时，CPU 会通过寄存器重命名将它们映射到内部的物理寄存器，从而让多条没有数据依赖的指令并行推进。</p>
+<p>Sapphire Rapids 的多类 AVX-512 指令都具有并行执行能力。FMA、常见的浮点加法和乘法、整数加法以及位运算的峰值吞吐率都可达到每周期两条 512-bit 指令，也就是 0.5 cycles/instruction。以 FMA 为例，一条 FP32 FMA 同时处理 16 个元素，并为每个元素完成一次乘法和一次加法，因此理论峰值为每核心每周期 64 次 FP32 浮点运算。相关能力可参考 <a href="https://www.intel.com/content/www/us/en/products/details/processors/xeon/features/advanced-vector-extensions-512.html">Intel AVX-512 概览</a>。</p>
+<p>访存指令也有独立的并行通路：当数据已经位于 L1 Cache 中时，每个核心的理想吞吐率可达每周期两条 512-bit 加载指令，或每周期一条 512-bit 存储指令。乱序执行会把加载、计算和存储安排到不同的执行端口上，使它们在时间上相互重叠。数据重排和除法等指令使用的专用资源较少，吞吐率通常低于上述常见指令。分析具体指令时，可以查询 <a href="https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html">Intel Intrinsics Guide</a> 中的延迟和吞吐率数据。</p>
+<p>或许合适的指令重排可能可以更好的利用这个硬件特性？你可以思考一下有没有必要，如果有必要什么时候是很必要的, 想明白也可以写进自己的优化思路哦。</p>
+</div>
+<h3 id="amx-高级矩阵扩展">AMX 高级矩阵扩展<a class="headerlink" href="#amx-高级矩阵扩展" title="Permanent link">&para;</a></h3>
+<p>AMX 是 Intel 推出的一种矩阵扩展。它使用最大为 1024 Bytes 的二维 Tile 寄存器保存矩阵分块，并通过专用的 TMUL 单元完成矩阵乘加。与逐条处理向量的 AVX-512 相比，AMX 可以在寄存器中复用更大的数据块，减少重复加载和存储，同时让一条指令驱动多周期的矩阵计算。Sapphire Rapids 上的 AMX 支持 INT8 和 BF16 输入，并将乘加结果累加到 INT32 或 FP32 中，因此特别适合大语言模型和深度学习中的低精度矩阵运算。</p>
+<h4 id="硬件结构">硬件结构<a class="headerlink" href="#硬件结构" title="Permanent link">&para;</a></h4>
+<p>AMX 的硬件结构由两大部分组成：Tile 和 Accelerator。</p>
+<ul>
+<li>Tile 是存储数据的 tmm 寄存器，每个 1024 Byte (1KB) 大小，目前共有 8 个（不过从官方文档的更新来看，最新的芯片应该支持 16 个 Tile 了）</li>
+<li>Accelerator 是对这些数据进行的运算，目前只有一个 TMUL，用来实现 <span class="arithmatex">\(C[M][N] += A[M][K] * B[K][N]\)</span>。</li>
+</ul>
+<p><a class="glightbox" data-type="image" href="image/amx_structure.webp"><img alt="AMX_STRUCTURE" src="image/amx_structure.webp" /></a></p>
+<h4 id="tile-config-配置">Tile Config 配置<a class="headerlink" href="#tile-config-配置" title="Permanent link">&para;</a></h4>
+<p>AMX 运算由 Tile Config (TILECFG) 来控制，它的格式如下：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>format of memory payload. each field is a byte.
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>0: palette_id
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>1: startRow (8b)
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>2-15: reserved (must be zero)
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>16-17: tile0.colsb -- bytes_per_row
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>18-19: tile1.colsb
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>20-21: tile2.colsb
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>...
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>46-47: tile15.colsb
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>48: tile0.rows
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>49: tile1.rows
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>50: tile2.rows
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>...
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>63: tile15.rows
+</span></code></pre></div>
+<h4 id="amx-矩阵乘法详解">AMX 矩阵乘法详解<a class="headerlink" href="#amx-矩阵乘法详解" title="Permanent link">&para;</a></h4>
+<p>AMX 的 TMUL 是每个核心内专用的矩阵乘加单元，直接读取和写入 Tile 寄存器。以 Sapphire Rapids 上的满尺寸 Tile 点积指令为例，一条指令发射后，结果约在 52 个周期后可用；TMUL 流水线每隔 16 个周期可以启动一条新的、没有数据依赖的 Tile 点积指令。因此，程序可以交错执行多组独立的矩阵累加，以隐藏单条指令的延迟并接近 TMUL 的峰值吞吐率。</p>
+<p>本实验的专家权重和量化激活都是有符号 INT8，因此对应的核心指令是 <code>TDPBSSD</code>（intrinsic 为 <code>_tile_dpbssd</code>）。它完成的仍然是普通矩阵乘加：</p>
+<div class="arithmatex">\[
+C_{M\times N}^{\mathrm{int32}}
+\mathrel{+}=
+A_{M\times K}^{\mathrm{int8}}
+B_{K\times N}^{\mathrm{int8}}.
+\]</div>
+<p>TMUL 每次取连续的 4 个 INT8 元素做点积，并将结果累加到一个 INT32 元素中。对于第 <span class="arithmatex">\(m\)</span> 行、第 <span class="arithmatex">\(n\)</span> 列和第 <span class="arithmatex">\(k\)</span> 组输入，它计算：</p>
+<div class="arithmatex">\[
+C_{m,n}\mathrel{+}=
+\sum_{r=0}^{3}A_{m,4k+r}B_{4k+r,n}.
+\]</div>
+<p>因此，逻辑矩阵 <span class="arithmatex">\(B\)</span> 需要按照 TMUL 读取四元素点积的顺序进行打包：</p>
+<div class="arithmatex">\[
+B_{\mathrm{pack}}[k][4n+r]=B[4k+r][n],\qquad r=0,1,2,3.
+\]</div>
+<p>下面用一组完整的 Tile 展示从逻辑矩阵乘法到 TMUL 执行的过程。令 <span class="arithmatex">\(M=16\)</span>、<span class="arithmatex">\(K=64\)</span>、<span class="arithmatex">\(N=16\)</span>：<span class="arithmatex">\(A\)</span> 是 <span class="arithmatex">\(16\times64\)</span> 的 INT8 矩阵，<span class="arithmatex">\(B\)</span> 是 <span class="arithmatex">\(64\times16\)</span> 的 INT8 矩阵，<span class="arithmatex">\(C\)</span> 是 <span class="arithmatex">\(16\times16\)</span> 的 INT32 矩阵，三者恰好各占 1 KiB。</p>
+<div class="amx-tile-flow">
+  <figure class="amx-tile-flow__panel">
+    <a class="glightbox" href="./image/amx-logical-matmul.png" data-type="image"><img src="./image/amx-logical-matmul.png" alt="完整 Tile 尺寸下的逻辑矩阵乘法 A 乘 B 等于 C" loading="lazy"></a>
+    <figcaption>
+      <strong>1. 逻辑矩阵乘法</strong>
+      <span>A（16×64，INT8）× B（64×16，INT8）= C（16×16，INT32）。</span>
+    </figcaption>
+  </figure>
+
+  <div class="amx-tile-flow__arrow" aria-hidden="true">→</div>
+
+  <figure class="amx-tile-flow__panel">
+    <a class="glightbox" href="./image/amx-b-pack-full-tile.svg" data-type="image"><img src="./image/amx-b-pack-full-tile.svg" alt="把 B 沿 K 维切成四行条带，再把条带中每列的四个 INT8 打包为一个四字节小组" loading="lazy"></a>
+    <figcaption>
+      <strong>2. 打包 B 矩阵</strong>
+      <span>沿 K 维每 4 行切出一个条带；条带中每一列形成一个 4-byte 小组，16 个小组组成 B<sub>pack</sub> 的一行。</span>
+    </figcaption>
+  </figure>
+
+  <div class="amx-tile-flow__arrow" aria-hidden="true">→</div>
+
+  <figure class="amx-tile-flow__panel">
+    <a class="glightbox" href="./image/amx-tmul-full-tile.png" data-type="image"><img src="./image/amx-tmul-full-tile.png" alt="A 和 B pack 两个输入 Tile 进入 TDPBSSD 并累加到 C Tile" loading="lazy"></a>
+    <figcaption>
+      <strong>3. 执行 Tile 点积</strong>
+      <span>A、B<sub>pack</sub> 和 C 分别装入一个 Tile，由 <code>_tile_dpbssd</code> 完成 INT32 累加。</span>
+    </figcaption>
+  </figure>
+</div>
+
+<p>逻辑矩阵 <span class="arithmatex">\(B\)</span> 虽然也是 1 KiB，但它有 64 行，不能直接装入一个最多容纳 16 行的 Tile。第 <span class="arithmatex">\(k\)</span> 个四行条带 <span class="arithmatex">\(B[4k:4k+4,:]\)</span> 对应 <span class="arithmatex">\(B_{\mathrm{pack}}\)</span> 的第 <span class="arithmatex">\(k\)</span> 行：固定输出列 <span class="arithmatex">\(n\)</span> 后，该列上的 4 个 INT8 组成一个 4-byte 小组；令 <span class="arithmatex">\(n\)</span> 从 0 遍历到 15，得到一行 64 Bytes；令 <span class="arithmatex">\(k\)</span> 从 0 遍历到 15，得到完整的 16 行 Tile。点击任一子图可以查看原始尺寸。</p>
+<p>进一步的，对于已经初步了解cache的工作逻辑的大家，很容易发现，这一个重排后的矩阵和一般的矩阵存储的物理排布顺序是不一致的，写代码的时候麻烦是一回事，这种跳跃的读取容易带来很不好的缓存行为，会降低缓存命中率，带来运行速度的下降。
+故而如果这一个需要重排的tile对应的矩阵如果不是运行时变化的，那么在计算前对其进行整体的重排，以保证完全连续的访问就变得尤为重要，这就是为什么我要让你实现<code>preprocess</code>这一个预打包函数的原因：你可以在这里重新排布/打包权重。</p>
+<div class="admonition hit">
+<p class="admonition-title">Hit</p>
+<p>或许有人到这里就会问：“猪脚猪脚！我们前面介绍的MoE的一个token和expert的计算过程不是一个矩阵向量的计算过程吗？但是你刚刚讲的AMX指令是用在矩阵矩阵的乘法上的欸，这都对不上啊咋搞！” 恭喜你能独立想到这一步很能说明你的观察很敏锐。但是你刚刚脑内构建的MoE计算的过程是以一个token的视角来想的，或许你可以尝试从一个expert的角度的视角来想想呢？就提示到这~</p>
+</div>
+<h2 id="知识讲解openmp-多线程并行">知识讲解：OpenMP 多线程并行<a class="headerlink" href="#知识讲解openmp-多线程并行" title="Permanent link">&para;</a></h2>
+<p>前面的 AVX-512 和 AMX 都是在<strong>一个 CPU 核心内</strong>提高数据并行度。当一个计算节点提供多个 CPU 核心时，还可以把相互独立的任务交给多个线程同时执行，这就是线程级并行（TLP）。</p>
+<p><a class="glightbox" data-type="image" href="image/parallelism.webp"><img alt="指令级、数据级和线程级并行" src="image/parallelism.webp" /></a></p>
+<p>OpenMP 是一套基于编译指令的共享内存并行编程模型。程序仍然使用普通的 C/C++ 编写，编译器看到 <code>#pragma omp ...</code> 后，负责生成线程创建、任务分配和同步代码。最常见的写法是：</p>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cp">#pragma omp parallel for</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">output</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute</span><span class="p">(</span><span class="n">input</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>进入这段循环时，OpenMP 创建一个线程组，将不同的循环迭代分给各个线程。所有线程完成自己的迭代后，再继续执行后面的代码。实验提供的 CMake 配置已经为 <code>student/moe_opt.cpp</code> 启用 OpenMP，因此可以直接使用这些编译指令。只有调用 <code>omp_get_thread_num()</code> 等运行库函数时，才需要额外包含 <code>&lt;omp.h&gt;</code>。</p>
+<h3 id="变量作用域与归约">变量作用域与归约<a class="headerlink" href="#变量作用域与归约" title="Permanent link">&para;</a></h3>
+<p>OpenMP 并行区域中的变量分为共享变量和线程私有变量：</p>
+<ul>
+<li>在并行区域外定义的输入和输出指针默认由线程共享；</li>
+<li>循环变量以及循环体内声明的普通局部变量默认线程私有；</li>
+<li><code>static</code> 变量和全局缓冲区仍然是共享的，不能直接当作每个线程的临时空间；</li>
+<li>可以用 <code>private</code>、<code>firstprivate</code> 和 <code>reduction</code> 显式描述变量的使用方式。</li>
+</ul>
+<p>当多个线程需要共同计算一个和、最大值或最小值时，可以使用 <code>reduction</code>。OpenMP 会先为每个线程保存局部结果，最后再进行合并：</p>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">float</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0f</span><span class="p">;</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="cp">#pragma omp parallel for reduction(+:sum)</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>浮点加法不满足结合律，因此并行归约的求和顺序可能与串行版本不同。这里产生的舍入误差通常可以接受，但仍应通过实验提供的正确性检查确认结果。</p>
+<h3 id="调度方式与负载均衡">调度方式与负载均衡<a class="headerlink" href="#调度方式与负载均衡" title="Permanent link">&para;</a></h3>
+<p><code>schedule</code> 子句决定循环迭代如何分配给线程：</p>
+<table>
+<thead>
+<tr>
+<th>调度方式</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>schedule(static)</code></td>
+<td>提前连续分块，调度开销最低，访存连续</td>
+</tr>
+<tr>
+<td><code>schedule(dynamic, chunk)</code></td>
+<td>线程完成一块后再领取下一块</td>
+</tr>
+<tr>
+<td><code>schedule(guided)</code></td>
+<td>开始分配大块，随后逐渐减小块大小</td>
+</tr>
+</tbody>
+</table>
+<p>动态调度并非总是更快。若各次迭代耗时相近，<code>static</code> 通常具有更低的运行时开销和更连续的内存访问。可以用 <code>schedule(runtime)</code> 配合 <code>OMP_SCHEDULE</code> 环境变量，在不重新编译的情况下比较不同策略。</p>
+<h3 id="复用并行区域">复用并行区域<a class="headerlink" href="#复用并行区域" title="Permanent link">&para;</a></h3>
+<p>连续使用多个 <code>parallel for</code> 会多次进入和退出并行区域。如果几个循环属于同一段计算流程，可以用
+一个 <code>parallel</code> 区域包住它们，再用 <code>omp for</code> 分配每个循环的迭代：</p>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#pragma omp parallel</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="p">{</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="cp">#pragma omp for schedule(static)</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">        </span><span class="n">temporary</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">normalize</span><span class="p">(</span><span class="n">input</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="c1">// 此处存在隐式 barrier，第二个循环可以安全读取 temporary。</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="cp">#pragma omp for schedule(static)</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">        </span><span class="n">output</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">transform</span><span class="p">(</span><span class="n">temporary</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>每个 <code>omp for</code> 末尾默认包含一个隐式 barrier。只有后续代码不依赖该循环的完整结果时，才能添加
+<code>nowait</code> 去掉这次同步；否则某些线程可能在所需数据尚未写完时就开始读取。</p>
+<p>更完整的指令与子句列表可以查阅 <a href="https://www.openmp.org/wp-content/uploads/OpenMP-RefGuide-6.0-OMP60SC24-web.pdf">OpenMP 6.0 Reference Guide</a>。</p>
+<h3 id="moe-中的任务划分">MoE 中的任务划分<a class="headerlink" href="#moe-中的任务划分" title="Permanent link">&para;</a></h3>
+<p>OpenMP 只负责“把循环迭代分给线程”，哪些迭代能够同时执行仍然需要由你判断。在本实验中，你可以从三个粒度考虑任务划分，并根据实际情况选择具体使用哪一种划分：</p>
+<table>
+<thead>
+<tr>
+<th>并行对象</th>
+<th>适用情况</th>
+<th>需要注意的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>token</td>
+<td>不同 token 的前向计算相互独立</td>
+<td><span class="arithmatex">\(N=1\)</span> 时没有并行度；大 batch 通常最适合这种划分</td>
+</tr>
+<tr>
+<td>expert</td>
+<td>已经按专家聚集 token，希望每个线程处理若干专家</td>
+<td>路由不均衡会导致每个专家的 token 数不同，需要考虑动态调度</td>
+</tr>
+<tr>
+<td>投影矩阵的行或 Tile</td>
+<td>token 很少，但单次投影足够大</td>
+<td>粒度较细，线程调度和同步开销可能超过计算时间</td>
+</tr>
+</tbody>
+</table>
+<h2 id="代码框架">代码框架<a class="headerlink" href="#代码框架" title="Permanent link">&para;</a></h2>
+<p><strong>实验代码位于文档仓库的 <code>src/lab2/</code> 目录下。</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>src/lab2
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>├── CMakeLists.txt
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>├── main.cpp              # driver（评测时替换为原版）
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>├── include
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>│   └── moe.h             # 问题规模、权重结构体、接口声明
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>├── src                   # 框架代码（评测时替换为原版）
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>│   ├── moe_ref.cpp       # 标量参考实现（正确性基准）
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>│   └── data.cpp          # 数据初始化与正确性检查
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>└── student               # ★ 你的代码（只有这个目录会被收取）
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    └── moe_opt.cpp       # preprocess + moe_forward_optimized
+</span></code></pre></div>
+<p>本实验的 token 数 <span class="arithmatex">\(N\)</span> 通过 <code>num_tokens</code> 参数传入。嵌入维度 <span class="arithmatex">\(D = d_{model}\)</span>、隐藏层维度 <span class="arithmatex">\(H = d_{ff}\)</span>、专家数 <span class="arithmatex">\(E\)</span> 和每个 token 选取的专家数 <span class="arithmatex">\(K\)</span>（Top-<span class="arithmatex">\(K\)</span>）由 driver 在计时前写入结构体 <code>MoEWeights</code>，<code>preprocess</code> 与 <code>moe_forward_optimized</code> 从中动态读取。</p>
+<p><code>moe.h</code> 同时给出各维度的上界（便于静态分配缓冲区），并保证 <span class="arithmatex">\(D\)</span>、<span class="arithmatex">\(H\)</span> 均为 64 的倍数：</p>
+<table>
+<thead>
+<tr>
+<th>常量</th>
+<th>含义</th>
+<th>上界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MAX_NUM_TOKENS</code></td>
+<td>token 数 <span class="arithmatex">\(N\)</span></td>
+<td>1024</td>
+</tr>
+<tr>
+<td><code>MAX_D_MODEL</code></td>
+<td>隐藏维 <span class="arithmatex">\(D\)</span></td>
+<td>1024</td>
+</tr>
+<tr>
+<td><code>MAX_D_FF</code></td>
+<td>专家中间维 <span class="arithmatex">\(H\)</span></td>
+<td>512</td>
+</tr>
+<tr>
+<td><code>MAX_NUM_EXPERTS</code></td>
+<td>路由专家数 <span class="arithmatex">\(E\)</span></td>
+<td>512</td>
+</tr>
+<tr>
+<td><code>MAX_TOP_K</code></td>
+<td>选取专家数 <span class="arithmatex">\(K\)</span></td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition danger">
+<p class="admonition-title">修改范围限制</p>
+<p><strong>你只能修改 <code>student/moe_opt.cpp</code></strong>。评测时，<code>student/</code> 之外的所有文件
+（driver、头文件、参考实现、CMakeLists）都会被替换为原版——所以就算你在别处改了什么，
+评测时也不会生效。你可以在自己的文件里自由添加辅助函数、头文件引用、全局缓冲区等，
+只要实现声明在 <code>moe.h</code> 中的接口函数即可。</p>
+</div>
+<p><code>student/moe_opt.cpp</code> 需要实现两个函数：</p>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">// 计时开始前调用一次。你可以在这里对权重做重排/预打包</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kt">void</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="n">MoEWeights</span><span class="o">&amp;</span><span class="w"> </span><span class="n">w</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="kt">void</span><span class="w"> </span><span class="nf">moe_forward_optimized</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">MoEWeights</span><span class="o">&amp;</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="p">,</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">                           </span><span class="kt">int</span><span class="w"> </span><span class="n">num_tokens</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="n">moe_forward_ref</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">num_tokens</span><span class="p">);</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">preprocess 不要原地修改 <code>w</code> 的权重</p>
+<p><code>preprocess</code> 的正确用法是<strong>读</strong> <code>w</code> 中的原始权重，把重排/打包后的结果<strong>写到你自己的缓冲区</strong>
+（例如全局变量），随后 <code>moe_forward_optimized</code> 从新分配的缓冲区中读取。<strong>不要把重排结果写回 <code>w.w_gate</code> 等数组、
+也不要在原地覆盖它们</strong>。</p>
+</div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">cd</span><span class="w"> </span>src/lab2
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>cmake<span class="w"> </span>-B<span class="w"> </span>build
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>./build/lab2<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="m">4</span><span class="w">      </span><span class="c1"># N D H E K（S3 场景的形状，见下文）</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>./build/lab2<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">1024</span><span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">2000</span><span class="w">  </span><span class="c1"># 可选第 6 个参数指定迭代次数</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>./build/lab2<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">2000</span><span class="w"> </span>--benchmark<span class="w">  </span><span class="c1"># 测试模式，跳过 baseline 循环</span>
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">正确性如何判定</p>
+<p>int8 矩阵乘本身是精确的，但它周围的 fp32 环节（SiLU、缩放、求和顺序）在向量化改写后
+难免有 ulp 级差异——这种差异一旦落在重量化<span class="arithmatex">\(\mathrm{round}(h / s_h)\)</span> 的舍入边界上，
+就会让一个 int8 值差 <span class="arithmatex">\(\pm 1\)</span>，再经 down 投影摊到整行输出上。因此 <code>check_result</code>
+不做逐元素比对，而是检查<strong>每个 token 的相对 L2 误差</strong>（<span class="arithmatex">\(&lt; 2\times10^{-2}\)</span>）和<strong>全局相对
+RMSE</strong>（<span class="arithmatex">\(&lt; 2\times10^{-3}\)</span>）。</p>
+</div>
+<h2 id="任务优化-moe-前向">任务：优化 MoE 前向<a class="headerlink" href="#任务优化-moe-前向" title="Permanent link">&para;</a></h2>
+<p>在 <code>student/moe_opt.cpp</code> 中重写整个前向计算，使其在保证正确性的前提下尽可能快。评分依据端到端加速比（<code>Speedup</code>）。</p>
+<h3 id="评测场景">评测场景<a class="headerlink" href="#评测场景" title="Permanent link">&para;</a></h3>
+<p>评测会在四个场景上进行：</p>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th><span class="arithmatex">\(N\)</span></th>
+<th><span class="arithmatex">\(D\)</span></th>
+<th><span class="arithmatex">\(H\)</span></th>
+<th><span class="arithmatex">\(E\)</span></th>
+<th><span class="arithmatex">\(K\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>1</td>
+<td>256</td>
+<td>128</td>
+<td>16</td>
+<td>4</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>1</td>
+<td>1024</td>
+<td>512</td>
+<td>16</td>
+<td>4</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>128</td>
+<td>256</td>
+<td>128</td>
+<td>16</td>
+<td>4</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>1024</td>
+<td>512</td>
+<td>128</td>
+<td>512</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">优化思路提示</p>
+<p>动手写 SIMD 之前，先想清楚算法层面的问题：</p>
+<ul>
+<li>Baseline 的访存模式好吗？参考实现逐 token 计算，每个 token 都要完整读一遍它所选专家的
+  全部权重，这显然不是个好主意。</li>
+<li>数据布局：<code>preprocess</code> 允许你把权重重排成对向量指令友好的布局。</li>
+<li>编译器在 <code>-O2</code> 下已经会做一定程度的自动向量化。看看编译器生成的汇编（<code>objdump -d</code> 或
+  <a href="https://godbolt.org/">Compiler Explorer</a>），确认你的手写优化真的比自动向量化强。</li>
+<li>本实验主线目标平台为 Intel Sapphire Rapids。如果你追求较高的性能，一定要使用 <strong>Intel AMX</strong> 矩阵加速单元。</li>
+</ul>
+</div>
+<h3 id="性能优化的好伙伴profiler-工具">性能优化的好伙伴：Profiler 工具<a class="headerlink" href="#性能优化的好伙伴profiler-工具" title="Permanent link">&para;</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">容器内的 VTune Profiler 使用限制</p>
+<ul>
+<li><strong>能用的</strong>：<code>vtune -collect hotspots</code>（软件采样）。能看到热点函数、调用栈等，本节的流程围绕它展开。</li>
+<li><strong>不能用的😭</strong>：依赖硬件事件采样的分析类型（Microarchitecture Exploration、Memory Access、<code>-knob sampling-mode=hw</code> 等）。<ul>
+<li>替代：微架构层面的指标（Top-down、IPC）用 <code>perf stat</code> 。</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>集群新版镜像 <code>devbox:4</code> (老容器需升级) 已预装 VTune 与 perf。若在脚本等非登录 shell 中找不到 <code>vtune</code>，可先 <code>source /etc/profile.d/vtune.sh</code>。</p>
+</div>
+<p>第一次使用 VTune 时，可以先阅读 Intel 官方的
+<a href="https://www.intel.com/content/www/us/en/docs/vtune-profiler/tutorial-common-bottlenecks-linux/2025-0/overview.html">Linux 性能分析快速入门</a>，
+跟随示例了解一次完整的“采样—定位—分析”流程。</p>
+<p>集群不提供图形桌面，可以采用“<strong>集群命令行采样，本地 GUI 分析</strong>”的方式。<del>（当然你也可以在容器里安装图形界面, 这或许更加方便）</del>
+在实验目录中执行例如：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>vtune<span class="w"> </span>-collect<span class="w"> </span>hotspots<span class="w"> </span>-result-dir<span class="w"> </span>vtune-hotspots<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span>./build/lab2<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">2000</span><span class="w"> </span>--benchmark
+</span></code></pre></div>
+<p><code>--benchmark</code> 让 driver 跳过基线循环、只跑 <code>preprocess</code> 和你的优化实现（正确性检查保留）。
+profiling 时都应带上它：否则统计里混着基线循环，而且你的实现越快，基线的占比反而越大。</p>
+<p>采样结束后，在本地终端下载<strong>完整的结果目录</strong>（不要只复制其中的 <code>.vtune</code> 文件）。为了正常查看
+源码和汇编，建议同时下载采样时使用的可执行文件,示例命令如下：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>scp<span class="w"> </span>-r<span class="w"> </span>&lt;username&gt;@&lt;cluster&gt;:&lt;path-to-repo&gt;/lab2/vtune-hotspots<span class="w"> </span>.
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>scp<span class="w"> </span>&lt;username&gt;@&lt;cluster&gt;:&lt;path-to-repo&gt;/lab2/build/lab2<span class="w"> </span>.
+</span></code></pre></div>
+<p>随后在本地启动 VTune Profiler GUI，具体安装路径选择 <strong>Open &gt; Result...</strong>，打开结果目录中的 <code>.vtune</code> 文件。
+如果源码或汇编视图无法正确显示，请确认本地保留了与采样时一致的源码和可执行文件，并在
+<strong>Binary/Symbol Search</strong> 中补充相应路径。</p>
+<p>开始优化时，不必急于逐个尝试各种优化技巧，可以先使用性能采样工具定位瓶颈，再提出并验证优化假设，
+通常会更有效。（除了更快的定位瓶颈之外，一个你做的代码改动不论是正优化还是负优化，有一个可解释的指标会给你在优化过程中较强的正反馈，同时也不会让你陷入对着代码穷举各种优化方式的那种“炼丹”的痛苦。 <del>或许结合ai还会有更加奇妙的火花？</del> 如果你是想认真学习并实践体系结构知识的人这块可以让你学爽，<del>可解释性一直都是很美妙的不是吗</del>）
+在 Intel CPU 上，可以把 VTune 与 perf 组合起来，大致按下面的顺序使用：（注意以下有很多体系结构的专有名词，在没上过专业课的情况下要理解它们确实会比较痛苦，但是结合ai可以较快的帮你搞懂它们意思，最后构建起一个现代处理器的抽象模型, 这样之后就会顺畅许多）</p>
+<ol>
+<li><strong>先找热点。</strong> 使用 <strong>Hotspots</strong>（热点分析：按采样结果找出最耗时的代码）查看 Bottom-up
+    （从最耗时的函数向上追溯调用者）、调用栈和源码视图，确认端到端时间主要花在了哪些阶段。<del>(但是其实这个程序你一眼就可以看懂， 你也可以马上定位到瓶颈在哪，所以这一步在这一个lab当中其实不那么重要)</del>
+   以参考实现为例，热点几乎全部落在 <code>expert_ffn</code> 上，行级视图会进一步把时间归到 gate/up/down 三条 int8 内积循环，而后面所有向量化的功夫都花在这几行上。</li>
+<li>
+<p><strong>再解释热点。</strong> 可以先把 CPU 流水线粗略分成前端和后端：前端负责取出并解码指令，再把工作交给
+    后端；后端等待操作数就绪，调用执行单元完成计算并提交结果。VTune 中做这件事的分析类型是 <strong>Microarchitecture Exploration</strong>，但它依赖的
+    硬件事件采样在容器内不可用；好在 perf 内建了同一套 <strong>Top-down</strong> 方法：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>perf<span class="w"> </span>stat<span class="w"> </span>--topdown<span class="w"> </span>--<span class="w"> </span>./build/lab2<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">60</span><span class="w"> </span>--benchmark
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>perf<span class="w"> </span>stat<span class="w"> </span>--topdown<span class="w"> </span>--td-level<span class="w"> </span><span class="m">2</span><span class="w"> </span>--<span class="w"> </span>./build/lab2<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">60</span><span class="w"> </span>--benchmark
+</span></code></pre></div>
+<p>Top-down 会把流水线中的工作分成四类：
+<strong>Front-End Bound</strong>（前端受限：取指、解码或供给指令的速度跟不上），<strong>Bad Speculation</strong>
+（错误推测：分支预测错误等原因使已经执行的工作被丢弃），<strong>Back-End Bound</strong>（后端受限：执行资源
+忙碌或所需数据尚未到达），以及 <strong>Retiring</strong>（有效退休：指令完成并提交了有效结果，占比高通常是
+好现象，但不等于已经达到峰值）。可配合 <a href="https://www.intel.cn/content/www/cn/zh/docs/vtune-profiler/cookbook/2023-0/top-down-microarchitecture-analysis-method.html">Intel 官方中文 Top-down 图解</a> 继续阅读。</p>
+<p><strong>Back-End Bound</strong> 较高时，<code>--td-level 2</code> 可以进一步区分 <strong>Core Bound</strong>（核心执行资源受限，例如执行端口争用或
+较长的数据依赖链）和 <strong>Memory Bound</strong>（内存层次受限，执行单元在等待数据）。内存层次由近到远
+包括 <strong>L1D</strong>（每个核心最近、容量最小的一级数据缓存）、<strong>L2</strong>（容量更大但稍慢的二级缓存）、
+<strong>LLC</strong>（Last-Level Cache，通常由多个核心共享的末级缓存；本平台上是 L3）和 <strong>DRAM</strong>
+（主内存，容量最大但访问延迟显著高于缓存）。这些 Bound 指标表示停顿主要与哪个层级相关，
+并不自动意味着该层带宽已经打满，具体含义可参看 <a href="https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-0/memory-access-analysis.html">VTune Memory Access 指标说明</a>。</p>
+<p>以初始框架 S3 为例进行测试：Retiring 75%、Back-End Bound 20%
+（其中 Core Bound 20%、Memory Bound 仅 0.4%）、Front-End Bound 3.5%、Bad Speculation 0.8%，IPC ≈ 4.7。Memory Bound 几乎为零，说明参考实现<strong>并不卡访存</strong>；IPC 高达 4.7，流水线也没有空转——它只是在高效地执行海量标量指令，
+每条指令只完成一次 8-bit 乘加。瓶颈是<strong>指令总数</strong>本身，所以优化方向是提高单条指令完成的工作量。向量化生效后再测一次，你会看到 Retiring 下降、Memory Bound 上升，也就是瓶颈发生了变化。
+另外注意 <code>perf stat</code> 统计的是<strong>整个进程</strong>，所以同样要带上 <code>--benchmark</code>。</p>
+</li>
+<li>
+<p><strong>检查并行效率。</strong> 对多线程实现，把 hotspots 结果按线程分组即可看出负载是否均衡，报告中的
+    <strong>Spin Time</strong> 列直接给出各线程忙等的时间；再对比墙钟时间与 CPU 总时间，可以估算并行效率。
+    需要警惕的问题包括：串行区、负载不均、spin/wait（忙等或阻塞等待）、同步竞争、伪共享
+    （线程修改同一缓存行中的不同数据，仍引发缓存行来回迁移）、缓存行争用（多个核心争抢同一缓存行
+    的所有权）以及 NUMA（非一致内存访问：访问其他 CPU 节点的内存通常更慢）。</p>
+</li>
+</ol>
+<p>采样时应让被测部分运行时间足够长(目前的程序运行一次的时间很短，但是vtune运行的方式是随机的对运行时程序取快照, 并通过采样的时候运行所在函数来粗略的估计不同函数的运行时间占比, 所以为了能够采准要么让采样频率高一点，要么就运行的次数多一点, 后者相对更加方便一点), 并保持输入、线程数和绑核方式一致。Profiler 用于定位和解释瓶颈，最终性能仍应以实验规定的 driver 计时结果为准。更详细的操作可参考 Intel 官方的 <a href="https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2025-4/basic-hotspots-analysis.html">Hotspots 使用指南</a>，更深入的分析方法与常见案例可查阅 <a href="https://www.intel.com/content/www/us/en/docs/vtune-profiler/cookbook/2025-4/overview.html">VTune Performance Analysis Cookbook</a>。</p>
+<div class="admonition tip">
+<p class="admonition-title">优化后期：评估剩余优化空间</p>
+<p>当主要热点已经稳定后，建议为热点建立一份简要的性能上限分析。首先估算运算量、数据搬运量和算术
+强度，再借助<strong>Roofline</strong>（屋顶线模型：将程序性能与计算、带宽上限放在同一张图中；参见 <a href="https://www.intel.com/content/www/us/en/developer/articles/guide/intel-advisor-roofline.html">Intel Roofline 简介</a>），
+判断当前实现更接近计算上限，还是 L1D、L2、LLC 或 DRAM 中某一级的带宽上限。比较时应保持工作负载、
+线程数和绑核方式一致。</p>
+<p>分析 CPU 流水线时，可以同时记录<strong>IPC</strong>（Instructions Per Cycle，平均每周期退休的指令数）、
+Front-End Bound、Core Bound、处理器频率和有效操作吞吐（每秒实际完成的 MAC 或其他目标运算数）。
+这些指标分别反映指令推进效率、前端供给情况和核心执行资源的利用情况，需要结合热点代码一起解释。
+对多线程实现，还应绘制线程数与加速比的关系，并检查核心利用率、串行区、同步等待、负载不均、缓存
+一致性开销、NUMA 访问和全核运行时的频率变化。分析的目标是解释当前性能与硬件上限之间的差距，
+并据此选择下一步优化对象，而不是单独追求某一项指标。（<del>ai或许比我们更擅长做这种迭代优化，但是一下找到应该优化的点的直觉或许是ai所没有的, 优化过程中就可以积累这个直觉</del>）</p>
+</div>
+<h2 id="bonus-任务在-risc-v-上实现-moe-算子">Bonus 任务：在 RISC-V 上实现 MoE 算子<a class="headerlink" href="#bonus-任务在-risc-v-上实现-moe-算子" title="Permanent link">&para;</a></h2>
+<p>Bonus 实验以 RISC-V 的 V (Vector) 和进迭时空的 IME 矩阵扩展为例，向同学们介绍与 AVX, AMX 不同的向量 / 矩阵扩展设计思路。旨在让感兴趣的同学了解开放指令集架构 RISC-V 的生态，学习能够适配不同向量单元长度的向量扩展的设计，进而对向量化加速有更深入的理解。</p>
+<div class="admonition tip">
+<p class="admonition-title">Sponsor Segue</p>
+<p>本实验所使用的集群节点为 <a href="https://www.spacemit.com/">进迭时空</a> 为短学期课程建设提供的 <a href="https://www.spacemit.com/spacemit-muse-pi-pro/">Muse Pi Pro 开发板</a>。</p>
+<p><div style="display: flex; width: 100%; align-items: center;">
+    <div style="width: 56%; text-align: center; padding: 0 10px;">
+        <a class="glightbox" href="./image/muse-pi-pro.webp" data-type="image"><img src="./image/muse-pi-pro.webp" alt="Muse Pi Pro" style="width: 100%; height: auto;"></a>
+    </div>
+    <div style="width: 44%; text-align: center; padding: 0 10px;">
+        <a class="glightbox" href="./image/muse-pi-pro-realife.webp" data-type="image"><img src="./image/muse-pi-pro-realife.webp" alt="小型开发版集群" style="width: 100%; height: auto;"></a>
+    </div>
+</div></p>
+</div>
+<h3 id="知识讲解risc-v-指令集">知识讲解：RISC-V 指令集<a class="headerlink" href="#知识讲解risc-v-指令集" title="Permanent link">&para;</a></h3>
+<div style="display: flex; width: 100%; align-items: center; justify-content: center;">
+    <div style="width: 50%; text-align: center; padding: 0 10px;">
+        <a class="glightbox" href="./image/riscv.svg" data-type="image"><img src="./image/riscv.svg" alt="RISC-V" style="width: 100%; height: auto;"></a>
+    </div>
+</div>
+
+<p>RISC-V 是一个开源的、基于精简指令集（RISC）原则的指令集架构（ISA）。RISC-V 诞生于 2010 年，并逐渐发展成为一个全球性的开放协作项目，被认为是继 x86 和 ARM 之后，全球三大主流指令集架构之一。与后者不同的是，RISC-V 属于开放的、非盈利性质的 <a href="https://community.riscv.org">RISC-V 国际基金会</a>。这样的初衷是确保 RISC-V 生态不受某家公司或某个国家的影响。</p>
+<p>RISC-V 的主要特点和优势包括：</p>
+<ul>
+<li><strong>开源和开放</strong>：
+    RISC-V 是一种开放的 ISA，这意味着任何人都可以免费使用、修改和分发它，无需支付许可费用，这促进了创新和合作</li>
+<li><strong>模块化和可扩展</strong>：
+    RISC-V 的设计是模块化的，允许用户根据需求定制指令集，支持不同位宽的处理器（32 位、64 位、128 位等）</li>
+<li><strong>简洁高效</strong>：
+    RISC-V 采用了精简指令集原则，指令集相对简单，易于实现和理解，有助于提高能效和降低功耗。因此目前有越来越多的低功耗 MCU 采用 RISC-V 指令集。</li>
+<li><strong>全球社区支持</strong>：
+    RISC-V 得到了全球范围内的广泛社区支持，有来自学术界和产业界的众多贡献者参与其中。</li>
+</ul>
+<p>RISC-V 采用模块化指令设计，它包含基础指令集和扩展指令集两部分。其中基础指令集是最小的指令子集，只要配上相应的特权态 (privileged) 指令集，它就能够保证运行起一个操作系统。在完成基础指令集的基础上，开发者可以选择所需要的扩展指令集模块用以完成自己的需求，例如乘除法扩展指令集 "M"，浮点指令集"F"，向量指令集 "V" 等。</p>
+<p>对于 32 位的 RV32I 而言，RISC-V 最基础的整数指令集只有 40 条指令，而 64 位的 RV64I 也只是增加了一些 64 位数据的访存指令。下面是 <a href="https://github.com/jameslzhu/riscv-card">riscv-card</a> 汇总的 RV32I 基础整数指令集的指令定义与功能（<strong>这部分仅需简单了解</strong>，因此中间有关指令编码的 Opcode, Funct3 和 Funct7 三列可以忽略）</p>
+<p><a class="glightbox" data-type="image" href="./image/RV32I.webp"><img alt="RV32I Reference Card" src="./image/RV32I.webp" /></a></p>
+<p>与 x86-64 对比而言，精简指令集 (RISC: Reduced Instruction Set Computer) 往往使用定长的、简单的指令，而复杂指令集往往使用变长的、复杂的指令。</p>
+<p>比如 x86-64 的内存访存指令 <code>mov</code> 的操作数既可以是寄存器，也可以是内存地址，且这个内存地址的偏移量可以经过很复杂的计算。而这需要 RISC-V 中的 <code>ld</code>, <code>sd</code>, <code>mv</code> 以及算数指令等多条指令配合才能实现相同的功能。</p>
+<div class="language-asm highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># x86-64</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nf">mov</span><span class="w"> </span><span class="no">rax</span><span class="p">,</span><span class="w"> </span><span class="no">qword</span><span class="w"> </span><span class="no">ptr</span><span class="w"> </span><span class="p">[</span><span class="no">rbx</span><span class="w"> </span><span class="err">+</span><span class="w"> </span><span class="no">rcx</span><span class="w"> </span><span class="p">*</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="err">+</span><span class="w"> </span><span class="mi">0x20</span><span class="p">]</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># RISC-V (rax: x1, rbx: x2, rcx: x3)</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="nf">slli</span><span class="w">  </span><span class="no">t0</span><span class="p">,</span><span class="w"> </span><span class="no">x3</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w">          </span><span class="c1"># t0 = (x3 &lt;&lt; 3) = x3 * 8</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="nf">add</span><span class="w">   </span><span class="no">t0</span><span class="p">,</span><span class="w"> </span><span class="no">t0</span><span class="p">,</span><span class="w"> </span><span class="no">x2</span><span class="w">         </span><span class="c1"># t0 = x2 + x3 * 8</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="nf">ld</span><span class="w">    </span><span class="no">x1</span><span class="p">,</span><span class="w"> </span><span class="mi">0x20</span><span class="p">(</span><span class="no">t0</span><span class="p">)</span><span class="w">       </span><span class="c1"># x1 = *(t0 + 0x20) = *(x2 + x3 * 8 + 0x20)</span>
+</span></code></pre></div>
+<p>又比如，x86-64 的一条指令长度可以是 1-16 个字节，这需要更多的电路设计来完成指令解码。而 RISC-V 中的指令长度是固定的，为 4 字节 (C 扩展中的指令为 2 字节)，这降低了 CPU 设计的复杂度。</p>
+<h3 id="知识讲解risc-v-vector-向量化扩展">知识讲解：RISC-V Vector 向量化扩展<a class="headerlink" href="#知识讲解risc-v-vector-向量化扩展" title="Permanent link">&para;</a></h3>
+<p>RISC-V 的 V 扩展 (RVV) 是 RISC-V 的向量化指令扩展，其设计思路采用向量机的形式。</p>
+<p>从设计上来讲，RVV 及 ARMv9 的向量扩展 SVE，与 x86-64 的 AVX 要求 CPU 必须包含指定长度的向量单元 (128, 256, 512 位) 不同，为了适应不同硬件，RISC-V V 扩展允许硬件厂商根据硬件设计，选择支持不同的向量单元长度。只要程序员编码的逻辑正确，相同的程序便可以运行在不同向量单元长度的硬件上，扩展了程序的兼容性和灵活性。在本次实验里，我们就会学习如何通过编程实现这一点。</p>
+<p>相比之下，Intel 因为自家的能效核心不支持 512 位的向量操作，不得不<a href="https://www.techpowerup.com/290460/intel-to-disable-rudimentary-avx-512-support-on-alder-lake-processors">放弃在 12 代酷睿 CPU 上支持 AVX-512 指令集扩展</a>，即使同一颗 CPU 的性能核心支持 AVX-512.</p>
+<p>RVV 的 1.0 标准在 2021 年 11 月正式被批准 (Ratified)，且未来的改动需要保持对该正式版标准的兼容性。本次实验所使用的 Muse Pi Pro 是目前为数不多的支持 RVV 1.0 标准的开发板。当然，随着未来 RISC-V 生态的发展，更多支持 RVV 1.0 标准的高性能芯片也会逐渐推出。</p>
+<h4 id="基本概念">基本概念<a class="headerlink" href="#基本概念" title="Permanent link">&para;</a></h4>
+<h5 id="硬件参数elen-与-vlen">硬件参数：ELEN 与 VLEN<a class="headerlink" href="#硬件参数elen-与-vlen" title="Permanent link">&para;</a></h5>
+<p>对于每个支持向量扩展的硬件线程 (hart / hardware thread) 都有如下的两个硬件参数：</p>
+<ul>
+<li>ELEN: 单条指令能处理的最大向量位宽，ELEN <span class="arithmatex">\(\ge 8\)</span></li>
+<li>VLEN: 一个向量寄存器的位宽<ul>
+<li>RVV 定义了 32 个向量寄存器 <code>v0</code> - <code>v31</code>，每个寄存器宽度为 VLEN.</li>
+</ul>
+</li>
+</ul>
+<p>ELEN 和 VLEN 都必须满足是 <span class="arithmatex">\(2\)</span> 的幂次，目前的标准中要求 VLEN <span class="arithmatex">\(\ge\)</span> ELEN, 也就是单条指令处理的数据位宽不能超过单个向量寄存器的位宽。</p>
+<div class="admonition example">
+<p class="admonition-title">举个例子</p>
+<p>本次实验所使用的 Muse Pi Pro 拥有 256 位向量运算单元，且单个数据的最大位宽是 64-bit，那么:</p>
+<ul>
+<li>ELEN = 64</li>
+<li>VLEN = 256</li>
+</ul>
+<p>上面两个参数是由硬件决定的，在不修改配置的情况下，可以认为是固定的参数。</p>
+</div>
+<h5 id="运行参数sew-与-lmul">运行参数：SEW 与 LMUL<a class="headerlink" href="#运行参数sew-与-lmul" title="Permanent link">&para;</a></h5>
+<p>在上面的例子中，通过计算可以得知，Muse Pi Pro 上一个向量寄存器可以存储 4 个 64-bit 数据，或者 8 个 32-bit 数据，再或者 32 个 8-bit 数据，以此类推。</p>
+<p>那么在程序实际运行的时候，是什么在控制一条指令到底操作什么数据类型 (如 <code>int8</code>, <code>int32</code>)，以及操作多少个数据呢？这就要提到 SEW 和 LMUL 两个运行时参数了，它们的功能是：</p>
+<ul>
+<li>SEW: 指定单个向量元素的位宽 (Selected Element Width)</li>
+<li>LMUL: 指定单个指令操作向量长度的倍数，也可以理解为向量寄存器个数 (Length Multiplier)</li>
+</ul>
+<p>这两个参数在使用 Intrinsic 编程时，可以由编译器自动设置，而手写汇编时，则需要我们手动进行设置，后面我们都会介绍。</p>
+<div class="admonition example">
+<p class="admonition-title">举个例子</p>
+<p>在本次实验中，我们需要对 8-bit 整数进行操作，那么就需要在程序中设置 SEW = 8.</p>
+<p>如果我们希望一条指令只操作 1 个向量寄存器，那么 <code>LMUL = 1</code>。我们还可以设置 <code>LMUL = 2, 4, 8</code> 等，让一条指令操作更多的向量寄存器。在这种情况下，指令中所编码的那个向量寄存器，以及其后面一共 <code>LMUL</code> 个寄存器都会被视为一个整体，进行相同的操作。</p>
+<p>如果 <code>SEW = 8, LMUL = 4</code>，那么一条指令将会操作 4 个向量寄存器的数据，每个寄存器可以存储 32 个 8-bit 整数，那么一共便可操作 128 个 8-bit 整数。</p>
+<p>如果你还是没有理解的话，可以参考下面这张图: (<a href="https://fprox.substack.com/p/risc-v-vector-register-groups">图源</a>)</p>
+<center>
+<p><a class="glightbox" data-type="image" href="./image/lmul.webp"><img alt="LMUL Illustration" src="./image/lmul.webp" /></a></p>
+</center>
+<div class="admonition danger">
+<p class="admonition-title">常见误区</p>
+<ol>
+<li>受限于数据访存的带宽、后端有限的运算资源等等制约因素，并非将 LMUL 设置得越大越好，需要具体问题具体分析。一般而言，如果操作很简单，提高 LMUL 可以更好地利用访存带宽，实现一定的加速。</li>
+<li>调整 LMUL 并没有改变单个向量寄存器的位宽，也没有改变硬件上向量运算单元的位宽，它只是改变了单条指令操作的向量寄存器个数，需要注意分辨。</li>
+</ol>
+</div>
+</div>
+<h4 id="编程方式">编程方式<a class="headerlink" href="#编程方式" title="Permanent link">&para;</a></h4>
+<h5 id="intrinsic">Intrinsic<a class="headerlink" href="#intrinsic" title="Permanent link">&para;</a></h5>
+<p>Intrinsics 是由编译器提供的内建函数，我们可以通过类似函数调用的方式，直接调用底层 RVV 指令，而且还无需考虑寄存器分配的问题。与汇编相比，intrinsics 可读性更高，易于维护，同时仍能获得接近手写汇编的性能。使用 intrinsics 可以更方便地进行向量化编程，而不需要深入底层汇编语言。</p>
+<p>使用 RISC-V 的 Intrinsic 需要添加头文件 <code>#include &lt;riscv_vector.h&gt;</code>.</p>
+<p>下面是一个使用 Intrinsic 进行 RVV 编程的例子：</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">// test.cpp</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;riscv_vector.h&gt;</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="kt">float</span><span class="w"> </span><span class="n">c</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">vl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__riscv_vsetvlmax_e32m1</span><span class="p">();</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="c1">// Initialize two vector registers</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span><span class="n">vfloat32m1_t</span><span class="w"> </span><span class="n">vec_a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__riscv_vfmv_v_f_f32m1</span><span class="p">(</span><span class="mf">2.0f</span><span class="p">,</span><span class="w"> </span><span class="n">vl</span><span class="p">);</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="n">vfloat32m1_t</span><span class="w"> </span><span class="n">vec_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__riscv_vfmv_v_f_f32m1</span><span class="p">(</span><span class="mf">1.0f</span><span class="p">,</span><span class="w"> </span><span class="n">vl</span><span class="p">);</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span><span class="c1">// Calculate vec_c = vec_b + 2.0 * vec_a</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">    </span><span class="n">vfloat32m1_t</span><span class="w"> </span><span class="n">vec_c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__riscv_vfmacc_vf_f32m1</span><span class="p">(</span><span class="n">vec_b</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0f</span><span class="p">,</span><span class="w"> </span><span class="n">vec_a</span><span class="p">,</span><span class="w"> </span><span class="n">vl</span><span class="p">);</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">    </span><span class="c1">// Store the result to c array</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span><span class="n">__riscv_vse32_v_f32m1</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">vec_c</span><span class="p">,</span><span class="w"> </span><span class="n">vl</span><span class="p">);</span>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%f &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>
+</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-12-24"><a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a><span class="p">}</span>
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>$<span class="w"> </span>clang<span class="w"> </span>test.cpp<span class="w"> </span>-o<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-march<span class="o">=</span>rv64gcv<span class="w"> </span><span class="c1"># 需指定 rv64gcv 架构以启用 RVV 特性</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>$<span class="w"> </span>srun<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>-p<span class="w"> </span>riscv<span class="w"> </span>./test
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000<span class="w"> </span><span class="m">5</span>.000000
+</span></code></pre></div>
+<p>相信大家有了 AVX 的编程经验，上面的代码并不是很难理解。它首先初始化了两个向量寄存器，<code>vec_a = [2.0, 2.0, ..., 2.0]</code>, <code>vec_b = [1.0, 1.0, ..., 1.0]</code>，然后使用 <code>__riscv_vfmacc_vf_f32m1</code> 计算了 <code>vec_c = vec_b + 2.0 * vec_a</code>，最后将结果存储到 <code>c</code> 数组中。可以看到结果是正确的，为 <code>[5.0, 5.0, ..., 5.0]</code>。</p>
+<p>RISC-V V Intrinsic 相关资料：</p>
+<ul>
+<li><a href="https://github.com/riscv-non-isa/rvv-intrinsic-doc/releases/download/v1.0-ratified/v-intrinsic-spec.pdf">RISC-V Intrinsic</a>:
+    官方文档，足足有 4027 页，阅读难度较大，不太建议阅读</li>
+<li><a href="https://dzaima.github.io/intrinsics-viewer/#riscv">Intrinsic Viewer</a>: 社区制作的 Intrinsic 查询工具，将 Intrinsic 按照操作进行了详细的分类，单击一条 Intrinsic 可以给出其对应操作的伪代码，完成「任务一」必看</li>
+</ul>
+<p>上面的 <a href="https://dzaima.github.io/intrinsics-viewer/#riscv">Intrinsic Viewer</a> 是非常重要的资料，它可以帮助我们快速找到想要实现的操作对应的 Intrinsic 指令。在这里，不妨进行一个小测试，请找到两个 float32 类型向量寄存器对应元素相乘的 Intrinsic 指令。</p>
+<details class="- success">
+<summary>Check your answer</summary>
+<p>答案是 <code>__riscv_vfmul_vv_f32m1</code></p>
+<p>首先，因为他是浮点数操作，所以选中左侧菜单栏中的 <code>Float</code>, 又因为其涉及乘法，再选中 <code>Multiply</code> 选项，这样便可以找到这个 Intrinsic</p>
+<p>Intrinsic 函数名的格式如下图所示: (<a href="https://fprox.substack.com/p/risc-v-vector-programming-in-c-with">图源</a>)</p>
+<p><a class="glightbox" data-type="image" href="./image/intrinsic.webp"><img alt="Intrinsic Function Name Format" src="./image/intrinsic.webp" /></a></p>
+</details>
+<h5 id="数据类型">数据类型<a class="headerlink" href="#数据类型" title="Permanent link">&para;</a></h5>
+<p>在上面的示例代码，以及找 Intrinsic 的过程中，你可能会对 <code>vfloat32m1_t</code> 这样的类型比较困惑，这是 RVV Intrinsic 中代表向量寄存器的数据类型。这样的类型都以 <code>v</code> 开头，以 <code>_t</code> 结尾。</p>
+<p>中间部分最开始是单个数据的类型，比如 <code>int8</code>, <code>uint8</code>, <code>int32</code>, <code>float32</code> 等。接下来的 <code>m1</code> 或者 <code>m2</code>, <code>m4</code>, <code>m8</code> 等，就对应着我们之前介绍的 LMUL 参数。</p>
+<p>对特定类型的向量操作时，编译器会自动设置不同的 LMUL.</p>
+<div class="admonition example">
+<p class="admonition-title">举个例子</p>
+<p>要定义代表着一个存储 8-bit 无符号整数的向量寄存器，我们可以使用 <code>vuint8m1_t</code> 类型。</p>
+<p>如果我们希望指代两个存储 32-bit 有符号整数的向量寄存器，则使用 <code>vint32m2_t</code> 类型。</p>
+</div>
+<h5 id="vsetvl-系列指令">vsetvl 系列指令<a class="headerlink" href="#vsetvl-系列指令" title="Permanent link">&para;</a></h5>
+<p>在之前的介绍中，我们提到 RVV 可以自动适应不同的向量长度，那么它是如何实现的呢？这一机制，与 <code>vsetvl</code> 系列的指令密切相关。</p>
+<p>进行 RVV 向量操作时，CPU 内部会有一个寄存器 <code>vl</code> 来记录接下来的指令要处理的元素个数。它的最大值取决于 VLEN、SEW 和 LMUL 三个参数。</p>
+<p>比如，如果 <code>VLEN = 256, SEW = 8, LMUL = 1</code>，那么 <code>vl</code> 的最大值就是 32，因为一个寄存器最多只能存储 32 个 8-bit 整数。如果 vl <span class="arithmatex">\(&lt; 32\)</span>，
+那么接下来的操作中，只有前 <code>vl</code> 个元素会被处理。</p>
+<p>而 <code>vsetvl</code> 指令可以根据 SEW、LMUL 以及还有多少个数据待处理，结合 <code>VLEN</code> 自动更新 <code>vl</code> 的值。我们以下面这张图为例，假如我们要用 for 循环
+来处理一个长度为 N 的数组，那么会发生下面的过程：</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">vl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__riscv_vsetvlmax_e32m1</span><span class="p">();</span><span class="w"> </span><span class="c1">// SEW = 32, LMUL = 1</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">vl</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="n">vl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__riscv_vsetvl_e32m1</span><span class="p">(</span><span class="n">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="c1">// process vl elements</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><a class="glightbox" data-type="image" href="./image/vsetvl.webp"><img alt="vsetvl" src="./image/vsetvl.webp" /></a></p>
+<ul>
+<li>如果剩余待处理的元素 <code>N - i</code> 大于一次可以操作的元素个数，通过 <code>vl = __riscv_vsetvl_e32m1(N - i)</code> 可以将 <code>vl</code> 设置为其最大值，将其全部处理。</li>
+<li>如果遇到了数组的末尾，剩余元素不足 <code>vlmax</code> 时，通过同样的 <code>vl = __riscv_vsetvl_e32m1(N - i)</code> 可以将 <code>vl</code> 设置为剩余元素个数，而忽略掉多余的元素。</li>
+</ul>
+<p>这样一来，通过程序运行时使用 <code>vsetvl</code> 系列指令动态设置 <code>vl</code> 的值，即使机器的 <code>VLEN</code> 不同，数组总长度不同，都可以正确地处理。</p>
+<div class="admonition danger">
+<p class="admonition-title">注意事项</p>
+<p><code>vsetvl</code> 不仅会修改 <code>vl</code> 的值，也会设置 SEW 和 LMUL:</p>
+<ul>
+<li>比如操作 32 位数据，LMUL = 1 时，调用的是 <code>__riscv_vsetvl_e32m1</code> 函数</li>
+<li>在进行不同数据位宽的操作前，一定要正确调用 <code>vsetvl</code> 来更新 SEW 和 LMUL，否则可能会遇到 Illegal Instruction 错误<ul>
+<li>使用 Intrinsic 编程时，只需注意在循环的时候使用 <code>vsetvl</code> 即可，其余情况编译器会自动处理 SEW 和 LMUL 的变化</li>
+<li>在手写汇编时，则需特别注意这一点，在需要的地方插入 <code>vsetvl</code> 指令</li>
+</ul>
+</li>
+</ul>
+</div>
+<h5 id="常见操作">常见操作<a class="headerlink" href="#常见操作" title="Permanent link">&para;</a></h5>
+<p>你<strong>可能</strong>需要使用的操作在 <a href="https://dzaima.github.io/intrinsics-viewer/#riscv">Intrinsic Viewer</a> 的分类如下：</p>
+<ul>
+<li>访存操作：<ul>
+<li><code>Memory</code> -&gt; <code>Load</code></li>
+<li><code>Memory</code> -&gt; <code>Store</code></li>
+</ul>
+</li>
+<li>整数运算操作：<ul>
+<li><code>Integer</code> -&gt; <code>Multiply</code></li>
+<li><code>Fold</code>: 对于向量点积，你可能会需要将向量寄存器全部元素进行求和的操作，这类操作归类于 <code>Fold</code></li>
+</ul>
+</li>
+<li>类型转换：<ul>
+<li><code>Conversion</code> -&gt; <code>Integer widen</code></li>
+</ul>
+</li>
+<li>元素位移操作：<ul>
+<li><code>Permutation</code>: 请自行探索 <code>Shuffle</code> 和 <code>Slide</code> 等操作</li>
+</ul>
+</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">提示</p>
+<ol>
+<li>并不是上面所有的操作都必须用到，只是为了方便大家通过各种方法实现任务而提供参考</li>
+<li>对于输入为 int8，结果用 int32 累加的情况，可以考虑使用对应的 <code>Widening</code> 的操作</li>
+</ol>
+</div>
+<h4 id="self-check">Self Check<a class="headerlink" href="#self-check" title="Permanent link">&para;</a></h4>
+<p>为了让同学能够更加清楚地理解为什么要讲上面这些概念，以及 RVV 设计中的巧妙之处，请在学习完上面的内容之后，思考一个问题:</p>
+<p><strong>内存中的数据，会存储自己的类型吗？</strong></p>
+<details class="- success">
+<summary>Check your answer</summary>
+<p>答案是否定的。(注: 仅讨论 C/C++ 这类编译型语言) 内存并不会“自带标签”告诉你“我是一个整数”或者“我是一个浮点数”，它只是无差别地保存了一堆比特位。<strong>数据具有怎样的含义，取决于你怎样看它</strong>。意思是说，真正决定数据类型的，是你的代码中如何定访问和操作这块数据:</p>
+<ul>
+<li>
+<p>先从访存来讲:</p>
+<p>内存中一段 64-bit 的数据，它既可以是 1 个 64-bit 整数，也可以是 2 个 <code>float</code> 类型的浮点数，或者是 8 个 <code>char</code> 字符，以此类推。</p>
+<p>但是，对于 CPU 和内存控制器来说，它们只知道这是一块 64-bit 的数据。因此你使用 uint64m1, float32m1, 还是 int8m1 对应的 load / store，它们实际上进行的操作是相同的，就是加载 <code>vlen</code> 个比特的数据到向量寄存器。</p>
+<p>不过，它们进行 Strided 和 Segment 类的访存操作时行为又有所不同: 比如 uint8m1 的 Strided Load 是每 8-bit 跨一段内存，而 uint64m1 的 Strided Load 就是每 64-bit 跨一段内存。</p>
+</li>
+<li>
+<p>再看对数据的操作:</p>
+<p>对于寄存器中的数据，使用整数指令进行操作，它就会被当作整数进行运算，如果使用浮点指令进行操作，它就会被当作浮点数来进行运算。使用 操作 8-bit 数据的指令，那么它就会当成 8-bit 元素的向量进行运算，使用操作 64-bit 数据的指令，那么它就会当成 64-bit 元素的向量进行运算。</p>
+<p>看似上面是一段废话，但其实想表达的是，我们只需要 (数据类型，操作类型) 这个二元组，就能确定一个具体的数据操作。而前面这个「数据类型」，则由 (SEW, LMUL) 来唯一确定。</p>
+<p>在 RVV 的设计中，「数据类型」和「操作」是解耦的。RISC-V 并没有为每个二元组都定义一条指令，比如所有的浮点乘法指令都是 <code>vfmul.vv</code>，而具体处理的是多少位的浮点数、处理多少个向量，则由 <code>vsetvl</code> 设置的 SEW 和 LMUL 来决定。</p>
+</li>
+</ul>
+</details>
+<h3 id="知识讲解spacemit-ime-矩阵扩展">知识讲解：SpaceMiT IME 矩阵扩展<a class="headerlink" href="#知识讲解spacemit-ime-矩阵扩展" title="Permanent link">&para;</a></h3>
+<h4 id="spacemit-ime-简介">SpaceMiT IME 简介<a class="headerlink" href="#spacemit-ime-简介" title="Permanent link">&para;</a></h4>
+<p>之前我们提到，RISC-V 是开放的，提供了自定义的指令编码区域，允许厂商自行扩展指令集（当然，你也可以使用模拟器 / FPGA 等工具自己设计一些奇奇怪怪的东西）。</p>
+<p>SpaceMiT IME (Integrated Matrix Extension) 是进迭时空提出的矩阵扩展，可以对低精度的矩阵乘法和卷积操作进行加速。在宣传中，IME 的整数运算效率可以达到 RVV 的 4 倍。</p>
+<div class="admonition tip">
+<p class="admonition-title">选用 SpaceMiT IME 的原因</p>
+<p>仍需注意的是，SpaceMiT IME 是进迭时空推出的厂商指令扩展，<strong>并未进入 RISC-V 官方标准</strong>。</p>
+<p>不同的硬件厂商，如阿里平头哥、SiFive 等，也推出了各种不同的 RISC-V 矩阵扩展。在本次实验中，我们只是借助 SpaceMiT IME 来学习区别于 AMX 的另一种矩阵扩展实现方式，进而理解矩阵扩展的设计思路和局限性，而这与某一厂商的具体扩展无关。</p>
+<p>对矩阵扩展设计有兴趣的同学，推荐阅读 <a href="https://zhuanlan.zhihu.com/p/29671629963">RISC-V 矩阵扩展：IME TG Option A-G</a> 和 <a href="https://zhuanlan.zhihu.com/p/1907460273876480763">HPC 与 AI 的未来</a> 两篇好文。</p>
+</div>
+<p>SpaceMiT IME 在实现上复用了 RVV 的寄存器以节省资源 (这也是 IME 中 Integrated 的含义)，因此我们无需像 AMX 那样进行对 tile 的额外设置，只需要使用 RVV 的向量寄存器即可。</p>
+<h4 id="vmadot-详解">vmadot 详解<a class="headerlink" href="#vmadot-详解" title="Permanent link">&para;</a></h4>
+<p>SpaceMiT IME 指令集提供了 <code>vmadot</code> 系列的指令，用于加速矩阵乘法运算。与 RVV 不同的是，IME 会把 RVV 寄存器中的数据<strong>理解成一个小矩阵</strong>，并通过额外的运算单元实现矩阵乘法的加速，最终的结果也会存储到一个向量寄存器中。</p>
+<p>SpaceMiT IME 指令集手册具体可参考 <a href="https://github.com/space-mit/riscv-ime-extension-spec/releases/download/v0429/spacemit-ime-asciidoc.pdf">SpaceMiT IME Extension Spec</a>，而接下来我们仅介绍实验需要用到的部分。进行 8-bit 整数矩阵乘法时，可以调用下面的指令进行加速：</p>
+<div class="language-asm highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nf">vmadotus</span><span class="w"> </span><span class="no">vd</span><span class="p">,</span><span class="w"> </span><span class="no">vs1</span><span class="p">,</span><span class="w"> </span><span class="no">vs2</span><span class="w"> </span><span class="c1">; us 表示 vs1 是无符号整数，vs2 是有符号整数</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">                      </span><span class="c1">; 可以理解为 C += A * B, 其中 A, B, C 都是矩阵</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">                      </span><span class="c1">;          vd  vs1 vs2</span>
+</span></code></pre></div>
+<p>对于 Muse Pi Pro 来说，VLEN = 256，根据文档，<code>M = 4, N = 4, K = 8</code>，vs1 和 vs2 中的数据会被理解成 <code>(4, 8)</code> 和 <code>(8, 4)</code> 的 8-bit 整数矩阵，示意图如下 (请忽略图中的编号)：</p>
+<p><a class="glightbox" data-type="image" href="./image/vmadot.webp"><img alt="vmadotus" src="./image/vmadot.webp" /></a></p>
+<p><code>vmadot</code> 可以用一条指令进行 16 次点积和累加运算，这条指令的 Throughput 是 RVV 对应指令的 4 倍。动画展示如下，每一帧代表 A 和 B 对应的一行元素进行内积操作，累加到 C 的对应元素：</p>
+<p><a class="glightbox" data-type="image" href="./image/vmadot-anim.webp"><img alt="vmadotus animation for each step" src="./image/vmadot-anim.webp" /></a></p>
+<p><code>vmadotus</code> 指令将会逐行进行内积，并将结果累加在 32-bit 整数中，最后得到一个 <code>(4, 4)</code> 的 32-bit 整数矩阵。</p>
+<h4 id="分块矩阵乘法">分块矩阵乘法<a class="headerlink" href="#分块矩阵乘法" title="Permanent link">&para;</a></h4>
+<p>想要利用 <code>vmadot</code> 指令，我们需要对原先的矩阵分块进行处理，如下图所示:</p>
+<div style="display: flex; justify-content: center; align-items: center;">
+    <a class="glightbox" href="./image/tiled-outer-prod.svg" data-type="image"><img src="./image/tiled-outer-prod.svg" alt="Tiled Outer Product Approach of GEMM"></a>
+</div>
+<div style="display: flex; justify-content: center; align-items: center;">
+    注: 我们的例子中，Ktile = 8, Mtile = Ntile = 4
+</div>
+
+<p>上图中，C 矩阵中的一块结果 (用绿色标记)，是 A 和 B 中对应分块矩阵 (用蓝色和黄色标记) 进行矩阵乘法再求和得到的。这也是说，我们每次需要从 A 和 B 矩阵中<strong>各取一块小矩阵</strong>，使用 <code>vmadot</code> 进行矩阵乘法，最后将结果累加，得到正确的结果。</p>
+<div class="admonition info">
+<p class="admonition-title">提示</p>
+<p>为了实现「加载一小个分块矩阵到寄存器」的操作，你<strong>可能</strong>会需要使用:</p>
+<ul>
+<li><code>Memory</code> -&gt; <code>Load</code> 中 <code>Strided</code> 的操作</li>
+<li>加载数据和操作数据时，可以设置不同的 SEW 和 LMUL。如果你不理解这里，请完成 <a href="#self-check">Self Check</a></li>
+</ul>
+<p><center>
+    <div style="display: flex; justify-content: center; align-items: center;">
+        <a class="glightbox" href="./image/load-hint.webp" data-type="image"><img src="./image/load-hint.webp" alt="Strided Load Hint on Choosing SEW and LMUL" style="width: 50%;"></a>
+    </div>
+</center></p>
+<p>注: 加粗的 <strong>可能</strong> 的含义是: 「使用上面的操作」是「正确完成实验任务」的 <strong>非充分、非必要</strong> 条件，Strided 访存未必是性能最佳的，请务必结合自己的思考(<del>例如做重排</del>)。</p>
+</div>
+<h2 id="思考题">思考题<a class="headerlink" href="#思考题" title="Permanent link">&para;</a></h2>
+<ol>
+<li>以场景 S3（<span class="arithmatex">\(N=128,\ D=256,\ H=128,\ E=16,\ K=4\)</span>）为例，估算参考实现一次前向的
+   总访存量（专家权重被读了多少遍？）和总乘加次数，计算算术强度（MACs/byte）。
+   按专家分组之后这两个数字分别变成多少？由此说明这个负载是访存瓶颈还是计算瓶颈，
+   以及分组为什么能加速。</li>
+<li>为什么激活用 per-token scale，而权重每个矩阵一个 scale 就够了？
+   如果让一批 128 个 token 共享同一个激活 scale，会发生什么？</li>
+<li>单个 int8 × int8 乘积的最大绝对值是多少？为什么点积必须在 int32 中累加——
+   若改用 int16，最坏情况下累加到第几项就会溢出？归约长度在运行时变化，请用允许的
+   最大归约长度（<code>MAX_D_MODEL = 1024</code>）估算最坏情况下的累加值，并说明它离 int32
+   的表示上限还有多少余量。</li>
+</ol>
+<h2 id="实验任务与要求">实验任务与要求<a class="headerlink" href="#实验任务与要求" title="Permanent link">&para;</a></h2>
+<h3 id="主线任务">主线任务<a class="headerlink" href="#主线任务" title="Permanent link">&para;</a></h3>
+<p>完成 <code>student/moe_opt.cpp</code> 中 MoE 前向的优化，并在 x86-64 平台上通过正确性检查。实现需要支持
+<a href="#评测场景">评测场景</a>中的全部形状，不能把 <span class="arithmatex">\(N\)</span>、<span class="arithmatex">\(D\)</span>、<span class="arithmatex">\(H\)</span>、<span class="arithmatex">\(E\)</span> 或 <span class="arithmatex">\(K\)</span> 写成固定值。</p>
+<p>请按照 <a href="../../guide/">登录平台</a> 申请 DevPod 和 <a href="../../guide/submit/">提交计算任务</a> 提交任务，例如：</p>
+<div class="admonition danger">
+<p class="admonition-title">注意事项</p>
+<p>对于 <code>lab2</code> 和 <code>lab2rv</code> 分区，任务默认分配 1 个核心，若需要使用更多核心，请在提交任务时使用 <code>-c</code> 参数指定。
+在 x86 分区，本实验最多使用 8 个核心 16 个线程 (<code>-c 16</code>)，在 RISC-V 分区，本实验最多使用 4 个核心 4 个线程 (<code>-c 4</code>)。<br />
+在评测时，我们会分配8核16线程。</p>
+</div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># 申请 x86-5418Y 预设的 DevPod</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1"># 在 DevPod 中下载</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/zjusct/hpc101
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="nb">cd</span><span class="w"> </span>hpc101/src/lab2
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># 编译</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>cmake<span class="w"> </span>-B<span class="w"> </span>build
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>-j
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="c1"># 运行</span>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab2<span class="w"> </span>./build/lab2<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">100</span>
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab2<span class="w"> </span>./build/lab2<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">1024</span><span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">100</span>
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab2<span class="w"> </span>./build/lab2<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">100</span>
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab2<span class="w"> </span>-c<span class="w"> </span><span class="m">16</span><span class="w"> </span>./build/lab2<span class="w"> </span><span class="m">1024</span><span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="c1"># 使用 16 个线程运行</span>
+</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>
+</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="c1"># 使用 VTune 进行性能分析</span>
+</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab2<span class="w"> </span>vtune<span class="w"> </span>-collect<span class="w"> </span>hotspots<span class="w"> </span>./build/lab2<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>--benchmark
+</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>
+</span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="c1"># 使用 perf 进行性能分析</span>
+</span><span id="__span-16-21"><a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab2<span class="w">  </span>perf<span class="w"> </span>stat<span class="w"> </span>--topdown<span class="w"> </span>--<span class="w"> </span>./build/lab2<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">60</span><span class="w"> </span>--benchmark
+</span><span id="__span-16-22"><a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a>
+</span><span id="__span-16-23"><a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab2<span class="w"> </span><span class="s2">&quot;taskset -cp 1&quot;</span>
+</span><span id="__span-16-24"><a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab2<span class="w"> </span>-c<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="s2">&quot;taskset -cp 1&quot;</span><span class="w"> </span><span class="c1"># 查看 CPU 亲和性</span>
+</span></code></pre></div>
+<h3 id="bonus在-risc-v-上继续优化-moe-前向">Bonus：在 RISC-V 上继续优化 MoE 前向<a class="headerlink" href="#bonus在-risc-v-上继续优化-moe-前向" title="Permanent link">&para;</a></h3>
+<p>Bonus 延续前面的主线任务：输入、权重、路由规则、量化方式和输出都不变，只把 <code>moe_forward_optimized</code> 的目标平台换成 RISC-V。你可以上文提到的 RISC-V 向量扩展和 SpaceMiT IME 矩阵扩展对你的代码进行优化。<br />
+对应的，只需要将计算任务提交到 <code>lab2rv</code> 分区即可。</p>
+<div class="admonition tip">
+<p class="admonition-title">注意架构</p>
+<p>如果你在x86平台上做完主线任务之后直接 <code>hpc submit -p lab2rv ./build/lab2 1 256 128 16 4 100</code>, 会出现以下报错
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>sh: 1: ./build/lab2: Exec format error
+</span></code></pre></div>
+这是因为 x86-64 平台编译的可执行文件无法在 RISC-V 平台上运行。请使用 <code>riscv-K1</code> 预设的 DevPod 进行编译。</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">OJ 评分指标</p>
+<p>OJ 总体采用分段曲线进行评分。</p>
+<p>本次课程为大家提供了 AI 编程辅助工具。我们鼓励合理使用 AI 辅助学习与编程，但不鼓励完全依赖 AI 而忽略独立思考。因此，我们将通过简单手段获得的优化效果设定为 60 分及格线；在此基础上，进一步优化所得分数将沿非线性曲线增长至 100 分。此外，我们还设置了边际收益更高的 20 分打榜奖励区间，鼓励有能力的同学继续探索更高性能。</p>
+<p>下面给出不同优化阶段对应的得分曲线：</p>
+<p><a class="glightbox" data-type="image" href="./image/score.png"><img alt="Score" src="./image/score.png" /></a></p>
+<p>横轴表示相对于我们提供的 naive 实现的加速比（speedup），纵轴表示得分。所有测试用例均采用形状相同的评分曲线，但各评分 turning points 对应的加速比阈值会分别设置。最终得分为四个测试用例得分的算术平均值，基本任务和bonus任务分数分开计算。</p>
+<p>各任务的 60 分和 100 分 checkpoint 如下：</p>
+<table>
+<thead>
+<tr>
+<th>任务</th>
+<th style="text-align: right;">Checkpoint</th>
+<th style="text-align: right;">S1</th>
+<th style="text-align: right;">S2</th>
+<th style="text-align: right;">S3</th>
+<th style="text-align: right;">S4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基本任务</td>
+<td style="text-align: right;">60 分</td>
+<td style="text-align: right;">18.0</td>
+<td style="text-align: right;">39.0</td>
+<td style="text-align: right;">71.0</td>
+<td style="text-align: right;">68.0</td>
+</tr>
+<tr>
+<td>基本任务</td>
+<td style="text-align: right;">100 分</td>
+<td style="text-align: right;">22.0</td>
+<td style="text-align: right;">53.0</td>
+<td style="text-align: right;">133.0</td>
+<td style="text-align: right;">123.0</td>
+</tr>
+<tr>
+<td>Bonus 任务</td>
+<td style="text-align: right;">60 分</td>
+<td style="text-align: right;">11.0</td>
+<td style="text-align: right;">12.0</td>
+<td style="text-align: right;">62.0</td>
+<td style="text-align: right;">17.0</td>
+</tr>
+<tr>
+<td>Bonus 任务</td>
+<td style="text-align: right;">100 分</td>
+<td style="text-align: right;">15.0</td>
+<td style="text-align: right;">17.0</td>
+<td style="text-align: right;">104.0</td>
+<td style="text-align: right;">25.0</td>
+</tr>
+</tbody>
+</table>
+<p>具体的分段曲线定义如下：</p>
+<div class="arithmatex">\[
+S(p)=
+\begin{cases}
+0, &amp; p \le p_0, \\[2pt]
+60u_0, &amp; p_0 &lt; p \le p_{60}, \\[2pt]
+60+40\dfrac{e^{1.5u_1}-1}{e^{1.5}-1},
+    &amp; p_{60} &lt; p \le p_{100}, \\[8pt]
+100+20u_2,
+    &amp; p_{100} &lt; p &lt; p_{100}+\dfrac{1}{4}(p_{100}-p_{60}), \\[8pt]
+120,
+    &amp; p \ge p_{100}+\dfrac{1}{4}(p_{100}-p_{60}),
+\end{cases}
+\]</div>
+<p>其中：</p>
+<div class="arithmatex">\[
+u_0=\frac{p-p_0}{p_{60}-p_0},\qquad
+u_1=\frac{p-p_{60}}{p_{100}-p_{60}},\qquad
+u_2=\frac{p-p_{100}}{\frac{1}{4}(p_{100}-p_{60})}.
+\]</div>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">提交方式</p>
+<p>主线任务与 RISC-V Bonus 的提交入口和测评方式仍在完善，开放后会更新本文档并在群内通知。</p>
+</div>
+<h2 id="参考资料">参考资料<a class="headerlink" href="#参考资料" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://huggingface.co/blog/moe">Mixture of Experts Explained</a></li>
+<li><a href="https://arxiv.org/abs/2412.19437">DeepSeek-V3 Technical Report</a></li>
+<li><a href="https://arxiv.org/abs/2401.06066">DeepSeekMoE: Towards Ultimate Expert Specialization</a></li>
+<li><a href="https://arxiv.org/abs/2408.15664">Auxiliary-Loss-Free Load Balancing</a></li>
+<li><a href="https://github.com/yzhaiustc/Optimizing-DGEMM-on-Intel-CPUs-with-AVX512F">Optimizing DGEMM on Intel CPUs with AVX512F</a></li>
+<li><a href="https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html">Intel Intrinsics Guide</a></li>
+<li><a href="https://www.intel.com/content/www/us/en/developer/articles/code-sample/advanced-matrix-extensions-intrinsics-functions.html">Code Sample: Intel Advanced Matrix Extensions (Intel AMX) - Intrinsics Functions</a></li>
+<li><a href="https://github.com/intel/AMX-TMUL-Code-Samples">Intel AMX-TMUL Code Samples</a></li>
+<li><a href="https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html">Intel 64 and IA-32 Architectures Optimization Reference Manual</a></li>
+<li><a href="https://people.freebsd.org/~lstewart/articles/cpumemory.pdf">What Every Programmer Should Know About Memory</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../Lab1-MiniCluster/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lab 1: 简单集群搭建">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Lab 1: 简单集群搭建
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../Lab3-GDN-Prefill/" class="md-footer__link md-footer__link--next" aria-label="Next: Lab 3: GDN Prefill 前向优化">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Lab 3: GDN Prefill 前向优化
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.action.edit","content.code.annotate","content.code.copy","content.code.select","navigation.expand","navigation.footer","navigation.instant","navigation.instant.prefetch","navigation.instant.progress","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight","search.share","search.suggest","toc.follow"],"search":"../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6e5f0216.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="../../javascripts/v86-init.js"></script>
+      
+    
+  </body>
+</html>
