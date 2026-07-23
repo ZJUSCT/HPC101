@@ -1,40 +1,36 @@
 cmake_minimum_required(VERSION 3.20)
 project(amss_ncku_lab LANGUAGES CXX Fortran)
 
-# ---------------------------------------------------------------------------
-# AMSS-NCKU numerical relativity lab — CPU + GPU build.
-# Replaces the original makefile / makefile.inc.
-# Toolchain on node m602 is provided via: spack load gcc@13.3.0 openmpi@5.0.9
-# GPU toolchain: /usr/local/cuda-13.3/bin/nvcc, A100 sm_80
-# ---------------------------------------------------------------------------
-
-find_package(MPI REQUIRED COMPONENTS CXX)
-
-# Compile flags (from the original makefile.inc):
-#   C++     : <opt> -fno-strict-aliasing -Wno-deprecated -Dfortran3 -Dnewc
-#   Fortran : <opt> -fno-strict-aliasing, with C preprocessing
-#
-# -fno-strict-aliasing is applied unconditionally because the legacy
-# AMSS-NCKU code has multiple type-punning / strict-aliasing violations
-# that gcc 14 exploits at -O2/-O3, producing an MPI deadlock in
-# Parallel::transfer's ghost-zone exchange at evolution step 0. One
-# specific instance (uninitialized bssn_class::LastConsOut) is fixed in
-# the source, but additional aliasing UB remains: dropping this flag at
-# -O3 still deadlocks. It is kept out of the tunable AMSS_OPT so changing
-# the optimization level never accidentally loses the safety flag.
-#
-# The optimization level is configurable for testing:
-#   cmake -B build -DAMSS_OPT="-O0"
+# --- Options ----------------------------------------------------------------
+option(AMSS_ENABLE_GPU "Enable CUDA GPU build (ABEGPU target)" OFF)
 set(AMSS_OPT "-O3" CACHE STRING "C/C++/Fortran optimization level")
+set(AMSS_ARCH_FLAGS "" CACHE STRING "Architecture-specific compiler flags")
+option(AMSS_ENABLE_OPENMP "Link OpenMP to all executables" OFF)
+set(AMSS_MPI_CUDA_AWARE 0 CACHE STRING "Set MPI_CUDA_AWARE macro for ABEGPU (0/1)")
+set_property(CACHE AMSS_MPI_CUDA_AWARE PROPERTY STRINGS 0 1)
+
+# --- Compile flags ----------------------------------------------------------
+# Legacy AMSS-NCKU has strict-aliasing UB; -fno-strict-aliasing is kept
+# regardless of AMSS_OPT so changing -O does not lose the safety flag.
+# `-Dfortran3 -Dnewc` select the modern C/Fortran source branches (without
+# them the C++ side falls back to pre-ANSI <iostream.h> includes and the
+# Fortran side skips the f90 modules). Apply to every supported compiler.
 separate_arguments(AMSS_OPT_LIST UNIX_COMMAND "${AMSS_OPT}")
+separate_arguments(AMSS_ARCH_FLAGS_LIST UNIX_COMMAND "${AMSS_ARCH_FLAGS}")
+
+# Clang/IntelLLVM/ARMClang all accept the GCC-style flags used here.
+# COMPILE_LANG_AND_ID takes comma-separated compiler IDs (not CMake list).
 add_compile_options(
-  "$<$<COMPILE_LANGUAGE:CXX>:${AMSS_OPT_LIST};-fno-strict-aliasing;-Wno-deprecated;-Dfortran3;-Dnewc>"
-  "$<$<COMPILE_LANGUAGE:Fortran>:${AMSS_OPT_LIST};-fno-strict-aliasing;-cpp>"
+  "$<$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,IntelLLVM,Intel,ARMClang>:${AMSS_OPT_LIST};${AMSS_ARCH_FLAGS_LIST};-fno-strict-aliasing;-Wno-deprecated;-Dfortran3;-Dnewc>"
+  "$<$<COMPILE_LANG_AND_ID:Fortran,GNU,Flang,IntelLLVM,Intel,ARMClang>:${AMSS_OPT_LIST};${AMSS_ARCH_FLAGS_LIST};-fno-strict-aliasing;-cpp>"
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-# Shared Fortran source list used by both ABE and ABEGPU targets.
+# --- MPI --------------------------------------------------------------------
+find_package(MPI REQUIRED COMPONENTS CXX)
+
+# --- Shared Fortran sources -------------------------------------------------
 set(AMSS_F90SOURCES
   src/bssn_rhs.f90
   src/diff_new.f90 src/enforce_algebra.f90
@@ -46,38 +42,31 @@ set(AMSS_F90SOURCES
   src/sommerfeld_rout.f90
 )
 
-# --- ABE: CPU main evolution executable ---------------------------------------
-# Source list derived from the original makefile object lists
-# (C++FILES + F90FILES + F77FILES + AHFDOBJS). Pruned in Phase 5.
+# --- ABE: CPU main evolution executable -------------------------------------
 set(ABE_SOURCES
-  # C++FILES
   src/ABE.C src/Ansorg.C src/Block.C src/MPatch.C src/Parallel.C
   src/bssn_class.C src/cgh.C src/checkpoint.C
   src/misc.C src/monitor.C src/perf.C
   src/surface_integral.C src/transpbh.C src/var.C
   ${AMSS_F90SOURCES}
 )
-
 add_executable(ABE ${ABE_SOURCES})
-target_link_libraries(ABE PRIVATE MPI::MPI_CXX gfortran)
-target_link_directories(ABE PRIVATE /home/ckyasb/miniconda3/lib)
+target_link_libraries(ABE PRIVATE MPI::MPI_CXX)
 
-# --- TwoPunctureABE: initial-data solver ------------------------------------
+# --- TwoPunctureABE: initial-data solver -----------------------------------
 add_executable(TwoPunctureABE src/TwoPunctureABE.C src/TwoPunctures.C)
-target_link_libraries(TwoPunctureABE PRIVATE MPI::MPI_CXX gfortran)
-target_link_directories(TwoPunctureABE PRIVATE /home/ckyasb/miniconda3/lib)
+target_link_libraries(TwoPunctureABE PRIVATE MPI::MPI_CXX)
 
-# --- ABEGPU: GPU main evolution executable (3d298f3 device-resident baseline)
-# BSSN RHS + ghost exchange + prolongation + analysis all on device; host-device
-# transfers only at move_to_gpu/move_to_cpu boundaries. Built from the same
-# C++/Fortran sources as ABE, EXCEPT bssn_class.C is replaced by bssn_gpu_class.C
-# (which redefines bssn_class::Evolve/Step/RecursiveStep/...) and the GPU
-# kernel/agent files are added.
-enable_language(CUDA)
-set(CMAKE_CUDA_STANDARD 14)
-set(CMAKE_CUDA_ARCHITECTURES 80)             # NVIDIA A100, sm_80
-set(CMAKE_CUDA_FLAGS "-rdc=true -lineinfo")
+# --- Optional OpenMP --------------------------------------------------------
+if(AMSS_ENABLE_OPENMP)
+  find_package(OpenMP REQUIRED COMPONENTS CXX Fortran)
+  target_link_libraries(ABE PRIVATE OpenMP::OpenMP_CXX OpenMP::OpenMP_Fortran)
+  target_link_libraries(TwoPunctureABE PRIVATE OpenMP::OpenMP_CXX)
+endif()
 
+# --- ABEGPU: GPU evolution executable (device-resident baseline) -----------
+# Same C++/Fortran sources as ABE except bssn_class.C → bssn_gpu_class.C,
+# plus GPU kernel/agent files.
 set(ABEGPU_CXX_SOURCES
   src/ABE.C src/Ansorg.C src/Block.C src/MPatch.C src/Parallel.C
   src/bssn_gpu_class.C src/bssn_step_gpu.C
@@ -94,15 +83,35 @@ set(ABEGPU_CUDA_SOURCES
   src/surface_integral_gpu.cu src/getnp4_gpu.cu
 )
 
-add_executable(ABEGPU ${ABEGPU_CXX_SOURCES} ${ABEGPU_CUDA_SOURCES}
-               ${AMSS_F90SOURCES})
-set_source_files_properties(${ABEGPU_CUDA_SOURCES} PROPERTIES LANGUAGE CUDA)
-set_target_properties(ABEGPU PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-target_compile_definitions(ABEGPU PRIVATE USE_GPU fortran3 newc)
-target_include_directories(ABEGPU PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src
-  /home/jjsnam/spack/opt/spack/linux-icelake/openmpi-5.0.9-nd3t2hacw7x7xkmrtqkzr4gxxr54isly/include
-  /usr/local/cuda-13.3/include
-)
-target_link_libraries(ABEGPU PRIVATE MPI::MPI_CXX gfortran)
-target_link_directories(ABEGPU PRIVATE /home/ckyasb/miniconda3/lib)
+if(AMSS_ENABLE_GPU)
+  if(NOT CMAKE_CUDA_ARCHITECTURES)
+    set(CMAKE_CUDA_ARCHITECTURES 70 CACHE STRING "CUDA architectures" FORCE)
+  endif()
+  enable_language(CUDA)
+  set(CMAKE_CUDA_STANDARD 14)
+  find_package(CUDAToolkit REQUIRED)
+
+  add_executable(ABEGPU ${ABEGPU_CXX_SOURCES} ${ABEGPU_CUDA_SOURCES} ${AMSS_F90SOURCES})
+  set_source_files_properties(${ABEGPU_CUDA_SOURCES} PROPERTIES LANGUAGE CUDA)
+  set_target_properties(ABEGPU PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+  target_compile_options(ABEGPU PRIVATE
+    "$<$<COMPILE_LANGUAGE:CUDA>:-rdc=true;-lineinfo>")
+  target_compile_definitions(ABEGPU PRIVATE USE_GPU fortran3 newc MPI_CUDA_AWARE=${AMSS_MPI_CUDA_AWARE})
+  target_include_directories(ABEGPU PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  target_link_libraries(ABEGPU PRIVATE CUDA::cudart MPI::MPI_CXX)
+  if(AMSS_ENABLE_OPENMP)
+    target_link_libraries(ABEGPU PRIVATE OpenMP::OpenMP_CXX OpenMP::OpenMP_Fortran)
+  endif()
+endif()
+
+# --- Configure summary ------------------------------------------------------
+message(STATUS "==================== AMSS-NCKU Lab 4 ====================")
+message(STATUS "CXX      : ${CMAKE_CXX_COMPILER}")
+message(STATUS "Fortran  : ${CMAKE_Fortran_COMPILER}")
+if(AMSS_ENABLE_GPU)
+  message(STATUS "GPU      : ON, CUDA=${CMAKE_CUDA_COMPILER}, arch=${CMAKE_CUDA_ARCHITECTURES}")
+else()
+  message(STATUS "GPU      : OFF")
+endif()
+message(STATUS "AMSS_OPT=${AMSS_OPT} ARCH_FLAGS=${AMSS_ARCH_FLAGS} OPENMP=${AMSS_ENABLE_OPENMP} MPI_CUDA_AWARE=${AMSS_MPI_CUDA_AWARE}")
+message(STATUS "==========================================================")

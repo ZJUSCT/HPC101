@@ -33,7 +33,7 @@ print(                                              )
  
 if (input_data.puncture_data_set == "Automatically-BBH" ):
 
-    import generate_TwoPuncture_input
+    from . import generate_TwoPuncture_input
     
     for i in range(input_data.puncture_number):
         if (i<=1):

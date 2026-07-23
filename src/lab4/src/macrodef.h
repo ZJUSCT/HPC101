@@ -30,7 +30,9 @@
 
 #define REGLEV 0
 
+#ifndef MPI_CUDA_AWARE
 #define MPI_CUDA_AWARE 0
+#endif
 
 // USE_GPU is passed per-target by CMake (GPU target only), not defined here
 //#define USE_GPU

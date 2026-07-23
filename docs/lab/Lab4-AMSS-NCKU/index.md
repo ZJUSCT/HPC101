@@ -6,6 +6,10 @@
 
     - **任务一（CPU）**：黄钰，胡笠桁，井淳
     - **任务二（GPU）**：刘天洋，胡笠桁，徐晨
+  
+!!! warning "文档状态"
+
+    由于 GPU 计算资源尚未敲定，因此本实验文档中有关 GPU 的部分可能仍有调整，目前版本仅做参考。
 
 ## 实验目的
 
@@ -67,6 +71,16 @@ AMSS-NCKU 也被用作 [ASC26 世界大学生超级计算机竞赛](https://www.
 根据 [GWOSC 的公开事件页面](https://gwosc.org/eventapi/html/GWTC-5.0/GW250118_055802/v1/)，该事件的主、次黑洞质量约为 $10.3 M_\odot$ 和 $6.9 M_\odot$，网络信噪比约为 10.5，光度距离约为 940 Mpc，天体物理概率大于 0.99。
 
 本实验使用的是一个以该事件为背景、经过裁剪和调整的双黑洞测试用例。数值相对论程序会使用无量纲变量，课程测试还缩小了网格、演化时间和输出规模，因此它并不试图严格复现 GW250118 的观测结果。你在 `AMSS_NCKU_Input.py` 中看到的参数也经过了简化，以适配课程提供的硬件资源。
+
+!!! note "关于黑洞演化时间"
+
+    本实验的优化任务设计 CPU 和 GPU 两个平台。由于 CPU 单步演化的时间可能远大于 GPU 演化，因此在硬件资源有限的情况下我们无法支撑你在 CPU 平台上完整模拟整个引力波事件。目前演化时间的选择逻辑如下：
+
+    ```python
+    Final_Evolution_Time     = 100.0 if GPU_Calculation == "yes" else 40.0  ## final evolution time t1
+    ```
+
+    也就是说，在 CPU 平台你只会模拟不到一半的时间，完整的演化将在 GPU 任务中实现。
 
 ### 流程简介
 
@@ -195,19 +209,22 @@ src/lab4
 ├── compile.sh                          # 构建入口：生成 ABE / ABEGPU / TwoPunctureABE
 ├── run.sh                              # 运行入口：设置环境并调用 Python driver
 ├── check.sh                            # 正确性比对：验证和真值的演化精度
-├── golden/                             # 正确性比对：真值仿真结果
 ├── CMakeLists.txt                      # CMake 构建配置
 ├── AMSS_NCKU_Input.py                  # 主要输入参数：CPU/GPU 开关、MPI/OMP 设置、物理参数
 ├── AMSS_NCKU_Program.py                # 运行 driver：生成输入、运行程序、整理输出、画图
-├── setup.py
-├── numerical_grid.py
-├── generate_TwoPuncture_input.py
-├── renew_puncture_parameter.py
-├── makefile_and_run.py
-├── plot_xiaoqu.py
-├── plot_GW_strain_amplitude_xiaoqu.py
+├── README.md                           # 课程版本简要说明
+├── golden/                             # 正确性比对：真值仿真结果
+├── scripts/                            # Python 辅助脚本
+│   ├── setup.py                        # 生成 AMSS-NCKU 和 TwoPuncture 的输入文件
+│   ├── numerical_grid.py               # 网格参数生成
+│   ├── generate_TwoPuncture_input.py   # 生成 TwoPuncture 输入
+│   ├── renew_puncture_parameter.py     # 更新 puncture 参数
+│   ├── makefile_and_run.py             # 构建并运行主演化程序
+│   ├── check_result.py                 # 结果正确性检查
+│   ├── plot_xiaoqu.py                  # 轨迹、约束、ADM 量等绘图
+│   └── plot_GW_strain_amplitude_xiaoqu.py  # 引力波应变绘图
 └── src/
-    ├── *.C, *.h                        # C++ 主程序、网格、MPI 通信、监控、I/O 等
+    ├── *.C, *.cpp, *.h                 # C++ 主程序、网格、MPI 通信、监控、I/O 等
     ├── *.f90                           # CPU Fortran 数值 kernel
     └── *_gpu.cu                        # GPU CUDA kernel
 ```
@@ -350,6 +367,58 @@ GW250118/figure/
 | `Error.log` | 运行日志和错误信息 |
 
 绘图脚本会尝试将结果图写入 `figure/`。绘图失败时，driver 会输出警告，但已经生成的数值结果仍会保留；因此应以 `.dat` 文件和正确性检查为准，而不能只依赖图片判断运行是否成功。
+
+## 如何获取计算资源
+
+今年我们创建了一个平台来统一管理所有实验的计算资源和任务提交。使用方法请左转 [集群使用](https://hpc101.zjusct.io/guide/)。
+
+### 关于实验环境
+
+由于本实验环境配置较为复杂，且涉及不同架构平台，我们为大家打包了一个同时兼容于任务一和任务二的完整镜像。在你申请相关计算资源时，平台会自动拉取该镜像并创建容器。镜像中包含了我们认为比较主要的工具和库，包括但不限于：
+
+- Common（共同拥有）：build-essentials, GNU Compilers, Perf, OpenMPI;
+- arm64-920B（任务一，华为鲲鹏 920B）：Arm Compiler for Linux;
+- x86_64-V100（任务二，NVIDIA V100）：Intel oneAPI, Intel VTune, Intel MPI, CUDA, HPC-X, NCCL;
+
+代码框架目前应该能够直接适配我们打包好的环境，进入本实验的容器后可以直接运行基线。
+
+### 容器环境创建
+
+任务一的鲲鹏 CPU 资源，请选择平台中的 `arm64-920B` devpod 预设创建。任务二暂未开放。
+
+!!! warning "GPU 还没来😭"
+
+    由于资源协调等原因，GPU 部分尚未在平台开放。请耐心等待我们通知。
+
+### 开发与运行
+
+进入 lab4 的代码根目录后，你可以直接在开发容器进行开发、简单调试和编译等工作。本实验对应的分区（partition）是 `lab4`。
+
+!!! warning "devpod 仅用于开发"
+
+    devpod 是持久化的开发容器，适合编辑、编译和短时间调试，但**不要在 devpod 中直接运行完整的演化任务**。正式计时和性能评测必须通过 `hpc submit` 提交到 `lab4` 分区，在计算节点上执行。
+
+如果你需要提交一个完整的计算任务，请运行：
+
+```bash
+hpc submit -p lab4 -c 1 run.sh
+```
+
+即可提交运行脚本。
+
+也可以通过提交交互式任务前往计算节点进行调试：
+
+```bash
+hpc submit -p lab4 --interactive bash
+```
+
+### 跨架构注意事项
+
+!!! danger "不同架构的家目录不共享"
+
+    `arm64-920B`（任务一）和 `x86_64-V100`（任务二）是两套独立架构的节点，**家目录不共享**。在一种架构下生成的代码、构建产物、输入文件或缓存，不会出现在另一种架构的家目录中。
+
+    如果需要在两种架构之间同步代码，请使用 git 仓库或手动拷贝，不要依赖家目录。
 
 ## 性能分析：从 Profiling 开始
 
@@ -797,13 +866,23 @@ $$
 
 ### 性能评分
 
-!!! danger "提交方式"
-
-    任务一和任务二的提交入口和测评方式仍在完善，完成后会更新本文档并在群内通知。
-
 !!! warning "TODO：评分公式待定"
 
-    关于任务一和任务二对于总分的占比，以及对应任务的性能评分曲线还在商讨中，请等待😭
+    关于任务一和任务二对于总分的占比，以及任务二的性能评分曲线还在商讨中，请等待😭
+
+性能评分的统一判据是 `AMSS_NCKU_Program.py` 输出的 `This Program Cost = ... Seconds`。
+
+#### 任务一
+
+对于唯一的 cpu 测试用例，在正确性通过的基础上，我们设置 340s 总运行时长为 100 分、500s 为 60 分，绘制得分曲线 $y = a x^b$：
+
+<figure markdown="span">
+  ![任务一得分曲线](image/cpu-score.png)
+</figure>
+
+满分为 100 分。
+
+#### 任务二
 
 ## 实验报告要求
 
@@ -819,12 +898,6 @@ CPU 和 GPU 部分都应给出最终运行配置，例如 MPI rank、OpenMP thre
 !!! tip "失败尝试也值得写"
 
     在真实优化中，很多想法不会带来收益。只要分析清楚，它们同样能体现你对程序和平台的理解。
-
-## 如何获取计算资源
-
-!!! warning "本节内容待完成"
-
-    实验平台与计算资源的获取方式（包括容器环境、节点申请、提交入口等）尚未确定。我们会在平台和资源敲定后更新本节，请关注课程群通知。
 
 ## 思考题
 
