@@ -16,7 +16,7 @@ import numpy
 File_directory   = "GW250118"                    ## output file directory
 Output_directory = "binary_output"               ## binary data file directory
                                                  ## The file directory name should not be too long
-MPI_processes    = 48                             ## number of mpi processes used in the simulation
+MPI_processes    = 30                            ## number of mpi processes used in the simulation
 OMP_threads      = 1
 
 GPU_Calculation  = "no"                          ## Use GPU or not
@@ -43,7 +43,8 @@ Finite_Diffenence_Method = "4th-order"             ## fixed in this trimmed lab 
 ## Setting the time evolutionary information
 
 Start_Evolution_Time     = 0.0                    ## start evolution time t0
-Final_Evolution_Time     = 100.0                 ## final evolution time t1
+## NOTE: For CPU, set Final_Evolution_Time to 40.0, while GPU keeps it as 100.0
+Final_Evolution_Time     = 100.0 if GPU_Calculation == "yes" else 40.0  ## final evolution time t1
 Check_Time               = 1000.0
 Dump_Time                = 1000.0                  ## time inteval dT for dumping binary data
 D2_Dump_Time             = 1000.0                  ## dump the ascii data for 2d surface after dT'

@@ -2,7 +2,7 @@
 # 如果暂时不清楚 W/U/state/output 的关系，先对照 references/torch_gdr.py 中 torch_gdn_prefill_forward 的 chunk 循环阅读并理解
 import torch
 
-from ..references.torch_gdr import torch_gdn_prefill_forward
+from references.torch_gdr import torch_gdn_prefill_forward
 
 
 # q/k: [B, T, Hq, 128] BF16

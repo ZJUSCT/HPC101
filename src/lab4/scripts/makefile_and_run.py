@@ -13,6 +13,7 @@
 ##
 ##################################################################
 
+import os
 import shlex
 import subprocess
 
@@ -28,6 +29,26 @@ def _run_and_tee(cmd, log):
         raise subprocess.CalledProcessError(rc, cmd)
 
 
+def _mpiexec_argv():
+    """Resolve the MPI launcher from AMSS_MPIEXEC (default: mpiexec).
+
+    The value is split with shlex so users can pass extra flags, e.g.
+    AMSS_MPIEXEC="mpiexec --oversubscribe"."""
+    return shlex.split(os.environ.get("AMSS_MPIEXEC", "mpiexec"))
+
+
+def _env_tokens():
+    """Build env VAR=VALUE tokens forwarded to each MPI rank.
+
+    Uses `mpiexec -n N env VAR=... exe` form, which works on both OpenMPI
+    and MPICH (the -x flag was OpenMPI-only)."""
+    tokens = []
+    for var in ("OMP_NUM_THREADS", "LD_LIBRARY_PATH"):
+        if var in os.environ:
+            tokens.append(f"{var}={os.environ[var]}")
+    return tokens
+
+
 def run_TwoPunctureABE():
     """Run the TwoPuncture initial-data solver in the current directory."""
     print("\n Running the AMSS-NCKU executable file TwoPunctureABE\n")
@@ -37,7 +58,7 @@ def run_TwoPunctureABE():
 
 
 def run_ABE():
-    """Run the main ABE evolution executable via mpirun."""
+    """Run the main ABE evolution executable via mpiexec."""
     if input_data.GPU_Calculation == "no":
         exe, log = "./ABE", "ABE_out.log"
     elif input_data.GPU_Calculation == "yes":
@@ -48,15 +69,14 @@ def run_ABE():
     print(f"\n Running {exe} with {input_data.MPI_processes} MPI ranks "
           f"and OMP_NUM_THREADS={input_data.OMP_threads}\n")
 
-    # -x OMP_NUM_THREADS exports the env var from the launcher's shell into
-    # every MPI rank. Without it, OpenMPI does not forward env vars by
-    # default and ranks would default OMP_NUM_THREADS=1 regardless of the
-    # input file.
-    # -x LD_LIBRARY_PATH exports compiler/MPI runtime library paths needed by
-    # Intel-built executables on batch/non-login shells.
-    cmd = (f"mpirun -np {input_data.MPI_processes} "
-           f"-x OMP_NUM_THREADS -x LD_LIBRARY_PATH {exe} "
-           f"< /dev/null")
+    # Build the launcher command. `env VAR=... exe` form works on both
+    # OpenMPI and MPICH; the original -x flag was OpenMPI-only.
+    argv = (_mpiexec_argv()
+            + ["-n", str(input_data.MPI_processes)]
+            + ["env"] + _env_tokens()
+            + [exe])
+    cmd = shlex.join(argv) + " < /dev/null"
+
     _run_and_tee(cmd, log)
 
     print(f"\n The {exe} simulation is finished\n")
