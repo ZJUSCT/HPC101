@@ -21,6 +21,14 @@ hpc101-quantize = "hpc101_infer.quantization.cli:main"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.uv.sources]
+torch = { index = "pytorch" }
+
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu132"
+explicit = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/hpc101_infer"]
 
