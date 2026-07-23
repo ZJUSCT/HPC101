@@ -428,6 +428,28 @@ hpc submit -p lab3 "nsys profile -o <output_name> python evaluation/run.py"
 
 ## OJ 自动评测
 
+!!! info "OJ 评分指标"
+
+    OJ 总体采用与 Lab 2 类似的分段曲线进行评分。对于每个 case，横轴定义为提交实现相对于 100 分 checkpoint 的加速比：
+
+    $$
+    p=\frac{t_{100}}{t},
+    $$
+
+    其中，$t$ 为提交实现的核心计算时间，$t_{100}$ 为该 case 的最快的开源实现对应的运行时间。性能超过最快的开源实现时 $p>1$，并进入 100～120 分的奖励区间。60 分 turning point 为 $p_{60}=t_{100}/t_{60}$。
+
+    8 个公开 case 的 60 分和 100 分 turning point 如下，表中时间单位均为 ms：
+
+    | Checkpoint | `short_tail_state` | `chain_equal` | `parallel_equal` | `parallel_gva` | `long_low_gva` | `batch_split_gva` | `wide_gva_state` | `deep_gva_state` |
+    | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+    | 60 分 | 0.573952 | 3.999968 | 2.017248 | 1.899072 | 15.825312 | 11.320448 | 20.600449 | 22.717567 |
+    | 100 分 | 0.346048 | 0.497792 | 0.511264 | 0.491552 | 1.858816 | 1.532128 | 2.426656 | 2.831104 |
+
+    此外，评测还包含未公开的隐藏 case。公开 case 与隐藏 case 的部分得分，均由各自包含的所有 case 得分取简单算术平均得到。最终得分由这两部分加权计算，其中公开 case 占 60%，隐藏 case 占 40%。
+
+
+
+
 !!! warning "施工中"
 
     目前 OJ 自动评测系统仍在建设中😭，我们会尽快发布。
