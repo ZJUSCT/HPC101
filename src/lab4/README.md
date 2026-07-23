@@ -21,11 +21,10 @@ architectures are shipped:
 | Architecture | Hardware | Default toolchain | Executables |
 | ------------ | -------- | ----------------- | ----------- |
 | `linux/arm64` | Kunpeng 920B | GNU 14 + OpenMPI 5, `AMSS_ENABLE_GPU=OFF` | `TwoPunctureABE`, `ABE` |
-| `linux/amd64` | x86_64 + NVIDIA V100 | GNU 13 + OpenMPI 5 + CUDA 12.4, `sm_70` | `TwoPunctureABE`, `ABE`, `ABEGPU` |
+| `linux/amd64` | x86_64 + NVIDIA A100 MIG | GNU 13 + OpenMPI 5 + CUDA 12.4, `sm_80` | `TwoPunctureABE`, `ABE`, `ABEGPU` |
 
-x86/V100 uses **CUDA 12.4** (Debian 13 package), **not** CUDA 13 — CUDA 13
-dropped `sm_70` support. NVIDIA driver is **not** in the image; the host
-injects it via NVIDIA Container Toolkit.
+x86/A100 uses **CUDA 12.4** (Debian 13 package). NVIDIA driver is **not**
+in the image; the host injects it via NVIDIA Container Toolkit.
 
 ### Available compilers (advanced comparison)
 
@@ -63,11 +62,14 @@ advertise CUDA-aware support and the current AMSS code path uses
 host-staging. To experiment, pass `-DAMSS_MPI_CUDA_AWARE=1` to
 `compile.sh` and verify your MPI actually supports device buffers.
 
-### V100 driver and `sm_70`
+### A100 MIG and `sm_80`
 
-x86/V100 nodes must run NVIDIA driver ≥ `525.60.13` (CUDA 12.x minor
-compatibility floor). The image's `nvcc` targets `sm_70`; verify with
-`cuobjdump` if a kernel fails to load on V100.
+x86/A100 nodes expose MIG instances rather than an entire physical GPU. The
+course partitions provide `1g.10gb` instances from A100 80GB GPUs and
+`1g.5gb` instances from A100 40GB GPUs. MIG does not change the Ampere CUDA
+architecture or compute capability, so the image's `nvcc` targets `sm_80`.
+Use `nvidia-smi -L` to confirm the allocated MIG profile and `cuobjdump` to
+inspect the architectures embedded in a GPU executable.
 
 ## Build
 

@@ -6,10 +6,6 @@
 
     - **任务一（CPU）**：黄钰，胡笠桁，井淳
     - **任务二（GPU）**：刘天洋，胡笠桁，徐晨
-  
-!!! warning "文档状态"
-
-    由于 GPU 计算资源尚未敲定，因此本实验文档中有关 GPU 的部分可能仍有调整，目前版本仅做参考。
 
 ## 实验目的
 
@@ -200,6 +196,385 @@ flowchart LR
     你不需要理解 BSSN 方程的完整物理推导，也不需要修改物理模型。
     本实验关注的是：面对一个由 C++、Fortran、CUDA、MPI 和 Python 共同组成的科学计算程序，如何跑通、验证、定位热点并持续优化。
 
+## 性能分析：从 Profiling 开始
+
+面对 AMSS-NCKU 这样的大型程序，正确的优化流程通常是：
+
+1. 跑通 baseline；
+2. 记录 baseline 时间；
+3. 使用 profiler 找热点；
+4. 做一个小而明确的优化；
+5. 验证正确性；
+6. 重新计时并记录收益；
+7. 重复上述过程。
+
+!!! tip "报告中应展示 profiling 证据，而不仅是最终加速比。"
+
+### CPU Profile
+
+本实验涉及两套不同的 CPU 环境：CPU 优化路径运行在华为鲲鹏 920B （ARM 架构）上，GPU 优化路径的主机端则运行在 A100 节点配套的 x86 CPU 上。两者可以使用的 profiler 和分析目的不尽相同。
+
+#### Kunpeng 920B：使用 perf 分析 CPU 优化路径
+
+`TwoPunctureABE + ABE` 在华为鲲鹏 920B 上评测。可以使用 `perf` 和平台提供的通用 Linux 工具分析 CPU 计算与 MPI 行为；加入 OpenMP 后，也可以观察线程并行效果。
+
+AMSS-NCKU 的调用链跨越 Python driver、TwoPuncture 和 MPI 主演化程序。应先对**完整 baseline** 采样，确认端到端时间分布，再对热点阶段或代表性 MPI rank 做更细的分析。只分析一个预先猜测的函数，可能会漏掉初始化、通信、线程等待和 I/O 开销。
+
+!!! tip "perf 使用示例"
+    可以先用 `perf stat` 查看完整运行的硬件计数器，再用 `perf record` 采集热点和调用栈：
+
+    ```bash
+    perf stat -d ./run.sh
+    perf record --call-graph dwarf -- ./run.sh
+    perf report
+    ```
+
+`run.sh` 会继续启动 Python、TwoPuncture 和 `mpirun` 子进程。采样后应确认报告确实包含 `TwoPunctureABE` 和 `ABE`；若受权限、MPI 启动方式或采样开销限制，也可以直接对实际的 `mpirun ... ./ABE` 命令采样，并在报告中写明覆盖范围、rank 数、线程数和绑核配置。建议在编译选项中加入 `-g` 参数，使热点能够对应到函数、源文件和代码行。
+
+重点观察：
+
+- 哪些函数和调用路径占用最多时间；
+- 程序是计算瓶颈、访存瓶颈还是通信/同步瓶颈；
+- IPC、cache miss、TLB miss、branch miss 是否异常；
+- MPI rank 之间是否负载均衡；
+- 加入 OpenMP 后，线程是否有效并行；
+
+!!! tip "从 Sampling 到 Tracing"
+
+    `perf stat` 统计硬件和软件事件，`perf record` 则按采样频率记录热点及调用栈。火焰图通常需要对采样得到的调用栈进一步处理，它不是 `perf` 自动生成的原始结果。
+
+    Tracing（追踪）记录带时间戳的事件或插桩区间，可以重建线程、进程和设备活动的先后关系，适合分析同步、等待和负载不均衡。VTune、Nsight Systems 和 Perfetto 等工具都可以用于不同形式的 tracing。更细的采集通常意味着更高开销；可以根据分析目标选择系统级事件、运行时事件或手工插桩，而不必记录所有函数。
+
+#### A100 节点主机端：使用 Intel VTune 分析完整调用链和热点函数
+
+`TwoPunctureABE + ABEGPU` 运行在 NVIDIA A100 节点上，其主机端为 x86 CPU。VTune 用于观察这个 GPU 程序的主机端热点、调用栈、线程活动和 MPI 相关等待，帮助判断时间消耗在 Python/TwoPuncture、主机端控制逻辑、MPI 调用，还是 CUDA runtime/API。这里的目标是理解整个程序的主机侧执行过程，而不是用 VTune 分析 CUDA kernel 内部指标。
+
+若在各 rank 内分别启动 VTune，必须使用不同的结果目录。采集完成后，可以将结果下载到本地，用 VTune GUI 查看 Summary、Bottom-up、Flame Graph 和 Threads。
+
+VTune 重点回答：
+
+- 完整调用链中哪些主机函数占用时间最多；
+- MPI、CUDA API 和线程等待分别占多少时间；
+- CPU 是否及时向 GPU 提交工作；
+- 是否存在主机端串行路径、负载不均衡或过长的同步等待。
+
+!!! example "ABEGPU 的 VTune Hotspots 示例"
+
+    Top Hotspots 可以快速定位占用主机时间最多的函数；Bottom-up 视图则用于沿调用树追踪这些开销来自哪些演化阶段。
+
+    <div style="display: grid; grid-template-columns: minmax(0, 1.9829fr) minmax(0, 3.0791fr); gap: 1rem; align-items: start;">
+      <figure style="margin: 0;">
+        <img src="image/vtune-top-hotspots-cuda-synchronization.webp" alt="VTune Top Hotspots 显示 CUDA 同步占用大量主机时间" style="width: 100%; height: auto;" />
+        <figcaption>Top Hotspots</figcaption>
+      </figure>
+      <figure style="margin: 0;">
+        <img src="image/vtune-bottom-up-bssn-call-tree.webp" alt="VTune Bottom-up 调用树显示 BSSN 递归演化与 CUDA 同步路径" style="width: 100%; height: auto;" />
+        <figcaption>Bottom-up：BSSN 递归演化路径及其 CUDA 同步调用</figcaption>
+      </figure>
+    </div>
+
+!!! warning "主机端同步时间不等于 GPU kernel 时间"
+
+    `cuCtxSynchronize_v2` 占用大量 host CPU time，说明主机线程长时间停留在同步调用中；它并不能直接证明某个 CUDA kernel 执行了同样长的时间。请结合 Nsight Systems 对齐 CPU–GPU 时间线，再用 Nsight Compute 分析具体 kernel。
+
+### GPU Profile
+
+GPU kernel、数据传输以及 CPU–GPU 时间线需要使用 NVIDIA Nsight 工具分析。Nsight Systems 面向全程序时间线，Nsight Compute 面向单个热点 kernel；它们与 CPU Profile 中的 VTune 互相补充。
+
+#### 使用 Nsight Systems 分析 CPU、MPI 与 GPU 时间线
+
+Nsight Systems 用于把主机端活动和 GPU 活动放在同一条时间线上，观察：
+
+- kernel 执行时间和发射顺序；
+- host-device 拷贝；
+- CPU 等待 GPU 或 GPU 等待 CPU 的时间；
+- MPI、CUDA API 与 GPU 计算是否串行阻塞；
+- kernel 发射是否过于碎片化；
+- GPU 是否存在明显空闲区间。
+
+#### 使用 Nsight Compute 分析热点 kernel
+
+在 VTune 和 Nsight Systems 定位出值得深入的 CUDA kernel 后，再使用 Nsight Compute 分析：
+
+- SM occupancy；
+- global memory throughput；
+- memory coalescing；
+- register pressure；
+- shared memory 使用；
+- warp divergence；
+- achieved occupancy 和理论 occupancy 的差距。
+
+!!! warning "不要只看单个 kernel 的加速"
+
+    本实验的 GPU 优化中，整个程序不仅包含大量 GPU kernel，也包含较为复杂的主机端控制和通信逻辑。一个 kernel 变快不代表端到端变快。
+    
+    如果引入了额外拷贝、同步或更多 kernel launch，整体运行时间可能反而上升。
+
+## 共享优化阶段：TwoPuncture 初值求解
+
+`TwoPunctureABE` 负责生成双黑洞初始数据，是 CPU 和 GPU 两条运行路径都会经过的前置阶段。
+
+!!! warning "TwoPuncture 不独立评分"
+
+    `TwoPunctureABE` 是 CPU 和 GPU 两个任务共享的前置阶段，不作为独立任务评分。正式计时时，它会分别与 `ABE` 和 `ABEGPU` 组合，计入任务一和任务二的端到端时间。
+
+!!! tip "优化提示不是必做清单"
+
+    下面列出的方向来自我们对当前框架的实际优化经验。你不需要复现所有手段，也不应当在没有 profile 证据时盲目套用。
+    更合理的做法是：先找出你当前版本的瓶颈，再选择一两个能解释清楚的方向深入优化。
+
+### 编译优化
+
+编译优化不只包括增加编译选项，也包括为目标平台选择更合适的完整工具链。
+
+#### 编译选项
+
+可以尝试：
+
+- `-O2`、`-O3` 等优化等级；
+- `-march`、`-mtune` 或对应编译器的目标架构选项；
+- 自动向量化；
+- OpenMP 编译和运行时选项；
+
+架构选项必须与实际评测节点支持的指令集匹配。课程 GPU 为 NVIDIA A100，其 compute capability 为 8.0（`sm_80`），当前 `CMAKE_CUDA_ARCHITECTURES=80` 已与目标架构匹配。`CMakeLists.txt` 中的 `AMSS_OPT` 只作用于 C++ 和 Fortran，CUDA 架构与其他 NVCC 参数需要单独设置。`-Ofast`、GCC/Clang 的 `-ffast-math` 或其他编译器对应的 fast-math 选项可能重排浮点表达式，改变求解器收敛过程或数值结果；使用后必须重新完成端到端正确性验证。
+
+#### 编译器与工具链
+
+不同编译器对 Fortran、自动向量化、数学函数和目标架构的优化能力不同，可以在相应平台上比较：
+
+| 目标平台 | 工具链 | 常见 C++ / Fortran 编译器 |
+| -------- | ------ | ------------------------- |
+| x86 / Arm | GNU | `g++` / `gfortran` |
+| x86 / Arm | LLVM | `clang++` / `flang-new` |
+| x86 | Intel oneAPI | `icpx` / `ifx` |
+| Arm | Arm Compiler for Linux | `armclang++` / `armflang` |
+| 华为鲲鹏（Arm） | 毕昇 | BiSheng C++ / Fortran 编译器，命令名以平台环境为准 |
+
+AMSS-NCKU 混合了 C++、Fortran、MPI 和 CUDA，不能只替换其中一个编译器就默认工具链兼容。尝试时需要注意：
+
+- `mpicxx`、`mpifort` 是 MPI wrapper，不代表固定的编译器家族；先用 wrapper 的 show/config 选项确认其后端编译器；
+- C++、Fortran 编译器及 MPI wrapper 应成套选择，避免混用不兼容的 C++ 标准库、Fortran ABI/运行时、OpenMP runtime 或 MPI 实现；当前 CMake 还显式链接了 `gfortran`，切换 Fortran 编译器时需同步处理对应 runtime；
+- GPU 版本还需确认 NVCC 支持所选 host compiler；`CUDACXX` 和 CUDA 编译参数不由 `AMSS_OPT` 控制；
+- CMake 会缓存编译器，比较不同工具链时应使用不同的 `BUILD_DIR`，不要复用已有的 `CMakeCache.txt`。
+
+当前 CMake 项目实际启用了 C++、Fortran 和 CUDA，未启用 C 语言。因此应重点通过 `CXX`、`FC`、`CUDACXX` 和 CMake 参数选择工具链；`compile.sh` 中的 `CC` 设置目前不会影响现有构建目标。
+
+比较结果时应固定 MPI rank、OpenMP thread、绑核方式和输入，并记录编译器版本、MPI 实现、完整编译选项、正确性及端到端时间。
+
+### 初值求解优化
+
+`TwoPunctureABE` 负责求解双黑洞初始数据。它不是最终演化程序，但在端到端运行时间中可能占有明显比例，尤其是在反复调试和正式评测都需要重新生成初值时。
+
+可以重点关注：
+
+- 对计算密集循环使用 OpenMP 并行化；
+- 检查求解器预条件子，尝试更适合当前 case 的预条件策略；
+- 替换或调整数学库，避免低效的标量数学函数成为热点；
+- 删除高频路径上的动态内存分配和释放；
+- 将碎片化的 OpenMP 并行区聚合，减少反复 fork-join 的开销；
+- 对固定大小或固定结构的数据，预先分配并复用缓冲区。
+
+!!! danger "收敛速度与数值稳定性"
+
+    请注意：求解器收敛速度、数值稳定性和单步计算性能会相互影响。
+
+    如果更换预条件子或调整求解流程，迭代收敛需要的步数可能大幅变化，单步更慢的迭代也可能因为更少的迭代次数而最终胜出。
+
+### TwoPuncture GPU 化（Bonus）
+
+`TwoPunctureABE` 当前主要作为 CPU 初值求解阶段出现。你也可以尝试将其中明确的计算热点迁移到 GPU 上，作为 bonus 方向探索。
+
+如果尝试，需要说明哪些计算被迁移到了 GPU、host-device 数据如何组织、是否改变了求解器收敛行为，以及最终初值和后续演化结果是否仍然通过正确性检查。
+
+## 任务一：ABE CPU 演化优化
+
+任务一的目标是在保证结果正确的前提下，优化 `TwoPunctureABE + ABE` 在 CPU 平台上的端到端运行时间。
+其中 `TwoPunctureABE` 是两个任务共享的初值求解阶段，`ABE` 负责 CPU 版本 BSSN 时间演化；两者的计算模式不同，优化策略也不完全相同。
+
+!!! note "共享阶段也计入任务一"
+
+    前一节的 TwoPuncture 优化会直接影响任务一的端到端时间，其中的编译、OpenMP 和访存优化思路也可能适用于 `ABE`。
+
+### ABE 并行结构优化
+
+AMSS-NCKU 的 baseline 已使用 MPI 进行进程级并行，但尚未包含 OpenMP 并行区域。你需要探索：
+
+- 在固定资源下使用多少 MPI rank；
+- 是否值得为热点循环或其他独立任务加入 OpenMP；
+- 是否需要绑核以稳定进程和线程性能；
+- 是否存在 NUMA 远端访问带来的延迟；
+- rank 数增大后通信时间是否成为瓶颈。
+
+`AMSS_NCKU_Input.py` 中的 `MPI_processes` 会控制实际启动的 MPI rank 数；`OMP_threads` 当前只通过环境变量传递提示。若要使用 OpenMP，还需要加入正确的并行区域，并在 CMake 中启用对应语言的 OpenMP 编译和链接支持。此后才能讨论 MPI rank 与每 rank 线程数的组合，实际有效并行度仍会受到串行部分、通信、负载均衡和绑定策略影响。
+
+这些参数会通过 `run.sh` / `makefile_and_run.py` 传递给运行程序。
+
+对于 `ABE`，并行优化不只是“把更多循环加上 OpenMP”。真实代码里经常会出现两类情况：一类是表面串行、但不同 block / patch / detector / grid level 之间实际上可以并行；另一类是已经并行过，但并行粒度、调度方式或数据划分并不适合当前平台。
+
+课程“OpenMP 与 MPI 并行基础”中介绍过 OpenMP 的 fork-join（分叉—汇合）开销。如果并行区域过小，线程启动、调度和同步的开销可能超过并行计算带来的收益。
+
+你可以尝试：
+
+- 加入 OpenMP 后，重新平衡 MPI rank 与 OpenMP thread 的比例；
+- 对天然独立的 block、patch、grid level 或分析任务并行化，找到不那么明显的数据并行位置；
+- 重新设计已有并行区域的任务划分，减少负载不均衡；
+- 检查是否存在多个线程竞争同一缓存行或共享缓冲区；
+- 结合绑核和 NUMA 设置，避免线程/进程迁移带来的性能波动。
+
+CPU 评测平台为华为鲲鹏 920B。为 `ABE` 加入 OpenMP 后，NUMA 拓扑和进程/线程绑定可能显著影响 MPI + OpenMP 混合并行的稳定性和性能。
+你可以使用 `lscpu`、`numactl --hardware`、`hwloc-ls` 等工具了解节点拓扑，再结合 `mpirun` 绑核参数、`OMP_PROC_BIND` / `OMP_PLACES`、`numactl --cpunodebind` / `--membind` 等方式控制进程和内存位置。
+这类设置通常不需要用于 `TwoPunctureABE` 的早期调试，但在 `ABE` 长时间演化中值得系统测试。
+
+### ABE 计算 kernel 优化
+
+BSSN 演化中存在大量规则网格上的差分和逐点计算。这类代码通常可以从以下方向优化：
+
+- 帮助编译器自动向量化；
+- 先通过 `lscpu` 确认 Kunpeng 920B 支持的指令集，再对热点循环尝试 AArch64 SIMD intrinsic；
+- 对简单并行循环使用 OpenMP。
+
+你可以重点关注 `bssn_rhs.f90` 及相关调用的函数。
+
+### 通信优化
+
+如果 profiling 结果显示 MPI 通信占比较高，可以进一步分析：
+
+- ghost zone exchange 的通信量；
+- 是否存在过多同步；
+- 是否能合并小消息；
+- 是否能重叠通信与计算；
+- rank 分布是否导致负载不均衡。
+
+如果 MPI rank 之间的任务量差异较大，较早完成的 rank 会在同步点等待其他 rank。应结合各 rank 的计算时间和等待时间判断是否存在负载不均衡。
+
+## 任务二：ABEGPU GPU 演化优化
+
+任务二的目标是在保证结果正确的前提下，优化 `TwoPunctureABE + ABEGPU` 在单个 A100 MIG 实例上的端到端运行时间。
+其中 `TwoPunctureABE` 是两个任务共享的初值求解阶段，`ABEGPU` 负责 GPU 版本 BSSN 时间演化。
+
+当前 GPU 版本包含 BSSN RHS、prolongation、analysis、数据打包和 ghost exchange 等 device 侧实现。源码保留了两条 MPI 通信分支：CUDA-aware MPI 分支直接传递 device buffer，回退分支通过 host buffer 进行 D2H/H2D staging。当前 `macrodef.h` 将 `MPI_CUDA_AWARE` 固定为 `0`，因此默认构建使用 host staging；若要比较直接通信，需要先修改或重构该编译宏，并确认评测环境的 MPI 实现确实支持 CUDA-aware buffer。优化时应结合源码和 profiler 核实实际采用的通信路径。
+
+### Kernel 形态与编译参数
+
+对热点 CUDA kernel，首先检查：
+
+- grid / block 大小是否合理；
+- 每个线程处理的数据粒度是否合适；
+- 是否存在大量线程空转；
+- 是否有明显 warp divergence；
+- register 使用是否过高导致 occupancy 下降。
+
+可以尝试的方向包括：
+
+- 对频繁调用的小函数使用 CUDA inline / `__forceinline__`；
+- 使用 `__launch_bounds__` 控制寄存器和 occupancy 的权衡；
+- 对小循环尝试 `#pragma unroll` 或显式 unroll；
+- 调整 `nvcc` 编译参数，比较寄存器数量、occupancy 和实际时间；
+- 避免为了减少 kernel 数量而让单个 kernel 变得不可调优。
+
+!!! tip "`__forceinline__`、`.cuh` 与 RDC"
+
+    当前构建通过 `-rdc=true` 和 `CUDA_SEPARABLE_COMPILATION` 启用了 relocatable device code（RDC）。如果热点路径存在跨 CUDA 翻译单元的 device 调用，可以检查这些调用是否确实需要 RDC，并比较不同组织方式的性能。
+
+    对频繁调用的小型 device 函数，可以尝试整理成 `.cuh` 头文件中的 `__device__ __forceinline__` 函数，使调用点能够在编译期展开，从而给予编译器更大的自由，进而提升性能。但 inline 也可能增加寄存器压力和代码体积；RDC 是否必要、是否构成瓶颈，都应通过构建结果、profiling 和正确性检查判断。
+
+### 访存优化
+
+规则网格计算往往受访存影响很大。你可以分析：
+
+- global memory 访问是否 coalesced；
+- 是否有重复读取邻域数据或者多线程访问同一内存位置；
+- 是否适合使用 shared memory；
+- 是否适合改变数据布局；
+- 是否有只读数据可以利用 cache；
+- 是否存在过多临时数组或 device allocation。
+
+这一部分的优化可能包括：
+
+- 使用 shared memory 缓存邻域数据；
+- 在合适的数据布局中使用 padding 改善对齐、memory coalescing 或 shared-memory bank conflict，并评估增加的内存占用；
+- 将只读、重复访问的数据改成更适合 GPU cache 的访问方式；
+- 减少临时数组写回 global memory 的次数；
+- 对数学等价的公式做重排，让访存模式和 GPU 执行模型更友好。
+
+### Kernel 拆分、融合与批处理
+
+Kernel 数量并非越少越好。下面三类结构优化针对不同瓶颈，应根据 profiler 结果选择方向。
+
+#### 拆分巨型 kernel
+
+`bssn_rhs_gpu.cu` 中的 RHS kernel 包含多个数学阶段。巨型 kernel 可以减少 launch 和中间数据写回，但也可能造成寄存器压力过高、occupancy 下降、指令 cache 工作集增大，并限制编译器优化。若 Nsight Compute 显示这些问题，可以按照明确的数据依赖把它拆成若干阶段。
+
+拆分也会增加 kernel launch、阶段间 global memory 读写和同步边界。应同时比较 registers per thread、occupancy、指令吞吐、内存流量和端到端时间，在资源压力与额外数据移动之间寻找平衡。
+
+#### 融合连续的不同操作
+
+如果多个连续 kernel 具有兼容的迭代域和清晰的生产者—消费者关系，可以将不同功能的逐点操作融合到一次 launch 中。这样可能减少 launch、全局同步和中间数组的 global memory 往返。
+
+但是，fusion 会延长中间值和寄存器的生命周期，也可能引入更多分支、降低 occupancy，并把原本能够独立调度的工作强制串行化。边界处理、ghost exchange 和 Runge-Kutta 阶段之间真实存在的数据依赖不能为了 fusion 被跳过。
+
+#### 跨变量批处理相同操作
+
+另一类常见情况不是“把不同功能合在一起”，而是**同一个 kernel 分别作用于大量独立变量**。例如，host 侧调度文件 `bssn_step_gpu.C` 会遍历多个状态变量，并分别调用 Runge-Kutta 更新等 kernel 的 launch wrapper。可以考虑把一组数组指针和每个变量的元数据组织成批次，增加一个变量维度，让一次 launch 同时处理多个状态变量；这也可以称为跨变量 batching 或 fusion。
+
+这种方法能够减少重复 launch，但需要保留每个变量不同的属性、传播速度、边界条件和数据依赖，并检查指针间接访问、数据布局与 memory coalescing 是否抵消了收益。它与前一类“连续不同操作的融合”解决的是两个不同问题。
+
+!!! warning "请用端到端结果做判断"
+
+    最终应同时比较 kernel launch 数量、GPU 活跃时间、registers、occupancy、内存流量、同步等待、完整 `TwoPunctureABE + ABEGPU` 时间和数值正确性。Fusion 和 fission 都不是默认正确的方向，应由 profiler 数据和端到端结果共同决定。
+
+### Stream 与异步执行
+
+单个 MIG 实例上的程序也不一定只能串行提交 kernel。对于相互独立的 patch、分析任务或数据搬运，可以考虑使用 CUDA stream：
+
+- 用 stream 级并行掩盖 kernel launch 延迟；
+- 将异步内存操作与计算重叠；
+- 将分析 kernel 与主演化中可并行的部分错开执行；
+- 避免不必要的全局同步，例如过早调用 `cudaDeviceSynchronize()`。
+
+这类优化对正确性约束更敏感。引入 stream 后，必须清楚每个数据依赖发生在哪些 kernel 之间，并用 event 或 stream ordering 保证顺序。
+
+### GPU 与 MPI
+
+基础 GPU 评测主要使用单个 A100 MIG 实例，但程序仍然会通过 MPI 启动，并且不会忽略相关的 MPI 通信模块。你需要注意：
+
+- GPU 模式下 `MPI_processes` 是否应设为 1 或其他合适值；
+- 多 rank 是否会争用同一个 MIG 实例；
+- MPI 初始化、通信和 GPU kernel 是否存在不必要等待。
+
+如果 profiling 结果显示通信开销明显，可以进一步探索：
+
+- 确认 MPI 实现是否支持 CUDA-aware buffer；当前默认构建未启用对应分支，需要先修改或重构 `MPI_CUDA_AWARE` 宏；
+- 启用后再比较 device buffer 直接通信与默认 host staging 的数据路径和开销；
+- 合并小消息，减少高频发送；
+- 调整发送/接收顺序，降低等待时间；
+- 将通信与可独立执行的 kernel 重叠。
+
+## 修改范围与限制
+
+!!! danger "请不要通过改变问题本身来加速"
+
+    不允许为了提高速度而减少物理计算、降低网格规模、缩短演化时间、跳过必要输出、直接读取预计算答案或修改评测输入。
+
+允许修改：
+
+- `src/lab4/src/` 下的 C++ / Fortran / CUDA 源文件；
+- `src/lab4/CMakeLists.txt`；
+- `src/lab4/compile.sh`；
+- `src/lab4/run.sh`；
+- 必要的辅助源文件。
+
+这些修改必须保证数学意义上的算法等价性。禁止将关键计算直接替换为低精度版本来换取速度；如果使用低精度技巧，必须能解释它如何模拟或保持高精度结果，并通过正确性检查。
+
+`AMSS_NCKU_Input.py` 的修改范围非常严格。正式测试中只允许修改 MPI / OpenMP 相关参数和 GPU 运行相关参数，其他物理参数、网格参数、演化时间、输出间隔等**严禁更改**。
+
+!!! tip "调试时可以缩短演化时间"
+
+    调试阶段可以临时把 `Final_Evolution_Time` 调小，以便快速验证程序是否能编译、启动并完成一次短运行。
+    提交和正式测试时必须恢复为规定输入；用缩短演化时间得到的性能结果不能作为评分依据。
+
+正式评测会使用规定的输入与文件范围；请勿依赖修改受限参数来获得性能收益。具体收取和覆盖规则以评测说明为准。
+
 ## 代码框架
 
 **实验代码位于仓库根目录下的 `src/lab4/`。**
@@ -323,7 +698,7 @@ OMP_threads      = ...
 
 !!! tip "关于 MPI 进程数设置"
 
-    CPU 的 ABE 演化可以通过 MPI 调整并行度，而对于 GPU 上的 ABEGPU 演化，基础评测主要采用单卡 V100，我们建议你先将 MPI 进程数设置成 1。
+    CPU 的 ABE 演化可以通过 MPI 调整并行度，而对于 GPU 上的 ABEGPU 演化，基础评测主要采用单个 A100 MIG 实例，我们建议你先将 MPI 进程数设置成 1。
 
 #### TwoPuncture 缓存
 
@@ -372,446 +747,67 @@ GW250118/figure/
 
 今年我们创建了一个平台来统一管理所有实验的计算资源和任务提交。使用方法请左转 [集群使用](https://hpc101.zjusct.io/guide/)。
 
+关于 A100：由于资源限制，课程提供的 A100 资源是通过 MIG（Multi-Instance GPU）切分得到的 GPU 实例，并非独占完整的物理 GPU。MIG 不会改变 GPU 的 CUDA 架构和 compute capability，编译目标仍为 `sm_80`；但每个实例只拥有整卡的一部分计算单元、显存和显存带宽，因此 `nvidia-smi` 显示的资源规模和程序实测性能不能直接与完整 A100 对比。开发和评测时请以实际分配到的 MIG 实例为准。
+
 ### 关于实验环境
 
 由于本实验环境配置较为复杂，且涉及不同架构平台，我们为大家打包了一个同时兼容于任务一和任务二的完整镜像。在你申请相关计算资源时，平台会自动拉取该镜像并创建容器。镜像中包含了我们认为比较主要的工具和库，包括但不限于：
 
 - Common（共同拥有）：build-essentials, GNU Compilers, Perf, OpenMPI;
 - arm64-920B（任务一，华为鲲鹏 920B）：Arm Compiler for Linux;
-- x86_64-V100（任务二，NVIDIA V100）：Intel oneAPI, Intel VTune, Intel MPI, CUDA, HPC-X, NCCL;
+- x86_64-A100（任务二，NVIDIA A100）：Intel oneAPI, Intel VTune, Intel MPI, CUDA, HPC-X, NCCL;
 
 代码框架目前应该能够直接适配我们打包好的环境，进入本实验的容器后可以直接运行基线。
 
-### 容器环境创建
+## 开发与运行
 
-任务一的鲲鹏 CPU 资源，请选择平台中的 `arm64-920B` devpod 预设创建。任务二暂未开放。
+进入 lab4 的代码根目录后，你可以直接在开发容器进行开发、简单调试和编译等工作。
 
-!!! warning "GPU 还没来😭"
+任务一使用鲲鹏 CPU 资源。请从平台的 `arm64-920B` DevPod 预设进入登录节点，并将任务提交到 `lab4` 分区。该分区为任务提供 30 个物理核心，例如：
 
-    由于资源协调等原因，GPU 部分尚未在平台开放。请耐心等待我们通知。
+```bash
+hpc submit -p lab4 -c 30 ./run.sh
+```
 
-### 开发与运行
+任务二使用 A100 MIG 实例。请从 `x86-5418Y` DevPod 预设进入登录节点，并根据所需实例规格选择分区：
 
-进入 lab4 的代码根目录后，你可以直接在开发容器进行开发、简单调试和编译等工作。本实验对应的分区（partition）是 `lab4`。
+- `lab4g10`：由 A100 80GB 切分出的 `1g.10gb` MIG 实例，单个实例提供约 10GB 显存；
+- `lab4g5`：由 A100 40GB 切分出的 `1g.5gb` MIG 实例，单个实例提供约 5GB 显存。
+
+`-g N` 申请的是 `N` 个 MIG 实例，而不是 `N` 张完整的物理 A100。实际分配到的实例及其所在物理 GPU 以任务内的 `nvidia-smi -L` 输出为准。申请单个实例时，可以使用：
+
+```bash
+hpc submit -p lab4g10 -g 1 ./run.sh
+# 或者
+hpc submit -p lab4g5 -g 1 ./run.sh
+```
+
+也可以提交交互式任务前往对应计算节点调试：
+
+```bash
+# CPU
+hpc submit -p lab4 -c 30 --interactive bash
+
+# GPU，以单个 1g.10gb MIG 实例为例
+hpc submit -p lab4g10 -g 1 --interactive bash
+```
+
+可运行 `hpc skills` 查看命令帮助；具体用法请参考 [hpc 使用方法](https://hpc101.zjusct.io/guide/job/)。
 
 !!! warning "devpod 仅用于开发"
 
-    devpod 是持久化的开发容器，适合编辑、编译和短时间调试，但**不要在 devpod 中直接运行完整的演化任务**。正式计时和性能评测必须通过 `hpc submit` 提交到 `lab4` 分区，在计算节点上执行。
-
-如果你需要提交一个完整的计算任务，请运行：
-
-```bash
-hpc submit -p lab4 -c 1 run.sh
-```
-
-即可提交运行脚本。
-
-也可以通过提交交互式任务前往计算节点进行调试：
-
-```bash
-hpc submit -p lab4 --interactive bash
-```
+    devpod 是持久化的开发容器，适合编辑、编译和短时间调试，但**不要在 devpod 中直接运行完整的演化任务**。正式计时和性能评测必须通过 `hpc submit` 提交到对应分区，在计算节点上执行。
 
 ### 家目录注意事项
 
 !!! danger "不同物理地域的家目录不共享"
 
     `arm64-920B`（任务一）所需的节点和其他任务所需的节点不在同一物理地域，**家目录不共享**。
-    家目录具体的共享情况请参考 https://hpc101.zjusct.io/guide/#%E5%AE%B6%E7%9B%AE%E5%BD%95
+
+    具体的共享情况请参考 [家目录共享](https://hpc101.zjusct.io/guide/#%E5%AE%B6%E7%9B%AE%E5%BD%95)
+
     如果需要在两种架构之间同步代码，请使用 git 仓库或手动拷贝，不要依赖家目录。
 
-## 性能分析：从 Profiling 开始
-
-面对 AMSS-NCKU 这样的大型程序，正确的优化流程通常是：
-
-1. 跑通 baseline；
-2. 记录 baseline 时间；
-3. 使用 profiler 找热点；
-4. 做一个小而明确的优化；
-5. 验证正确性；
-6. 重新计时并记录收益；
-7. 重复上述过程。
-
-!!! tip "报告中应展示 profiling 证据，而不仅是最终加速比。"
-
-### CPU Profile
-
-本实验涉及两套不同的 CPU 环境：CPU 优化路径运行在华为鲲鹏 920B （ARM 架构）上，GPU 优化路径的主机端则运行在 V100 节点配套的 x86 CPU 上。两者可以使用的 profiler 和分析目的不尽相同。
-
-#### Kunpeng 920B：使用 perf 分析 CPU 优化路径
-
-`TwoPunctureABE + ABE` 在华为鲲鹏 920B 上评测。可以使用 `perf` 和平台提供的通用 Linux 工具分析 CPU 计算与 MPI 行为；加入 OpenMP 后，也可以观察线程并行效果。
-
-AMSS-NCKU 的调用链跨越 Python driver、TwoPuncture 和 MPI 主演化程序。应先对**完整 baseline** 采样，确认端到端时间分布，再对热点阶段或代表性 MPI rank 做更细的分析。只分析一个预先猜测的函数，可能会漏掉初始化、通信、线程等待和 I/O 开销。
-
-!!! tip "perf 使用示例"
-    可以先用 `perf stat` 查看完整运行的硬件计数器，再用 `perf record` 采集热点和调用栈：
-
-    ```bash
-    perf stat -d ./run.sh
-    perf record --call-graph dwarf -- ./run.sh
-    perf report
-    ```
-
-`run.sh` 会继续启动 Python、TwoPuncture 和 `mpirun` 子进程。采样后应确认报告确实包含 `TwoPunctureABE` 和 `ABE`；若受权限、MPI 启动方式或采样开销限制，也可以直接对实际的 `mpirun ... ./ABE` 命令采样，并在报告中写明覆盖范围、rank 数、线程数和绑核配置。建议在编译选项中加入 `-g` 参数，使热点能够对应到函数、源文件和代码行。
-
-重点观察：
-
-- 哪些函数和调用路径占用最多时间；
-- 程序是计算瓶颈、访存瓶颈还是通信/同步瓶颈；
-- IPC、cache miss、TLB miss、branch miss 是否异常；
-- MPI rank 之间是否负载均衡；
-- 加入 OpenMP 后，线程是否有效并行；
-
-!!! tip "从 Sampling 到 Tracing"
-
-    `perf stat` 统计硬件和软件事件，`perf record` 则按采样频率记录热点及调用栈。火焰图通常需要对采样得到的调用栈进一步处理，它不是 `perf` 自动生成的原始结果。
-
-    Tracing（追踪）记录带时间戳的事件或插桩区间，可以重建线程、进程和设备活动的先后关系，适合分析同步、等待和负载不均衡。VTune、Nsight Systems 和 Perfetto 等工具都可以用于不同形式的 tracing。更细的采集通常意味着更高开销；可以根据分析目标选择系统级事件、运行时事件或手工插桩，而不必记录所有函数。
-
-#### V100 节点主机端：使用 Intel VTune 分析完整调用链和热点函数
-
-`TwoPunctureABE + ABEGPU` 运行在单卡 NVIDIA V100 节点上，其主机端为 x86 CPU。VTune 用于观察这个 GPU 程序的主机端热点、调用栈、线程活动和 MPI 相关等待，帮助判断时间消耗在 Python/TwoPuncture、主机端控制逻辑、MPI 调用，还是 CUDA runtime/API。这里的目标是理解整个程序的主机侧执行过程，而不是用 VTune 分析 CUDA kernel 内部指标。
-
-若在各 rank 内分别启动 VTune，必须使用不同的结果目录。采集完成后，可以将结果下载到本地，用 VTune GUI 查看 Summary、Bottom-up、Flame Graph 和 Threads。
-
-VTune 重点回答：
-
-- 完整调用链中哪些主机函数占用时间最多；
-- MPI、CUDA API 和线程等待分别占多少时间；
-- CPU 是否及时向 GPU 提交工作；
-- 是否存在主机端串行路径、负载不均衡或过长的同步等待。
-
-!!! example "ABEGPU 的 VTune Hotspots 示例"
-
-    Top Hotspots 可以快速定位占用主机时间最多的函数；Bottom-up 视图则用于沿调用树追踪这些开销来自哪些演化阶段。
-
-    <div style="display: grid; grid-template-columns: minmax(0, 1.9829fr) minmax(0, 3.0791fr); gap: 1rem; align-items: start;">
-      <figure style="margin: 0;">
-        <img src="image/vtune-top-hotspots-cuda-synchronization.webp" alt="VTune Top Hotspots 显示 CUDA 同步占用大量主机时间" style="width: 100%; height: auto;" />
-        <figcaption>Top Hotspots</figcaption>
-      </figure>
-      <figure style="margin: 0;">
-        <img src="image/vtune-bottom-up-bssn-call-tree.webp" alt="VTune Bottom-up 调用树显示 BSSN 递归演化与 CUDA 同步路径" style="width: 100%; height: auto;" />
-        <figcaption>Bottom-up：BSSN 递归演化路径及其 CUDA 同步调用</figcaption>
-      </figure>
-    </div>
-
-!!! warning "主机端同步时间不等于 GPU kernel 时间"
-
-    `cuCtxSynchronize_v2` 占用大量 host CPU time，说明主机线程长时间停留在同步调用中；它并不能直接证明某个 CUDA kernel 执行了同样长的时间。请结合 Nsight Systems 对齐 CPU–GPU 时间线，再用 Nsight Compute 分析具体 kernel。
-
-### GPU Profile
-
-GPU kernel、数据传输以及 CPU–GPU 时间线需要使用 NVIDIA Nsight 工具分析。Nsight Systems 面向全程序时间线，Nsight Compute 面向单个热点 kernel；它们与 CPU Profile 中的 VTune 互相补充。
-
-#### 使用 Nsight Systems 分析 CPU、MPI 与 GPU 时间线
-
-Nsight Systems 用于把主机端活动和 GPU 活动放在同一条时间线上，观察：
-
-- kernel 执行时间和发射顺序；
-- host-device 拷贝；
-- CPU 等待 GPU 或 GPU 等待 CPU 的时间；
-- MPI、CUDA API 与 GPU 计算是否串行阻塞；
-- kernel 发射是否过于碎片化；
-- GPU 是否存在明显空闲区间。
-
-#### 使用 Nsight Compute 分析热点 kernel
-
-在 VTune 和 Nsight Systems 定位出值得深入的 CUDA kernel 后，再使用 Nsight Compute 分析：
-
-- SM occupancy；
-- global memory throughput；
-- memory coalescing；
-- register pressure；
-- shared memory 使用；
-- warp divergence；
-- achieved occupancy 和理论 occupancy 的差距。
-
-!!! warning "不要只看单个 kernel 的加速"
-
-    本实验的 GPU 优化中，整个程序不仅包含大量 GPU kernel，也包含较为复杂的主机端控制和通信逻辑。一个 kernel 变快不代表端到端变快。
-    
-    如果引入了额外拷贝、同步或更多 kernel launch，整体运行时间可能反而上升。
-
-## 共享优化阶段：TwoPuncture 初值求解
-
-`TwoPunctureABE` 负责生成双黑洞初始数据，是 CPU 和 GPU 两条运行路径都会经过的前置阶段。
-
-!!! warning "TwoPuncture 不独立评分"
-
-    `TwoPunctureABE` 是 CPU 和 GPU 两个任务共享的前置阶段，不作为独立任务评分。正式计时时，它会分别与 `ABE` 和 `ABEGPU` 组合，计入任务一和任务二的端到端时间。
-
-!!! tip "优化提示不是必做清单"
-
-    下面列出的方向来自我们对当前框架的实际优化经验。你不需要复现所有手段，也不应当在没有 profile 证据时盲目套用。
-    更合理的做法是：先找出你当前版本的瓶颈，再选择一两个能解释清楚的方向深入优化。
-
-### 编译优化
-
-编译优化不只包括增加编译选项，也包括为目标平台选择更合适的完整工具链。
-
-#### 编译选项
-
-可以尝试：
-
-- `-O2`、`-O3` 等优化等级；
-- `-march`、`-mtune` 或对应编译器的目标架构选项；
-- 自动向量化；
-- OpenMP 编译和运行时选项；
-
-架构选项必须与实际评测节点支持的指令集匹配。`-Ofast`、GCC/Clang 的 `-ffast-math` 或其他编译器对应的 fast-math 选项可能重排浮点表达式，改变求解器收敛过程或数值结果；使用后必须重新完成端到端正确性验证。
-
-!!! note "关于编译参数"
-
-    当前 `CMakeLists.txt` 中的 `AMSS_OPT` 只作用于 C++ 和 Fortran，CUDA 架构与 NVCC 参数需要单独设置。课程 GPU 目标为 V100，其 compute capability 为 7.0（`sm_70`）；但当前 `CMakeLists.txt` 将 `CMAKE_CUDA_ARCHITECTURES` 固定为 `80`，对应 A100。为 V100 构建前，应将该值改为 `70`，或先把它改造成可由命令行覆盖的 CMake cache 变量；由于当前赋值是无条件的，仅向 `compile.sh` 追加 `-DCMAKE_CUDA_ARCHITECTURES=70` 仍可能被覆盖。请从 CMake 配置和实际编译命令中确认最终目标架构。
-
-#### 编译器与工具链
-
-不同编译器对 Fortran、自动向量化、数学函数和目标架构的优化能力不同，可以在相应平台上比较：
-
-| 目标平台 | 工具链 | 常见 C++ / Fortran 编译器 |
-| -------- | ------ | ------------------------- |
-| x86 / Arm | GNU | `g++` / `gfortran` |
-| x86 / Arm | LLVM | `clang++` / `flang-new` |
-| x86 | Intel oneAPI | `icpx` / `ifx` |
-| Arm | Arm Compiler for Linux | `armclang++` / `armflang` |
-| 华为鲲鹏（Arm） | 毕昇 | BiSheng C++ / Fortran 编译器，命令名以平台环境为准 |
-
-AMSS-NCKU 混合了 C++、Fortran、MPI 和 CUDA，不能只替换其中一个编译器就默认工具链兼容。尝试时需要注意：
-
-- `mpicxx`、`mpifort` 是 MPI wrapper，不代表固定的编译器家族；先用 wrapper 的 show/config 选项确认其后端编译器；
-- C++、Fortran 编译器及 MPI wrapper 应成套选择，避免混用不兼容的 C++ 标准库、Fortran ABI/运行时、OpenMP runtime 或 MPI 实现；当前 CMake 还显式链接了 `gfortran`，切换 Fortran 编译器时需同步处理对应 runtime；
-- GPU 版本还需确认 NVCC 支持所选 host compiler；`CUDACXX` 和 CUDA 编译参数不由 `AMSS_OPT` 控制；
-- CMake 会缓存编译器，比较不同工具链时应使用不同的 `BUILD_DIR`，不要复用已有的 `CMakeCache.txt`。
-
-当前 CMake 项目实际启用了 C++、Fortran 和 CUDA，未启用 C 语言。因此应重点通过 `CXX`、`FC`、`CUDACXX` 和 CMake 参数选择工具链；`compile.sh` 中的 `CC` 设置目前不会影响现有构建目标。
-
-比较结果时应固定 MPI rank、OpenMP thread、绑核方式和输入，并记录编译器版本、MPI 实现、完整编译选项、正确性及端到端时间。
-
-### 初值求解优化
-
-`TwoPunctureABE` 负责求解双黑洞初始数据。它不是最终演化程序，但在端到端运行时间中可能占有明显比例，尤其是在反复调试和正式评测都需要重新生成初值时。
-
-可以重点关注：
-
-- 对计算密集循环使用 OpenMP 并行化；
-- 检查求解器预条件子，尝试更适合当前 case 的预条件策略；
-- 替换或调整数学库，避免低效的标量数学函数成为热点；
-- 删除高频路径上的动态内存分配和释放；
-- 将碎片化的 OpenMP 并行区聚合，减少反复 fork-join 的开销；
-- 对固定大小或固定结构的数据，预先分配并复用缓冲区。
-
-!!! danger "收敛速度与数值稳定性"
-
-    请注意：求解器收敛速度、数值稳定性和单步计算性能会相互影响。
-
-    如果更换预条件子或调整求解流程，迭代收敛需要的步数可能大幅变化，单步更慢的迭代也可能因为更少的迭代次数而最终胜出。
-
-### TwoPuncture GPU 化（Bonus）
-
-`TwoPunctureABE` 当前主要作为 CPU 初值求解阶段出现。你也可以尝试将其中明确的计算热点迁移到 GPU 上，作为 bonus 方向探索。
-
-如果尝试，需要说明哪些计算被迁移到了 GPU、host-device 数据如何组织、是否改变了求解器收敛行为，以及最终初值和后续演化结果是否仍然通过正确性检查。
-
-## 任务一：ABE CPU 演化优化
-
-任务一的目标是在保证结果正确的前提下，优化 `TwoPunctureABE + ABE` 在 CPU 平台上的端到端运行时间。
-其中 `TwoPunctureABE` 是两个任务共享的初值求解阶段，`ABE` 负责 CPU 版本 BSSN 时间演化；两者的计算模式不同，优化策略也不完全相同。
-
-!!! note "共享阶段也计入任务一"
-
-    前一节的 TwoPuncture 优化会直接影响任务一的端到端时间，其中的编译、OpenMP 和访存优化思路也可能适用于 `ABE`。
-
-### ABE 并行结构优化
-
-AMSS-NCKU 的 baseline 已使用 MPI 进行进程级并行，但尚未包含 OpenMP 并行区域。你需要探索：
-
-- 在固定资源下使用多少 MPI rank；
-- 是否值得为热点循环或其他独立任务加入 OpenMP；
-- 是否需要绑核以稳定进程和线程性能；
-- 是否存在 NUMA 远端访问带来的延迟；
-- rank 数增大后通信时间是否成为瓶颈。
-
-`AMSS_NCKU_Input.py` 中的 `MPI_processes` 会控制实际启动的 MPI rank 数；`OMP_threads` 当前只通过环境变量传递提示。若要使用 OpenMP，还需要加入正确的并行区域，并在 CMake 中启用对应语言的 OpenMP 编译和链接支持。此后才能讨论 MPI rank 与每 rank 线程数的组合，实际有效并行度仍会受到串行部分、通信、负载均衡和绑定策略影响。
-
-这些参数会通过 `run.sh` / `makefile_and_run.py` 传递给运行程序。
-
-对于 `ABE`，并行优化不只是“把更多循环加上 OpenMP”。真实代码里经常会出现两类情况：一类是表面串行、但不同 block / patch / detector / grid level 之间实际上可以并行；另一类是已经并行过，但并行粒度、调度方式或数据划分并不适合当前平台。
-
-课程“OpenMP 与 MPI 并行基础”中介绍过 OpenMP 的 fork-join（分叉—汇合）开销。如果并行区域过小，线程启动、调度和同步的开销可能超过并行计算带来的收益。
-
-你可以尝试：
-
-- 加入 OpenMP 后，重新平衡 MPI rank 与 OpenMP thread 的比例；
-- 对天然独立的 block、patch、grid level 或分析任务并行化，找到不那么明显的数据并行位置；
-- 重新设计已有并行区域的任务划分，减少负载不均衡；
-- 检查是否存在多个线程竞争同一缓存行或共享缓冲区；
-- 结合绑核和 NUMA 设置，避免线程/进程迁移带来的性能波动。
-
-CPU 评测平台为华为鲲鹏 920B。为 `ABE` 加入 OpenMP 后，NUMA 拓扑和进程/线程绑定可能显著影响 MPI + OpenMP 混合并行的稳定性和性能。
-你可以使用 `lscpu`、`numactl --hardware`、`hwloc-ls` 等工具了解节点拓扑，再结合 `mpirun` 绑核参数、`OMP_PROC_BIND` / `OMP_PLACES`、`numactl --cpunodebind` / `--membind` 等方式控制进程和内存位置。
-这类设置通常不需要用于 `TwoPunctureABE` 的早期调试，但在 `ABE` 长时间演化中值得系统测试。
-
-### ABE 计算 kernel 优化
-
-BSSN 演化中存在大量规则网格上的差分和逐点计算。这类代码通常可以从以下方向优化：
-
-- 帮助编译器自动向量化；
-- 先通过 `lscpu` 确认 Kunpeng 920B 支持的指令集，再对热点循环尝试 AArch64 SIMD intrinsic；
-- 对简单并行循环使用 OpenMP。
-
-你可以重点关注 `bssn_rhs.f90` 及相关调用的函数。
-
-### 通信优化
-
-如果 profiling 结果显示 MPI 通信占比较高，可以进一步分析：
-
-- ghost zone exchange 的通信量；
-- 是否存在过多同步；
-- 是否能合并小消息；
-- 是否能重叠通信与计算；
-- rank 分布是否导致负载不均衡。
-
-如果 MPI rank 之间的任务量差异较大，较早完成的 rank 会在同步点等待其他 rank。应结合各 rank 的计算时间和等待时间判断是否存在负载不均衡。
-
-## 任务二：ABEGPU GPU 演化优化
-
-任务二的目标是在保证结果正确的前提下，优化 `TwoPunctureABE + ABEGPU` 在单卡 V100 上的端到端运行时间。
-其中 `TwoPunctureABE` 是两个任务共享的初值求解阶段，`ABEGPU` 负责 GPU 版本 BSSN 时间演化。
-
-当前 GPU 版本包含 BSSN RHS、prolongation、analysis、数据打包和 ghost exchange 等 device 侧实现。源码保留了两条 MPI 通信分支：CUDA-aware MPI 分支直接传递 device buffer，回退分支通过 host buffer 进行 D2H/H2D staging。当前 `macrodef.h` 将 `MPI_CUDA_AWARE` 固定为 `0`，因此默认构建使用 host staging；若要比较直接通信，需要先修改或重构该编译宏，并确认评测环境的 MPI 实现确实支持 CUDA-aware buffer。优化时应结合源码和 profiler 核实实际采用的通信路径。
-
-### Kernel 形态与编译参数
-
-对热点 CUDA kernel，首先检查：
-
-- grid / block 大小是否合理；
-- 每个线程处理的数据粒度是否合适；
-- 是否存在大量线程空转；
-- 是否有明显 warp divergence；
-- register 使用是否过高导致 occupancy 下降。
-
-可以尝试的方向包括：
-
-- 对频繁调用的小函数使用 CUDA inline / `__forceinline__`；
-- 使用 `__launch_bounds__` 控制寄存器和 occupancy 的权衡；
-- 对小循环尝试 `#pragma unroll` 或显式 unroll；
-- 调整 `nvcc` 编译参数，比较寄存器数量、occupancy 和实际时间；
-- 避免为了减少 kernel 数量而让单个 kernel 变得不可调优。
-
-!!! tip "`__forceinline__`、`.cuh` 与 RDC"
-
-    当前构建通过 `-rdc=true` 和 `CUDA_SEPARABLE_COMPILATION` 启用了 relocatable device code（RDC）。如果热点路径存在跨 CUDA 翻译单元的 device 调用，可以检查这些调用是否确实需要 RDC，并比较不同组织方式的性能。
-
-    对频繁调用的小型 device 函数，可以尝试整理成 `.cuh` 头文件中的 `__device__ __forceinline__` 函数，使调用点能够在编译期展开，从而给予编译器更大的自由，进而提升性能。但 inline 也可能增加寄存器压力和代码体积；RDC 是否必要、是否构成瓶颈，都应通过构建结果、profiling 和正确性检查判断。
-
-### 访存优化
-
-规则网格计算往往受访存影响很大。你可以分析：
-
-- global memory 访问是否 coalesced；
-- 是否有重复读取邻域数据或者多线程访问同一内存位置；
-- 是否适合使用 shared memory；
-- 是否适合改变数据布局；
-- 是否有只读数据可以利用 cache；
-- 是否存在过多临时数组或 device allocation。
-
-这一部分的优化可能包括：
-
-- 使用 shared memory 缓存邻域数据；
-- 在合适的数据布局中使用 padding 改善对齐、memory coalescing 或 shared-memory bank conflict，并评估增加的内存占用；
-- 将只读、重复访问的数据改成更适合 GPU cache 的访问方式；
-- 减少临时数组写回 global memory 的次数；
-- 对数学等价的公式做重排，让访存模式和 GPU 执行模型更友好。
-
-### Kernel 拆分、融合与批处理
-
-Kernel 数量并非越少越好。下面三类结构优化针对不同瓶颈，应根据 profiler 结果选择方向。
-
-#### 拆分巨型 kernel
-
-`bssn_rhs_gpu.cu` 中的 RHS kernel 包含多个数学阶段。巨型 kernel 可以减少 launch 和中间数据写回，但也可能造成寄存器压力过高、occupancy 下降、指令 cache 工作集增大，并限制编译器优化。若 Nsight Compute 显示这些问题，可以按照明确的数据依赖把它拆成若干阶段。
-
-拆分也会增加 kernel launch、阶段间 global memory 读写和同步边界。应同时比较 registers per thread、occupancy、指令吞吐、内存流量和端到端时间，在资源压力与额外数据移动之间寻找平衡。
-
-#### 融合连续的不同操作
-
-如果多个连续 kernel 具有兼容的迭代域和清晰的生产者—消费者关系，可以将不同功能的逐点操作融合到一次 launch 中。这样可能减少 launch、全局同步和中间数组的 global memory 往返。
-
-但是，fusion 会延长中间值和寄存器的生命周期，也可能引入更多分支、降低 occupancy，并把原本能够独立调度的工作强制串行化。边界处理、ghost exchange 和 Runge-Kutta 阶段之间真实存在的数据依赖不能为了 fusion 被跳过。
-
-#### 跨变量批处理相同操作
-
-另一类常见情况不是“把不同功能合在一起”，而是**同一个 kernel 分别作用于大量独立变量**。例如，host 侧调度文件 `bssn_step_gpu.C` 会遍历多个状态变量，并分别调用 Runge-Kutta 更新等 kernel 的 launch wrapper。可以考虑把一组数组指针和每个变量的元数据组织成批次，增加一个变量维度，让一次 launch 同时处理多个状态变量；这也可以称为跨变量 batching 或 fusion。
-
-这种方法能够减少重复 launch，但需要保留每个变量不同的属性、传播速度、边界条件和数据依赖，并检查指针间接访问、数据布局与 memory coalescing 是否抵消了收益。它与前一类“连续不同操作的融合”解决的是两个不同问题。
-
-!!! warning "请用端到端结果做判断"
-
-    最终应同时比较 kernel launch 数量、GPU 活跃时间、registers、occupancy、内存流量、同步等待、完整 `TwoPunctureABE + ABEGPU` 时间和数值正确性。Fusion 和 fission 都不是默认正确的方向，应由 profiler 数据和端到端结果共同决定。
-
-### Stream 与异步执行
-
-单卡程序也不一定只能串行提交 kernel。对于相互独立的 patch、分析任务或数据搬运，可以考虑使用 CUDA stream：
-
-- 用 stream 级并行掩盖 kernel launch 延迟；
-- 将异步内存操作与计算重叠；
-- 将分析 kernel 与主演化中可并行的部分错开执行；
-- 避免不必要的全局同步，例如过早调用 `cudaDeviceSynchronize()`。
-
-这类优化对正确性约束更敏感。引入 stream 后，必须清楚每个数据依赖发生在哪些 kernel 之间，并用 event 或 stream ordering 保证顺序。
-
-### GPU 与 MPI
-
-基础 GPU 评测主要使用单卡 V100，但程序仍然会通过 MPI 启动，并且不会忽略相关的 MPI 通信模块。你需要注意：
-
-- GPU 模式下 `MPI_processes` 是否应设为 1 或其他合适值；
-- 多 rank 是否会争用同一张 GPU；
-- MPI 初始化、通信和 GPU kernel 是否存在不必要等待。
-
-如果 profiling 结果显示通信开销明显，可以进一步探索：
-
-- 确认 MPI 实现是否支持 CUDA-aware buffer；当前默认构建未启用对应分支，需要先修改或重构 `MPI_CUDA_AWARE` 宏；
-- 启用后再比较 device buffer 直接通信与默认 host staging 的数据路径和开销；
-- 合并小消息，减少高频发送；
-- 调整发送/接收顺序，降低等待时间；
-- 将通信与可独立执行的 kernel 重叠。
-
-### 双卡并行（Bonus）
-
-基础 GPU 任务主要面向单卡 V100。当然，你也可以尝试使用两张卡来进一步加速计算。
-
-如果尝试双卡并行，需要额外说明多卡运行方式、MPI rank / GPU 绑定、通信库和通信数据路径，并与单卡 V100 结果分开报告。此时可以根据实际通信模式评估 CUDA-aware MPI、NCCL 等 GPU 通信方案。
-
-!!! note "双卡并行的评分方式"
-
-    请注意，我们不会对双卡设置单独的性能得分曲线，你只需要在报告里展示双卡并行相较于单卡的性能提升即可。
-
-## 修改范围与限制
-
-!!! danger "请不要通过改变问题本身来加速"
-
-    不允许为了提高速度而减少物理计算、降低网格规模、缩短演化时间、跳过必要输出、直接读取预计算答案或修改评测输入。
-
-允许修改：
-
-- `src/lab4/src/` 下的 C++ / Fortran / CUDA 源文件；
-- `src/lab4/CMakeLists.txt`；
-- `src/lab4/compile.sh`；
-- `src/lab4/run.sh`；
-- 必要的辅助源文件。
-
-这些修改必须保证数学意义上的算法等价性。禁止将关键计算直接替换为低精度版本来换取速度；如果使用低精度技巧，必须能解释它如何模拟或保持高精度结果，并通过正确性检查。
-
-`AMSS_NCKU_Input.py` 的修改范围非常严格。正式测试中只允许修改 MPI / OpenMP 相关参数和 GPU 运行相关参数，其他物理参数、网格参数、演化时间、输出间隔等**严禁更改**。
-
-!!! tip "调试时可以缩短演化时间"
-
-    调试阶段可以临时把 `Final_Evolution_Time` 调小，以便快速验证程序是否能编译、启动并完成一次短运行。
-    提交和正式测试时必须恢复为规定输入；用缩短演化时间得到的性能结果不能作为评分依据。
-
-正式评测会使用规定的输入与文件范围；请勿依赖修改受限参数来获得性能收益。具体收取和覆盖规则以评测说明为准。
 
 ## 评分方式
 
@@ -919,12 +915,12 @@ CPU 和 GPU 部分都应给出最终运行配置，例如 MPI rank、OpenMP thre
 3. AMSS-NCKU 程序中从高到低有非常多的并行层级，例如最简单的 MPI 分块并行和 OMP 循环并行等；而你在分析源码的过程中或许还发现了其他可以并行的结构。简述一下你优化后的程序都在哪些并行结构上实现了并行。
 
 4. 如果优化前后结果精度出现小幅差异，如何判断它是合理的浮点误差还是程序错误？
-   
-5. 对于只有一张卡的情况，你是否尝试过让 MPI 进程数（`MPI_Process`）大于 1？如果是的话，你观察到了什么问题？NVIDIA 是否对这种问题提出过解决方案？
+
+5. 对于只分配一个 MIG 实例的情况，你是否尝试过让 MPI 进程数（`MPI_processes`）大于 1？如果是，你观察到了什么问题？NVIDIA 是否为多个进程共享同一个 GPU 实例提供了相应方案？
 
 6. 在本实验的 GPU kernel 优化操作中，模板操作（Stencil，比如三维求导等）是一个广泛需要优化的部分。一味地使用 Shared Memory 加速是否一定是更好的？引入共享内存本身带来了什么性能问题？如果你在实验过程中有类似现象，也可以举例说明。
 
-7. （Bonus）你是否尝试了双卡并行？如果是的话，相较于单卡的加速比是多少？是否是直接翻倍了？如果没有翻倍请分析原因。请你通过 Profiler 展示双卡并行时 MPI 通信的占比，并简单评析使用更多的卡并行时可能需要考虑哪些问题？
+7. （Bonus）你是否尝试了两个或更多 MIG 实例并行？如果是，相较于单个实例的加速比是多少，是否接近线性增长？如果没有，请分析原因。请通过 profiler 展示多实例并行时 MPI 通信的占比，并结合实例是否位于同一张物理 A100、数据传输路径和任务划分，分析扩展到更多 MIG 实例时需要考虑的问题。
 
 8. （Bonus）今年是我们首次直接将一个超算竞赛题目修改成实验，也是首次把一个完整的科学计算程序引入到实验中，并且首次在科学计算实验中着眼于 GPU 优化加速。欢迎你跟我们分享本次实验的体验，也欢迎你给出改进建议（锐评也可以，不会扣分的！）。
 

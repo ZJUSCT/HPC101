@@ -11,12 +11,13 @@ set -euo pipefail
 # Ansorg-TwoPuncture allocates large Fortran automatic arrays.
 ulimit -s unlimited
 
-# Open MPI 5.x (prterun) refuses to run as root by default. In containers
-# where we are root, pass --allow-run-as-root to the launcher; non-root
-# runs are unaffected.
-if [[ "$(id -u)" -eq 0 ]]; then
-  AMSS_MPIEXEC="${AMSS_MPIEXEC:-mpiexec --allow-run-as-root}"
-fi
+# HPC jobs run inside a root container even when submitted by a regular user.
+# Open MPI 5.x (prterun) therefore needs its explicit container opt-in. These
+# variables are ignored for non-root launches and preserve a caller-supplied
+# AMSS_MPIEXEC.
+export OMPI_ALLOW_RUN_AS_ROOT="${OMPI_ALLOW_RUN_AS_ROOT:-1}"
+export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM="${OMPI_ALLOW_RUN_AS_ROOT_CONFIRM:-1}"
+AMSS_MPIEXEC="${AMSS_MPIEXEC:-mpiexec --allow-run-as-root}"
 
 ROOT_DIR="$(pwd)"
 PYTHON="${PYTHON:-python3}"
