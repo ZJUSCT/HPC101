@@ -28,6 +28,7 @@ nav = [
         { "Lab 3: GDN Prefill 前向优化" = "lab/Lab3-GDN-Prefill/index.md" },
         { "Lab 3.5: 昇腾算子开发与优化" = "lab/Lab3.5-AscendC-Op/index.md" },
         { "Lab 4: AMSS-NCKU 数值相对论程序优化" = "lab/Lab4-AMSS-NCKU/index.md"},
+        { "Lab 4.5: INT8 张量核模拟 FP64 GEMM" = "lab/Lab4.5-INT8-FP64-GEMM/index.md" },
         { "Lab 5: Gemma4 端到端推理优化" = "lab/Lab5-Gemma4/index.md"}
     ] },
 ]
