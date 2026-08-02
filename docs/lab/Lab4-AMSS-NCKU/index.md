@@ -774,7 +774,7 @@ GW250118/figure/
 任务一使用鲲鹏 CPU 资源。请从平台的 `arm64-920B` DevPod 预设进入登录节点，并将任务提交到 `lab4` 分区。该分区为任务提供 30 个物理核心，例如：
 
 ```bash
-hpc submit -p lab4 -c 30 ./run.sh
+hpc submit -p lab4 -c 60 ./run.sh
 ```
 
 任务二使用 A100 MIG 实例。请从 `x86-5418Y` DevPod 预设进入登录节点，并根据所需实例规格选择分区：
@@ -794,7 +794,7 @@ hpc submit -p lab4g5 -g 1 ./run.sh
 
 ```bash
 # CPU
-hpc submit -p lab4 -c 30 --interactive bash
+hpc submit -p lab4 -c 60 --interactive bash
 
 # GPU，以单个 1g.10gb MIG 实例为例
 hpc submit -p lab4g10 -g 1 --interactive bash
