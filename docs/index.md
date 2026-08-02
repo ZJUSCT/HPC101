@@ -114,8 +114,8 @@ Lab2 - Lab5 需在 [**课程平台**](https://platform.s.zjusct.io/assignments) 
  
 - [Lab 3.5：昇腾算子开发与优化](./lab/Lab3.5-AscendC-Op/index.md)
 - [Lab 4.5：基于 INT8 张量核的 FP64 GEMM 模拟](./lab/Lab4.5-INT8-FP64-GEMM/index.md)。
-
-Bonus 实验不直接计入课程成绩，但完成后可以获得 Bonus 分数，会按比例添加到总成绩中。
+ 
+Bonus 实验不直接计入课程成绩，但完成后可以获得 Bonus 分数，会按比例添加到总成绩中。 Bonus 实验的截止时间统一为 `2026-09-05 23:59:59`。
 
 !!! tip "平台提交"
     课程平台收取的目录是 `x86-5418Y` 对应的家目录，请在 DevPod 里把报告和代码放好，到平台上提交。具体家目录规则参考 [家目录](./guide/index.md#家目录)。
