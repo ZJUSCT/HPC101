@@ -970,7 +970,7 @@ SpaceMiT IME 在实现上复用了 RVV 的寄存器以节省资源 (这也是 IM
 
 SpaceMiT IME 指令集提供了 `vmadot` 系列的指令，用于加速矩阵乘法运算。与 RVV 不同的是，IME 会把 RVV 寄存器中的数据**理解成一个小矩阵**，并通过额外的运算单元实现矩阵乘法的加速，最终的结果也会存储到一个向量寄存器中。
 
-SpaceMiT IME 指令集手册具体可参考 [SpaceMiT IME Extension Spec](https://github.com/space-mit/riscv-ime-extension-spec/releases/download/v0429/spacemit-ime-asciidoc.pdf)，而接下来我们仅介绍实验需要用到的部分。进行 8-bit 整数矩阵乘法时，可以调用下面的指令进行加速：
+SpaceMiT IME 指令集手册具体可参考 [SpaceMiT IME Extension Spec](https://github.com/spacemit-com/riscv-ime-extension-spec/releases/download/v1.0/spacemit-ime-asciidoc.pdf)，而接下来我们仅介绍实验需要用到的部分。进行 8-bit 整数矩阵乘法时，可以调用下面的指令进行加速：
 
 ```asm
 vmadotus vd, vs1, vs2 ; us 表示 vs1 是无符号整数，vs2 是有符号整数
