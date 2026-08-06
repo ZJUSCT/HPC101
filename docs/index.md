@@ -42,7 +42,7 @@ HPC 101 可以用来申请替代计算机学院非计科专业的短学期课程
 - [Lab 4: AMSS-NCKU 数值相对论程序优化](./lab/Lab4-AMSS-NCKU/index.md)
 - [Lab 5: Gemma4 端到端推理优化](./lab/Lab5-Gemma4/index.md)
 
-Lab 2 至 Lab 5 按分组（A–H 组）错开截止时间，**截止时间均为当日 23:59:59**。请在下图中找到自己的分组，确认各实验的 DDL（时间轴为 2026 年 8 月的日期，菱形颜色按实验区分）：
+Lab 2 至 Lab 5 按分组（A–H 组）错开截止时间，**截止时间均为当日 23:59:59**。请在下图中找到自己的分组，确认各实验的 DDL（时间轴为 2026 年 8 月至 9 月初的日期，菱形颜色按实验区分）：
 
 !!! note "分组 DDL 的编排规则"
 
@@ -61,51 +61,51 @@ Lab 2 至 Lab 5 按分组（A–H 组）错开截止时间，**截止时间均�
   "themeCSS": "svg { font-family: var(--md-mermaid-font-family, Noto Sans, sans-serif) !important; } .grid path { stroke: none !important; } .grid .tick line { stroke: var(--hpc-gantt-grid, #e7e6e0) !important; stroke-width: 1px !important; } .grid .tick text { fill: var(--hpc-gantt-tick-text, #898781) !important; font-family: inherit !important; } .titleText { fill: var(--hpc-gantt-title, #1f1f1e) !important; font-family: inherit !important; } .sectionTitle { fill: var(--hpc-gantt-section-title, #3a3a37) !important; font-weight: 600 !important; font-family: inherit !important; } .section0 { fill: var(--hpc-gantt-stripe, #f2f1ec) !important; opacity: 1 !important; } .section1 { fill: transparent !important; } text.milestoneText[class] { fill: var(--hpc-gantt-label, #3a3a37) !important; font-style: normal !important; font-weight: 500 !important; font-family: inherit !important; } .milestone.task0, .milestone.task1 { fill: var(--hpc-gantt-lab2, #2a78d6) !important; stroke: var(--hpc-gantt-lab2-border, #1c5cab) !important; } .milestone.active0, .milestone.active1 { fill: var(--hpc-gantt-lab3, #eb6834) !important; stroke: var(--hpc-gantt-lab3-border, #c14e1f) !important; } .milestone.done0, .milestone.done1 { fill: var(--hpc-gantt-lab4, #1baf7a) !important; stroke: var(--hpc-gantt-lab4-border, #12855c) !important; } .milestone.crit0, .milestone.crit1 { fill: var(--hpc-gantt-lab5, #4a3aa7) !important; stroke: var(--hpc-gantt-lab5-border, #372b80) !important; }"
 }}%%
 gantt
-    title 2026 年 8 月
+    title 2026 年 8 月 — 9 月
     dateFormat YYYY-MM-DD
     axisFormat %d
     tickInterval 1day
     todayMarker off
     section A 组
-        Lab 2 : milestone, 2026-08-06, 0d
-        Lab 5 : milestone, crit, 2026-08-18, 0d
-        Lab 3 : milestone, active, 2026-08-26, 0d
-        Lab 4 : milestone, done, 2026-08-31, 0d
-    section B 组
-        Lab 2 : milestone, 2026-08-07, 0d
-        Lab 3 : milestone, active, 2026-08-13, 0d
-        Lab 5 : milestone, crit, 2026-08-24, 0d
-        Lab 4 : milestone, done, 2026-08-30, 0d
-    section C 组
-        Lab 2 : milestone, 2026-08-08, 0d
-        Lab 4 : milestone, done, 2026-08-16, 0d
-        Lab 3 : milestone, active, 2026-08-21, 0d
-        Lab 5 : milestone, crit, 2026-08-31, 0d
-    section D 组
         Lab 2 : milestone, 2026-08-09, 0d
-        Lab 3 : milestone, active, 2026-08-14, 0d
-        Lab 5 : milestone, crit, 2026-08-23, 0d
-        Lab 4 : milestone, done, 2026-08-28, 0d
-    section E 组
+        Lab 5 : milestone, crit, 2026-08-21, 0d
+        Lab 3 : milestone, active, 2026-08-29, 0d
+        Lab 4 : milestone, done, 2026-09-03, 0d
+    section B 组
         Lab 2 : milestone, 2026-08-10, 0d
-        Lab 4 : milestone, done, 2026-08-17, 0d
-        Lab 3 : milestone, active, 2026-08-22, 0d
-        Lab 5 : milestone, crit, 2026-08-30, 0d
-    section F 组
-        Lab 2 : milestone, 2026-08-11, 0d
         Lab 3 : milestone, active, 2026-08-16, 0d
-        Lab 4 : milestone, done, 2026-08-21, 0d
         Lab 5 : milestone, crit, 2026-08-27, 0d
-    section G 组
+        Lab 4 : milestone, done, 2026-09-02, 0d
+    section C 组
+        Lab 2 : milestone, 2026-08-11, 0d
+        Lab 4 : milestone, done, 2026-08-19, 0d
+        Lab 3 : milestone, active, 2026-08-24, 0d
+        Lab 5 : milestone, crit, 2026-09-03, 0d
+    section D 组
         Lab 2 : milestone, 2026-08-12, 0d
         Lab 3 : milestone, active, 2026-08-17, 0d
-        Lab 4 : milestone, done, 2026-08-22, 0d
-        Lab 5 : milestone, crit, 2026-08-28, 0d
-    section H 组
+        Lab 5 : milestone, crit, 2026-08-26, 0d
+        Lab 4 : milestone, done, 2026-08-31, 0d
+    section E 组
         Lab 2 : milestone, 2026-08-13, 0d
-        Lab 5 : milestone, crit, 2026-08-19, 0d
+        Lab 4 : milestone, done, 2026-08-20, 0d
+        Lab 3 : milestone, active, 2026-08-25, 0d
+        Lab 5 : milestone, crit, 2026-09-02, 0d
+    section F 组
+        Lab 2 : milestone, 2026-08-14, 0d
+        Lab 3 : milestone, active, 2026-08-19, 0d
         Lab 4 : milestone, done, 2026-08-24, 0d
-        Lab 3 : milestone, active, 2026-08-29, 0d
+        Lab 5 : milestone, crit, 2026-08-30, 0d
+    section G 组
+        Lab 2 : milestone, 2026-08-15, 0d
+        Lab 3 : milestone, active, 2026-08-20, 0d
+        Lab 4 : milestone, done, 2026-08-25, 0d
+        Lab 5 : milestone, crit, 2026-08-31, 0d
+    section H 组
+        Lab 2 : milestone, 2026-08-16, 0d
+        Lab 5 : milestone, crit, 2026-08-22, 0d
+        Lab 4 : milestone, done, 2026-08-27, 0d
+        Lab 3 : milestone, active, 2026-09-01, 0d
 ```
 
 Lab2 - Lab5 需在 [**课程平台**](https://platform.s.zjusct.io/assignments) 以及 **学在浙大** 提交，课程平台上会显示你的分组和截止时间，以及具体需要提交的文件。请将**报告PDF**同步提交到学在浙大。
