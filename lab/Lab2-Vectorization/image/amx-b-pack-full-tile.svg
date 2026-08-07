@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">INT8 矩阵 B 的 AMX Tile 打包过程</title>
+  <desc id="desc">把 B 沿 K 维每四行切成一个条带。条带中的每一列形成一个四字节小组，十六个小组组成 B_pack 的一行，十六个条带组成完整 Tile。</desc>
+
+  <defs>
+    <style>
+      text { font-family: Inter, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #263238; }
+      .title { font-size: 30px; font-weight: 700; }
+      .section { font-size: 23px; font-weight: 700; }
+      .label { font-size: 18px; }
+      .small { font-size: 15px; }
+      .code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 17px; }
+      .axis { stroke: #455a64; stroke-width: 2; fill: none; }
+      .outline { stroke: #263238; stroke-width: 2.4; fill: none; }
+      .guide { stroke: #78909c; stroke-width: 1.4; fill: none; }
+      .strong-guide { stroke: #455a64; stroke-width: 2; fill: none; }
+      .callout { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.5; }
+    </style>
+
+    <!-- B: 16 columns × 64 rows; each source cell is exactly 20 × 8 px. -->
+    <pattern id="source-cells" x="70" y="170" width="20" height="8" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 H 0 V 8" class="guide"/>
+    </pattern>
+    <pattern id="source-bands" x="70" y="170" width="320" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 0 32 H 320" class="strong-guide"/>
+    </pattern>
+
+    <!-- Enlarged 4 × 16 strip; each cell is exactly 25 × 60 px. -->
+    <pattern id="strip-cells" x="520" y="230" width="25" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 25 0 H 0 V 60" class="guide"/>
+    </pattern>
+
+    <!-- One B_pack row: 16 packets; each packet contains exactly four bytes. -->
+    <pattern id="packet-row" x="1050" y="230" width="30" height="72" patternUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="7.5" height="72" fill="#f6b8b8"/>
+      <rect x="7.5" y="0" width="7.5" height="72" fill="#b8d2f6"/>
+      <rect x="15" y="0" width="7.5" height="72" fill="#f8d49a"/>
+      <rect x="22.5" y="0" width="7.5" height="72" fill="#bfe8c6"/>
+      <path d="M 7.5 0 V 72 M 15 0 V 72 M 22.5 0 V 72" class="guide"/>
+      <path d="M 30 0 V 72" class="strong-guide"/>
+    </pattern>
+
+    <!-- Full packed Tile: 64 byte-columns × 16 rows. -->
+    <pattern id="packed-byte-grid" x="1050" y="510" width="7.5" height="15" patternUnits="userSpaceOnUse">
+      <path d="M 7.5 0 H 0 V 15" class="guide"/>
+    </pattern>
+    <pattern id="packed-group-grid" x="1050" y="510" width="30" height="15" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 V 15 M 0 15 H 30" class="strong-guide"/>
+    </pattern>
+
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M 0 0 L 9 5 L 0 10 Z" fill="#455a64"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M 0 0 L 9 5 L 0 10 Z" fill="#3f8f55"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="#ffffff"/>
+  <text x="800" y="50" text-anchor="middle" class="title">从 B 的四行条带到 B_pack 的一行</text>
+  <text x="800" y="82" text-anchor="middle" class="code">B_pack[k][4n+r] ← B[4k+r][n]</text>
+
+  <!-- Step 1: exact logical B matrix. -->
+  <text x="230" y="125" text-anchor="middle" class="section">① 沿 K 维每 4 行切一个条带</text>
+  <text x="230" y="151" text-anchor="middle" class="code">B: 64 × 16 INT8</text>
+
+  <rect x="70" y="170" width="320" height="512" fill="#ffffff"/>
+  <!-- k = 7 is the representative selected four-row strip. -->
+  <rect x="70" y="394" width="320" height="32" fill="#dceafb"/>
+  <rect x="70" y="170" width="320" height="512" fill="url(#source-cells)"/>
+  <rect x="70" y="170" width="320" height="512" fill="url(#source-bands)"/>
+  <rect x="70" y="170" width="320" height="512" class="outline"/>
+
+  <line x1="70" y1="705" x2="390" y2="705" class="axis" marker-end="url(#arrow)"/>
+  <text x="230" y="733" text-anchor="middle" class="label">n：0 … 15（输出列）</text>
+  <line x1="45" y1="682" x2="45" y2="172" class="axis" marker-end="url(#arrow)"/>
+  <text x="24" y="426" text-anchor="middle" class="label" transform="rotate(-90 24 426)">K：64 行</text>
+
+  <path d="M 400 394 h 13 v 32 h -13" class="strong-guide"/>
+  <text x="420" y="398" class="small">第 k 个条带</text>
+  <text x="420" y="420" class="small">B[4k:4k+4, :]</text>
+  <path d="M 448 430 C 478 444, 480 348, 515 335" class="axis" marker-end="url(#arrow)"/>
+
+  <!-- Step 2: enlarged exact 4 × 16 strip. -->
+  <text x="720" y="125" text-anchor="middle" class="section">② 条带内保留 16 个输出列</text>
+  <text x="720" y="151" text-anchor="middle" class="code">B[4k+r][n]</text>
+
+  <rect x="520" y="230" width="400" height="60" fill="#f6b8b8" opacity=".72"/>
+  <rect x="520" y="290" width="400" height="60" fill="#b8d2f6" opacity=".72"/>
+  <rect x="520" y="350" width="400" height="60" fill="#f8d49a" opacity=".78"/>
+  <rect x="520" y="410" width="400" height="60" fill="#bfe8c6" opacity=".78"/>
+  <rect x="520" y="230" width="400" height="240" fill="url(#strip-cells)"/>
+  <rect x="520" y="230" width="400" height="240" class="outline"/>
+
+  <!-- Packet boundaries are source columns, not a swapped matrix axis. -->
+  <rect x="520" y="230" width="25" height="240" fill="none" stroke="#d95c5c" stroke-width="3"/>
+  <rect x="545" y="230" width="25" height="240" fill="none" stroke="#4f7fc8" stroke-width="3"/>
+  <rect x="895" y="230" width="25" height="240" fill="none" stroke="#4a9b5b" stroke-width="3"/>
+
+  <text x="532.5" y="215" text-anchor="middle" class="small">n=0</text>
+  <text x="575" y="190" text-anchor="middle" class="small">n=1</text>
+  <path d="M 575 195 L 557.5 224" class="guide"/>
+  <text x="720" y="215" text-anchor="middle" class="small">n=2 … 14</text>
+  <text x="907.5" y="215" text-anchor="middle" class="small">n=15</text>
+
+  <text x="505" y="266" text-anchor="end" class="small">r=0</text>
+  <text x="505" y="326" text-anchor="end" class="small">r=1</text>
+  <text x="505" y="386" text-anchor="end" class="small">r=2</text>
+  <text x="505" y="446" text-anchor="end" class="small">r=3</text>
+
+  <rect x="555" y="510" width="330" height="58" rx="10" class="callout"/>
+  <text x="720" y="535" text-anchor="middle" class="label">固定 n：竖直的 4 个元素</text>
+  <text x="720" y="558" text-anchor="middle" class="label">共同构成 packet n</text>
+
+  <!-- Step 3: exact packet row. -->
+  <text x="1290" y="125" text-anchor="middle" class="section">③ 16 个 packet 拼成 B_pack[k]</text>
+  <text x="1290" y="151" text-anchor="middle" class="code">16 × 4 Bytes = 64 Bytes</text>
+
+  <rect x="1050" y="230" width="480" height="72" fill="url(#packet-row)"/>
+  <rect x="1050" y="230" width="480" height="72" class="outline"/>
+  <rect x="1500" y="230" width="30" height="72" fill="none" stroke="#4a9b5b" stroke-width="3"/>
+  <text x="1065" y="216" text-anchor="middle" class="small">n=0</text>
+  <text x="1115" y="190" text-anchor="middle" class="small">n=1</text>
+  <path d="M 1115 195 L 1095 224" class="guide"/>
+  <text x="1290" y="216" text-anchor="middle" class="small">…</text>
+  <text x="1515" y="216" text-anchor="middle" class="small">n=15</text>
+
+  <!-- Show only one representative correspondence: source column n=15 to packet 15. -->
+  <path d="M 920 350 L 1508 307" fill="none" stroke="#3f8f55" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <rect x="1080" y="314" width="230" height="38" rx="9" fill="#edf8ef" stroke="#79b685" stroke-width="1.3"/>
+  <text x="1195" y="339" text-anchor="middle" class="small">只展开 n=15 的对应关系</text>
+
+  <path d="M 1515 305 C 1515 325, 1430 325, 1400 344" class="axis" marker-end="url(#arrow)"/>
+  <text x="1400" y="340" text-anchor="middle" class="small">放大 packet 15</text>
+  <rect x="1300" y="350" width="50" height="48" fill="#f6b8b8"/>
+  <rect x="1350" y="350" width="50" height="48" fill="#b8d2f6"/>
+  <rect x="1400" y="350" width="50" height="48" fill="#f8d49a"/>
+  <rect x="1450" y="350" width="50" height="48" fill="#bfe8c6"/>
+  <rect x="1300" y="350" width="200" height="48" class="outline"/>
+  <path d="M 1350 350 V 398 M 1400 350 V 398 M 1450 350 V 398" class="guide"/>
+  <text x="1325" y="380" text-anchor="middle" class="small">r0</text>
+  <text x="1375" y="380" text-anchor="middle" class="small">r1</text>
+  <text x="1425" y="380" text-anchor="middle" class="small">r2</text>
+  <text x="1475" y="380" text-anchor="middle" class="small">r3</text>
+
+  <text x="1170" y="380" text-anchor="middle" class="small">n 决定 packet 位置</text>
+  <text x="1170" y="405" text-anchor="middle" class="small">r 决定 packet 内的字节位置</text>
+
+  <!-- Full exact B_pack Tile. -->
+  <text x="1290" y="485" text-anchor="middle" class="section">B_pack：16 rows × 64 Bytes</text>
+  <rect x="1050" y="510" width="480" height="240" fill="#ffffff"/>
+  <rect x="1050" y="615" width="480" height="15" fill="#dceafb"/>
+  <rect x="1050" y="510" width="480" height="240" fill="url(#packed-byte-grid)"/>
+  <rect x="1050" y="510" width="480" height="240" fill="url(#packed-group-grid)"/>
+  <rect x="1050" y="510" width="480" height="240" class="outline"/>
+
+  <text x="1035" y="524" text-anchor="end" class="small">k=0</text>
+  <text x="1035" y="539" text-anchor="end" class="small">k=1</text>
+  <text x="1035" y="611" text-anchor="end" class="small">…</text>
+  <text x="1035" y="627" text-anchor="end" class="small">k</text>
+  <text x="1035" y="731" text-anchor="end" class="small">…</text>
+  <text x="1035" y="748" text-anchor="end" class="small">k=15</text>
+
+  <path d="M 1535 266 H 1560 V 622 H 1532" class="axis" marker-end="url(#arrow)"/>
+  <text x="1572" y="460" text-anchor="middle" class="small" transform="rotate(90 1572 460)">k 决定写入哪一行</text>
+
+  <rect x="1180" y="770" width="220" height="50" rx="10" fill="#dff4dc" stroke="#6aa568" stroke-width="1.8"/>
+  <text x="1290" y="802" text-anchor="middle" class="section">FULL 1 KiB TILE</text>
+
+  <!-- Index-role summary. -->
+  <rect x="130" y="815" width="250" height="52" rx="10" fill="#eaf2fd" stroke="#8fb3df" stroke-width="1.5"/>
+  <text x="255" y="847" text-anchor="middle" class="label">k → B_pack 的行号</text>
+  <rect x="420" y="815" width="250" height="52" rx="10" fill="#fff4d8" stroke="#d9b764" stroke-width="1.5"/>
+  <text x="545" y="847" text-anchor="middle" class="label">n → 4-byte 小组号</text>
+  <rect x="710" y="815" width="250" height="52" rx="10" fill="#e8f6e8" stroke="#82b884" stroke-width="1.5"/>
+  <text x="835" y="847" text-anchor="middle" class="label">r → 组内字节号</text>
+</svg>

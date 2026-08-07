@@ -1,0 +1,2400 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab4.5-INT8-FP64-GEMM/">
+      
+      
+        <link rel="prev" href="../Lab4-AMSS-NCKU/">
+      
+      
+        <link rel="next" href="../Lab5-Gemma4/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="zensical-0.0.43">
+    
+    
+      
+        <title>Lab 4.5：基于 INT8 张量核的 FP64 GEMM 模拟 - HPC101</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.fba56155.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  <script>
+    (function () {
+      try {
+        var saved = (typeof __md_get === "function") ? __md_get("__palette") : null;
+        var scheme;
+        if (saved && saved.color && saved.color.media) {
+          if (saved.color.media === "(prefers-color-scheme)") {
+            scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+          } else {
+            scheme = saved.color.scheme;
+          }
+        } else {
+          scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+        }
+        document.documentElement.setAttribute("data-md-color-scheme", scheme);
+        var attach = function () {
+          document.body.setAttribute("data-md-color-scheme", scheme);
+          new MutationObserver(function () {
+            var s = document.body.getAttribute("data-md-color-scheme");
+            if (s) document.documentElement.setAttribute("data-md-color-scheme", s);
+          }).observe(document.body, {
+            attributes: true,
+            attributeFilter: ["data-md-color-scheme"],
+          });
+        };
+        if (document.body) {
+          attach();
+        } else {
+          new MutationObserver(function (_, obs) {
+            if (document.body) {
+              attach();
+              obs.disconnect();
+            }
+          }).observe(document.documentElement, { childList: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script>
+    // Track keydown listeners added on window so v86 can later remove
+    // Material's global handler that would otherwise capture key presses
+    // intended for the in-browser Linux VM.
+    (function () {
+      window.__v86KeydownListeners = [];
+      var origAdd = window.addEventListener;
+      var origRemove = window.removeEventListener;
+      window.addEventListener = function (type, listener, options) {
+        origAdd.call(this, type, listener, options);
+        if (type === "keydown") {
+          window.__v86KeydownListeners.push({ listener: listener, options: options });
+        }
+      };
+      window.removeEventListener = function (type, listener, options) {
+        origRemove.call(this, type, listener, options);
+        if (type === "keydown") {
+          var i = window.__v86KeydownListeners.findIndex(function (e) {
+            return e.listener === listener;
+          });
+          if (i !== -1) window.__v86KeydownListeners.splice(i, 1);
+        }
+      };
+    })();
+  </script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lab-45基于-int8-张量核的-fp64-gemm-模拟" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101" class="md-header__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Lab 4.5：基于 INT8 张量核的 FP64 GEMM 模拟
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guide/" class="md-tabs__link">
+          
+  
+  集群使用
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101" class="md-nav__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    HPC101
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程信息
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程信息
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  欢迎来到 HPC 101 超算短学期
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../enroll/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  报名与选课
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sponsors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  支持单位
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群使用
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  集群使用
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  登录平台
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交计算任务
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/submit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交实验报告
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  在线测评 OJ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群概况
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程实验
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 0: Linux 快速入门
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 1: 简单集群搭建
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 2: MoE 的向量化计算
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab3-GDN-Prefill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3: GDN Prefill 前向优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab3.5-AscendC-Op/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3.5: 昇腾算子开发与优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab4-AMSS-NCKU/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4: AMSS-NCKU 数值相对论程序优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4.5: INT8 张量核模拟 FP64 GEMM
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4.5: INT8 张量核模拟 FP64 GEMM
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目标" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验目标
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#背景介绍" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        背景介绍
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#算法原理" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        算法原理
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="算法原理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#核心思想" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        核心思想
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#分解的构造" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        分解的构造
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#精度分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        精度分析
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gemm-展开" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GEMM 展开
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#代码结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        代码结构
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#如何获取计算资源" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        如何获取计算资源
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#构建与运行" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        构建与运行
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#性能分析从-profiling-开始" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能分析：从 Profiling 开始
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="性能分析：从 Profiling 开始">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#分析流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        分析流程
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#优化方向" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        优化方向
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="优化方向">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#算子融合" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        算子融合
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overlapping重叠数据搬运与计算" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Overlapping：重叠数据搬运与计算
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hopper-架构上的-wgmma-与-warp-specialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Hopper 架构上的 WGMMA 与 warp specialization
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#使用-cutlass" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        使用 CUTLASS
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#减少-shared-memory-bank-conflict" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        减少 Shared Memory bank conflict
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#其他优化思路" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        其他优化思路
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#评分方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评分方式
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="评分方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#正确性要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        正确性要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#性能评分" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能评分
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#测试规模与权重" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        测试规模与权重
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#提交要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        参考资料
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab5-Gemma4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 5: Gemma4 端到端推理优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目标" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验目标
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#背景介绍" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        背景介绍
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#算法原理" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        算法原理
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="算法原理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#核心思想" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        核心思想
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#分解的构造" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        分解的构造
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#精度分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        精度分析
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gemm-展开" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GEMM 展开
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#代码结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        代码结构
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#如何获取计算资源" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        如何获取计算资源
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#构建与运行" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        构建与运行
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#性能分析从-profiling-开始" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能分析：从 Profiling 开始
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="性能分析：从 Profiling 开始">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#分析流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        分析流程
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#优化方向" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        优化方向
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="优化方向">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#算子融合" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        算子融合
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overlapping重叠数据搬运与计算" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Overlapping：重叠数据搬运与计算
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hopper-架构上的-wgmma-与-warp-specialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Hopper 架构上的 WGMMA 与 warp specialization
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#使用-cutlass" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        使用 CUTLASS
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#减少-shared-memory-bank-conflict" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        减少 Shared Memory bank conflict
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#其他优化思路" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        其他优化思路
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#评分方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评分方式
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="评分方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#正确性要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        正确性要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#性能评分" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能评分
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#测试规模与权重" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        测试规模与权重
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#提交要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        参考资料
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab4.5-INT8-FP64-GEMM/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="lab-45基于-int8-张量核的-fp64-gemm-模拟">Lab 4.5：基于 INT8 张量核的 FP64 GEMM 模拟<a class="headerlink" href="#lab-45基于-int8-张量核的-fp64-gemm-模拟" title="Permanent link">&para;</a></h1>
+<div class="admonition abstract">
+<p class="admonition-title">实验信息</p>
+<p>负责助教：刘烨、刘佳鸣</p>
+<div class="admonition tip">
+<p class="admonition-title">Bonus 实验</p>
+<p>这是一个 <strong>Bonus 实验</strong>，不强制要求同学们完成。欢迎学有余力的同学挑战。</p>
+</div>
+</div>
+<h2 id="实验目标">实验目标<a class="headerlink" href="#实验目标" title="Permanent link">&para;</a></h2>
+<p>前面的实验中，你已经在单张 GPU 上完成过向量化计算和 kernel 前向优化。本次实验面对的问题略有不同：你不需要从零写一个矩阵乘法 kernel，而是要利用 GPU 的 INT8 张量核来"模拟"一次 FP64 矩阵乘法——在精度可接受的范围内，用低精度算力换取更高的吞吐。</p>
+<p>完成本实验后，你应当能够：</p>
+<ul>
+<li>理解逐级量化分解的原理，并将一个 FP64 矩阵拆分为多个 INT8 分量；</li>
+<li>在 cuBLAS INT8 GEMM 之上完成分解、计算与 FP64 重组，得到完整且正确的 GEMM 结果；</li>
+<li>以 <code>fp64_cublas</code> 为精度参考、<code>int8_cublas_baseline</code> 和 <code>cublas_emulated</code> 为性能对照，测量并解释不同实现之间的端到端性能差异；</li>
+<li>使用 Nsight Systems / Nsight Compute 定位量化、GEMM、重组或中间数据搬运的瓶颈，并在不破坏正确性的前提下进行优化。</li>
+</ul>
+<h2 id="背景介绍">背景介绍<a class="headerlink" href="#背景介绍" title="Permanent link">&para;</a></h2>
+<p>近年来 NVIDIA 的重心明显转向 AI，新卡的低精度算力（INT8、FP8、FP4）增长远快于 FP64，并且 FP64 算力不仅没涨，反而在逐代缩水：</p>
+<table>
+<thead>
+<tr>
+<th>GPU</th>
+<th>架构</th>
+<th>年份</th>
+<th>FP64 Tensor Core</th>
+<th>INT8 Tensor Core</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H100 SXM</td>
+<td>Hopper</td>
+<td>2022</td>
+<td>67 TFLOPS</td>
+<td>4 POPS</td>
+</tr>
+<tr>
+<td>B200</td>
+<td>Blackwell</td>
+<td>2024</td>
+<td>37 TFLOPS</td>
+<td>9 POPS</td>
+</tr>
+<tr>
+<td>B300</td>
+<td>Blackwell Ultra</td>
+<td>2025</td>
+<td><span class="arithmatex">\(\approx\)</span>1.2 TFLOPS</td>
+<td>9 POPS</td>
+</tr>
+</tbody>
+</table>
+<p>从 H100 到 B200，FP64 Tensor Core 不升反降（67→37 TFLOPS）；到了 B300，NVIDIA 干脆把 FP64 单元几乎全部砍掉（37→1.2 TFLOPS，降幅 97%），腾出的面积全部给了 FP4/FP8 推理算力 [[3]] [[4]]。对于依赖 FP64 的科学计算、分子动力学、气候模拟等 HPC 工作负载，直接在新卡上调用 <code>cublasDgemm</code> 已经越来越不划算。</p>
+<p>本实验使用的 H800 PCIe 是这一趋势的一个极端代表：它的 INT8 吞吐高达数千 TOPS，而 FP64 Tensor Core 实测仅约 0.8 TFLOPS——两者相差三个数量级。那么，能否"借"低精度算力来完成高精度计算？将 FP64 矩阵逐级量化为 INT8 分量，用 INT8×INT8→INT32 的张量核 GEMM 完成乘法，再在 FP64 下按比例尺累加重组，我们就能利用 INT8 算力完成高精度浮点数运算。Ozaki 等人的工作讨论了基于浮点分裂的准确矩阵乘法 [[1]]；CUDA 13 的 cuBLAS 也提供了 FP64 fixed-point emulation，将 FP64 输入量化为定点表示后用 INT8 张量核计算 [[2]]；本实验将着眼于前者，在 H800 上实现高性能的高精度浮点数矩阵乘法。</p>
+<h2 id="算法原理">算法原理<a class="headerlink" href="#算法原理" title="Permanent link">&para;</a></h2>
+<h3 id="核心思想">核心思想<a class="headerlink" href="#核心思想" title="Permanent link">&para;</a></h3>
+<p>FP64 的有效尾数精度为 53 bit。这里使用的量化集合为 <span class="arithmatex">\([-127,127]\cap\mathbb{Z}\)</span>，共有 255 个取值，等效分辨率接近 8 bit；一次量化不能保留 FP64 的全部有效位。</p>
+<p>对正整数 <span class="arithmatex">\(S\)</span>（split 数），本实验的逐级量化将一个 FP64 数 <span class="arithmatex">\(x\)</span> 近似表示为 <span class="arithmatex">\(S\)</span> 个 INT8 分量的加权和：</p>
+<div class="arithmatex">\[x \approx \sum_{i=0}^{S-1} q_i \cdot s_i, \quad q_i \in [-127, 127] \cap \mathbb{Z}\]</div>
+<p>其中 <span class="arithmatex">\(s_i\)</span> 为第 <span class="arithmatex">\(i\)</span> 级的比例尺，<span class="arithmatex">\(q_i\)</span> 为对应的 INT8 量化值。比例尺按固定比率递减，使每级量化捕获不同量级的精度信息。</p>
+<h3 id="分解的构造">分解的构造<a class="headerlink" href="#分解的构造" title="Permanent link">&para;</a></h3>
+<p><strong>确定初始比例尺</strong> 对非零矩阵 <span class="arithmatex">\(X\)</span>，设 <span class="arithmatex">\(X_{\max} = \max_{i,j}|X_{ij}|\)</span>，取 <span class="arithmatex">\(s_0=X_{\max}/127\)</span>。则对任意元素 <span class="arithmatex">\(x\)</span> 有 <span class="arithmatex">\(|x/s_0|\le127\)</span>，保证第 0 级量化不溢出。全零矩阵可直接令所有分量为零；此时比例尺无实际意义，代码取 <span class="arithmatex">\(s_0=1/127\)</span>（即 <span class="arithmatex">\(X_{\max}=1\)</span> 时的值）以避免除零：</p>
+<div class="arithmatex">\[q_0 = \mathrm{round}\!\left(\frac{x}{s_0}\right) \in [-127, 127]\]</div>
+<p>注意这里 <span class="arithmatex">\(s_0\)</span> 以及后续的 <span class="arithmatex">\(s_i\)</span> 是整个矩阵的所有元素共用的。这保证了矩阵分解后 <span class="arithmatex">\(A^{(i)}_q\)</span> 和 <span class="arithmatex">\(B^{(j)}_q\)</span> 的 GEMM 结果可以直接用标量 <span class="arithmatex">\(s^A_i \cdot s^B_j\)</span> 进行缩放还原。如果每个元素用不同的比例尺，精度会更高，但重组时需要逐元素乘以不同系数，无法用单次 GEMM 完成，需要进行额外的 Hadamard 乘法，性能大幅下降。</p>
+<p><strong>逐级提取</strong> 定义残差 <span class="arithmatex">\(r_0 = x\)</span>，第 <span class="arithmatex">\(i\)</span> 级量化后更新残差为：</p>
+<div class="arithmatex">\[r_{i+1} = r_i - q_i \cdot s_i\]</div>
+<p>由于 <span class="arithmatex">\(q_i = \mathrm{round}(r_i / s_i)\)</span>，在未触发饱和的实数算术模型下，量化误差满足：</p>
+<div class="arithmatex">\[|r_{i+1}| \le \frac{s_i}{2}\]</div>
+<p>为保证第 <span class="arithmatex">\(i+1\)</span> 级量化不溢出（<span class="arithmatex">\(|q_{i+1}| \le 127\)</span>），需要：</p>
+<div class="arithmatex">\[\frac{|r_{i+1}|}{s_{i+1}} \le 127 \implies s_{i+1} \ge \frac{|r_{i+1}|}{127} \]</div>
+<p>而</p>
+<div class="arithmatex">\[\frac{|r_{i+1}|}{127} \le \frac{s_i / 2}{127} = \frac{s_i}{254}\]</div>
+<p>因此，在上述实数算术模型下取 <span class="arithmatex">\(s_{i+1}=s_i/254\)</span>，即可保证 <span class="arithmatex">\(|r_{i+1}/s_{i+1}|\le127\)</span>，并取到不发生饱和时允许的最大缩减率。</p>
+<p><strong>缩减率的选择：</strong> 若取 <span class="arithmatex">\(s_{i+1} = s_i / C\)</span> 且 <span class="arithmatex">\(C &gt; 254\)</span>，则残差上界 <span class="arithmatex">\(s_i / 2\)</span> 可能超过 <span class="arithmatex">\(127 \cdot s_{i+1}\)</span>，导致 <span class="arithmatex">\(q_{i+1}\)</span> 溢出 INT8 范围。反之若 <span class="arithmatex">\(C &lt; 254\)</span>，相同残差区间只使用下一层量化器的一部分动态范围，造成精度浪费。因此 <span class="arithmatex">\(C = 254\)</span> 是保证不溢出的最大缩减率，也是精度利用率最高的选择。</p>
+<p>完整的递推关系为：</p>
+<div class="arithmatex">\[\boxed{q_i = \mathrm{round}\!\left(\frac{r_i}{s_i}\right), \quad r_{i+1} = r_i - q_i \cdot s_i, \quad s_{i+1} = \frac{s_i}{254}}\]</div>
+<h3 id="精度分析">精度分析<a class="headerlink" href="#精度分析" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(S\)</span> 级分解后，在同一实数算术模型下，单个元素的绝对误差满足：</p>
+<div class="arithmatex">\[\left|x - \sum_{i=0}^{S-1} q_i \cdot s_i\right| = |r_S| \le \frac{s_{S-1}}{2} = \frac{s_0}{2 \cdot 254^{S-1}} = \frac{X_{\max}}{254^S}\]</div>
+<p>将该绝对误差用矩阵最大元素 <span class="arithmatex">\(X_{\max}\)</span> 归一化，可得：</p>
+<div class="arithmatex">\[\frac{\left|x - \sum_{i=0}^{S-1} q_i \cdot s_i\right|}{X_{\max}} \le \frac{1}{254^S}\]</div>
+<p>这不是逐元素相对误差界：当 <span class="arithmatex">\(x=0\)</span> 或 <span class="arithmatex">\(|x|\ll X_{\max}\)</span> 时，不能用 <span class="arithmatex">\(|x|\)</span> 作统一下界。下表仅列出相对于 <span class="arithmatex">\(X_{\max}\)</span> 的理论绝对误差界（即 <span class="arithmatex">\(|r_S|/X_{\max}\)</span>）；它不包含 FP64 残差更新、INT32 GEMM 或 FP64 重组产生的舍入误差。</p>
+<table>
+<thead>
+<tr>
+<th>splits <span class="arithmatex">\(S\)</span></th>
+<th>归一化误差上界</th>
+<th>等效位数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><span class="arithmatex">\(1/254 \approx 3.9 \times 10^{-3}\)</span></td>
+<td><span class="arithmatex">\(\approx 8\)</span> bit</td>
+</tr>
+<tr>
+<td>2</td>
+<td><span class="arithmatex">\(1/254^2 \approx 1.5 \times 10^{-5}\)</span></td>
+<td><span class="arithmatex">\(\approx 16\)</span> bit</td>
+</tr>
+<tr>
+<td>4</td>
+<td><span class="arithmatex">\(1/254^4 \approx 2.4 \times 10^{-10}\)</span></td>
+<td><span class="arithmatex">\(\approx 32\)</span> bit</td>
+</tr>
+<tr>
+<td>8</td>
+<td><span class="arithmatex">\(1/254^8 \approx 5.8 \times 10^{-20}\)</span></td>
+<td><span class="arithmatex">\(\approx 64\)</span> bit</td>
+</tr>
+</tbody>
+</table>
+<p><span class="arithmatex">\(S=8\)</span> 时理论误差已低于 FP64 unit roundoff（约 <span class="arithmatex">\(2^{-53}\)</span>），但这只是理想化分解的误差界，不代表端到端 FP64 等价。</p>
+<p>下表将理论上界与 H800 MIG 上的实测 L2 相对误差进行对照（矩阵规模 4096³）：</p>
+<table>
+<thead>
+<tr>
+<th>splits <span class="arithmatex">\(S\)</span></th>
+<th>理论上界 <span class="arithmatex">\(1/254^S\)</span></th>
+<th><code>int8_cublas_baseline</code> 实测</th>
+<th><code>cublas_emulated</code> 实测</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td><span class="arithmatex">\(1.5 \times 10^{-5}\)</span></td>
+<td><span class="arithmatex">\(2.2 \times 10^{-5}\)</span></td>
+<td><span class="arithmatex">\(5.4 \times 10^{-7}\)</span></td>
+</tr>
+<tr>
+<td>4</td>
+<td><span class="arithmatex">\(2.4 \times 10^{-10}\)</span></td>
+<td><span class="arithmatex">\(3.4 \times 10^{-10}\)</span></td>
+<td><span class="arithmatex">\(9.7 \times 10^{-12}\)</span></td>
+</tr>
+<tr>
+<td>6</td>
+<td><span class="arithmatex">\(3.8 \times 10^{-15}\)</span></td>
+<td><span class="arithmatex">\(5.4 \times 10^{-15}\)</span></td>
+<td><span class="arithmatex">\(1.1 \times 10^{-15}\)</span></td>
+</tr>
+<tr>
+<td>8</td>
+<td><span class="arithmatex">\(5.8 \times 10^{-20}\)</span></td>
+<td><span class="arithmatex">\(1.1 \times 10^{-15}\)</span></td>
+<td><span class="arithmatex">\(1.1 \times 10^{-15}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><code>int8_cublas_baseline</code> 在 <span class="arithmatex">\(S \le 6\)</span> 时实测误差与理论上界同数量级，说明量化误差是主要误差来源。<span class="arithmatex">\(S=8\)</span> 时实测误差远大于理论上界，因为此时量化误差已低于 FP64 舍入误差，整体精度由 FP64 运算主导。</p>
+<p><code>cublas_emulated</code> 在相同 splits 下精度普遍优于 <code>int8_cublas_baseline</code>，说明 cuBLAS 内部使用了更优的量化策略（如自适应缩减率或动态尾数控制），而非严格使用 <span class="arithmatex">\(C=254\)</span> 的固定缩减率。</p>
+<h3 id="gemm-展开">GEMM 展开<a class="headerlink" href="#gemm-展开" title="Permanent link">&para;</a></h3>
+<p>矩阵 <span class="arithmatex">\(A\)</span> 和 <span class="arithmatex">\(B\)</span> 分别分解为 <span class="arithmatex">\(S\)</span> 个 INT8 分量后，令 <span class="arithmatex">\(\widetilde{A}\)</span>、<span class="arithmatex">\(\widetilde{B}\)</span> 表示其重组结果，则：</p>
+<div class="arithmatex">\[\widetilde{C}=\widetilde{A}\widetilde{B}=\left(\sum_{i=0}^{S-1} s^A_i A^{(i)}_q\right)\left(\sum_{j=0}^{S-1} s^B_j B^{(j)}_q\right)=\sum_{i=0}^{S-1}\sum_{j=0}^{S-1}s^A_i s^B_j\big(A^{(i)}_qB^{(j)}_q\big),\qquad \widetilde{C}\approx C=AB\]</div>
+<p>每个 <span class="arithmatex">\(A^{(i)}_q B^{(j)}_q\)</span> 是一次 INT8×INT8→INT32 的 GEMM，共 <span class="arithmatex">\(S^2\)</span> 次；其结果乘以缩放系数 <span class="arithmatex">\(s^A_i s^B_j\)</span> 后在 FP64 下累加到输出矩阵。当前 benchmark 程序的尺寸满足 INT8 Tensor Core 路径的常见对齐条件，但实际库调度应以 profiler 结果为准。</p>
+<p><strong>为什么需要 <span class="arithmatex">\(S^2\)</span> 次？</strong> <span class="arithmatex">\(A\)</span> 和 <span class="arithmatex">\(B\)</span> 各有 <span class="arithmatex">\(S\)</span> 个分量，需计算所有 <span class="arithmatex">\(S \times S\)</span> 种组合。</p>
+<h2 id="实验任务">实验任务<a class="headerlink" href="#实验任务" title="Permanent link">&para;</a></h2>
+<p><code>src/lab4p5/submit/my_int8_fp64.cu</code> 中为大家提供了朴素实现的骨架，同学们按照代码中的提示完成两个核函数就可以拿到基础的分数。如果想要拿到更高的分数，除了改进核函数以外，host 侧函数也需要修改，以实现更加自由高效的调度和编排。</p>
+<p>无论实现如何，最后对外提供统一的函数签名：</p>
+<p><div class="language-c highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">gemm_my_int8_fp64</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">K</span><span class="p">,</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">             </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">dA</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">dB</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">dC</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">             </span><span class="kt">int</span><span class="w"> </span><span class="n">splits</span><span class="p">,</span><span class="w"> </span><span class="n">cublasHandle_t</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+</span></code></pre></div>
+矩阵采用列主序存储：<span class="arithmatex">\(C[M\times N] = A[M\times K] \times B[K\times N]\)</span>，对应内存布局为 <code>A[k*M+m]</code>、<code>B[n*K+k]</code>、<code>C[n*M+m]</code>。</p>
+<div class="admonition warning">
+<p class="admonition-title">正确性是优化的前提</p>
+<p>benchmark 传入的 <code>splits</code> 参数不得在实现中擅自缩减。运算结果最后会与基线计算误差，误差过大则当次评测 0 分。</p>
+</div>
+<h2 id="代码结构">代码结构<a class="headerlink" href="#代码结构" title="Permanent link">&para;</a></h2>
+<p>所有源码位于 <code>src/lab4p5/</code> 目录下：
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>src/lab4p5/
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── baseline
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>│   ├── baseline_fp64.cu
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│   ├── cublas_baseline.cu
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│   └── cublas_emulated.cu
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>├── benchmark.cu
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>├── include
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   ├── gemm_api.h
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   └── utils.h
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>├── Makefile
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>├── submit
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│   └── my_int8_fp64.cu
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>└── utils.cu
+</span></code></pre></div></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gemm_api.h</code></td>
+<td>统一函数签名</td>
+</tr>
+<tr>
+<td><code>utils.cu</code> / <code>utils.h</code></td>
+<td>计时（<code>CudaTimer</code>）、误差比较（<code>accuracy_compare</code>）、矩阵填充、max-abs 归约（<code>device_maxabs_fp64</code>）、设备内存分配</td>
+</tr>
+<tr>
+<td><code>baseline_fp64.cu</code></td>
+<td>cuBLAS FP64 基准 (<code>gemm_fp64_cublas</code>，精度与性能参考)</td>
+</tr>
+<tr>
+<td><code>cublas_baseline.cu</code></td>
+<td>朴素 INT8 模拟实现，基于 cuBLAS INT8 GEMM；每个 split 单独量化、每个 <span class="arithmatex">\((i,j)\)</span> 单独重组</td>
+</tr>
+<tr>
+<td><code>cublas_emulated.cu</code></td>
+<td>cuBLAS 内置的 FP64 fixed-point emulation（<code>CUBLAS_COMPUTE_64F_EMULATED_FIXEDPOINT</code>），将 FP64 输入量化为定点表示后用 INT8 张量核计算，<code>splits</code> 通过 <code>max_mantissa_bits = 8 * splits</code> 控制 cuBLAS 内部保留的尾数位数</td>
+</tr>
+<tr>
+<td><code>my_int8_fp64.cu</code></td>
+<td><strong>需要修改的文件</strong></td>
+</tr>
+<tr>
+<td><code>benchmark.cu</code></td>
+<td>统一测评程序</td>
+</tr>
+<tr>
+<td><code>Makefile</code></td>
+<td>编译脚本</td>
+</tr>
+</tbody>
+</table>
+<h2 id="如何获取计算资源">如何获取计算资源<a class="headerlink" href="#如何获取计算资源" title="Permanent link">&para;</a></h2>
+<p>我们通过<a href="https://platform.s.zjusct.io">实验平台</a>提供计算资源。你需要：</p>
+<ol>
+<li>登录实验平台；</li>
+<li>创建预设为 <code>x86-5418Y</code> 的 DevPod；</li>
+<li>在 DevPod 内获取课程仓库并进入 <code>src/lab4p5/</code>。</li>
+</ol>
+<p>DevPod 是持久化的开发容器，适合编辑和编译，但<strong>不要在 DevPod 中直接运行 GPU 任务</strong>。正式计时和性能评测必须通过 <code>hpc submit</code> 提交到计算分区执行。</p>
+<p>本实验使用 H800 PCIe GPU，通过 MIG 技术将一张 H800 切分为多个 GPU 实例，每个实例拥有独立的计算资源和内存空间。MIG 不会改变 GPU 的 CUDA 架构和 compute capability，编译目标仍为 <code>sm_90a</code>；但每个实例只拥有整卡的一部分计算单元、显存和显存带宽，因此 <code>nvidia-smi</code> 显示的资源规模和程序实测性能不能直接与完整 H800 对比。开发和评测时请以实际分配到的 MIG 实例为准。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>规格</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU</td>
+<td>NVIDIA H800 PCIe（sm_90a，80 GB HBM3）</td>
+</tr>
+<tr>
+<td>MIG 实例</td>
+<td>1g.10gb（1 个 GPU 实例，10 GB HBM3）</td>
+</tr>
+<tr>
+<td>CUDA Toolkit</td>
+<td>13.3</td>
+</tr>
+<tr>
+<td>测试矩阵</td>
+<td>4096³ 及 8192³，元素为 <span class="arithmatex">\([-1, 1]\)</span> 均匀分布随机数</td>
+</tr>
+</tbody>
+</table>
+<p>更详细的平台使用说明请参考 <a href="https://hpc101.zjusct.io/guide/">集群使用</a>。</p>
+<h2 id="构建与运行">构建与运行<a class="headerlink" href="#构建与运行" title="Permanent link">&para;</a></h2>
+<p>在 DevPod 中编译 benchmark：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span>~/HPC101/src/lab4p5
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/cuda/bin:<span class="nv">$PATH</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>make
+</span></code></pre></div>
+<p>提交 GPU 任务到计算分区运行：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># 交互式调试</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab4g10<span class="w"> </span>-g<span class="w"> </span><span class="m">1</span><span class="w"> </span>--interactive<span class="w"> </span>bash
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># 在计算节点上运行 benchmark（默认测试 splits=2,4,6,8）</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab4g10<span class="w"> </span>-g<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="s2">&quot;./benchmark 1024,2048,4096 2,4,6,8 5&quot;</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># 导出 CSV</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab4g10<span class="w"> </span>-g<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="s2">&quot;./benchmark 4096,8192 2,4,6,8 10 --csv &gt; results.csv&quot;</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="c1"># 使用 ncu / nsys 分析性能</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab4g10<span class="w"> </span>-g<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="s2">&quot;ncu -o profile ./benchmark 4096 4 1&quot;</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab4g10<span class="w"> </span>-g<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="s2">&quot;nsys profile -o trace ./benchmark 4096 4 1&quot;</span>
+</span></code></pre></div>
+<p><code>benchmark</code> 程序对每个矩阵规模和 splits 组合运行所有实现，输出吞吐量（GFLOPS）和相对 <code>fp64_cublas</code> 参考结果的 L2 相对误差。每个实现先跑一次预热并同步，再计时 <code>iters</code> 次取平均值。使用 <code>--csv</code> 输出表头为 <code>size_M,size_N,size_K,method,splits,time_ms,gflops,max_abs_err,l2_rel_err</code> 的 CSV 格式表格。</p>
+<p>每个测试矩阵规模下输出以下各行：</p>
+<table>
+<thead>
+<tr>
+<th>输出行</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fp64_cublas</code></td>
+<td>原生 FP64（cuBLAS <code>cublasDgemm</code>），精度与性能参考</td>
+</tr>
+<tr>
+<td><code>int8_cublas_baseline</code></td>
+<td>朴素 INT8 模拟实现</td>
+</tr>
+<tr>
+<td><code>my_int8_fp64</code></td>
+<td>你的实现</td>
+</tr>
+<tr>
+<td><code>cublas_emulated</code></td>
+<td>cuBLAS 内置的 FP64 fixed-point emulation（<code>CUBLAS_COMPUTE_64F_EMULATED_FIXEDPOINT</code>），与你的手动实现使用相同的 split 精度参数对标</td>
+</tr>
+</tbody>
+</table>
+<h2 id="性能分析从-profiling-开始">性能分析：从 Profiling 开始<a class="headerlink" href="#性能分析从-profiling-开始" title="Permanent link">&para;</a></h2>
+<p>先得到正确结果，再优化端到端时间。</p>
+<div class="admonition note">
+<p class="admonition-title">瓶颈在哪里？</p>
+<p>单次 INT8 GEMM 很快，不代表整条模拟路径很快。以 <code>splits=8</code> 为例：<span class="arithmatex">\(S^2 = 64\)</span> 次 GEMM 调用、<span class="arithmatex">\(2S = 16\)</span> 次量化 kernel、<span class="arithmatex">\(S^2 = 64\)</span> 次重组 kernel，总计超过 140 次 kernel launch。中间 INT32 结果的读写量是 <span class="arithmatex">\(64 \times M \times N \times 4\)</span> 字节——这些才是真正的开销。</p>
+</div>
+<h3 id="分析流程">分析流程<a class="headerlink" href="#分析流程" title="Permanent link">&para;</a></h3>
+<ol>
+<li>用 Nsight Systems 拉一条时间线，看 GEMM、量化、重组各占多少时间，kernel launch 间隙有多少空闲。</li>
+<li>用 Nsight Compute 分析热点 kernel 的访存效率、occupancy 和带宽利用率。</li>
+<li>一次只改一个点，每次修改后重新测量端到端时间并检查 L2 相对误差。</li>
+<li>只保留同时满足误差要求且确实更快的修改。</li>
+</ol>
+<h3 id="优化方向">优化方向<a class="headerlink" href="#优化方向" title="Permanent link">&para;</a></h3>
+<h4 id="算子融合">算子融合<a class="headerlink" href="#算子融合" title="Permanent link">&para;</a></h4>
+<p>将量化、INT8 GEMM 和 FP64 重组拆成独立 kernel，代码清晰且便于验证，但 kernel launch 并不是免费的。在最直接的实现中，<span class="arithmatex">\(A\)</span>、<span class="arithmatex">\(B\)</span> 各需要处理 <span class="arithmatex">\(S\)</span> 个分量，量化相关 kernel 的启动次数约为 <span class="arithmatex">\(2S\)</span>；若每个 <span class="arithmatex">\((i,j)\)</span> 部分积都单独缩放并写回，重组相关 kernel 还可能达到 <span class="arithmatex">\(S^2\)</span> 次。<span class="arithmatex">\(S=8\)</span> 时，仅这些阶段就会产生数十次启动。对于计算量较小的 kernel，启动延迟可能与有效计算时间处于同一数量级。</p>
+<p>此外，kernel 边界通常意味着中间结果需要写入全局内存，再由下一个 kernel 读回。例如，INT32 部分积若完整落地到 HBM，后续重组至少还要进行一次读取和一次 FP64 输出更新；当 <span class="arithmatex">\(S^2\)</span> 个部分积依次处理时，这部分内存流量可能压过矩阵乘法本身。因此，融合的价值不仅是减少启动次数，更重要的是<strong>缩短中间数据的路径和生命周期</strong>。</p>
+<p>可以按风险从低到高尝试以下几层融合：</p>
+<ol>
+<li><strong>融合同一矩阵的多级量化</strong>：一个线程向量化加载若干 FP64 元素，在寄存器中连续更新残差并生成 <span class="arithmatex">\(q_0, q_1, \ldots, q_{S-1}\)</span>，一次 kernel 写出全部 split，避免为每一级重新读取原矩阵。量化商可尝试用 FP32 乘倒数和 <code>rintf</code> 计算，但混合精度只应用于<strong>分量选择</strong>；比例尺与残差更新仍应保留 FP64 FMA，并通过误差测试验证。</li>
+<li><strong>一次融合重组多个部分积</strong>：先保存需要的 INT32 部分积，再由一个 kernel 对同一输出位置遍历所有 pair，只写一次 FP64 <span class="arithmatex">\(C\)</span>。可以把 scales 预加载到 Shared Memory，并使用 <code>int4</code> load 与 <code>double4</code> store；这样可把最多 <span class="arithmatex">\(S^2\)</span> 个重组 launch 降为 1 个，也避免反复读改写 <span class="arithmatex">\(C\)</span>，但仍需为每个保留的 pair 写入并读回一份完整 INT32 矩阵。</li>
+<li><strong>把缩放重组并入 GEMM epilogue</strong>：INT8 GEMM 得到一个 INT32 tile 后，立即乘以 <span class="arithmatex">\(s_i^A s_j^B\)</span> 并累加到 FP64 输出，从而进一步消除完整 INT32 中间矩阵。若多个 GEMM 分别直接更新同一个 <span class="arithmatex">\(C\)</span>，必须解决跨 kernel 的写冲突或串行化问题；更现实的路线是让一个 CTA 连续消费一批 pair，或设计受控的分批 epilogue。</li>
+<li><strong>端到端 mega kernel</strong>：将分解、GEMM 和重组放入一个持久化 kernel。它能够消除最多的边界，却也最难处理调度、同步和资源占用，通常应当在前三级优化完成后再考虑。</li>
+</ol>
+<p><a class="glightbox" data-type="image" href="image/operator-fusion.svg"><img alt="算子融合前后的数据路径" src="image/operator-fusion.svg" /></a></p>
+<p>融合不是越彻底越好。融合后变量存活时间变长，可能提高 registers/thread 和 Shared Memory/CTA，降低一个 SM 上可同时驻留的 CTA 数；寄存器不足还会产生 local-memory spill，反而增加访存。实践中应同时比较 <code>registers per thread</code>、Shared Memory 用量、occupancy、DRAM bytes 和 kernel 数量，以“端到端时间下降”而不是“kernel 数量最少”作为选择融合边界的标准。</p>
+<h4 id="overlapping重叠数据搬运与计算">Overlapping：重叠数据搬运与计算<a class="headerlink" href="#overlapping重叠数据搬运与计算" title="Permanent link">&para;</a></h4>
+<p>流水线优化的目标不是减少总工作量，而是把一个阶段的等待时间隐藏在另一个阶段的有效工作之后。对按 <span class="arithmatex">\(K\)</span> 维分块的 GEMM 而言，可以将每个 tile 的处理拆成“从全局内存搬入 Shared Memory → Tensor Core 计算 → 缩放与 FP64 重组”三个阶段。当 Tensor Core 计算 tile <span class="arithmatex">\(t\)</span> 时，搬运单元预取 tile <span class="arithmatex">\(t+1\)</span>，CUDA Core 则可以处理已经完成的 tile <span class="arithmatex">\(t-1\)</span>，从而让不同硬件资源在时间线上同时保持忙碌。</p>
+<p>最常见的实现是 <strong>double buffering</strong> 或多级流水线。Shared Memory 中准备两个或更多缓冲区：producer 向缓冲区 A 写入新 tile 时，consumer 从缓冲区 B 读取旧 tile 进行计算；下一轮交换 A、B 的角色。Hopper 提供 TMA（Tensor Memory Accelerator）执行异步张量搬运，并可在搬运过程中完成多维寻址和适配 Shared Memory 的布局变换。这样，少量 producer 线程即可发起大块数据传输，其余线程不必逐元素执行地址计算。关于 TMA 的进一步介绍可参考 <a href="https://zhuanlan.zhihu.com/p/1985678344352731952">CuTe 之 Hopper TMA</a>。</p>
+<p><a class="glightbox" data-type="image" href="image/overlap-pipeline.svg"><img alt="串行执行与双缓冲流水线" src="image/overlap-pipeline.svg" /></a></p>
+<p>重叠执行的前提是正确表达数据依赖。producer 不能覆盖 consumer 尚未读完的缓冲区，consumer 也不能读取尚未完成的异步搬运；因此每一级缓冲区都需要“empty/ready”状态，并通过 <code>mbarrier</code>、pipeline primitive 或等价同步机制完成所有权交接。同步过早会把流水线重新串行化，同步不足则会造成数据竞争。</p>
+<p>跨 kernel 的依赖需额外注意：在<strong>同一非默认 stream</strong> 中，后续 kernel 会自动等待同一 stream 上的前序 kernel 完成，这种隐式顺序足以建立“量化 → GEMM”的简单依赖；但一旦把生产者和消费者放到<strong>不同 stream</strong> 以便重叠，就应优先用 <code>cudaEventRecord</code> / <code>cudaStreamWaitEvent</code> 精确表达依赖——<code>cudaStreamWaitEvent</code> 只等待事件<strong>当下已记录的那一次</strong> record，后续 record 不会影响既有 wait。切勿依赖默认 stream 的隐式全局同步，<code>--default-stream per-thread</code> 等编译选项会改变其语义。</p>
+<p>比如矩阵 A/B 的 max-abs 与量化可以分别运行在两条 stream 上，保留的 GEMM 也可以分派到多条 stream，最后再统一重组。但必须建立完整的跨 stream 依赖：A、B 量化完成后分别记录 event，每条 GEMM stream 都等待两个输入 event；各 GEMM stream 完成后再分别记录 event，由重组 stream 等待全部完成。这样既补齐 happens-before，又避免用 <code>cudaStreamSynchronize</code> 阻塞 host。尤其不能只同步 B 的生产 stream：另一条 stream 上的 GEMM 同样可能读取尚未完成量化的 A。更细一步，可把部分积划成批次并用 event 或 CUDA Graph 连接，以降低同步和重复提交开销。若要支持多 host 线程、多个独立调用或 CUDA Graph capture，还应把中间缓冲、stream 和 event 放入显式 context/workspace，避免不可重入的全局静态状态，也避免在热路径中创建 stream、分配内存或执行阻塞同步。</p>
+<p>本实验还可以进一步按 tile 重叠 Tensor Core 上的 INT8 GEMM 与 CUDA Core 上的地址计算、类型转换和 FP64 重组。不过“可被并发调度”不等于一定获得线性加速：多个饱和 Tensor Core GEMM 往往会竞争同一组 SM，而不是把吞吐直接翻倍；FP64 重组还会竞争 CUDA Core、寄存器和内存带宽。应在时间线中确认是否真正形成重叠，并以端到端时间判断双 stream 是否值得保留。</p>
+<h4 id="hopper-架构上的-wgmma-与-warp-specialization">Hopper 架构上的 WGMMA 与 warp specialization<a class="headerlink" href="#hopper-架构上的-wgmma-与-warp-specialization" title="Permanent link">&para;</a></h4>
+<p>WGMMA（Warpgroup Matrix Multiply-Accumulate）是 Hopper <code>sm_90a</code> 上面向 warp group 的异步矩阵乘加接口。一个 warp group 由 <strong>4 个连续 warp，即 128 个线程</strong>组成；这些线程协作发起矩阵乘法并持有分布式累加器。与此前以单个 warp 为主要协作单位的 MMA 接口相比，WGMMA 处理更大的 tile，并允许矩阵乘法与同一 CTA 中其他 warp group 的数据准备工作重叠。这里的“异步”指的是<strong>发起与等待被分离</strong>：warp group 发出指令后，可以在允许的依赖范围内继续推进流水线，随后通过 commit/wait group 语义保证累加器结果在被消费前已经完成——它<strong>不能省略同步</strong>，只是把等待推迟到真正需要结果的位置。WGMMA 在本实验中只承担 INT8×INT8→INT32 主体计算；FP64 缩放与跨 pair 重组仍需由 CUDA Core 或后续 epilogue 完成，不能把“使用 WGMMA”误解为整条数据路径都运行在 Tensor Core 上。</p>
+<p>warp specialization 的划分单位是 <strong>warp 或 warp group</strong>，而不是把一个 warp 内的线程再拆成不同职责。典型的 producer-consumer 结构如下：producer warp 负责通过 TMA 发起全局内存到 Shared Memory 的搬运并维护 barrier；consumer warp group 等待 tile 就绪后发起 WGMMA；需要时还可由专门的 warp 处理 epilogue 和写回。各角色通过 Shared Memory 中的多级缓冲区传递数据，使搬运、矩阵乘法和重组形成细粒度流水线。</p>
+<p><a class="glightbox" data-type="image" href="image/warp-specialization.png"><img alt="Hopper warp specialization 示例" src="image/warp-specialization.png" /></a></p>
+<p>将这一结构用于本实验时，可以让 producer 准备 <span class="arithmatex">\(A_q^{(i)}\)</span>、<span class="arithmatex">\(B_q^{(j)}\)</span> 的下一个 K-tile，让 consumer warp group 执行当前 INT8×INT8→INT32 WGMMA，并在合适的阶段把完成的累加器交给 FP64 重组逻辑。实现时需要重点选择 CTA tile、WGMMA tile、pipeline stage 数和各角色的 warp 数。tile 太小会增加调度开销，tile 太大则可能因 Shared Memory 和寄存器占用过高而降低并行度；producer 太少可能喂不满 Tensor Core，太多则会挤占 consumer 的资源。建议先复用 CUTLASS 中已经验证过的 SM90 warp-specialized schedule，再逐项替换数据类型、布局和 epilogue。</p>
+<p>使用 CUTLASS 时，可以通过 <code>CollectiveBuilder</code> 的 <code>KernelScheduleAuto</code> 选择 SM90 warp-specialized/TMA 路径，并用 <code>StageCountAutoCarveout</code> 在扣除 epilogue Shared Memory 后决定 mainloop stage 数，而不必手写 <code>wgmma.*</code> PTX。CTA tile 和 cluster shape 仍需实测；例如可以把 <code>128×256×128</code> CTA tile 与 <code>1×1×1</code>、<code>2×1×1</code>、<code>4×1×1</code> 等 cluster 作为候选。cluster 使相邻 CTA 有机会通过 TMA multicast 复用 operand tile，但收益取决于问题形状、SM 数、MIG 分区、可调度 cluster 数和尾部浪费。同一配置在不同规模的 GPU 分区上可能出现相反排序，因此必须按目标机器重新扫描，不能照抄单一参数。</p>
+<h4 id="使用-cutlass">使用 CUTLASS<a class="headerlink" href="#使用-cutlass" title="Permanent link">&para;</a></h4>
+<p>CUTLASS 是 NVIDIA 提供的高性能 CUDA C++ 模板库，用于构造 GEMM 及相关算子。与只能选择固定库接口的 cuBLAS 相比，CUTLASS 暴露了 tile shape、数据布局、pipeline stage、kernel schedule 和 epilogue 等编译期参数，因此特别适合本实验这种“主体是标准 INT8 GEMM，但前后处理需要定制”的场景。其底层 CuTe 抽象用 <code>Tensor</code>、<code>Layout</code>、copy atom 和 MMA atom 描述线程与数据的映射，可以在较高层表达 TMA、Shared Memory swizzle 和 WGMMA，而不必从头手写全部 PTX。</p>
+<p>在 CUTLASS 3.x 的 GEMM 结构中，<code>CollectiveMainloop</code> 负责将 <span class="arithmatex">\(A/B\)</span> tile 从全局内存搬到 Shared Memory 并执行主循环矩阵乘法，<code>CollectiveEpilogue</code> 负责处理累加器、类型转换和输出写回。本实验可将输入和输出设为列主序，INT8 输入采用 16 元素（128 bit）对齐，INT32 输出采用 4 元素对齐，累加器使用 INT32，并通过 <code>GemmUniversalAdapter</code> 在 <code>sm_90a</code> 上运行。后续路线应区分“调好标准 GEMM”和“改造 Ozaki 数据流”：</p>
+<ol>
+<li><strong>扫描标准 GEMM 配置</strong>：针对目标 <span class="arithmatex">\(M,N,K\)</span>、GPU/MIG 分区测试 CTA tile、cluster shape 与 schedule。<code>StageCountAutoCarveout</code> 是可靠起点，但不等于对所有尺寸最优；还要检查尺寸是否满足向量对齐以及 tile/cluster 的整除或 predication 成本。</li>
+<li><strong>复用 workspace 和计划</strong>：缓存 CUTLASS workspace 与大块临时缓冲，避免每次调用都 <code>cudaMalloc</code>；还应缓存与 problem shape 对应的 kernel 配置，并通过显式 context 管理生命周期，而不是使用不可重入的全局静态状态。</li>
+<li><strong>减少 pair 级调度开销</strong>：如果每个保留的 <span class="arithmatex">\((i,j)\)</span> 都单独调用一次 CUTLASS GEMM，pair 数较多时会产生明显的启动和调度成本。可考虑 grouped/batched 组织、CUDA Graph，或在自定义 kernel 中一次消费多个 pair；不过各 pair 的 A/B 指针组合和 FP64 权重不同，不能简单假设一次普通 batched GEMM 就能完成最终重组。</li>
+<li><strong>定制 Ozaki epilogue 或 tile 级重组</strong>：标准 <code>CollectiveEpilogue</code> 可以先输出 INT32 部分积，再由后续 kernel 执行 FP64 缩放；更进一步，可让 epilogue 或后继 tile 消费者直接完成 FP64 转换与缩放，以减少 <code>n_pairs × M × N × sizeof(int32_t)</code> 的临时存储和 HBM 往返，同时设计无竞争的跨 pair 累加方式。</li>
+</ol>
+<p><a class="glightbox" data-type="image" href="image/cutlass-layers.svg"><img alt="CUTLASS 的分层抽象与本实验定制点" src="image/cutlass-layers.svg" /></a></p>
+<p>CUTLASS 的优势是复用已经优化过的流水线和布局，代价是模板层次较深、编译时间较长，而且自定义 FP64 epilogue 仍可能成为瓶颈。建议先用 CUTLASS Profiler 找到接近目标数据类型和尺寸的 SM90 kernel，再从可运行模板开始修改；每次只替换一个组成部分，并用正确性测试和 profiler 对比，避免同时改变布局、调度和重组逻辑后难以定位问题。还要分别报告<strong>单次 INT8 GEMM 时间</strong>与包含 max-abs、量化、全部 pair、重组和同步的<strong>端到端时间</strong>：前者接近峰值并不代表整个 FP64 模拟路径同样高效。</p>
+<h4 id="减少-shared-memory-bank-conflict">减少 Shared Memory bank conflict<a class="headerlink" href="#减少-shared-memory-bank-conflict" title="Permanent link">&para;</a></h4>
+<p>Shared Memory 被划分为多个可并行访问的 bank。对常见的 32-bank 组织而言，一个 warp 发出的 Shared Memory 指令如果把不同地址集中映射到同一 bank，硬件就需要把请求拆成多次执行；冲突度越高，有效带宽越低。一个简化的 4-bank 模型如下，其中逻辑上连续的 word 轮流映射到不同 bank：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Bank 0    Bank 1    Bank 2    Bank 3
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>MEM[0]    MEM[1]    MEM[2]    MEM[3]
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>MEM[4]    MEM[5]    MEM[6]    MEM[7]
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>MEM[8]    MEM[9]    MEM[10]   MEM[11]
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>...       ...       ...       ...
+</span></code></pre></div>
+<p>例如，线程分别访问 <code>MEM[0]</code>、<code>MEM[9]</code>、<code>MEM[6]</code>、<code>MEM[3]</code> 时，地址映射到四个不同 bank，可以并行服务；若它们访问 <code>MEM[0]</code>、<code>MEM[4]</code>、<code>MEM[8]</code>、<code>MEM[12]</code>，则会形成同一 bank 上的不同地址冲突。需要区分一种例外：多个线程读取同一 bank 的<strong>同一地址</strong>时，Shared Memory 可以广播该值，这通常不计为 bank conflict。</p>
+<p><a class="glightbox" data-type="image" href="image/conflict.png"><img alt="不同 Shared Memory 布局下的 bank conflict" src="image/conflict.png" /></a></p>
+<p>GEMM 中的 Shared Memory tile 常常会被转置读取，或者被 WGMMA 按特定 fragment 方式消费；即使全局内存写入是连续的，简单的行主序/列主序 Shared Memory 布局也可能在读取阶段产生高阶冲突。常见的解决方法包括：</p>
+<ul>
+<li><strong>padding</strong>：将 leading dimension 从 <code>TILE_K</code> 改为 <code>TILE_K + PAD</code>，打破固定步长与 bank 数的公因子；</li>
+<li><strong>swizzle/permuted layout</strong>：用行号的部分 bit 对列地址做置换，使相邻线程在转置访问时分散到不同 bank；</li>
+<li><strong>匹配访问粒度和对齐</strong>：结合向量化 load/store、WGMMA 要求以及元素宽度设计布局，而不是只按二维矩阵的直观顺序存储；</li>
+<li><strong>让 TMA 写入目标布局</strong>：在 Hopper 上利用 TMA 与 CuTe layout 将全局内存中的规则 tile 搬成计算阶段所需的 Shared Memory 布局，减少手工重排指令。</li>
+</ul>
+<p>布局优化必须同时检查写入和读取两侧：消除 producer 的冲突却增加 consumer 的冲突，未必有净收益。可用 Nsight Compute 的 Shared Memory load/store transaction、bank-conflict 相关指标以及 kernel 总时间验证；具体的布局示例可参考 <a href="https://zhuanlan.zhihu.com/p/1990792939232835390">CuTe 之 Hopper TMA</a>。</p>
+<h4 id="其他优化思路">其他优化思路<a class="headerlink" href="#其他优化思路" title="Permanent link">&para;</a></h4>
+<p><a class="glightbox" data-type="image" href="image/optimization-checklist.svg"><img alt="通用优化方向及其验证指标" src="image/optimization-checklist.svg" /></a></p>
+<ol>
+<li>
+<p><strong>减少全局内存访问，提高数据复用。</strong> 对 <span class="arithmatex">\(M/N/K\)</span> 三个维度进行 tiling，把 <span class="arithmatex">\(A/B\)</span> 子块缓存在 Shared Memory，把输出子块或部分累加状态尽量保留在寄存器中，使一次 HBM 加载能够服务多次 MMA。还应避免每个 <span class="arithmatex">\((i,j)\)</span> 部分积都对完整 <span class="arithmatex">\(C\)</span> 做一次读改写；可以按输出 tile 或按若干 split 组合分批累加。优化后应观察 DRAM bytes 是否下降、L2 命中率和 arithmetic intensity 是否提高，而不能只比较指令数。</p>
+</li>
+<li>
+<p><strong>优化全局内存访问模式。</strong> 让同一 warp 的线程访问连续且对齐的地址，以便合并为尽可能少的内存事务；必要时使用 <code>int4</code>、<code>uint4</code> 等向量化访问，但必须保证地址和 leading dimension 满足对齐要求。当前矩阵为列主序，因此线程到 <code>A[k*M+m]</code>、<code>B[n*K+k]</code> 和 <code>C[n*M+m]</code> 的映射应分别设计，不能对三个矩阵机械套用同一种线程布局。边界 tile 可以采用 predication 或独立的 remainder kernel，避免正常路径承担大量越界判断。需要注意，<strong>全局内存 coalescing 与 Shared Memory bank conflict 是不同层级的问题</strong>，应分别分析。</p>
+</li>
+<li>
+<p><strong>减少分支与 warp divergence。</strong> 当同一 warp 内不同线程执行不同分支时，各路径会被依次执行，未参与当前路径的线程处于空闲状态。可将常见的整齐尺寸作为无分支 fast path，把边界情况拆到单独 kernel；对简单的边界条件优先使用 predication，并将只与 tile 或 warp 有关的判断移到循环外。模板参数和循环展开还能把 splits、tile shape 等运行时分支转化为编译期选择，但展开过度会增大代码体积和寄存器压力，因此仍需实测。</p>
+</li>
+<li>
+<p><strong>在误差预算内做精度取舍。</strong> 低精度并不意味着所有变量都应降精度。INT8 分量和 INT32 Tensor Core 累加是算法的计算主体，而比例尺 <span class="arithmatex">\(s_i^A s_j^B\)</span>、残差更新、跨部分积的求和及最终输出通常仍应保留 FP64，以避免小量级分量在重组时被吞掉。量化商和 max-abs 归约可尝试 FP32，但它们会影响分量选择与初始比例尺，必须覆盖动态范围大、接近量化边界、含全零矩阵以及非 16 倍数尾部等用例，不能只在随机均匀矩阵上验证。</p>
+</li>
+<li>
+<p><strong>按反对角线裁剪 split pair。</strong> 由于 <span class="arithmatex">\(s_i^A s_j^B\)</span> 随 <span class="arithmatex">\(i+j\)</span> 近似按 <span class="arithmatex">\(254^{-(i+j)}\)</span> 衰减，优先保留 <span class="arithmatex">\(i+j&lt;d\)</span> 的组合，往往比随意删去 pair 更符合误差结构。实现时只为保留的 pair 分配紧凑 INT32 缓冲，可以同时减少 GEMM 次数、临时显存和重组流量。但阈值 <span class="arithmatex">\(d\)</span> 取决于 splits、输入分布和误差目标，不存在适用于所有场景的固定值。提交结果时应给出“阈值—保留 pair 数—时间—最大绝对误差—L2 相对误差”曲线，并在需要严格上界时使用残差范数或保守误差界，而非只凭比例尺大小判断。</p>
+</li>
+<li>
+<p><strong>摊薄分配、同步和提交成本。</strong> 反复 <code>cudaMalloc/cudaFree</code>、创建 stream、从 device 拷回归约结果并 host-side reduce，都会进入端到端时间。可以预分配 workspace、复用 stream/event、用第二级 device reduction 避免传回数千个 partial，或用 CUDA Graph 降低固定 shape 下重复执行的 launch 开销。缓存键必须包含所有影响容量和布局的参数；例如 pair 裁剪阈值改变后，<code>n_pairs</code> 和临时缓冲容量也会改变，不能只按 <span class="arithmatex">\(M,N,K,\)</span> splits 判断是否需要重新分配。</p>
+</li>
+<li>
+<p><strong>检查 INT32 累加范围。</strong> 单个 INT8 GEMM 元素的最坏情况量级约为 <span class="arithmatex">\(K_{\mathrm{dim}}\cdot127^2\)</span>；当 <span class="arithmatex">\(K_{\mathrm{dim}}\)</span> 足够大时可能超过有符号 INT32 范围。以全同号极值作保守估算，需满足 <span class="arithmatex">\(K_{\mathrm{dim}}\cdot127^2\le 2^{31}-1\)</span>（约 <span class="arithmatex">\(K_{\mathrm{dim}}\le133144\)</span>）。当前 benchmark 规模远低于该阈值，但若扩展到更长 K、非随机高幅输入或沿 K 分块后再次做整数累加，应显式验证范围，必要时分段转换到 FP64。</p>
+</li>
+</ol>
+<p>这些优化之间存在耦合：更大的 tile 能提高复用，却增加 Shared Memory 和寄存器占用；更多 pipeline stage 能隐藏延迟，却可能降低 occupancy；更激进的融合能减少 HBM 流量，却会延长 FP64 累加器的生命周期；更激进的 pair 裁剪能减少主要计算量，却直接改变误差。一个可靠的调优流程应当是：<strong>profile → 提出单一瓶颈假设 → 修改一个参数 → 同时验证性能与精度 → 保留或回退</strong>。</p>
+<h2 id="评分方式">评分方式<a class="headerlink" href="#评分方式" title="Permanent link">&para;</a></h2>
+<h3 id="正确性要求">正确性要求<a class="headerlink" href="#正确性要求" title="Permanent link">&para;</a></h3>
+<p>性能评分前会先验证正确性。对每个测试规模和 splits 组合，<code>my_int8_fp64</code> 的输出会与 <code>fp64_cublas</code> 参考结果比较，要求 L2 相对误差低于阈值。正确性不通过的规模或 splits 组合得 0 分。</p>
+<h3 id="性能评分">性能评分<a class="headerlink" href="#性能评分" title="Permanent link">&para;</a></h3>
+<p>性能指标为 <code>my_int8_fp64</code> 在各 splits 下的吞吐量（GFLOPS）。每个 splits 参数对应一组固定的 GFLOPS checkpoint，不依赖实时 cuBLAS 测量结果。</p>
+<p>每个 splits 参数下的得分曲线如下图所示（横轴为 GFLOPS，以 splits=2 为例）：</p>
+<p><a class="glightbox" data-type="image" href="image/score.png"><img alt="Lab 4.5 得分曲线" src="image/score.png" /></a></p>
+<p>具体定义如下：</p>
+<div class="arithmatex">\[
+S(g)=
+\begin{cases}
+0, &amp; g \le g_0, \\[2pt]
+60\dfrac{g - g_0}{g_{60} - g_0}, &amp; g_0 &lt; g \le g_{60}, \\[6pt]
+60 + 40\dfrac{e^{1.5 u} - 1}{e^{1.5} - 1},
+    &amp; g_{60} &lt; g \le g_{100}, \\[6pt]
+100, &amp; g &gt; g_{100},
+\end{cases}
+\]</div>
+<p>其中 <span class="arithmatex">\(u = \dfrac{g - g_{60}}{g_{100} - g_{60}}\)</span>，<span class="arithmatex">\(g\)</span> 为 <code>my_int8_fp64</code> 的实测 GFLOPS。</p>
+<p>各 splits 的 checkpoint（GFLOPS）如下表：</p>
+<table>
+<thead>
+<tr>
+<th>splits</th>
+<th style="text-align: right;"><span class="arithmatex">\(g_0\)</span>（0 分）</th>
+<th style="text-align: right;"><span class="arithmatex">\(g_{60}\)</span>（60 分）</th>
+<th style="text-align: right;"><span class="arithmatex">\(g_{100}\)</span>（100 分）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td style="text-align: right;">2500</td>
+<td style="text-align: right;">5000</td>
+<td style="text-align: right;">10000</td>
+</tr>
+<tr>
+<td>4</td>
+<td style="text-align: right;">750</td>
+<td style="text-align: right;">2500</td>
+<td style="text-align: right;">5000</td>
+</tr>
+<tr>
+<td>6</td>
+<td style="text-align: right;">350</td>
+<td style="text-align: right;">1500</td>
+<td style="text-align: right;">3000</td>
+</tr>
+<tr>
+<td>8</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">1500</td>
+<td style="text-align: right;">3000</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><span class="arithmatex">\(g \le g_0\)</span>：基本没有有效优化，得 0 分。</li>
+<li><span class="arithmatex">\(g = g_{60}\)</span>：超过朴素 baseline 的水平，得 60 分。</li>
+<li><span class="arithmatex">\(g = g_{100}\)</span>：达到 cuBLAS 内置 fixed-point emulation 的性能，得 100 分。</li>
+<li><span class="arithmatex">\(g &gt; g_{100}\)</span>：超过 cuBLAS，仍得 100 分（满分封顶）。</li>
+</ul>
+<h3 id="测试规模与权重">测试规模与权重<a class="headerlink" href="#测试规模与权重" title="Permanent link">&para;</a></h3>
+<p>测试矩阵规模为 4096³ 和 8192³，splits 取 2、4、6、8。每个规模下取各 splits 得分的算术平均，再按规模等权平均。各 splits 的权重为：</p>
+<table>
+<thead>
+<tr>
+<th>splits</th>
+<th>权重</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>40%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>20%</td>
+</tr>
+<tr>
+<td>6</td>
+<td>20%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>20%</td>
+</tr>
+</tbody>
+</table>
+<p>最终得分公式为：</p>
+<div class="arithmatex">\[
+\text{Score} = \frac{1}{2}\sum_{M \in \{4096, 8192\}} \sum_{S \in \{2,4,6,8\}} w_S \cdot S_M(g_{M,S})
+\]</div>
+<p>其中 <span class="arithmatex">\(w_2 = 0.4\)</span>，<span class="arithmatex">\(w_4 = w_6 = w_8 = 0.2\)</span>，<span class="arithmatex">\(g_{M,S}\)</span> 是规模 <span class="arithmatex">\(M\)</span> 下 splits=<span class="arithmatex">\(S\)</span> 时 <code>my_int8_fp64</code> 的实测 GFLOPS，<span class="arithmatex">\(S_M(g_{M,S})\)</span> 是对应的得分。</p>
+<h2 id="提交要求">提交要求<a class="headerlink" href="#提交要求" title="Permanent link">&para;</a></h2>
+<ol>
+<li>修改后的 <code>src/lab4p5/submit/my_int8_fp64.cu</code>。</li>
+</ol>
+<h2 id="参考资料">参考资料<a class="headerlink" href="#参考资料" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Katsuhisa Ozaki, Takeshi Ogita, Shin'ichi Oishi, and Siegfried M. Rump. “Error-free transformations of matrix multiplication by using fast routines of matrix multiplication and its applications.” <em>Numerical Algorithms</em>, 59(1):95-118, 2012. <a href="https://doi.org/10.1007/s11075-011-9478-1">doi:10.1007/s11075-011-9478-1</a></li>
+<li>NVIDIA. “cuBLAS Library Documentation,” CUDA Toolkit 13.3, §1.5 Floating Point Emulation. <a href="https://docs.nvidia.com/cuda/cublas/">https://docs.nvidia.com/cuda/cublas/</a></li>
+<li>NVIDIA. “NVIDIA H100 GPU: Product Specifications.” <a href="https://www.nvidia.com/en-us/data-center/h100/">https://www.nvidia.com/en-us/data-center/h100/</a></li>
+<li>NVIDIA. “Datasheet for NVIDIA Blackwell Architecture” (B200) and “Datasheet for NVIDIA Blackwell Ultra” (B300). <a href="https://www.nvidia.com/en-us/data-center/blackwell-architecture/">https://www.nvidia.com/en-us/data-center/blackwell-architecture/</a></li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../Lab4-AMSS-NCKU/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lab 4: AMSS-NCKU 数值相对论程序优化">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Lab 4: AMSS-NCKU 数值相对论程序优化
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../Lab5-Gemma4/" class="md-footer__link md-footer__link--next" aria-label="Next: Lab 5: Gemma4 端到端推理优化">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Lab 5: Gemma4 端到端推理优化
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.action.edit","content.code.annotate","content.code.copy","content.code.select","navigation.expand","navigation.footer","navigation.instant","navigation.instant.prefetch","navigation.instant.progress","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight","search.share","search.suggest","toc.follow"],"search":"../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6e5f0216.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="../../javascripts/v86-init.js"></script>
+      
+    
+  </body>
+</html>
