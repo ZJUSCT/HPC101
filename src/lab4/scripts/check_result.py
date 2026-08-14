@@ -96,10 +96,12 @@ def match_trajectory_times(reference, target, tolerance):
         ):
             target_index += 1
 
-        if (
-            target_index >= len(target)
-            or abs(target[target_index][0] - reference_time) > tolerance
-        ):
+        # Target exhausted: stop matching and compute RMS on the matched
+        # prefix. Mirrors AMSS/cal_RMS.py, which uses M = min(len1, len2).
+        if target_index >= len(target):
+            break
+
+        if abs(target[target_index][0] - reference_time) > tolerance:
             raise CheckError(
                 f"time coverage incomplete: matched {len(matches)}/{len(reference)}; "
                 f"no unused target time within {tolerance:.3g} of "
@@ -108,6 +110,13 @@ def match_trajectory_times(reference, target, tolerance):
 
         matches.append((reference_row, target[target_index]))
         target_index += 1
+
+    if len(matches) < len(reference):
+        print(
+            f"Warning: target has fewer timesteps than golden - "
+            f"matched {len(matches)}/{len(reference)} golden timesteps, "
+            f"RMS computed on the matched prefix"
+        )
 
     return matches
 
