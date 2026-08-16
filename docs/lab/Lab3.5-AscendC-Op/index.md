@@ -209,7 +209,7 @@ Simulator 在 CPU 上模拟指定 SoC 的指令执行，适合检查指令发射
         python3 checker/test_op.py 2
     ```
 
-    由于是 CPU 侧模拟算子在 NPU 上的行为，所以我们需要显示指定 -soc-version 为 Ascend 910B4。
+    由于是 CPU 侧模拟算子在 NPU 上的行为，所以我们需要显式指定 -soc-version 为 Ascend 910B4。
 
 !!! warning "不要尝试模拟真实数据规模"
 
@@ -295,7 +295,7 @@ Vector 侧的元素级与逐元素运算包括 `Cast`（类型转换，可指定
 
 ### 让搬运与计算形成流水
 
-AIV 的 MTE2、Vector 和 MTE3 可以分别执行搬入、计算和搬出。由于这三个单元本身是相互独立的，因此如果在同一时间重叠不同单元的执行将能够大幅掩盖时间，获得加速。Ascend C 的编程模型中倡导把一个 tile 的处理拆成 `CopyIn → Compute → CopyOut` 三段式，明确生命生产者和消费者关系，并用 `TQue` 在阶段间传递 LocalTensor 的所有权与同步事件。这样的编写范式能够更好的让编译器识别依赖关系，并且**自动**开启流水。
+AIV 的 MTE2、Vector 和 MTE3 可以分别执行搬入、计算和搬出。由于这三个单元本身是相互独立的，因此如果在同一时间重叠不同单元的执行将能够大幅掩盖时间，获得加速。Ascend C 的编程模型中倡导把一个 tile 的处理拆成 `CopyIn → Compute → CopyOut` 三段式，明确声明生产者和消费者关系，并用 `TQue` 在阶段间传递 LocalTensor 的所有权与同步事件。这样的编写范式能够更好的让编译器识别依赖关系，并且**自动**开启流水。
 
 <figure markdown="span">
   <div markdown="span" style="background: #ffffff; padding: 8px;">

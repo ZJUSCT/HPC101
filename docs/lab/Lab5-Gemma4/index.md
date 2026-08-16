@@ -596,7 +596,7 @@ Prefill 通常处理多个 token，计算量明显大于单步 decode。如果�
 
 - 你需要使用优化后的推理框架在 1/7 张 H800 上进行推理，推理框架启动入口为 `scripts/run_generation_queue.py`。
 
-- 我们会给出一份公开的性能测试数据集 `performance_public.jsonl`，在测试时我们采用无限并发模式，即在开始推理之间将所有请求压入等待队列，推理过程中不再有新的请求到达。
+- 我们会给出一份公开的性能测试数据集 `performance_public.jsonl`，在测试时我们采用无限并发模式，即在开始推理之前将所有请求压入等待队列，推理过程中不再有新的请求到达。
 
 - 允许修改代码框架的推理逻辑、算子实现、KV Cache 管理和请求调度策略，但不得修改模型结构，修改计时区间或跳过必要步骤。
 
@@ -713,7 +713,7 @@ Prefill 通常处理多个 token，计算量明显大于单步 decode。如果�
 ├── src/
 │   └── ...
 ├── config.yaml
-├── datasets/                            # optimal
+├── datasets/                            # optional
 │   └── calibration.jsonl
 ├── report.pdf
 └── results/
