@@ -691,20 +691,18 @@ Prefill 通常处理多个 token，计算量明显大于单步 decode。如果�
 
 ## 评测方式
 
-!!! danger "施工中"
-
-    目前 OJ 自动评测系统仍在建设中😭，我们会尽快发布。
-
-
-### 提交要求
+### 实验提交要求
 
 需要提交的内容包括：
 
 - `src` 目录下的实验代码
 - 配置文件 `config.yaml`
 - 实验报告 PDF
-- 公开数据集上的精度评测结果和性能评测结果 JSON 文件
+- 公开数据集上的精度评测结果、性能测试输出和性能评测结果
 - （可选）自定义的校准数据集
+
+!!! tip "注意事项"
+    提交的测试结果与 OJ 评测结果相差过大时，优先以 OJ 评测结果为准，如果实在无法在 OJ 上复现，请提交你的最佳测试结果并在报告中说明。
 
 提交目录结构如下：
 
@@ -717,8 +715,9 @@ Prefill 通常处理多个 token，计算量明显大于单步 decode。如果�
 │   └── calibration.jsonl
 ├── report.pdf
 └── results/
-    ├── gptq-public-quality.json
-    └── gptq-public-performance.json
+    ├── gptq-public-quality.json         # 精度评测结果
+    ├── gptq-public-performance.json     # 性能测试输出
+    └── gptq-public-summary.json         # 性能评测结果
 ```
 
 请勿提交下列内容：
@@ -728,7 +727,26 @@ Prefill 通常处理多个 token，计算量明显大于单步 decode。如果�
 - profiler 产物
 - 任何中间结果或临时文件
 
-### 评测流程
+### OJ 提交要求
+
+需要提交的内容包括：
+
+- `src` 目录下的实验代码
+- 配置文件 `config.yaml`
+- （可选）自定义的校准数据集
+
+提交目录结构如下：
+
+```
+.
+├── src/
+│   └── ...
+├── config.yaml
+└── datasets/                            # optimal
+    └── calibration.jsonl
+```
+
+### OJ 评测流程
 
 OJ 评测时会经过三个阶段：
 
@@ -754,7 +772,7 @@ OJ 会根据你提交的量化框架代码和配置文件中的量化选项，�
 $$
 S_1(x) = \begin{cases}
     100, & x < 0.1 \\[0.9em]
-    100 \cdot \dfrac{e^{20x} - e^{3.6}}{e^{2} - e^{3.6}}, & 0.1 \le x < 0.16 \\[0.9em]
+    100 \cdot \dfrac{e^{20x} - e^{3.2}}{e^{2} - e^{3.2}}, & 0.1 \le x < 0.16 \\[0.9em]
     0, & x \ge 0.16
 \end{cases}
 $$
@@ -800,19 +818,19 @@ $$
     $$
     S_2(x) = \begin{cases}
         100, & x < 36 \\[0.9em]
-        -\dfrac{5}{6} x + 30, & 36 \le x < 60 \\[0.9em]
+        -\dfrac{5}{6} x + 130, & 36 \le x < 60 \\[0.9em]
         \dfrac{5}{6} u \ln \dfrac{u}{x + u - 60} + 80, & 60 \le x < 150 \\[0.9em]
         -\dfrac{1}{3} x + 80, & 150 \le x < 240 \\[0.9em]
         0, & x \ge 240
     \end{cases}
     $$
 
-    其中 $x$ 是 `elapsed_s`，$u \approx -65.56$ 是方程 $u \ln \left( 1 + \dfrac{90}{u} \right) = 60$ 的正根。
+    其中 $x$ 是 `elapsed_s`，$u \approx 78.67$ 是方程 $u \ln \left( 1 + \dfrac{90}{u} \right) = 60$ 的正根。
 
 - `performance_long.jsonl`：Bonus 测试集，考查长上下文压力下的性能表现
 
-    !!! danger "Bonus 测评"
-        Bonus 数据集设计和测评方式尚未发布，敬请期待...
+    !!! warning "Bonus 测评"
+        Bonus 数据集设计和测评方式尚未发布...
 
 
 除报告外，你的最终得分公式如下：
@@ -826,9 +844,6 @@ $$
 1. 根据 Gemma4-12B 的结构，推导在 W4A16 量化下，全量加载模型权重占用的显存大小，以及 KV Cache 占用的显存大小与 batch_size、max_seq_len 的关系式，与实际测量的显存占用进行对比，分析差异原因。
 2. 滑动窗口注意力实质上是一种静态稀疏注意力机制，根据经验设置了注意力掩码的形状。请你思考如果我们不事先设定注意力掩码的形状，可以如何实现稀疏注意力？你的实现相比滑动窗口注意力会对模型的性能和推理效率产生什么影响？
 3. 我们的量化框架已经实现了分层量化，请分析分层量化时对权重的管理策略与推理时的 Offloading 策略的异同点。
-
-!!! warning
-    思考题可能还会继续补充，请大家保持关注...
 
 
 ## 参考资料
