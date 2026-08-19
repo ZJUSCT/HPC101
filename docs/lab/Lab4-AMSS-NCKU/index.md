@@ -76,7 +76,7 @@ AMSS-NCKU 也被用作 [ASC26 世界大学生超级计算机竞赛](https://www.
 
 !!! note "关于黑洞演化时间"
 
-    本实验的优化任务设计 CPU 和 GPU 两个平台。由于 CPU 单步演化的时间可能远大于 GPU 演化，因此在硬件资源有限的情况下我们无法支撑你在 CPU 平台上完整模拟整个引力波事件。目前演化时间的选择逻辑如下：
+    本实验的优化任务涉及 CPU 和 GPU 两个平台。由于 CPU 单步演化的时间可能远大于 GPU 演化，因此在硬件资源有限的情况下我们无法支撑你在 CPU 平台上完整模拟整个引力波事件。目前演化时间的选择逻辑如下：
 
     ```python
     Final_Evolution_Time     = 100.0 if GPU_Calculation == "yes" else 40.0  ## final evolution time t1
