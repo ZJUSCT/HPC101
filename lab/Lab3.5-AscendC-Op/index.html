@@ -1,0 +1,3037 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Lab3.5-AscendC-Op/">
+      
+      
+        <link rel="prev" href="../Lab3-GDN-Prefill/">
+      
+      
+        <link rel="next" href="../Lab4-AMSS-NCKU/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="zensical-0.0.43">
+    
+    
+      
+        <title>Lab 3.5：昇腾算子开发与优化 - HPC101</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.fba56155.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  <script>
+    (function () {
+      try {
+        var saved = (typeof __md_get === "function") ? __md_get("__palette") : null;
+        var scheme;
+        if (saved && saved.color && saved.color.media) {
+          if (saved.color.media === "(prefers-color-scheme)") {
+            scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+          } else {
+            scheme = saved.color.scheme;
+          }
+        } else {
+          scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+        }
+        document.documentElement.setAttribute("data-md-color-scheme", scheme);
+        var attach = function () {
+          document.body.setAttribute("data-md-color-scheme", scheme);
+          new MutationObserver(function () {
+            var s = document.body.getAttribute("data-md-color-scheme");
+            if (s) document.documentElement.setAttribute("data-md-color-scheme", s);
+          }).observe(document.body, {
+            attributes: true,
+            attributeFilter: ["data-md-color-scheme"],
+          });
+        };
+        if (document.body) {
+          attach();
+        } else {
+          new MutationObserver(function (_, obs) {
+            if (document.body) {
+              attach();
+              obs.disconnect();
+            }
+          }).observe(document.documentElement, { childList: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script>
+    // Track keydown listeners added on window so v86 can later remove
+    // Material's global handler that would otherwise capture key presses
+    // intended for the in-browser Linux VM.
+    (function () {
+      window.__v86KeydownListeners = [];
+      var origAdd = window.addEventListener;
+      var origRemove = window.removeEventListener;
+      window.addEventListener = function (type, listener, options) {
+        origAdd.call(this, type, listener, options);
+        if (type === "keydown") {
+          window.__v86KeydownListeners.push({ listener: listener, options: options });
+        }
+      };
+      window.removeEventListener = function (type, listener, options) {
+        origRemove.call(this, type, listener, options);
+        if (type === "keydown") {
+          var i = window.__v86KeydownListeners.findIndex(function (e) {
+            return e.listener === listener;
+          });
+          if (i !== -1) window.__v86KeydownListeners.splice(i, 1);
+        }
+      };
+    })();
+  </script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lab-35昇腾算子开发与优化" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101" class="md-header__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Lab 3.5：昇腾算子开发与优化
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guide/" class="md-tabs__link">
+          
+  
+  集群使用
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101" class="md-nav__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    HPC101
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程信息
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程信息
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  欢迎来到 HPC 101 超算短学期
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../enroll/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  报名与选课
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sponsors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  支持单位
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群使用
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  集群使用
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  登录平台
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交计算任务
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/submit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交实验报告
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  在线测评 OJ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群概况
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程实验
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 0: Linux 快速入门
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 1: 简单集群搭建
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 2: MoE 的向量化计算
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab3-GDN-Prefill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3: GDN Prefill 前向优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3.5: 昇腾算子开发与优化
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3.5: 昇腾算子开发与优化
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验目的
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#背景知识" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        背景知识
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="背景知识">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fusedaddrmsnorm" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        FusedAddRmsNorm
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#昇腾-910-npu" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        昇腾 910 NPU
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="昇腾 910 NPU">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#昇腾-npu-与达芬奇架构" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        昇腾 NPU 与达芬奇架构
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-core-与-aic--aiv-分离架构" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AI Core 与 AIC / AIV 分离架构
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aiv-内部结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AIV 内部结构
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#算子开发路径" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        算子开发路径
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#性能分析-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能分析 Profiling
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="性能分析 Profiling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#msprof-op分析算子的宏观特点" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>msprof op</code>：分析算子的宏观特点
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#msprof-op-simulator观察指令流水与同步" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>msprof op simulator</code>：观察指令流水与同步
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#从现象提出可验证的假设" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        从现象提出可验证的假设
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ascend-c-简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ascend C 简介
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ascend C 简介">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tensor-编程模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tensor 编程模型
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#内存搬运类-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        内存搬运类 API
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vector-计算-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Vector 计算 API
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#编写高性能的-ascend-c-算子" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        编写高性能的 Ascend C 算子
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="编写高性能的 Ascend C 算子">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#让搬运与计算形成流水" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        让搬运与计算形成流水
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#让中间结果留在-ub" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        让中间结果留在 UB
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#根据-shape-设计-tiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        根据 shape 设计 Tiling
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#提高搬运效率" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提高搬运效率
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#选择合适的规约实现与精度" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        选择合适的规约实现与精度
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#接口与计算语义" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        接口与计算语义
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#修改范围与限制" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        修改范围与限制
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#代码框架" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        代码框架
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="代码框架">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#选择开发路径" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        选择开发路径
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#构建与自测" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        构建与自测
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#如何获取计算资源" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        如何获取计算资源
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#评分方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评分方式
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="评分方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#正确性验证" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        正确性验证
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#性能评分" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能评分
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验报告要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验报告要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#思考题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        思考题
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#提交要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        参考资料
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="参考资料">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#算法与参考实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        算法与参考实现
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ascend-c-与性能分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ascend C 与性能分析
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#其他开发路径" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        其他开发路径
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab4-AMSS-NCKU/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4: AMSS-NCKU 数值相对论程序优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab4.5-INT8-FP64-GEMM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4.5: INT8 张量核模拟 FP64 GEMM
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab5-Gemma4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 5: Gemma4 端到端推理优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Final-Project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Final Project: 大作业
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#实验目的" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验目的
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#背景知识" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        背景知识
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="背景知识">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fusedaddrmsnorm" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        FusedAddRmsNorm
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#昇腾-910-npu" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        昇腾 910 NPU
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="昇腾 910 NPU">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#昇腾-npu-与达芬奇架构" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        昇腾 NPU 与达芬奇架构
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-core-与-aic--aiv-分离架构" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AI Core 与 AIC / AIV 分离架构
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aiv-内部结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AIV 内部结构
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#算子开发路径" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        算子开发路径
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#性能分析-profiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能分析 Profiling
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="性能分析 Profiling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#msprof-op分析算子的宏观特点" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>msprof op</code>：分析算子的宏观特点
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#msprof-op-simulator观察指令流水与同步" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>msprof op simulator</code>：观察指令流水与同步
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#从现象提出可验证的假设" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        从现象提出可验证的假设
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ascend-c-简介" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ascend C 简介
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ascend C 简介">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tensor-编程模型" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tensor 编程模型
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#内存搬运类-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        内存搬运类 API
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vector-计算-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Vector 计算 API
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#编写高性能的-ascend-c-算子" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        编写高性能的 Ascend C 算子
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="编写高性能的 Ascend C 算子">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#让搬运与计算形成流水" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        让搬运与计算形成流水
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#让中间结果留在-ub" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        让中间结果留在 UB
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#根据-shape-设计-tiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        根据 shape 设计 Tiling
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#提高搬运效率" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提高搬运效率
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#选择合适的规约实现与精度" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        选择合适的规约实现与精度
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#接口与计算语义" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        接口与计算语义
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#修改范围与限制" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        修改范围与限制
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#代码框架" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        代码框架
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="代码框架">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#选择开发路径" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        选择开发路径
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#构建与自测" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        构建与自测
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#如何获取计算资源" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        如何获取计算资源
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#评分方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评分方式
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="评分方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#正确性验证" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        正确性验证
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#性能评分" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        性能评分
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验报告要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验报告要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#思考题" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        思考题
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#提交要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#参考资料" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        参考资料
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="参考资料">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#算法与参考实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        算法与参考实现
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ascend-c-与性能分析" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ascend C 与性能分析
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#其他开发路径" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        其他开发路径
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Lab3.5-AscendC-Op/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="lab-35昇腾算子开发与优化">Lab 3.5：昇腾算子开发与优化<a class="headerlink" href="#lab-35昇腾算子开发与优化" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">实验信息</p>
+<p>负责助教：刘天洋，徐晨，周冠一，胡笠桁，胡哲文</p>
+<div class="admonition tip">
+<p class="admonition-title">Bonus 实验</p>
+<p>这是一个 <strong>Bonus 实验</strong>，不强制要求同学们完成。欢迎学有余力、对国产计算硬件感兴趣的同学挑战。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">硬件资源赞助</p>
+<p>本实验的昇腾 NPU 计算资源由 <strong>华为技术有限公司</strong> 赞助。在此致以诚挚谢意。</p>
+</div>
+</div>
+<h2 id="实验目的">实验目的<a class="headerlink" href="#实验目的" title="Permanent link">&para;</a></h2>
+<p>在其他实验中，我们了解了 x86-64、ARM 以及 RISC-V 等架构的 CPU 和 NVIDIA GPU 的硬件架构，并尝试写出更充分利用硬件特性的程序以优化运行效率。本次实验将把视野扩展到国产计算生态的代表硬件 <strong>昇腾（Ascend）NPU</strong>：你需要在昇腾 910B4 NPU 上实现一个简单的 <code>fused_add_rmsnorm</code> 算子，在保证功能正确的前提下，尽可能地提高性能。</p>
+<p>完成本实验后，你应当能够：</p>
+<ul>
+<li>了解昇腾 910 架构 NPU 的基础架构与计算单元组织；</li>
+<li>了解国产计算生态基本情况，至少掌握 AscendC / TileLang / Triton 中一种程序的基本开发能力；</li>
+<li>能够比较昇腾 NPU 与 NVIDIA GPU 在设计理念上的异同；</li>
+<li>掌握华为昇腾 NPU 上常见的算子优化手段，并理解这些手段背后对应着硬件的哪些特性；</li>
+<li>使用 <code>msprof</code> 等工具对算子进行性能分析，并据此定位瓶颈、指导优化方向。</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">前置课程</p>
+<p>7 月 14 日「华为 CANN」课程覆盖了本实验的相关内容。</p>
+<p>如果你对相关知识点不熟悉，也可以回顾课程内容。或参考文末的参考资料。</p>
+</div>
+<h2 id="背景知识">背景知识<a class="headerlink" href="#背景知识" title="Permanent link">&para;</a></h2>
+<h3 id="fusedaddrmsnorm">FusedAddRmsNorm<a class="headerlink" href="#fusedaddrmsnorm" title="Permanent link">&para;</a></h3>
+<p><code>FusedAddRmsNorm</code>，顾名思义，是把「残差加法（Add）」和「RMSNorm」融合在一起的一个算子。</p>
+<p>先来看 <a href="https://arxiv.org/abs/1910.07467">RMSNorm</a>，这是一种对向量做均方根归一化的方法。对一个长度为 <span class="arithmatex">\(H\)</span> 的向量 <span class="arithmatex">\(x\)</span>，它先用均方根做缩放，再乘以可学习权重 <span class="arithmatex">\(w\)</span>：</p>
+<div class="arithmatex">\[
+\operatorname{RMSNorm}(x) = \frac{x}{\sqrt{\dfrac{1}{H}\sum_{i=1}^{H}x_i^2 + \varepsilon}} \odot w,
+\]</div>
+<p>其中 <span class="arithmatex">\(w\)</span> 是与 <span class="arithmatex">\(x\)</span> 逐元素相乘的可学习缩放权重，<span class="arithmatex">\(\varepsilon\)</span> 是为数值稳定加入的小常数。RMSNorm 直接用均方根做缩放，计算较轻，在 Transformer 等模型中被广泛用作归一化层。</p>
+<p>而在 Transformer 前向中，RMSNorm 之前往往紧跟一个残差加法（residual add），把上一路的输入累加到残差流上。这其实就是一个矢量加法。<code>fused_add_rmsnorm</code> 就是把这两步<strong>融合成一个算子</strong>，避免残差结果在全局显存中多写一次再读回。融合后的计算为：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+R &amp;= x + \mathit{residual}, \\
+\mathit{rms} &amp;= \sqrt{\dfrac{1}{H}\sum_{i=1}^{H}R_i^2 + \varepsilon}, \\
+y &amp;= \dfrac{R}{\mathit{rms}} \odot w.
+\end{aligned}
+\]</div>
+<p>即该算子同时输出两部分：</p>
+<ul>
+<li><code>residual_out</code> <span class="arithmatex">\(= R = x + \mathit{residual}\)</span>，供后续残差流继续使用；</li>
+<li><code>y</code> <span class="arithmatex">\(= \operatorname{RMSNorm}(R)\)</span>，作为本层的归一化输出。</li>
+</ul>
+<h3 id="昇腾-910-npu">昇腾 910 NPU<a class="headerlink" href="#昇腾-910-npu" title="Permanent link">&para;</a></h3>
+<h4 id="昇腾-npu-与达芬奇架构">昇腾 NPU 与达芬奇架构<a class="headerlink" href="#昇腾-npu-与达芬奇架构" title="Permanent link">&para;</a></h4>
+<p>昇腾（Ascend）NPU 是华为自研的 AI 加速器，其核心 IP 是 <strong>达芬奇（Da Vinci）架构</strong>。达芬奇架构采用 <strong>Cube + Vector + Scalar</strong> 三种计算单元的异构组合：</p>
+<ul>
+<li><strong>Cube 单元</strong>：承担矩阵乘法（GEMM）类运算，一个周期可完成一次 <span class="arithmatex">\(M\times K\times N\)</span> 的矩阵乘（具体维度由代际决定），类似 CPU 上的 AMX / SME 扩展；</li>
+<li><strong>Vector 单元</strong>：承担向量与元素级运算（Cast、Add、Mul、Reduce、Sqrt 等），类似 CPU 上的 AVX / SVE 向量化扩展。但宽度较宽（一次处理 256B）；</li>
+<li><strong>Scalar 单元</strong>：承担标量运算、地址计算与控制流。</li>
+</ul>
+<p>Cube + Vector + Scalar 三个物理单元在一个 <strong>AI Core</strong> 内部并行执行，配合多级片上存储（UB / L1 / L0A / L0B / L0C）完成计算。多个 AI Core 组成一颗 NPU，通过 HBM 全局显存共享数据。</p>
+<h4 id="ai-core-与-aic--aiv-分离架构">AI Core 与 AIC / AIV 分离架构<a class="headerlink" href="#ai-core-与-aic--aiv-分离架构" title="Permanent link">&para;</a></h4>
+<p>在 910B 系列上（包括 A2 推理和训练系列），AI Core 采用了 <strong>AIC / AIV 分离</strong>的设计：</p>
+<ul>
+<li><strong>AIC（AI Cube）</strong>：一个 AIC 核内置 Cube 单元、L1、L0A/L0B/L0C 等存储，主要承担矩阵乘类指令；</li>
+<li><strong>AIV（AI Vector）</strong>：一个 AIV 核内置 Vector 单元、UB（Unified Buffer）等存储，主要承担向量与元素级指令；</li>
+<li>AIC 与 AIV 在物理上分离，通过片内总线通信；它们之间以及 AI Core 之间通过全局显存（Global Memory, GM / HBM）协作。</li>
+</ul>
+<figure>
+<br />
+<div style="background: #ffffff; padding: 8px;">
+    <a class="glightbox" data-type="image" href="image/ai-core-separated.png"><img alt="AI Core 分离架构" src="image/ai-core-separated.png" /></a>
+  </div>
+
+<br />
+<figcaption><a href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/devguide/opdevg/ascendcopdevg/atlas_ascendc_10_0008.html">AI Core 分离架构示意</a></figcaption>
+</figure>
+<p>每个核内还有多级片上存储：AIV 侧的 <strong>UB（Unified Buffer，向量计算的快速访存区）</strong>、AIC 侧的 L1、L0A/L0B/L0C 等。多个 AI Core 之间相互独立，通过 tiling 把数据切分到各核上并行执行。</p>
+<div class="admonition note">
+<p class="admonition-title">AI Core 耦合架构</p>
+<p>事实上，AI Core 也存在耦合架构，即可以直接在 AIV 的 UB 与 AIC 的 L1 Buffer / Buffer L0C 之间搬运数据而不需要经过全局内存。这种架构常见于边缘推理系列（如昇腾 310B 系列等）。</p>
+</div>
+<h4 id="aiv-内部结构">AIV 内部结构<a class="headerlink" href="#aiv-内部结构" title="Permanent link">&para;</a></h4>
+<div class="admonition warning">
+<p class="admonition-title">本实验不涉及 AI Cube</p>
+<p>由于算子本身不涉及矩阵乘法相关的运算，同时 AIC 算子的编写门槛较高，我们不会对 AIC 相关的开发框架和硬件特性做展开，感兴趣的同学可以自行了解。</p>
+</div>
+<p>每个 AIV 核内关键资源如下（on Ascend 910B4 NPU）：</p>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>容量/规格</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>UB（Unified Buffer）</strong></td>
+<td>192 KiB / AIV</td>
+<td>向量计算的快速访存区，所有 Vector 指令的操作数必须在 UB 上</td>
+</tr>
+<tr>
+<td><strong>Vector 单元</strong></td>
+<td>256B(VLEN)</td>
+<td>执行 Cast/Add/Mul/Reduce 等向量指令</td>
+</tr>
+<tr>
+<td><strong>MTE2 搬运单元</strong></td>
+<td>—</td>
+<td>GM → UB 的数据搬入</td>
+</tr>
+<tr>
+<td><strong>MTE3 搬运单元</strong></td>
+<td>—</td>
+<td>UB → GM 的数据搬出</td>
+</tr>
+<tr>
+<td><strong>Scalar 单元（S）</strong></td>
+<td>—</td>
+<td>标量运算、地址计算、控制流</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">数据搬运与流水</p>
+<p>AIV 上有 MTE2（GM→UB）、V（Vector 计算）、MTE3（UB→GM）三条独立的流水线。在本次实验中，同学们需要了解以下两种同步机制：</p>
+<ol>
+<li>
+<p><strong><code>TQue</code> 队列语义自动同步</strong>：当你用 <code>inQueX.AllocTensor</code> → <code>DataCopy</code> → <code>inQueX.EnQue</code> 发射数据搬入 UB 指令后，再 <code>inQueX.DeQue</code> 取出来给 Vector 用时，<strong><code>EnQue</code> / <code>DeQue</code> 内部会自动插入 MTE2→V 的同步事件</strong>——你不需要手动 <code>SetFlag/WaitFlag&lt;HardEvent::MTE2_V&gt;</code>。同理，输出端 <code>outQueY.EnQue</code> → <code>outQueY.DeQue</code> 也会自动处理 V→MTE3 的同步。这一机制主要保证内存搬运和向量计算流水线之间的依赖被正常处理。</p>
+</li>
+<li>
+<p><strong><code>PipeBarrier&lt;PIPE_*&gt;</code> 显式屏障</strong>：这一屏障用于保证某一条流水线内部的同步关系，常用的是 <code>PIPE_V</code>。Ascend NPU 的 V 流水线被设计为直接操作内存。Ascend NPU 不保证 V 流水线内部的 RAW 依赖能够被自动、正确地处理。开发者需要在存在 RAW 依赖的指令之间显式调用 PipeBarrier<PIPE_V>()，以确保本核此前发出的所有 V 指令均已执行完成。
+为了减少频繁插入屏障带来的编程负担，bisheng 编译器提供了 --cce-auto-sync 选项。启用后，编译器会根据可见的 LocalTensor 读写依赖自动插入必要的屏障。不过，当代码中涉及指针运算、容器传递或手工地址操作时，编译器的依赖分析可能失效，此时就需要同学们手动插入屏障。</p>
+</li>
+</ol>
+<p>更多有关同步的信息，感兴趣的同学可以参考 <a href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/latest/API/ascendcopapi/atlasascendc_api_07_0003.html">Ascend C API列表</a>.</p>
+</div>
+<h3 id="算子开发路径">算子开发路径<a class="headerlink" href="#算子开发路径" title="Permanent link">&para;</a></h3>
+<p>本实验框架支持 Ascend C、TileLang 和 Triton 三种算子开发路径。总体而言，Ascend C 更接近昇腾硬件，开发者需要显式处理数据切分、片上存储、数据搬运和计算流水；TileLang 与 Triton 则提供了更高层的 DSL 编程模型，由编译器承担更多底层实现工作。</p>
+<ul>
+<li>
+<p><strong>Ascend C</strong> Ascend C 是昇腾原生的 C/C++ 算子编程语言与 API 体系。它通过 DataCopy、Cast、Add、Mul、BlockReduceSum 等接口屏蔽部分指令级细节，同时保留对核间切分、片上存储、数据搬运、队列、同步和流水的细粒度控制，适合需要深入调优硬件性能的场景。一个完整的 Ascend C 自定义算子通常由三部分组成：</p>
+<ul>
+<li><strong>算子原型（Op 定义）</strong>：声明算子的输入、输出与属性，注册推理 shape 与数据类型的推导函数，以及 tiling 函数。其中 OpDef 类与注册宏等骨架可由 CANN 的 <code>msopgen</code> 工具从算子信息 JSON 自动生成，但 tiling 函数中的切分逻辑仍需开发者手写；</li>
+<li><strong>Host 侧 tiling</strong>：在 Host 上根据输入 shape、数据类型和平台信息，计算切分参数，决定每个核处理多少数据、UB 如何分配，并把 tiling 数据传给 kernel（类比于 CUDA 中设置 grid/block 维度并准备 kernel 参数的 host 侧代码，但额外承担了数据分区与 UB 规划）；</li>
+<li><strong>Kernel 实现</strong>：在 AI Core 上执行真正的计算，负责 GM↔UB 搬运、UB 内计算、结果写回（类比于 CUDA 中的 kernel 函数）。</li>
+</ul>
+</li>
+<li>
+<p><strong>TileLang</strong> 在 Lab 3 中已登场，是一种面向高性能计算的 DSL。它把 tiling、shared memory、pipeline 等概念直接暴露为语言原语，同样可编译到昇腾 NPU 后端（见 <a href="https://github.com/tile-ai/tilelang-ascend">tilelang-ascend</a>）。相较 Ascend C，它省去了手写 host tiling 与 GM↔UB 搬运的样板代码，但在某些细节上对硬件的控制力可能弱于原生路径。</p>
+</li>
+<li>
+<p><strong>Triton</strong> 是基于 block 的算子编程模型，通过 <a href="https://github.com/triton-ascend/triton-ascend">triton-ascend</a> 后端可编译到昇腾 NPU。它以 <code>tl.program_id</code> 切分任务、以 block 为单位组织计算，写法接近你在 GPU 上的经验，便于把已有的 GPU kernel 快速迁移过来。</p>
+</li>
+</ul>
+<p>三种路径最终编译出的都是跑在 Ascend NPU 上的机器码，性能上限由硬件决定。路径之间的差异在于「你能在多大程度上接近硬件」。</p>
+<div class="admonition warning">
+<p class="admonition-title">多种实现路径</p>
+<p>我们提供了 AscendC、TileLang、Triton 三种实现路径的代码框架。你只需要选择一种路径实现即可，<strong>多种实现不会带来进一步加分！</strong></p>
+<p>同时，为了使大家接触和了解国产计算生态，我们<strong>鼓励大家在本实验中使用 AscendC 完成你的算子</strong>。代码框架中我们只针对 AscendC 路径提供基线实现，实验文档也会以 AscendC 算子开发为主。</p>
+<p>但是同样需要注意，使用 AscendC 路径<strong>不会自动给你带来额外加分</strong>。</p>
+</div>
+<h2 id="性能分析-profiling">性能分析 Profiling<a class="headerlink" href="#性能分析-profiling" title="Permanent link">&para;</a></h2>
+<p>性能优化离不开测量。只有从 profiling 结果找到根据并针对性分析，才能找到更合理有效的优化方向。</p>
+<p>对标 NVIDIA 的 Nsight System，Nsight Compute 等性能分析工具，华为也提供了 MindStudio 一族工具，命令行主要体现为 <code>msprof</code> 类指令，而桌面图形化版可以前往对应位置<a href="https://www.hiascend.com/document/detail/zh/mindstudio/latest/GUI_baseddevelopmenttool/MindStudioInsight/docs/zh/user_guide/overview.md">下载 MindStudio Insight</a>。</p>
+<p>本实验主要涉及以下两个 Profile 指令：</p>
+<h3 id="msprof-op分析算子的宏观特点"><code>msprof op</code>：分析算子的宏观特点<a class="headerlink" href="#msprof-op分析算子的宏观特点" title="Permanent link">&para;</a></h3>
+<p><code>msprof op</code> 对目标算子进行板端采集。主要的性能分析结果集中在宏观指标，包括算子运行时间，NPU 上各个单元（如 Vector 等）的利用率，UB 等不同层级缓存间的带宽，L2 Cache 的命中率，不同 AI Core 任务量是否均匀等。</p>
+<div class="admonition tip">
+<p class="admonition-title">一个简单的例子</p>
+<p>运行以下指令即可进行一次标准的算子性能数据采集：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># 采集默认的计算、访存、流水线和资源冲突指标</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>msprof<span class="w"> </span>op<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span>--kernel-name<span class="o">=</span><span class="s2">&quot;fused_add_rms_norm&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span>--launch-count<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span>--aic-metrics<span class="o">=</span>Default<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span>--output<span class="o">=</span>./op_prof<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span>python3<span class="w"> </span>checker/test_op.py<span class="w"> </span><span class="m">2</span>
+</span></code></pre></div>
+<p>将生成目录中的 <code>visualize_data.bin</code> 导入 MindStudio Insight 可以查看图形化结果。</p>
+</div>
+<p>分析结果时可以考虑检查以下问题：</p>
+<ul>
+<li><code>Block Dim</code> 与各核工作量是否符合 tiling 设计，是否存在空闲核、明显拖尾或负载不均匀；</li>
+<li>Vector 等运算单元的利用率是否较高；</li>
+<li>UB 高速缓存的利用带宽是否够高，次一级的 L2 Cache 命中率是否足够。</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">如何读取分析的数据</p>
+<p>利用率表示该运算单元处于活跃状态的比例，不一定等同于『有效工作』的比例。多条流水线可以重叠，因此不同单元之间的利用率没有明显关系；单个指标较高或较低也不足以单独证明瓶颈。</p>
+</div>
+<div class="admonition example">
+<p class="admonition-title"><code>msprof op</code> 结果可视化示例</p>
+<p>以下图片展示了一个 AIV 部分的 Profile 结果，可以看到不同层级缓存之间利用的带宽，Vector 单元的利用率，以及 L2 Cache 的命中率等。</p>
+<p><figure markdown="span">
+  <a class="glightbox" href="image/msprofop.png" data-type="image"><img src="image/msprofop.png" alt="msprof op 结果可视化示例" style="width: 100%; height: auto;"></a>
+  <figcaption><code>msprof op</code> 在 MindStudio Insight 中的可视化结果。</figcaption>
+</figure></p>
+</div>
+<h3 id="msprof-op-simulator观察指令流水与同步"><code>msprof op simulator</code>：观察指令流水与同步<a class="headerlink" href="#msprof-op-simulator观察指令流水与同步" title="Permanent link">&para;</a></h3>
+<p>Simulator 在 CPU 上模拟指定 SoC 的指令执行，适合检查指令发射顺序、流水线空泡、<code>SetFlag/WaitFlag</code> 等同步事件和资源冲突。主要生成的结果是一个流水图（也叫 Timeline）。</p>
+<p>它不是真实 NPU 计时工具：仿真耗时不能与 <code>Task Duration(us)</code> 比较，缓存、带宽竞争和运行时调度也应以板端结果为准。</p>
+<div class="admonition tip">
+<p class="admonition-title">一个简单的例子</p>
+<p>运行以下指令即可进行一次标准的算子模拟数据采集：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>msprof<span class="w"> </span>op<span class="w"> </span>simulator<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span>--soc-version<span class="o">=</span>Ascend910B4<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span>--kernel-name<span class="o">=</span><span class="s2">&quot;fused_add_rms_norm&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span>--launch-count<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span>--output<span class="o">=</span>./op_sim<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span>python3<span class="w"> </span>checker/test_op.py<span class="w"> </span><span class="m">2</span>
+</span></code></pre></div>
+<p>由于是 CPU 侧模拟算子在 NPU 上的行为，所以我们需要显示指定 -soc-version 为 Ascend 910B4。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">不要尝试模拟真实数据规模</p>
+<p>由于是 CPU 模拟，实际上 <code>msprof op simulator</code> 的性能非常糟糕，考虑到我们通过这个指令得到的结果主要是用来分析不同单元流水线之间的运转情况，模拟时请<strong>设置较小的数据规模</strong>，以便在合适的时间和资源使用下完成模拟。</p>
+</div>
+<div class="admonition example">
+<p class="admonition-title"><code>msprof op simulator</code> 流水线示例</p>
+<p>以下两张流水图表明了同一个计算功能在不同实现下的模拟流水图，其中上三角形是各种同步 flag。你应该可以明显看到右图中的 Vector 利用率相比于左图有明显提升（少了很多空泡和停顿）。</p>
+<p><div style="display: grid; grid-template-columns: 1518fr 1590fr; gap: 1rem; align-items: center;">
+  <figure style="margin: 0;">
+    <a class="glightbox" href="image/msprofopsim-left.png" data-type="image"><img src="image/msprofopsim-left.png" alt="优化前 msprof op simulator 流水图" style="width: 100%; height: auto; display: block;"></a>
+    <figcaption style="text-align: center;">优化前：Vector 流水存在较多空泡与同步停顿</figcaption>
+  </figure>
+  <figure style="margin: 0;">
+    <a class="glightbox" href="image/msprofopsim-right.png" data-type="image"><img src="image/msprofopsim-right.png" alt="优化后 msprof op simulator 流水图" style="width: 100%; height: auto; display: block;"></a>
+    <figcaption style="text-align: center;">优化后：Vector 流水更连续，同步空泡明显减少</figcaption>
+  </figure>
+</div></p>
+<p>不同流水线之间的 Timeline 还可以展示是否产生了流水线重叠执行（即同一时间不同硬件单元同时工作），详见思考题。</p>
+</div>
+<h3 id="从现象提出可验证的假设">从现象提出可验证的假设<a class="headerlink" href="#从现象提出可验证的假设" title="Permanent link">&para;</a></h3>
+<p>Profiler 给出的是证据，而不是自动生成的优化结论。可以按“现象—假设—实验”的方式推进：</p>
+<table>
+<thead>
+<tr>
+<th>观测现象</th>
+<th>可优先检查</th>
+<th>下一步实验</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MTE2/MTE3 时间较长，Vector 经常等待</td>
+<td>搬运粒度过小、重复读写 GM、未形成流水</td>
+<td>合并搬运或复用 UB 数据，通过流水开启双缓冲技术</td>
+</tr>
+<tr>
+<td>Vector 流水长时间连续工作</td>
+<td>指令数量、规约层数、类型转换或高代价指令</td>
+<td>优化计算逻辑，实现更高性能的同样计算功能等</td>
+</tr>
+<tr>
+<td>各流水线都存在大段空泡</td>
+<td>过宽的屏障、Scalar 依赖、tile 太少</td>
+<td>用 simulator 对齐空泡与同步事件，再收窄同步范围</td>
+</tr>
+<tr>
+<td>部分核明显更早结束</td>
+<td>多核切分不均或尾块集中</td>
+<td>调整 Tiling 和 NPU 侧 Init 时的工作分配</td>
+</tr>
+<tr>
+<td>Roofline 接近带宽上限</td>
+<td>算子可能受 GM 带宽约束</td>
+<td>优先减少 GM 往返，而不是继续增加 Vector 指令并行度</td>
+</tr>
+</tbody>
+</table>
+<p>每次只改变一个主要因素，先跑完整正确性测试，再重复计时。只有当对应指标与端到端耗时同时朝预期方向变化时，才能较有把握地解释优化收益。</p>
+<h2 id="ascend-c-简介">Ascend C 简介<a class="headerlink" href="#ascend-c-简介" title="Permanent link">&para;</a></h2>
+<p>Ascend C 通过 C++ 模板与 intrinsic 暴露 AIV 上的存储、搬运与计算指令。下面只列出本实验会接触到的核心概念，作为阅读 baseline 代码和继续编写 Ascend C 代码的参考。</p>
+<h3 id="tensor-编程模型">Tensor 编程模型<a class="headerlink" href="#tensor-编程模型" title="Permanent link">&para;</a></h3>
+<p>在 Ascend C 的编程模型中，主要操作的数据被视作一个 Tensor。</p>
+<div class="admonition tip">
+<p class="admonition-title">你也可以操作单个数据</p>
+<p>Ascend C 也提供了单个数据的 API（如 <code>GetValue</code> 和 <code>SetValue</code>）。但这两个 API 的性能通常比较糟糕。</p>
+</div>
+<ul>
+<li>
+<p><strong>UB 与 LocalTensor</strong>。Vector 指令的操作数必须位于 AIV 内的 UB（Unified Buffer）上。Ascend C 以 <code>LocalTensor&lt;T&gt;</code> 表示一段 UB 上的逻辑数据视图，承载实际数据类型 <code>T</code>（如 <code>half</code>、<code>float</code>）与长度信息，本身不直接分配内存，需从 <code>TBuf</code> 或 <code>TQue</code> 中获取。<code>GlobalTensor&lt;T&gt;</code> 则是 GM 上的对应视图，用于 <code>DataCopy</code> 等搬运 API 的源/目的。</p>
+</li>
+<li>
+<p><strong>TPosition</strong>。<code>TPosition</code> 是一个枚举，标识缓冲区在存储层级中的物理位置，常见的三种取值如下：</p>
+<ul>
+<li><code>VECIN</code>：与 MTE2 流水衔接的输入侧 UB，通常作为搬入队列位置；</li>
+<li><code>VECOUT</code>：与 MTE3 流水衔接的输出侧 UB，通常作为搬出队列位置；</li>
+<li><code>VECCALC</code>：纯 Vector 侧的 UB，不参与 <code>TQue</code> 的跨流水线同步，常用于常驻或中转数据。</li>
+</ul>
+</li>
+<li>
+<p><strong>TBuf</strong>。<code>TBuf&lt;TPosition&gt;</code> 是 UB 上的静态缓冲区，由 <code>TPipe::InitBuffer</code> 在 kernel 启动前按字节大小分配，生命周期与 kernel 一致。它直接持有 <code>LocalTensor</code>，不参与任何同步事件的插入，适合存放常驻数据（如 weight）或临时中转缓冲（如平方缓冲、规约暂存）。</p>
+</li>
+<li>
+<p><strong>TQue 与流水</strong>。<code>TQue&lt;TPosition, BUFFER_NUM&gt;</code> 在 <code>TBuf</code> 之上提供队列语义，用 <code>AllocTensor → EnQue → DeQue → FreeTensor</code> 描述一段 LocalTensor 在流水阶段间的所有权与同步事件转移。<code>BUFFER_NUM</code> 控制队列深度，设为 2 即为相邻 tile 的搬入与计算提供交叠空间。</p>
+</li>
+</ul>
+<h3 id="内存搬运类-api">内存搬运类 API<a class="headerlink" href="#内存搬运类-api" title="Permanent link">&para;</a></h3>
+<p><code>DataCopy</code> 用于 GM↔UB 间对齐、连续或规则分段的数据搬运；</p>
+<p><code>DataCopyPad</code> 进一步支持非 32B 对齐的尾块，可通过 <code>isPad</code>、<code>leftPadding</code>/<code>rightPadding</code>、<code>paddingValue</code> 控制尾部的填充值，避免越界读写或破坏对齐。<code>DataCopyExtParams</code> 以 <code>blockCount</code> / <code>blockLen</code> / <code>srcStride</code> / <code>dstStride</code> 描述多段搬运的几何。</p>
+<h3 id="vector-计算-api">Vector 计算 API<a class="headerlink" href="#vector-计算-api" title="Permanent link">&para;</a></h3>
+<p>Vector 侧的元素级与逐元素运算包括 <code>Cast</code>（类型转换，可指定 <code>RoundMode</code>）、<code>Add</code>、<code>Mul</code>、<code>Div</code>、<code>Sqrt</code>、<code>Rsqrt</code> 等，通常以 <code>dst, src0, src1, maskCount</code> 形式调用；<code>Duplicate&lt;T&gt;</code> 用标量广播填充一段 LocalTensor。所有调用都按 32B 对齐（FP16 16 元素、FP32 8 元素）操作，非对齐尾数由 mask 或 <code>DataCopyPad</code> 处理。</p>
+<p>沿一维规约的指令以 <code>Reduce&lt;op&gt;</code> 为主。可以指定规约长度等参数，规约操作包括求和，取极值等。同时 AscendC 提供了更底层的 <code>BlockReduce&lt;op&gt;</code> 与 <code>WholeReduce&lt;op&gt;</code> 操作，用来减小 <code>Reduce&lt;op&gt;</code> 的开销。感兴趣的同学可以进一步了解这些 API 的使用方法。</p>
+<div class="admonition tip">
+<p class="admonition-title">查阅官方 API 参考</p>
+<p>上述 API 的支持数据类型、对齐、mask、repeat、临时空间与同步的要求，以及功能和使用方法的详细描述，都在 Ascend C 官方 API 文档里有所说明，实际编写算子时，请及时查阅相关 API 文档。详见 <a href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/latest/API/ascendcopapi/atlasascendc_api_07_0003.html">Ascend C API 列表</a>。</p>
+</div>
+<h2 id="编写高性能的-ascend-c-算子">编写高性能的 Ascend C 算子<a class="headerlink" href="#编写高性能的-ascend-c-算子" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">不要照抄优化思路！</p>
+<p>以下给出的是可能有效的优化方向，而不是必须实现的。请始终以性能结果和 profiling 结果为准。</p>
+</div>
+<h3 id="让搬运与计算形成流水">让搬运与计算形成流水<a class="headerlink" href="#让搬运与计算形成流水" title="Permanent link">&para;</a></h3>
+<p>AIV 的 MTE2、Vector 和 MTE3 可以分别执行搬入、计算和搬出。由于这三个单元本身是相互独立的，因此如果在同一时间重叠不同单元的执行将能够大幅掩盖时间，获得加速。Ascend C 的编程模型中倡导把一个 tile 的处理拆成 <code>CopyIn → Compute → CopyOut</code> 三段式，明确生命生产者和消费者关系，并用 <code>TQue</code> 在阶段间传递 LocalTensor 的所有权与同步事件。这样的编写范式能够更好的让编译器识别依赖关系，并且<strong>自动</strong>开启流水。</p>
+<figure>
+<br />
+<div style="background: #ffffff; padding: 8px;">
+    <a class="glightbox" data-type="image" href="image/ascendc-pipeline.png"><img alt="Ascend C CopyIn、Compute、CopyOut 三段流水编程范式" src="image/ascendc-pipeline.png" /></a>
+  </div>
+
+<br />
+<figcaption>Ascend C 三段流水编程范式。<a href="https://www.hiascend.com/zh/developer/techArticles/20240819-1">图源：昇腾社区</a></figcaption>
+</figure>
+<p>将队列的 buffer 数设为 2（或者更多），可以为相邻 tile 交叠提供空间：当一份数据参与 Vector 计算时，另一份数据才有机会同时搬入或搬出。这个也被称作 Double Buffering 技术。</p>
+<div class="admonition note">
+<p class="admonition-title">不一定更快</p>
+<p>Double Buffer 并不总是保证自动加速，同时其是否生效还需要满足相邻阶段之间没有不必要的全局同步等条件。</p>
+</div>
+<h3 id="让中间结果留在-ub">让中间结果留在 UB<a class="headerlink" href="#让中间结果留在-ub" title="Permanent link">&para;</a></h3>
+<p>融合算子的主要价值，是让前一阶段的输出直接成为后一阶段的 UB 输入，而不是每经过一步就写回 GM。官方示例中的反例执行两次 GM 往返，正例则在 <code>VECCALC</code> 中保留中间值。</p>
+<figure>
+<br />
+<div style="background: #ffffff; padding: 8px;">
+    <a class="glightbox" data-type="image" href="image/ascendc-ub-reuse.png"><img alt="连续 Vector 计算中经由 GM 中转与在 UB 内复用中间结果的对比" src="image/ascendc-ub-reuse.png" /></a>
+  </div>
+
+<br />
+<figcaption>连续 Vector 计算的中间结果应尽量在 UB 内衔接。<a href="https://www.hiascend.com/zh/developer/techArticles/20240823-1">图源：昇腾社区</a></figcaption>
+</figure>
+<p>对本算子而言，<span class="arithmatex">\(R=x+\mathit{residual}\)</span> 随后还要用于输出 <code>residual_out</code>、平方和规约以及计算 <span class="arithmatex">\(y\)</span>。只要 UB 容量允许，就应保留可复用的 <span class="arithmatex">\(R\)</span>，并把写回 <code>residual_out</code> 的副本交给输出队列，避免为后续计算再次读取 GM。<code>weight</code> 在所有行上相同，也可以按核或按 tile 复用。与此同时，应统计所有常驻 buffer 与双缓冲队列的总占用，避免为了复用而挤压 tile 大小或导致 UB 超限。</p>
+<h3 id="根据-shape-设计-tiling">根据 shape 设计 Tiling<a class="headerlink" href="#根据-shape-设计-tiling" title="Permanent link">&para;</a></h3>
+<p>多核和单核 tiling 需要一起设计：</p>
+<ul>
+<li>运行时通过平台接口查询 AIV 核数与 UB 容量，不把某个环境中的数值写死到策略中；</li>
+<li>各行相互独立时，优先沿独立维（如 <span class="arithmatex">\(B\)</span>）切分。使用商和余数分配大小核，使各核行数最多相差 1，避免简单向上取整造成尾部空闲核；</li>
+<li>当独立维很小时，盲目启动全部 AIV 没有收益。沿其他维（如 <span class="arithmatex">\(H\)</span>）切分虽然能增加并行度，却会引入跨核规约或额外 pass，需要根据实测决定是否值得；</li>
+<li>tile 大小既要满足 UB 预算，也要让每核有足够多的 tile 支撑流水。最大的 tile 不一定最快，最小的 tile 也会增加循环和搬运启动开销。</li>
+</ul>
+<details class="example">
+<summary>从启动开销的角度思考为什么不一定需要启动全部 AIV</summary>
+<p>在 NPU 中，每个核在被启动时都要单独付一次初始化开销（加载配置、建立执行上下文、准备片上资源等），且这部分几乎无法通过流水、搬运或规约优化消除——它只和「启动了多少个核」有关。下面是用一个 body 几乎为空的算子，只改变 <code>&lt;&lt;&lt;blocks&gt;&gt;&gt;</code> 下发 AIV 数目，用 <code>msprof op</code> 测得的 Task Duration，可以近似认为是启动开销：</p>
+<p><figure markdown="span">
+  <a class="glightbox" data-type="image" href="image/empty_kernel_overhead_vs_aiv_cores.svg"><img alt="空 kernel 的运行时间和启用 AIV 数目的关系" src="image/empty_kernel_overhead_vs_aiv_cores.svg" /></a>
+  <figcaption>空 kernel 的运行时间和启用 AIV 数目的关系</figcaption>
+</figure></p>
+<p>它随启动核数近似线性增长（约 2 核 0.67 µs → 40 核 2.25 µs），本身处在微秒量级，在大算子里几乎被 profiling 波动淹没；但当算子整体只有几微秒、单核计算量又很小时就占比可观。因此计算量过小的任务要选择「够用就好」的核数，而不是无脑写满全部 AIV。</p>
+</details>
+<p>公开评测 shape 中既有 <span class="arithmatex">\(B=1\)</span>，也有 <span class="arithmatex">\(H\)</span> 非 32B 对齐的情况。一个只对 <span class="arithmatex">\([256,1024]\)</span> 快、但在小 <span class="arithmatex">\(B\)</span> 或尾块上出错的 tiling 不是有效实现。</p>
+<h3 id="提高搬运效率">提高搬运效率<a class="headerlink" href="#提高搬运效率" title="Permanent link">&para;</a></h3>
+<p>MTE 搬运存在固定启动成本，单次搬运过小时难以充分利用带宽。</p>
+<details class="example">
+<summary>单次搬运量与有效带宽的关系</summary>
+<p>以下是昇腾社区对于不同搬运量带宽利用率的一个测试，可以看到小的数据搬运并不能很好的利用带宽。相关结果数据并不一定适用于我们的 910B4 NPU 上，只是表明一个相关趋势。</p>
+<p><div style="display: grid; grid-template-columns: 1.0974fr 1.0528fr; align-items: start; gap: 1rem;">
+  <figure style="margin: 0; min-width: 0;">
+    <a class="glightbox" href="image/ascendc-copyin-size.png" data-type="image"><img src="image/ascendc-copyin-size.png" alt="HBM 到 UB 的单核带宽随单次搬运数据量变化" style="display: block; width: 100%; height: auto;"></a>
+    <figcaption style="text-align: center;">HBM → UB</figcaption>
+  </figure>
+  <figure style="margin: 0; min-width: 0;">
+    <a class="glightbox" href="image/ascendc-copyout-size.png" data-type="image"><img src="image/ascendc-copyout-size.png" alt="UB 到 HBM 的单核带宽随单次搬运数据量变化" style="display: block; width: 100%; height: auto;"></a>
+    <figcaption style="text-align: center;">UB → HBM</figcaption>
+  </figure>
+</div></p>
+<p><p style="text-align: center; margin-top: 0.5rem;"><a href="https://www.hiascend.com/zh/developer/techArticles/20240906-1">图源：昇腾社区</a></p></p>
+</details>
+<p>若 UB 预算和数据布局允许，可以尝试用一次 <code>DataCopy</code> 搬运多行，或用 <code>blockCount</code>、<code>blockLen</code> 与 stride 参数表达规则的多段搬运，减少逐行发射指令的开销。与此同时需要注意：</p>
+<ul>
+<li>GM 起始地址、每行 stride 和 UB 地址的对齐会共同影响搬运效率；</li>
+<li>非对齐尾块应使用 <code>DataCopyPad</code> 或等价 mask 正确处理，不能为了对齐越界读写；</li>
+<li>合并搬运会增加 UB 占用，并可能减少每核 tile 数，应与 Double Buffer 一起重新评估；</li>
+</ul>
+<h3 id="选择合适的规约实现与精度">选择合适的规约实现与精度<a class="headerlink" href="#选择合适的规约实现与精度" title="Permanent link">&para;</a></h3>
+<p>高效的归约操作是本实验中这个算子能够获得高性能的关键一环。Ascend C API 中提供的 <code>Reduce&lt;op&gt;</code> 类算子可能存在较多的同步 Flag 设置和边界检测情况，实际上可能并不能获得很好的性能。因此，Ascend C API 同时提供了更加底层的 <code>BlockReduce&lt;op&gt;</code> 操作和 <code>WholeReduce&lt;op&gt;</code> 操作。两者在单次执行速度和吞吐效率上各有优劣，但是合作起来就可能获得比原生 <code>Reduce&lt;op&gt;</code> 更好的规约性能和运算单元利用率。</p>
+<p>同时，本实验的输入输出是 FP16，但这并不意味着平方和也适合在 FP16 中累加。使用 FP32 作为中间结果通常更稳健，但会占用更多 UB，也可能增加 Cast 和 Vector 计算开销。可以尝试减少重复 Cast、缩短 FP32 数据的存活范围；</p>
+<div class="admonition danger">
+<p class="admonition-title">禁止一味地使用低精度来获得更高性能</p>
+<p>任何低精度或近似方案都必须通过我们最后的精度校验！</p>
+</div>
+<details class="tip">
+<summary>拓展阅读</summary>
+<ul>
+<li><a href="https://www.hiascend.com/zh/developer/techArticles/20240819-1">Ascend C 算子性能优化实用技巧 01：流水优化</a></li>
+<li><a href="https://www.hiascend.com/zh/developer/techArticles/20240823-1">Ascend C 算子性能优化实用技巧 02：内存优化</a></li>
+<li><a href="https://www.hiascend.com/zh/developer/techArticles/20240906-1">Ascend C 算子性能优化实用技巧 03：搬运优化</a></li>
+<li><a href="https://www.hiascend.com/zh/developer/techArticles/20240920-1">Ascend C 算子性能优化实用技巧 04：Tiling 优化</a></li>
+<li><a href="https://www.hiascend.com/developer/techArticles/20241107-1">Ascend C 算子性能优化实用技巧 05：API 使用优化</a></li>
+</ul>
+</details>
+<h2 id="实验任务">实验任务<a class="headerlink" href="#实验任务" title="Permanent link">&para;</a></h2>
+<p>你的任务是在昇腾 910B4 NPU 上实现并优化 <code>FusedAddRmsNorm</code> 算子。你可以从 <strong>Ascend C、Triton-Ascend、TileLang-Ascend</strong> 中任选一种开发路径；只需完成一种实现，尝试多种路径不会带来额外加分。</p>
+<p>实现需要同时满足以下要求：</p>
+<ul>
+<li>保持给定的输入、输出和属性接口；</li>
+<li>通过公开与隐藏测试的正确性检查；</li>
+<li>在指定评测配置下尽可能优化 kernel 性能；</li>
+</ul>
+<h3 id="接口与计算语义">接口与计算语义<a class="headerlink" href="#接口与计算语义" title="Permanent link">&para;</a></h3>
+<p>设 <span class="arithmatex">\(B\)</span> 为行数，<span class="arithmatex">\(H\)</span> 为隐藏层宽度：</p>
+<table>
+<thead>
+<tr>
+<th>张量</th>
+<th>参数类型</th>
+<th>形状</th>
+<th>数据类型</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>x</code></td>
+<td>输入</td>
+<td><span class="arithmatex">\([B,H]\)</span></td>
+<td>FP16</td>
+<td>输入</td>
+</tr>
+<tr>
+<td><code>residual</code></td>
+<td>输入</td>
+<td><span class="arithmatex">\([B,H]\)</span></td>
+<td>FP16</td>
+<td>残差</td>
+</tr>
+<tr>
+<td><code>weight</code></td>
+<td>输入</td>
+<td><span class="arithmatex">\([H]\)</span></td>
+<td>FP16</td>
+<td>RMSNorm 缩放权重</td>
+</tr>
+<tr>
+<td><code>eps</code></td>
+<td>输入</td>
+<td>标量</td>
+<td>FP16</td>
+<td>防止除零的微小偏移</td>
+</tr>
+<tr>
+<td><code>y</code></td>
+<td>输出</td>
+<td><span class="arithmatex">\([B,H]\)</span></td>
+<td>FP16</td>
+<td>归一化结果</td>
+</tr>
+<tr>
+<td><code>residual_out</code></td>
+<td>输出</td>
+<td><span class="arithmatex">\([B,H]\)</span></td>
+<td>FP16</td>
+<td>残差加法结果</td>
+</tr>
+</tbody>
+</table>
+<p>对每一行 <span class="arithmatex">\(b\in[0,B)\)</span>，算子计算：</p>
+<div class="arithmatex">\[
+\begin{aligned}
+R_b &amp;= x_b + \mathit{residual}_b, \\
+\mathit{rms}_b &amp;= \sqrt{\dfrac{1}{H}\sum_{i=0}^{H-1}R_{b,i}^{\,2} + \varepsilon}, \\
+y_b &amp;= \dfrac{R_b}{\mathit{rms}_b} \odot w, \\
+\mathit{residual\_out}_b &amp;= R_b.
+\end{aligned}
+\]</div>
+<p>三个开发路径对 checker 暴露的入口均为 <code>fused_add_rmsnorm(x, residual, weight, eps)</code>，其中 <code>eps</code> 默认为 <span class="arithmatex">\(10^{-6}\)</span>。</p>
+<details class="note">
+<summary>关于 <code>enable_pdl</code> 属性</summary>
+<p>Ascend C 的底层算子定义中还保留了一个布尔属性 <code>enable_pdl</code>，用于与 FlashInfer 原始签名保持一致。FlashInfer 中该属性控制是否启用 NVIDIA CUDA 12.3+ 引入的 <strong>Programmatic Dependent Launch（PDL，程序化依赖启动）</strong>——允许后一个 kernel 在前一个 kernel 完全结束前就开始发射与初始化，以掩盖 kernel launch 延迟。</p>
+<p>在昇腾 NPU 上不存在对等的硬件机制，因此本实验中该属性不产生任何实际效果：PyTorch 扩展胶水层会固定向算子传入 <code>false</code>，Triton 与 TileLang 路径也无需暴露该属性。你不需要在实现中处理它，也不应期望通过它获得性能收益。</p>
+</details>
+<div class="admonition warning">
+<p class="admonition-title">本实验采用非原地接口</p>
+<p>FlashInfer 原始接口会原地修改输入，而本实验规定 <code>x</code> 和 <code>residual</code> 为只读输入，并返回独立的 <code>y</code> 与 <code>residual_out</code>。请勿改变这一约定。</p>
+</div>
+<h3 id="修改范围与限制">修改范围与限制<a class="headerlink" href="#修改范围与限制" title="Permanent link">&para;</a></h3>
+<p>你可以修改所选路径目录下的实现，并在该目录内增加必要的辅助文件：</p>
+<table>
+<thead>
+<tr>
+<th>开发路径</th>
+<th>可修改目录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ascend C</td>
+<td><code>src/ascendc/</code></td>
+</tr>
+<tr>
+<td>Triton-Ascend</td>
+<td><code>src/triton/</code></td>
+</tr>
+<tr>
+<td>TileLang-Ascend</td>
+<td><code>src/tilelang/</code></td>
+</tr>
+</tbody>
+</table>
+<p>允许自行设计 kernel、tiling、核数、片上存储布局和针对不同 shape 的实现分支。禁止：</p>
+<ul>
+<li>修改 <code>checker/</code>、<code>env.sh</code>、输入生成、golden 或计时逻辑；</li>
+<li>调用已有 RMSNorm、FusedAddRmsNorm 或等价高层算子代替被测计算；</li>
+<li>硬编码测试数据、隐藏 shape 或输出结果；</li>
+<li>利用评测程序漏洞绕过计算或正确性检查；</li>
+<li>依赖课程环境中未提供的额外软件包或自建工具链。</li>
+</ul>
+<p>可以参考开源实现，但需要在报告中注明来源，并说明自己的实现与修改。</p>
+<h2 id="代码框架">代码框架<a class="headerlink" href="#代码框架" title="Permanent link">&para;</a></h2>
+<p>实验代码位于仓库的 <code>src/lab3p5/</code>：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>src/lab3p5/
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── env.sh                         # 加载课程 CANN 与 Python 环境
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>├── README.md                      # 代码框架使用与提交说明
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>├── checker/
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>│   ├── build.sh                   # 构建并安装 Ascend C 算子
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│   ├── run.sh                     # 正确性检查
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>│   ├── profile.sh                 # 固定性能 case 的 msprof 采集
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│   ├── test_op.py                 # 输入生成、FP32 golden 与逐元素比较
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>│   ├── case_specs.py              # 公开测试配置
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>│   └── get_time.py                # 解析 op_summary 中的 kernel 时间
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>└── src/
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    ├── __init__.py
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    ├── ascendc/
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    │   ├── op_host/
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    │   │   ├── CMakeLists.txt
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    │   │   └── fused_add_rms_norm.cpp      # 算子注册与 Host tiling
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    │   ├── op_kernel/
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>    │   │   ├── CMakeLists.txt
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>    │   │   ├── fused_add_rms_norm.cpp      # Device kernel
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>    │   │   └── fused_add_rms_norm_tiling.h # Tiling 数据结构
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>    │   ├── extension/custom_op.cpp         # PyTorch 扩展胶水
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>    │   ├── common/pytorch_npu_helper.hpp   # PyTorch NPU 辅助头文件
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>    │   ├── CMakeLists.txt / CMakePresets.json
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>    │   ├── build_op.sh                     # 构建 Ascend C 算子与 wheel
+</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>    │   └── setup.py
+</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>    ├── triton/
+</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>    │   ├── __init__.py
+</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>    │   └── fused_add_rmsnorm.py            # Triton kernel 与 launcher
+</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>    └── tilelang/
+</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>        ├── __init__.py
+</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>        └── fused_add_rmsnorm.py            # TileLang kernel 与 launcher
+</span></code></pre></div>
+<h3 id="选择开发路径">选择开发路径<a class="headerlink" href="#选择开发路径" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>建议先阅读</th>
+<th>运行方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ascend C</td>
+<td><code>src/ascendc/op_host/fused_add_rms_norm.cpp</code>、<code>src/ascendc/op_kernel/fused_add_rms_norm.cpp</code></td>
+<td>直接运行 checker；脚本会在当前任务中按需构建并安装算子</td>
+</tr>
+<tr>
+<td>Triton-Ascend</td>
+<td><code>src/triton/fused_add_rmsnorm.py</code></td>
+<td>提交任务时设置环境变量 <code>LANG=triton</code></td>
+</tr>
+<tr>
+<td>TileLang-Ascend</td>
+<td><code>src/tilelang/fused_add_rmsnorm.py</code></td>
+<td>提交任务时设置环境变量 <code>LANG=tilelang</code></td>
+</tr>
+</tbody>
+</table>
+<p>Ascend C 路径提供了一个以正确性为主的 baseline：Host 侧读取 shape 和属性并生成 tiling；Device 侧按行分配工作，FP16 数据进入 UB 后主要使用 FP32 计算，再转换为 FP16 输出。它已经展示了 <code>TQue</code>、<code>TBuf</code>、数据搬运、Vector 计算和规约的基本组织方式，但同步、流水和 tiling 仍有优化空间。</p>
+<p>本文不逐项复述 Ascend C API。使用接口前，请直接查阅对应 CANN 版本的 <a href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/latest/API/ascendcopapi/atlasascendc_api_07_0003.html">Ascend C API 参考</a>，尤其注意支持的数据类型、对齐、mask、repeat、临时空间和同步要求。</p>
+<h3 id="构建与自测">构建与自测<a class="headerlink" href="#构建与自测" title="Permanent link">&para;</a></h3>
+<p>所有命令都应在 <code>src/lab3p5/</code> 下执行。NPU 任务通过 <code>hpc submit</code> 提交到 <code>lab3p5</code> 分区；<code>run.sh</code> 和 <code>profile.sh</code> 会自行加载 <code>env.sh</code>，一般不需要在提交任务前手动 <code>source</code>。</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># 正确性：运行全部公开 case</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab3p5<span class="w"> </span>bash<span class="w"> </span>checker/run.sh
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab3p5<span class="w"> </span>-e<span class="w"> </span><span class="nv">LANG</span><span class="o">=</span>triton<span class="w"> </span>bash<span class="w"> </span>checker/run.sh
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab3p5<span class="w"> </span>-e<span class="w"> </span><span class="nv">LANG</span><span class="o">=</span>tilelang<span class="w"> </span>bash<span class="w"> </span>checker/run.sh
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># 正确性：只运行一个公开 case；编号从 1 开始</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab3p5<span class="w"> </span>bash<span class="w"> </span>checker/run.sh<span class="w"> </span><span class="m">2</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># 性能：固定 shape 性能测试（256×1024），不接受 case 参数</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab3p5<span class="w"> </span>bash<span class="w"> </span>checker/profile.sh
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab3p5<span class="w"> </span>-e<span class="w"> </span><span class="nv">LANG</span><span class="o">=</span>triton<span class="w"> </span>bash<span class="w"> </span>checker/profile.sh
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>hpc<span class="w"> </span>submit<span class="w"> </span>-p<span class="w"> </span>lab3p5<span class="w"> </span>-e<span class="w"> </span><span class="nv">LANG</span><span class="o">=</span>tilelang<span class="w"> </span>bash<span class="w"> </span>checker/profile.sh
+</span></code></pre></div>
+<p><code>checker/run.sh</code> <strong>只负责正确性检查</strong>；<code>checker/profile.sh</code> <strong>只采集 student 算子的性能</strong>，使用 <code>msprof op --warm-up=10</code> 并输出一次 <code>Task Duration(us)</code>。进行性能测试前，应先用 <code>run.sh</code> 验证正确性。</p>
+<p>Ascend C 路径下，每次改动代码后需要自己进行编译，编译脚本已经写好为 <code>checker/build.sh</code>，在 Devpod 内即可进行。TileLang 和 Triton 路径会自动触发编译，不需要同学们手动进行。</p>
+<h2 id="如何获取计算资源">如何获取计算资源<a class="headerlink" href="#如何获取计算资源" title="Permanent link">&para;</a></h2>
+<p>我们通过<a href="https://platform.s.zjusct.io">实验平台</a>提供 <strong>arm64-910b</strong> DevPod，容器拉取的镜像中已经配有本实验所需的 CANN 工具链和 Triton/Tilelang 包环境，一般不需要自行安装工具链。更详细的平台和文件同步说明见<a href="https://hpc101.zjusct.io/guide/">集群使用</a>。你需要做的包括：</p>
+<ol>
+<li>登录实验平台；</li>
+<li>创建预设为 <code>arm-910b</code> 的 DevPod；</li>
+<li>在 DevPod 中获取课程仓库并进入 <code>src/lab3p5/</code>；</li>
+<li>执行 <code>source ./env.sh</code> 后开始构建和测试。</li>
+<li>在需要在 NPU 上执行算子时使用 <code>hpc submit -p lab3p5 &lt;your commands&gt;</code> 即可提交至分配有一张 910B4 NPU 的计算分区执行你的命令。</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">家目录不共享！</p>
+<p>华为为我们提供的 Ascend 910B4 8 卡裸金属机器地理上分布于华北-乌兰察布地区。距离超算队在杭州的集群和其他硬件资源有一定的地理距离。由于 NFS 对于时延有较高要求，本平台的家目录不会与其他硬件资源的家目录共享。</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">请注意区分 Devpod</p>
+<p>在创建 Devpod 时，Lab 4 任务一所需的鲲鹏环境对应的 Devpod 预设为 <code>arm64-920b</code>，而 Lab3.5 的预设 Devpod 为 <code>arm64-910b</code>，两者环境和家目录均不互通，<strong>请注意区分</strong>。</p>
+</div>
+<h2 id="评分方式">评分方式<a class="headerlink" href="#评分方式" title="Permanent link">&para;</a></h2>
+<p>评测包括<strong>正确性</strong>和<strong>性能</strong>两部分。只有通过正确性检查的实现才会进入性能计分。</p>
+<h3 id="正确性验证">正确性验证<a class="headerlink" href="#正确性验证" title="Permanent link">&para;</a></h3>
+<p>我们提供多个 Case 测试你的算子。公开 case 由 <code>checker/case_specs.py</code> 定义。下表同时给出代码中的 case 索引和命令行编号：</p>
+<table>
+<thead>
+<tr>
+<th>case 索引</th>
+<th>命令行编号</th>
+<th><span class="arithmatex">\(B\times H\)</span></th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>1</td>
+<td><span class="arithmatex">\(32\times4096\)</span></td>
+<td>小规模、对齐</td>
+</tr>
+<tr>
+<td>1</td>
+<td>2</td>
+<td><span class="arithmatex">\(256\times1024\)</span></td>
+<td>性能评测配置</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td><span class="arithmatex">\(1\times4096\)</span></td>
+<td>单行</td>
+</tr>
+<tr>
+<td>3</td>
+<td>4</td>
+<td><span class="arithmatex">\(1997\times3037\)</span></td>
+<td>行数与尾部均不对齐</td>
+</tr>
+<tr>
+<td>4</td>
+<td>5</td>
+<td><span class="arithmatex">\(2048\times4096\)</span></td>
+<td>大规模、对齐</td>
+</tr>
+</tbody>
+</table>
+<p>输入由固定 seed 在运行时<strong>随机</strong>生成。正式评测还会使用不同 shape 的隐藏 case（保证数据范围大致一致），因此不能只针对公开配置硬编码实现。</p>
+<p>Golden 在 FP32 下完成残差加法、平方和、均值、开方、除法和权重缩放，最后转换为 FP16。<code>y</code> 与 <code>residual_out</code> 均需逐元素通过检查。</p>
+<p>对参考值 <span class="arithmatex">\(g_i\)</span> 和输出值 <span class="arithmatex">\(o_i\)</span>，元素在满足下列任一条件时通过（相对精度或绝对精度小于给定阈值）：</p>
+<div class="arithmatex">\[
+|o_i-g_i|\le 10^{-3}
+\quad\text{或}\quad
+\frac{|o_i-g_i|}{\max(|g_i|,10^{-12})}\le 10^{-3}.
+\]</div>
+<p>整个张量要求错误元素比例为 0。一个更快但未通过全部正确性检查的实现不会获得性能分数。</p>
+<h3 id="性能评分">性能评分<a class="headerlink" href="#性能评分" title="Permanent link">&para;</a></h3>
+<p>为了方便 OJ 等实现，性能测试只涉及单个 Shape，评测配置为：</p>
+<ul>
+<li><strong>Shape</strong>：<span class="arithmatex">\([256,1024]\)</span>；</li>
+<li><strong>输入输出类型</strong>：FP16；</li>
+<li><strong><code>eps</code></strong>：<span class="arithmatex">\(10^{-6}\)</span>；</li>
+<li><strong>指标</strong>：被测 kernel 的 <code>Task Duration(us)</code>（来自 <code>msprof op</code> 的结果，热身 10 次）。</li>
+</ul>
+<p>基于我们的基线和优化结果，目前的评分曲线如下（对数曲线）：</p>
+<figure>
+  <a class="glightbox" href="image/score.png" data-type="image"><img src="image/score.png" alt="性能评分曲线" style="width: 100%; height: auto;"></a>
+<br />
+<figcaption>性能评分曲线（横轴为 kernel 耗时，纵轴为得分）。</figcaption>
+</figure>
+<p>我们提供的 Ascend C 基线性能为起始评分点，满分 120 分，超出的 20 分将作为 Bonus。</p>
+<h2 id="实验报告要求">实验报告要求<a class="headerlink" href="#实验报告要求" title="Permanent link">&para;</a></h2>
+<p>实验报告提交 PDF，重点说明你如何从测量得到优化决策，不需要重复大段背景知识或 API 文档。报告至少应包含：</p>
+<ul>
+<li>使用的开发路径、测试环境、软件版本和运行命令；</li>
+<li>算子的计算过程、数据依赖和初始实现；</li>
+<li>baseline 的正确性、性能数据和 profiling 证据；</li>
+<li>每项主要优化针对的瓶颈、关键修改及其收益；</li>
+<li>最终正确性结果和性能结果；</li>
+<li>尝试过但未采用的方案及原因；</li>
+<li><a href="#思考题">思考题</a>作答；</li>
+<li>参考过的资料或开源实现。</li>
+</ul>
+<p>较长的代码、完整 profiler 输出和构建日志不必全部放入正文，只需保留能够支持结论的部分。</p>
+<div class="admonition tip">
+<p class="admonition-title">失败尝试也值得记录</p>
+<p>没有带来加速的尝试可以帮助说明原先的瓶颈判断、优化的副作用，或不同指标之间的取舍。</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">关于 AI 使用</p>
+<p>本实验允许使用 AI Agent 辅助开发和理解资料，但最终报告应由你自行组织和核实，禁止使用 AI 生成。</p>
+</div>
+<h2 id="思考题">思考题<a class="headerlink" href="#思考题" title="Permanent link">&para;</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">这里可能没有标准答案</p>
+<p>部分思考题可能没有一个标准的正确答案。我们更希望看到你在实验过程中遇到的实际情况以及你个人的思考和理解，即使可能存在错误。</p>
+</div>
+<ol>
+<li>对 <span class="arithmatex">\([256,1024]\)</span>、FP16 配置，估算算子必须进行的 GM 读写量和主要浮点操作数。说明你的计数口径，计算算术强度，并结合 <code>msprof</code> 结果判断实现更接近计算瓶颈还是访存瓶颈。</li>
+<li>你的算子是否开启了 Double Buffer 流水？请你通过 <code>msprof op simulator</code> 的结果向我们证明。如果你开启了双缓冲流水，请说明你是显示编写了依赖还是让编译器自动识别开启的？</li>
+<li>（Bonus）我们讲到了 <code>TQue</code> 相关的概念，结合你对相关文献的阅读和实际的编程以及 Profiling 体验，<code>TQue</code> 本身是否是一个真实存在的队列？我们在 <code>EnQue</code> 和 <code>DeQue</code> 时相关的 LocalTensor 是否发生了在队列之间的拷贝或移动？</li>
+<li>（Bonus）今年第一季度，华为正式推出了新一代 NPU Ascend 950PR，引入了很多新的变化。请阅读相关资料，向我们展示一下相比 910 系列，950PR 带来了哪些新的硬件特性？你也可以比较昇腾 NPU（910B 系列）与 NVIDIA GPU 在硬件设计理念，开发语言等方面的异同。或者搜索一下一代代昇腾 NPU 和 NVIDIA GPU 的迭代过程，你有什么发现？</li>
+<li>（Bonus）今年是我们首次将 NVIDIA GPU 以外的其他异构计算平台引入到课程和实验中，欢迎你给我们分享你的体验，对于昇腾 NPU 的使用体验或者相关开发语言（Ascend C、Triton-ascend、TileLang-ascend）的使用体验等（锐评也可以，不会扣分的！）。</li>
+</ol>
+<h2 id="提交要求">提交要求<a class="headerlink" href="#提交要求" title="Permanent link">&para;</a></h2>
+<p>需要提交：</p>
+<ol>
+<li><strong>实现代码</strong>：所选开发路径对应的完整目录；</li>
+<li><strong>实验报告</strong>：单独的 PDF 文件。</li>
+</ol>
+<p>请在课程平台对应的 Lab 3.5 任务中分别上传代码目录和报告 PDF；具体文件名与上传入口以任务开放时的页面说明为准。</p>
+<p>代码上传规则如下：</p>
+<table>
+<thead>
+<tr>
+<th>开发路径</th>
+<th>上传目录</th>
+<th>平台放置位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ascend C</td>
+<td><code>src/ascendc/</code></td>
+<td><code>src/ascendc/</code></td>
+</tr>
+<tr>
+<td>Triton-Ascend</td>
+<td><code>src/triton/</code></td>
+<td><code>src/triton/</code></td>
+</tr>
+<tr>
+<td>TileLang-Ascend</td>
+<td><code>src/tilelang/</code></td>
+<td><code>src/tilelang/</code></td>
+</tr>
+</tbody>
+</table>
+<p>新增辅助文件必须位于所选路径目录内，并保证代码能在课程提供的干净环境中构建和运行。</p>
+<p>请勿提交：</p>
+<ul>
+<li><code>checker/</code>、<code>env.sh</code> 或对这些文件的修改；</li>
+<li><code>build_out/</code>、<code>dist/</code>、wheel、custom OPP 安装目录等构建产物；</li>
+<li><code>PROF*</code>、<code>op_prof/</code>、<code>op_sim/</code>、<code>prof_out/</code> 等 profiling 原始目录；</li>
+<li>测试数据、缓存或其他与实现无关的大文件。</li>
+</ul>
+<h2 id="参考资料">参考资料<a class="headerlink" href="#参考资料" title="Permanent link">&para;</a></h2>
+<h3 id="算法与参考实现">算法与参考实现<a class="headerlink" href="#算法与参考实现" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://arxiv.org/abs/1910.07467">Root Mean Square Layer Normalization</a></li>
+<li><a href="https://github.com/flashinfer-ai/flashinfer">FlashInfer: Kernel Library for LLM Serving</a></li>
+<li><a href="https://docs.flashinfer.ai/generated/flashinfer.norm.fused_add_rmsnorm.html">FlashInfer <code>fused_add_rmsnorm</code> 文档</a></li>
+</ul>
+<h3 id="ascend-c-与性能分析">Ascend C 与性能分析<a class="headerlink" href="#ascend-c-与性能分析" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://www.hiascend.com/document/detail/zh/canncommercial/80RC31alpha001/devguide/ascendc">Ascend C 开发文档</a></li>
+<li><a href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/latest/API/ascendcopapi/atlasascendc_api_07_0003.html">Ascend C API 参考</a></li>
+<li><a href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/850alpha002/opdevg/ascendcbestP/atlas_ascendc_best_practices_10_0031.html">Ascend C 最佳实践</a></li>
+<li><a href="https://www.hiascend.com/document/detail/en/canncommercial/850/devaids/optool/atlasopdev_16_0082.html">msProf 算子调优工具</a></li>
+<li><a href="https://www.hiascend.com/software/cann">CANN 软件下载与文档</a></li>
+</ul>
+<h3 id="其他开发路径">其他开发路径<a class="headerlink" href="#其他开发路径" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://triton-lang.org/">Triton 文档</a></li>
+<li><a href="https://github.com/triton-ascend/triton-ascend">triton-ascend</a></li>
+<li><a href="https://tilelang.com/">TileLang 文档</a></li>
+<li><a href="https://github.com/tile-ai/tilelang-ascend">tilelang-ascend</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../Lab3-GDN-Prefill/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lab 3: GDN Prefill 前向优化">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Lab 3: GDN Prefill 前向优化
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../Lab4-AMSS-NCKU/" class="md-footer__link md-footer__link--next" aria-label="Next: Lab 4: AMSS-NCKU 数值相对论程序优化">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Lab 4: AMSS-NCKU 数值相对论程序优化
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.action.edit","content.code.annotate","content.code.copy","content.code.select","navigation.expand","navigation.footer","navigation.instant","navigation.instant.prefetch","navigation.instant.progress","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight","search.share","search.suggest","toc.follow"],"search":"../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6e5f0216.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="../../javascripts/v86-init.js"></script>
+      
+    
+  </body>
+</html>

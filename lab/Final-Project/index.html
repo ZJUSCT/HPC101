@@ -1,0 +1,2028 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="浙江大学计算机学院暑期课程 HPC101 实验网站">
+      
+      
+        <meta name="author" content="ZJUSCT">
+      
+      
+        <link rel="canonical" href="https://hpc101.zjusct.io/lab/Final-Project/">
+      
+      
+        <link rel="prev" href="../Lab5-Gemma4/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/zjusct-hpc101.svg">
+      <meta name="generator" content="zensical-0.0.43">
+    
+    
+      
+        <title>Final Project 大作业 - HPC101</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.fba56155.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/fonts.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/counter.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/theme.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/neoteroi-v1.1.2.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  <script>
+    (function () {
+      try {
+        var saved = (typeof __md_get === "function") ? __md_get("__palette") : null;
+        var scheme;
+        if (saved && saved.color && saved.color.media) {
+          if (saved.color.media === "(prefers-color-scheme)") {
+            scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+          } else {
+            scheme = saved.color.scheme;
+          }
+        } else {
+          scheme = matchMedia("(prefers-color-scheme: dark)").matches ? "slate" : "default";
+        }
+        document.documentElement.setAttribute("data-md-color-scheme", scheme);
+        var attach = function () {
+          document.body.setAttribute("data-md-color-scheme", scheme);
+          new MutationObserver(function () {
+            var s = document.body.getAttribute("data-md-color-scheme");
+            if (s) document.documentElement.setAttribute("data-md-color-scheme", s);
+          }).observe(document.body, {
+            attributes: true,
+            attributeFilter: ["data-md-color-scheme"],
+          });
+        };
+        if (document.body) {
+          attach();
+        } else {
+          new MutationObserver(function (_, obs) {
+            if (document.body) {
+              attach();
+              obs.disconnect();
+            }
+          }).observe(document.documentElement, { childList: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script>
+    // Track keydown listeners added on window so v86 can later remove
+    // Material's global handler that would otherwise capture key presses
+    // intended for the in-browser Linux VM.
+    (function () {
+      window.__v86KeydownListeners = [];
+      var origAdd = window.addEventListener;
+      var origRemove = window.removeEventListener;
+      window.addEventListener = function (type, listener, options) {
+        origAdd.call(this, type, listener, options);
+        if (type === "keydown") {
+          window.__v86KeydownListeners.push({ listener: listener, options: options });
+        }
+      };
+      window.removeEventListener = function (type, listener, options) {
+        origRemove.call(this, type, listener, options);
+        if (type === "keydown") {
+          var i = window.__v86KeydownListeners.findIndex(function (e) {
+            return e.listener === listener;
+          });
+          if (i !== -1) window.__v86KeydownListeners.splice(i, 1);
+        }
+      };
+    })();
+  </script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#final-project-大作业" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HPC101" class="md-header__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HPC101
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Final Project 大作业
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至浅色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至深色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至深色模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="根据系统模式切换主题"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="根据系统模式切换主题" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  课程信息
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guide/" class="md-tabs__link">
+          
+  
+  集群使用
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Lab0-LinuxCrashCourse/" class="md-tabs__link">
+          
+  
+  课程实验
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HPC101" class="md-nav__button md-logo" aria-label="HPC101" data-md-component="logo">
+      <span class="md-logo__variant md-logo__variant--light">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-clear.svg"
+    alt="HPC101"
+  >
+</span>
+<span class="md-logo__variant md-logo__variant--dark">
+  <img
+    class="md-logo__image"
+    src="../../assets/zjusct-wide-dark-clear.svg"
+    alt="HPC101"
+  >
+</span>
+    </a>
+    HPC101
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ZJUSCT/HPC101" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ZJUSCT/HPC101
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程信息
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程信息
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  欢迎来到 HPC 101 超算短学期
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../enroll/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  报名与选课
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sponsors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  支持单位
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群使用
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  集群使用
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  登录平台
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/job/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交计算任务
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/submit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  提交实验报告
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/oj/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  在线测评 OJ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  集群概况
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  课程实验
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  课程实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab0-LinuxCrashCourse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 0: Linux 快速入门
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab1-MiniCluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 1: 简单集群搭建
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab2-Vectorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 2: MoE 的向量化计算
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab3-GDN-Prefill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3: GDN Prefill 前向优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab3.5-AscendC-Op/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 3.5: 昇腾算子开发与优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab4-AMSS-NCKU/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4: AMSS-NCKU 数值相对论程序优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab4.5-INT8-FP64-GEMM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 4.5: INT8 张量核模拟 FP64 GEMM
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Lab5-Gemma4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Lab 5: Gemma4 端到端推理优化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Final Project: 大作业
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Final Project: 大作业
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#导言" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        导言
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#算力资源获取" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        算力资源获取
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="算力资源获取">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#步骤一报名参赛" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        步骤一：报名参赛
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#步骤二开通集群账号" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        步骤二：开通集群账号
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#步骤三登录集群" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        步骤三：登录集群
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验要求
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验要求">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#提交要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#题目一conv--二维卷积优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        题目一：CONV —— 二维卷积优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="题目一：CONV —— 二维卷积优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#题目介绍" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        题目介绍
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#测试用例" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        测试用例
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#题目二trsm--三角方程组求解优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        题目二：TRSM —— 三角方程组求解优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="题目二：TRSM —— 三角方程组求解优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#题目介绍_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        题目介绍
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验任务_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#测试用例_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        测试用例
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#题目三zgemm--复数矩阵乘法优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        题目三：ZGEMM —— 复数矩阵乘法优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="题目三：ZGEMM —— 复数矩阵乘法优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#题目介绍_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        题目介绍
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验任务_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#测试用例_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        测试用例
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#评分方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评分方式
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#导言" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        导言
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#算力资源获取" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        算力资源获取
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="算力资源获取">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#步骤一报名参赛" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        步骤一：报名参赛
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#步骤二开通集群账号" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        步骤二：开通集群账号
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#步骤三登录集群" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        步骤三：登录集群
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#实验要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验要求
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验要求">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#提交要求" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        提交要求
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#题目一conv--二维卷积优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        题目一：CONV —— 二维卷积优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="题目一：CONV —— 二维卷积优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#题目介绍" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        题目介绍
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验任务" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#测试用例" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        测试用例
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#题目二trsm--三角方程组求解优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        题目二：TRSM —— 三角方程组求解优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="题目二：TRSM —— 三角方程组求解优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#题目介绍_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        题目介绍
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验任务_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#测试用例_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        测试用例
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#题目三zgemm--复数矩阵乘法优化" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        题目三：ZGEMM —— 复数矩阵乘法优化
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="题目三：ZGEMM —— 复数矩阵乘法优化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#题目介绍_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        题目介绍
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实验任务_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        实验任务
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实验任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#测试用例_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        测试用例
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#评分方式" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        评分方式
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/ZJUSCT/HPC101/blob/main/docs/lab/Final-Project/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="final-project-大作业">Final Project 大作业<a class="headerlink" href="#final-project-大作业" title="Permanent link">&para;</a></h1>
+<div class="admonition tip 重要通知">
+<p class="admonition-title">Tip</p>
+<p>大作业截止日期另行通知，请务必在截止日期前提交。答辩目前定于 <strong>9 月 2 日</strong>，具体安排后续通知。</p>
+</div>
+<h2 id="导言">导言<a class="headerlink" href="#导言" title="Permanent link">&para;</a></h2>
+<p>本次大作业为参加<a href="https://www.hikunpeng.com/developer/contests/details/bbb369de3db64a8eac4c84731f65fd53?module=045f13ddf1b74c4e800f18110be31382">鲲鹏高性能计算全球挑战赛（S2赛季）</a>。比赛包含三道独立赛题，分别考察<strong>卷积计算（CONV）</strong>、<strong>三角方程组求解（TRSM）</strong>和<strong>复数矩阵乘法（ZGEMM）</strong>的优化能力。三道题目均在鲲鹏 920F 平台上运行，要求在保证数值正确性的前提下最大化性能（GFLOPS）。</p>
+<p>三道赛题<strong>均需完成</strong>。每道题目的源码包可从以下链接下载：</p>
+<table>
+<thead>
+<tr>
+<th>赛题</th>
+<th>源码下载</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONV（卷积优化）</td>
+<td><a href="https://public-download.obs.cn-east-2.myhuaweicloud.com/kunpeng/conv.zip">conv.zip</a></td>
+</tr>
+<tr>
+<td>TRSM（三角求解优化）</td>
+<td><a href="https://public-download.obs.cn-east-2.myhuaweicloud.com/kunpeng/trsm.zip">trsm.zip</a></td>
+</tr>
+<tr>
+<td>ZGEMM（复数矩阵乘法优化）</td>
+<td><a href="https://public-download.obs.cn-east-2.myhuaweicloud.com/kunpeng/zgemm.zip">zgemm.zip</a></td>
+</tr>
+</tbody>
+</table>
+<p>本次大作业需要各组就优化内容进行<strong>答辩</strong>，答辩目前定于 <strong>9 月 2 日</strong>，形式暂定为线上讲解，包括 7 分钟 PPT 展示、3 分钟提问，具体安排后续通知。</p>
+<h2 id="算力资源获取">算力资源获取<a class="headerlink" href="#算力资源获取" title="Permanent link">&para;</a></h2>
+<p>鲲鹏挑战赛使用国家超级计算深圳中心（深超算）的鲲鹏 920F 集群。获取算力资源需要完成以下三个步骤：</p>
+<h3 id="步骤一报名参赛">步骤一：报名参赛<a class="headerlink" href="#步骤一报名参赛" title="Permanent link">&para;</a></h3>
+<p>前往<a href="https://www.hikunpeng.com/developer/contests/details/bbb369de3db64a8eac4c84731f65fd53?module=73f97ae0254849a0ae55e8d6c32c1c29">鲲鹏高性能计算全球挑战赛 S2 赛季报名页面</a>，点击报名并填写资料（需填写<strong>真实的姓名与学校</strong>）。</p>
+<p><a class="glightbox" data-type="image" href="image/image001.png"><img alt="报名页面" src="image/image001.png" /></a></p>
+<h3 id="步骤二开通集群账号">步骤二：开通集群账号<a class="headerlink" href="#步骤二开通集群账号" title="Permanent link">&para;</a></h3>
+<p>签署 <a href="files/用户模板-VPN账号安全使用承诺书.docx">VPN 账号安全使用承诺书</a>（注意需要<strong>手写签名</strong>后提供 PDF 版本），连同真实姓名与手机号码一并发送至邮箱 <code>chenhuiyi6@h-partners.com</code>。账号开通后会以邮箱形式反馈账号密码。</p>
+<h3 id="步骤三登录集群">步骤三：登录集群<a class="headerlink" href="#步骤三登录集群" title="Permanent link">&para;</a></h3>
+<p>下载并安装 <a href="https://vpn.nsccsz.cn/portal/#/login">aTrust 客户端</a>，根据 <a href="files/外部用户访问深圳超算力指引.docx">外部用户访问深圳超算力指引</a> 登录后即可访问集群。</p>
+<h2 id="实验要求">实验要求<a class="headerlink" href="#实验要求" title="Permanent link">&para;</a></h2>
+<h3 id="提交要求">提交要求<a class="headerlink" href="#提交要求" title="Permanent link">&para;</a></h3>
+<p>请在截止日期前将大作业的所有提交内容压缩为 zip 格式，提交到学在浙大上，每个小组仅需组长提交一份，提交时请确保压缩包内包含以下内容：</p>
+<ul>
+<li>每道赛题的文件夹下：<ul>
+<li>一份 <code>README.md</code> 文件，说明如何编译和运行代码；</li>
+<li>修改后的源文件（<code>conv2d.c</code> / <code>trsm.c</code> / <code>zgemm.c</code>）和运行脚本；</li>
+<li>最终运行结果截图或命令行输出。</li>
+</ul>
+</li>
+<li>一份 20 页以内的实验报告 PDF（请不要复制粘贴具体代码，可以结合伪代码说明），应至少包含以下内容：<ul>
+<li>成员姓名和学号；</li>
+<li>优化方法和思路；</li>
+<li>最终运行结果截图；</li>
+<li>每一步优化的加速效果和分析。</li>
+</ul>
+</li>
+<li>一份答辩 PPT。</li>
+</ul>
+<p>提交的目录结构应如下所示：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>project
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── CONV
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── README.md
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   ├── conv2d.c
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   └── other necessary files
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>├── TRSM
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   ├── README.md
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── trsm.c
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   └── other necessary files
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>├── ZGEMM
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   ├── README.md
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│   ├── zgemm.c
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│   └── other necessary files
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>├── report.pdf
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>└── presentation.pptx
+</span></code></pre></div>
+<h2 id="题目一conv--二维卷积优化">题目一：CONV —— 二维卷积优化<a class="headerlink" href="#题目一conv--二维卷积优化" title="Permanent link">&para;</a></h2>
+<h3 id="题目介绍">题目介绍<a class="headerlink" href="#题目介绍" title="Permanent link">&para;</a></h3>
+<p>卷积计算在深度学习和信号处理中广泛应用。给定输入图像（<code>float</code> 精度）和卷积核，通过卷积核在输入图像上滑动计算加权求和，得到输出特征图。</p>
+<p>基线实现为朴素四重循环，仅在外层循环使用 OpenMP 并行化：</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">conv2d</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">inputHeight</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">inputWidth</span><span class="p">,</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">            </span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">kernel</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">kernelHeight</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">kernelWidth</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">output</span><span class="p">)</span>
+</span></code></pre></div>
+<p>输出尺寸为 <code>(inputHeight - kernelHeight + 1) × (inputWidth - kernelWidth + 1)</code>，每个输出元素的计算量为 <code>kernelHeight × kernelWidth × 2</code> 次浮点运算。</p>
+<h3 id="实验任务">实验任务<a class="headerlink" href="#实验任务" title="Permanent link">&para;</a></h3>
+<p>在本实验中，正确但未经优化的基准代码已经提供，您将被要求对其进行优化以提高性能。下载 <a href="https://public-download.obs.cn-east-2.myhuaweicloud.com/kunpeng/conv.zip">conv.zip</a> 获取源码。本实验只需要修改 <code>conv2d.c</code>，<code>bench_conv.c</code> 不可修改。</p>
+<h4 id="测试用例">测试用例<a class="headerlink" href="#测试用例" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>用例</th>
+<th>图像尺寸</th>
+<th>卷积核尺寸</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>4096 × 6144</td>
+<td>39 × 39</td>
+</tr>
+<tr>
+<td>2</td>
+<td>6144 × 4096</td>
+<td>41 × 41</td>
+</tr>
+<tr>
+<td>3</td>
+<td>4256 × 6390</td>
+<td>55 × 55</td>
+</tr>
+<tr>
+<td>4</td>
+<td>6390 × 4256</td>
+<td>81 × 81</td>
+</tr>
+</tbody>
+</table>
+<p>运行方式：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">38</span><span class="w"> </span>numactl<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>./conv2d_test<span class="w"> </span><span class="m">4096</span><span class="w"> </span><span class="m">6144</span><span class="w"> </span><span class="m">39</span><span class="w"> </span><span class="m">39</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">38</span><span class="w"> </span>numactl<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>./conv2d_test<span class="w"> </span><span class="m">6144</span><span class="w"> </span><span class="m">4096</span><span class="w"> </span><span class="m">41</span><span class="w"> </span><span class="m">41</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">38</span><span class="w"> </span>numactl<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>./conv2d_test<span class="w"> </span><span class="m">4256</span><span class="w"> </span><span class="m">6390</span><span class="w"> </span><span class="m">55</span><span class="w"> </span><span class="m">55</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">38</span><span class="w"> </span>numactl<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>./conv2d_test<span class="w"> </span><span class="m">6390</span><span class="w"> </span><span class="m">4256</span><span class="w"> </span><span class="m">81</span><span class="w"> </span><span class="m">81</span><span class="w"> </span><span class="m">1</span>
+</span></code></pre></div>
+<p>参数依次为 <code>rows cols kernel_rows kernel_cols test_runs</code>。正确性容差为 <code>1e-5</code>。</p>
+<h2 id="题目二trsm--三角方程组求解优化">题目二：TRSM —— 三角方程组求解优化<a class="headerlink" href="#题目二trsm--三角方程组求解优化" title="Permanent link">&para;</a></h2>
+<h3 id="题目介绍_1">题目介绍<a class="headerlink" href="#题目介绍_1" title="Permanent link">&para;</a></h3>
+<p>三角方程组求解（TRSM）是线性代数中的基本操作，广泛用于矩阵分解、最小二乘求解等场景。给定下三角矩阵 <span class="arithmatex">\(L\)</span> 和右侧矩阵 <span class="arithmatex">\(B\)</span>，求解 <span class="arithmatex">\(LX = B\)</span>。</p>
+<p>基线实现为逐列前代法，OpenMP 在列维度上并行：</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">l_trsm</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">lda</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ldb</span><span class="p">)</span>
+</span></code></pre></div>
+<p>其中 <span class="arithmatex">\(L\)</span> 为 <span class="arithmatex">\(m \times m\)</span> 的下三角矩阵，<span class="arithmatex">\(B\)</span> 为 <span class="arithmatex">\(m \times n\)</span> 的右侧矩阵，均为 <code>double</code> 精度。该函数的浮点运算量为 <span class="arithmatex">\(m^2 \times n\)</span>。</p>
+<h3 id="实验任务_1">实验任务<a class="headerlink" href="#实验任务_1" title="Permanent link">&para;</a></h3>
+<p>在本实验中，您将被要求优化 <code>l_trsm</code> 函数的性能。下载 <a href="https://public-download.obs.cn-east-2.myhuaweicloud.com/kunpeng/trsm.zip">trsm.zip</a> 获取源码。本实验只需要修改 <code>trsm.c</code>，<code>bench_trsm.c</code> 不可修改。编译时需要链接 <code>-lkblas</code>。</p>
+<h4 id="测试用例_1">测试用例<a class="headerlink" href="#测试用例_1" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>用例</th>
+<th>M</th>
+<th>N</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>512</td>
+<td>19968</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2432</td>
+<td>17024</td>
+</tr>
+<tr>
+<td>3</td>
+<td>17024</td>
+<td>512</td>
+</tr>
+</tbody>
+</table>
+<p>运行方式：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">38</span><span class="w"> </span>numactl<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>./trsm_test<span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="m">19968</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">38</span><span class="w"> </span>numactl<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>./trsm_test<span class="w"> </span><span class="m">2432</span><span class="w"> </span><span class="m">17024</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">38</span><span class="w"> </span>numactl<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>./trsm_test<span class="w"> </span><span class="m">17024</span><span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="m">1</span>
+</span></code></pre></div>
+<p>参数依次为 <code>m n test_runs</code>。正确性容差为 <code>1e-12</code>。</p>
+<h2 id="题目三zgemm--复数矩阵乘法优化">题目三：ZGEMM —— 复数矩阵乘法优化<a class="headerlink" href="#题目三zgemm--复数矩阵乘法优化" title="Permanent link">&para;</a></h2>
+<h3 id="题目介绍_2">题目介绍<a class="headerlink" href="#题目介绍_2" title="Permanent link">&para;</a></h3>
+<p>复数矩阵乘法在量子计算、信号处理等领域有重要应用。计算 <span class="arithmatex">\(C = \alpha \cdot A \times B + \beta \cdot C\)</span>，其中 <span class="arithmatex">\(A\)</span> 为 <span class="arithmatex">\(M \times K\)</span>，<span class="arithmatex">\(B\)</span> 为 <span class="arithmatex">\(K \times N\)</span>，<span class="arithmatex">\(C\)</span> 为 <span class="arithmatex">\(M \times N\)</span>，均为 <code>double _Complex</code> 精度。</p>
+<p>基线实现为标准三重循环，支持行主序/列主序和转置选项。竞赛测试仅使用行主序、无转置（<code>CblasRowMajor, CblasNoTrans, CblasNoTrans</code>）：</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">cblas_zgemm</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">CBLAS_ORDER</span><span class="w"> </span><span class="n">Order</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">CBLAS_TRANSPOSE</span><span class="w"> </span><span class="n">TransA</span><span class="p">,</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">                 </span><span class="k">const</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">CBLAS_TRANSPOSE</span><span class="w"> </span><span class="n">TransB</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">N</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">                 </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">K</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">alpha</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">lda</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">                 </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ldb</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">beta</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ldc</span><span class="p">)</span>
+</span></code></pre></div>
+<p>复数矩阵乘法的浮点运算量为 <span class="arithmatex">\(8 \times M \times N \times K\)</span>。</p>
+<h3 id="实验任务_2">实验任务<a class="headerlink" href="#实验任务_2" title="Permanent link">&para;</a></h3>
+<p>在本实验中，您将被要求优化 <code>cblas_zgemm</code> 函数的性能。下载 <a href="https://public-download.obs.cn-east-2.myhuaweicloud.com/kunpeng/zgemm.zip">zgemm.zip</a> 获取源码。本实验只需要修改 <code>zgemm.c</code>，<code>bench_zgemm.c</code> 不可修改。</p>
+<h4 id="测试用例_2">测试用例<a class="headerlink" href="#测试用例_2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>用例</th>
+<th>M</th>
+<th>N</th>
+<th>K</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>7427</td>
+<td>7427</td>
+<td>256</td>
+</tr>
+<tr>
+<td>2</td>
+<td>14848</td>
+<td>14848</td>
+<td>256</td>
+</tr>
+<tr>
+<td>3</td>
+<td>37360</td>
+<td>8192</td>
+<td>512</td>
+</tr>
+</tbody>
+</table>
+<p>运行方式：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">38</span><span class="w"> </span>numactl<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>./zgemm_test<span class="w"> </span><span class="m">7427</span><span class="w"> </span><span class="m">7427</span><span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">38</span><span class="w"> </span>numactl<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>./zgemm_test<span class="w"> </span><span class="m">14848</span><span class="w"> </span><span class="m">14848</span><span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">38</span><span class="w"> </span>numactl<span class="w"> </span>-N<span class="w"> </span><span class="m">1</span><span class="w"> </span>./zgemm_test<span class="w"> </span><span class="m">37360</span><span class="w"> </span><span class="m">8192</span><span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="m">1</span>
+</span></code></pre></div>
+<p>参数依次为 <code>M N K test_runs</code>。正确性容差为 <code>1e-10</code>。</p>
+<h2 id="评分方式">评分方式<a class="headerlink" href="#评分方式" title="Permanent link">&para;</a></h2>
+<p>大作业评分将参考各赛题的最终性能（GFLOPS）和优化思路等因素综合评定，不唯性能指标论。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../Lab5-Gemma4/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lab 5: Gemma4 端到端推理优化">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Lab 5: Gemma4 端到端推理优化
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      ZJUSCT
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.action.edit","content.code.annotate","content.code.copy","content.code.select","navigation.expand","navigation.footer","navigation.instant","navigation.instant.prefetch","navigation.instant.progress","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight","search.share","search.suggest","toc.follow"],"search":"../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6e5f0216.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/polyfill/index.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/tablesort/dist/tablesort.min.js"></script>
+      
+        <script src="../../javascripts/tablesort.js"></script>
+      
+        <script src="../../javascripts/v86-init.js"></script>
+      
+    
+  </body>
+</html>
