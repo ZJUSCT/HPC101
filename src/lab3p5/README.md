@@ -41,7 +41,9 @@ hpc submit -p lab3p5 -e LANG=tilelang bash checker/profile.sh
 - `hpc submit -p lab3p5 bash checker/run.sh 2` 可单独运行 case 2，即 `256×1024`。
 - `checker/profile.sh` 只测试并输出 student 算子的性能。
 - 性能测试固定使用 case 2（`256×1024`），不接受 case 参数。
-- 性能采集使用 `msprof op --warm-up=10`，最终输出一次 `Task Duration(us)`。
+- 性能采集使用
+  `msprof op --warm-up=10 --kernel-name=<student-kernel> --launch-count=1`，
+  明确选择当前后端的 fused kernel，最终输出一次 `Task Duration(us)`。
 
 ## 提交代码
 

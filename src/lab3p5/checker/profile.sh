@@ -35,6 +35,40 @@ PROFILE_CASE_NUM=2
 PROFILE_SHAPE="256x1024"
 PYTHON_BIN="$(python3 -c 'import sys; print(sys.executable)')"
 
+resolve_ascendc_kernel_name() {
+    local metadata_dir
+    metadata_dir="$CUSTOM_OPP_HOME/vendors/customize/op_impl/ai_core/tbe/kernel/ascend910b/fused_add_rms_norm"
+    local metadata_files=()
+    mapfile -t metadata_files < <(
+        find "$metadata_dir" -maxdepth 1 -type f -name 'FusedAddRmsNorm_*.json' -print 2>/dev/null | sort
+    )
+    if (( ${#metadata_files[@]} != 1 )); then
+        echo "[ERROR] expected one FusedAddRmsNorm kernel metadata file under $metadata_dir, found ${#metadata_files[@]}" >&2
+        return 1
+    fi
+
+    python3 - "${metadata_files[0]}" <<'PY'
+import json
+from pathlib import Path
+import re
+import sys
+
+metadata_path = Path(sys.argv[1])
+metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+kernel_list = metadata.get("kernelList")
+names = []
+if isinstance(kernel_list, list):
+    names = [
+        entry.get("kernelName")
+        for entry in kernel_list
+        if isinstance(entry, dict) and isinstance(entry.get("kernelName"), str)
+    ]
+if len(names) != 1 or re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]{0,255}", names[0]) is None:
+    raise SystemExit(f"invalid runtime kernel name in {metadata_path}")
+print(names[0])
+PY
+}
+
 # Ascend C needs the op + wheel installed in the current HPC container. A wheel
 # left in the shared directory by an earlier job does not imply that its Python
 # extension is installed in this fresh container.
@@ -47,13 +81,24 @@ if (( NEED_BUILD )); then
     source "$ROOT/env.sh"
 fi
 
+# Select the fused operator explicitly. Without --kernel-name, msprof op may
+# collect an initialization or backend helper kernel that launches first.
+case "$BACKEND" in
+  ascendc) KERNEL_NAME="$(resolve_ascendc_kernel_name)" ;;
+  triton)  KERNEL_NAME="_fused_add_rmsnorm_kernel" ;;
+  tilelang) KERNEL_NAME="addrmsnorm" ;;
+esac
+
 echo "############################## STUDENT OP ($BACKEND) ##############################"
 echo "=== [profile] student:$BACKEND case $PROFILE_CASE_NUM ($PROFILE_SHAPE) under msprof op ==="
+echo "[profile] kernel selector: $KERNEL_NAME"
 PROF_DIR="prof_out"
 rm -rf "$PROF_DIR"
 mkdir -p "$PROF_DIR"
 if ! LANG="$BACKEND" timeout 180 msprof op \
     --warm-up=10 \
+    --kernel-name="$KERNEL_NAME" \
+    --launch-count=1 \
     --output="$ROOT/$PROF_DIR" \
     "$PYTHON_BIN" checker/test_op.py --profile "$PROFILE_CASE_NUM"; then
     echo "[ERROR] msprof op failed for student:$BACKEND" >&2
