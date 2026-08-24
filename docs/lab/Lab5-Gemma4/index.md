@@ -716,7 +716,7 @@ Prefill 通常处理多个 token，计算量明显大于单步 decode。如果�
 ├── report.pdf
 └── results/
     ├── gptq-public-quality.json         # 精度评测结果
-    ├── gptq-public-performance.json     # 性能测试输出
+    ├── gptq-public-performance.jsonl    # 性能测试输出
     └── gptq-public-summary.json         # 性能评测结果
 ```
 
