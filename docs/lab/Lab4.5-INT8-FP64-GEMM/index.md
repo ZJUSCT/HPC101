@@ -207,17 +207,17 @@ make
 
 ```bash
 # 交互式调试
-hpc submit -p lab4g10 -g 1 --interactive bash
+hpc submit -p lab5 -g 1 --interactive bash
 
 # 在计算节点上运行 benchmark（默认测试 splits=2,4,6,8）
-hpc submit -p lab4g10 -g 1 "./benchmark 1024,2048,4096 2,4,6,8 5"
+hpc submit -p lab5 -g 1 "./benchmark 1024,2048,4096 2,4,6,8 5"
 
 # 导出 CSV
-hpc submit -p lab4g10 -g 1 "./benchmark 4096,8192 2,4,6,8 10 --csv > results.csv"
+hpc submit -p lab5 -g 1 "./benchmark 4096,8192 2,4,6,8 10 --csv > results.csv"
 
 # 使用 ncu / nsys 分析性能
-hpc submit -p lab4g10 -g 1 "ncu -o profile ./benchmark 4096 4 1"
-hpc submit -p lab4g10 -g 1 "nsys profile -o trace ./benchmark 4096 4 1"
+hpc submit -p lab5 -g 1 "ncu -o profile ./benchmark 4096 4 1"
+hpc submit -p lab5 -g 1 "nsys profile -o trace ./benchmark 4096 4 1"
 ```
 
 `benchmark` 程序对每个矩阵规模和 splits 组合运行所有实现，输出吞吐量（GFLOPS）和相对 `fp64_cublas` 参考结果的 L2 相对误差。每个实现先跑一次预热并同步，再计时 `iters` 次取平均值。使用 `--csv` 输出表头为 `size_M,size_N,size_K,method,splits,time_ms,gflops,max_abs_err,l2_rel_err` 的 CSV 格式表格。
