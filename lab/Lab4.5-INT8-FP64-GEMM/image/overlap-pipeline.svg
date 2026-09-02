@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="460" viewBox="0 0 1200 460" role="img" aria-label="串行执行与双缓冲流水线对比">
+  <defs>
+    <style>
+      .label{font:600 17px -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;fill:#0f172a}
+      .small{font:14px -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;fill:#334155}
+      .tick{stroke:#cbd5e1;stroke-width:1}
+    </style>
+  </defs>
+  <rect width="1200" height="460" fill="#f8fafc"/>
+
+  <text x="50" y="27" class="label">串行执行</text>
+  <text x="50" y="98" class="small">搬运</text>
+  <text x="50" y="148" class="small">计算</text>
+  <text x="50" y="198" class="small">重组</text>
+  <line x1="130" y1="48" x2="1145" y2="48" stroke="#64748b" stroke-width="2"/>
+  <g class="tick">
+    <line x1="130" y1="43" x2="130" y2="215"/><line x1="300" y1="43" x2="300" y2="215"/>
+    <line x1="470" y1="43" x2="470" y2="215"/><line x1="640" y1="43" x2="640" y2="215"/>
+    <line x1="810" y1="43" x2="810" y2="215"/><line x1="980" y1="43" x2="980" y2="215"/>
+    <line x1="1145" y1="43" x2="1145" y2="215"/>
+  </g>
+  <rect x="130" y="71" width="165" height="37" rx="7" fill="#60a5fa"/><text x="212.5" y="95" text-anchor="middle" class="small">load tile 0</text>
+  <rect x="470" y="71" width="165" height="37" rx="7" fill="#60a5fa"/><text x="552.5" y="95" text-anchor="middle" class="small">load tile 1</text>
+  <rect x="300" y="121" width="165" height="37" rx="7" fill="#4ade80"/><text x="382.5" y="145" text-anchor="middle" class="small">GEMM tile 0</text>
+  <rect x="640" y="121" width="165" height="37" rx="7" fill="#4ade80"/><text x="722.5" y="145" text-anchor="middle" class="small">GEMM tile 1</text>
+  <rect x="810" y="171" width="165" height="37" rx="7" fill="#f472b6"/><text x="892.5" y="195" text-anchor="middle" class="small">recompose 0</text>
+  <rect x="980" y="171" width="165" height="37" rx="7" fill="#f472b6"/><text x="1062.5" y="195" text-anchor="middle" class="small">recompose 1</text>
+
+  <text x="50" y="263" class="label">双缓冲流水线</text>
+  <text x="50" y="334" class="small">TMA</text>
+  <text x="50" y="384" class="small">WGMMA</text>
+  <text x="50" y="434" class="small">CUDA Core</text>
+  <line x1="130" y1="284" x2="1145" y2="284" stroke="#64748b" stroke-width="2"/>
+  <g class="tick">
+    <line x1="130" y1="279" x2="130" y2="451"/><line x1="300" y1="279" x2="300" y2="451"/>
+    <line x1="470" y1="279" x2="470" y2="451"/><line x1="640" y1="279" x2="640" y2="451"/>
+    <line x1="810" y1="279" x2="810" y2="451"/><line x1="980" y1="279" x2="980" y2="451"/>
+    <line x1="1145" y1="279" x2="1145" y2="451"/>
+  </g>
+  <rect x="130" y="307" width="165" height="37" rx="7" fill="#60a5fa"/><text x="212.5" y="331" text-anchor="middle" class="small">load tile 0 → buf A</text>
+  <rect x="300" y="307" width="165" height="37" rx="7" fill="#93c5fd"/><text x="382.5" y="331" text-anchor="middle" class="small">load tile 1 → buf B</text>
+  <rect x="470" y="307" width="165" height="37" rx="7" fill="#60a5fa"/><text x="552.5" y="331" text-anchor="middle" class="small">load tile 2 → buf A</text>
+  <rect x="300" y="357" width="165" height="37" rx="7" fill="#4ade80"/><text x="382.5" y="381" text-anchor="middle" class="small">GEMM tile 0</text>
+  <rect x="470" y="357" width="165" height="37" rx="7" fill="#86efac"/><text x="552.5" y="381" text-anchor="middle" class="small">GEMM tile 1</text>
+  <rect x="640" y="357" width="165" height="37" rx="7" fill="#4ade80"/><text x="722.5" y="381" text-anchor="middle" class="small">GEMM tile 2</text>
+  <rect x="470" y="407" width="165" height="37" rx="7" fill="#f472b6"/><text x="552.5" y="431" text-anchor="middle" class="small">recompose 0</text>
+  <rect x="640" y="407" width="165" height="37" rx="7" fill="#f9a8d4"/><text x="722.5" y="431" text-anchor="middle" class="small">recompose 1</text>
+  <rect x="810" y="407" width="165" height="37" rx="7" fill="#f472b6"/><text x="892.5" y="431" text-anchor="middle" class="small">recompose 2</text>
+</svg>

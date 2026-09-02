@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="660" viewBox="0 0 1200 660" role="img" aria-labelledby="title desc">
+  <title id="title">CUTLASS 的分层抽象与可调参数</title>
+  <desc id="desc">图中从设备接口、GEMM kernel、collective mainloop 和 epilogue、CuTe 布局与拷贝、Hopper 指令五层展示 CUTLASS 的组成，并列出适用于本实验的定制点。</desc>
+  <defs>
+    <style>
+      .title{font:700 25px -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;fill:#0f172a}
+      .label{font:700 18px -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;fill:#0f172a}
+      .small{font:15px -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;fill:#334155}
+      .code{font:15px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#0f172a}
+    </style>
+  </defs>
+  <rect width="1200" height="660" fill="#f8fafc"/>
+  <text x="50" y="48" class="title">CUTLASS：在性能模板中替换本实验需要的部件</text>
+
+  <rect x="70" y="90" width="720" height="76" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="100" y="121" class="label">Device / Adapter</text><text x="100" y="147" class="small">参数检查、workspace、kernel launch 与统一 API 封装</text>
+  <rect x="105" y="180" width="685" height="76" rx="12" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2"/>
+  <text x="135" y="211" class="label">GEMM Kernel</text><text x="135" y="237" class="small">problem shape、tile/cluster shape、persistent 或常规调度策略</text>
+  <rect x="140" y="270" width="650" height="102" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="170" y="301" class="label">CollectiveMainloop</text><text x="170" y="327" class="small">TMA/cp.async 搬运、pipeline stage、warp-specialized schedule、WGMMA</text>
+  <text x="170" y="352" class="label">CollectiveEpilogue</text><text x="390" y="352" class="small">缩放、类型转换、FP64 重组与写回</text>
+  <rect x="175" y="386" width="615" height="76" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="205" y="417" class="label">CuTe</text><text x="205" y="443" class="small">Tensor/Layout、线程与数据分块、copy atom、MMA atom</text>
+  <rect x="210" y="476" width="580" height="76" rx="12" fill="#fce7f3" stroke="#db2777" stroke-width="2"/>
+  <text x="240" y="507" class="label">Hopper SM90 指令</text><text x="240" y="533" class="code">TMA · mbarrier · WGMMA · shared-memory swizzle</text>
+
+  <rect x="845" y="90" width="300" height="462" rx="16" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="875" y="130" class="label">本实验的定制点</text>
+  <circle cx="882" cy="177" r="6" fill="#2563eb"/><text x="900" y="182" class="small">INT8 × INT8 → INT32</text>
+  <circle cx="882" cy="222" r="6" fill="#4f46e5"/><text x="900" y="227" class="small">列主序 A/B/C 布局</text>
+  <circle cx="882" cy="267" r="6" fill="#16a34a"/><text x="900" y="272" class="small">CTA / cluster tile shape</text>
+  <circle cx="882" cy="312" r="6" fill="#16a34a"/><text x="900" y="317" class="small">pipeline stage count</text>
+  <circle cx="882" cy="357" r="6" fill="#d97706"/><text x="900" y="362" class="small">Shared Memory swizzle</text>
+  <circle cx="882" cy="402" r="6" fill="#db2777"/><text x="900" y="407" class="small">自定义 FP64 epilogue</text>
+  <circle cx="882" cy="447" r="6" fill="#7c3aed"/><text x="900" y="452" class="small">按 M/N/K 与 splits 调参</text>
+  <circle cx="882" cy="492" r="6" fill="#64748b"/><text x="900" y="497" class="small">Profiler / Nsight 验证</text>
+
+  <rect x="70" y="590" width="1075" height="46" rx="10" fill="#e2e8f0"/>
+  <text x="607" y="619" text-anchor="middle" class="small">建议路径：先复用可运行的 SM90 GEMM 模板，再逐步替换 layout、schedule 与 epilogue；每次只改变一个变量。</text>
+</svg>
