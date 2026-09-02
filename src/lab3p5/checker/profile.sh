@@ -96,9 +96,9 @@ PROF_DIR="prof_out"
 rm -rf "$PROF_DIR"
 mkdir -p "$PROF_DIR"
 if ! LANG="$BACKEND" timeout 180 msprof op \
-    --warm-up=10 \
+    --warm-up=20 \
     --kernel-name="$KERNEL_NAME" \
-    --launch-count=1 \
+    --launch-count=100 \
     --output="$ROOT/$PROF_DIR" \
     "$PYTHON_BIN" checker/test_op.py --profile "$PROFILE_CASE_NUM"; then
     echo "[ERROR] msprof op failed for student:$BACKEND" >&2
